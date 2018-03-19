@@ -1,6 +1,6 @@
 #define ExploreTopTagger_cxx
-#include "../include/ExploreTopTagger.h"
-#include "../include/Utility.h"
+#include "Framework/Framework/include/ExploreTopTagger.h"
+#include "Framework/Framework/include/Utility.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -15,7 +15,7 @@
 #include "TopTagger/TopTagger/include/TopTaggerResults.h"
 #include "TopTagger/TopTagger/include/TopTaggerUtilities.h"
 #include "TopTagger/CfgParser/include/TTException.h"
-#include "../include/SetUpTopTagger.h"
+#include "Framework/Framework/include/SetUpTopTagger.h"
 
 void ExploreTopTagger::InitHistos()
 {

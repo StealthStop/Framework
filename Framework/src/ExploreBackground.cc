@@ -1,6 +1,6 @@
 #define ExploreBackground_cxx
-#include "../include/ExploreBackground.h"
-#include "../include/Utility.h"
+#include "Framework/Framework/include/ExploreBackground.h"
+#include "Framework/Framework/include/Utility.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -14,14 +14,14 @@
 #include "TopTagger/TopTagger/include/TopTaggerResults.h"
 #include "TopTagger/TopTagger/include/TopTaggerUtilities.h"
 #include "TopTagger/CfgParser/include/TTException.h"
-#include "../include/SetUpTopTagger.h"
+#include "Framework/Framework/include/SetUpTopTagger.h"
 
 // includes for the event shapes
-#include "../include/bdt_350to650_fwm10_jmtev_top6.h"
-#include "../include/EventShapeVariables.h"
-#include "get_cmframe_jets.c"
-#include "fisher_350to650_fwm10_jmtev_top6.c"
-#include "fisher_350to650_fwm6_jmtev_top6_gt_v2.c"
+#include "Framework/Framework/include/bdt_350to650_fwm10_jmtev_top6.h"
+#include "Framework/Framework/include/EventShapeVariables.h"
+#include "Framework/Framework/src/get_cmframe_jets.c"
+#include "Framework/Framework/src/fisher_350to650_fwm10_jmtev_top6.c"
+#include "Framework/Framework/src/fisher_350to650_fwm6_jmtev_top6_gt_v2.c"
 
 void ExploreBackground::InitHistos()
 {

@@ -21,7 +21,7 @@
 */
 
 //////////#include "DataFormats/Math/interface/Vector3D.h"
-#include "Vector3D.h"
+#include "Framework/Framework/include/Vector3D.h"
 //////////#include "DataFormats/Candidate/interface/Candidate.h"
 //////////#include "DataFormats/Candidate/interface/CandidateFwd.h"
 

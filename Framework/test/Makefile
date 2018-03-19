@@ -1,7 +1,8 @@
 WDIR = .
-IDIR = ../include
 ODIR = obj
-SDIR = ../src
+IDIR = $(CMSSW_BASE)/src/Framework/Framework/include
+SDIR = $(CMSSW_BASE)/src/Framework/Framework/src
+TDIR = $(CMSSW_BASE)/src
 
 OPENCV_DIRECTORY = /uscms_data/d3/nstrobbe/SOFTWARE/opencv
 TTDIR            = $(CMSSW_BASE)/src/TopTagger/
@@ -25,6 +26,8 @@ CXXDEPFLAGS = -MMD -MP
 
 LD         = g++
 LDFLAGS    =
+
+INCLUDES += $(shell $(PYTHONCFG) --includes)
 
 LIBS           = $(shell root-config --glibs)
 LIBSTOPTAGGER += -L$(TTTDIR) -lTopTagger
@@ -54,28 +57,28 @@ $(ODIR)/samplesModulePyWrap.o: $(SDIR)/samplesModule.cc
 	$(CXX) --std=c++11 -c -fPIC -o $@ $<
 
 $(ODIR)/%.o : $(SDIR)/%.C
-	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -I$(TDIR) -I$(IDIR) -I$(SDIR) -o $@ -c $<
 
 $(ODIR)/%.o : $(SDIR)/%.c
-	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -I$(TDIR) -I$(IDIR) -I$(SDIR) -o $@ -c $<
 
 $(ODIR)/%.o : $(SDIR)/%.cc
-	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -I$(TDIR) -I$(IDIR) -I$(SDIR) -o $@ -c $<
 
 $(ODIR)/%.o : $(SDIR)/%.cpp
-	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -I$(TDIR) -I$(IDIR) -I$(SDIR) -o $@ -c $<
 
 $(ODIR)/%.o : $(WDIR)/%.C
-	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -I$(TDIR) -I$(IDIR) -I$(SDIR) -o $@ -c $<
 
 $(ODIR)/%.o : $(WDIR)/%.c
-	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -I$(TDIR) -I$(IDIR) -I$(SDIR) -o $@ -c $<
 
 $(ODIR)/%.o : $(WDIR)/%.cc
-	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -I$(TDIR) -I$(IDIR) -I$(SDIR) -o $@ -c $<
 
 $(ODIR)/%.o : $(WDIR)/%.cpp
-	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -I$(TDIR) -I$(IDIR) -I$(SDIR) -o $@ -c $<
 
 MyAnalysis: $(ODIR)/MyAnalysis.o $(ODIR)/ExploreBackground.o $(ODIR)/ExploreTopTagger.o $(ODIR)/ExploreEventSelection.o $(ODIR)/NtupleClass.o $(ODIR)/Utility.o $(ODIR)/samples.o $(ODIR)/EventShapeVariables.o $(ODIR)/bdt_350to650_fwm10_jmtev_top6.o $(ODIR)/SetUpTopTagger.o
 	$(LD) $^ $(LIBSTOPTAGGER) $(LIBS) -o $@

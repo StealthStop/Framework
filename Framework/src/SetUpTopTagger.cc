@@ -1,5 +1,5 @@
-#include "../include/SetUpTopTagger.h"
-#include "../include/NtupleClass.h"
+#include "Framework/Framework/include/SetUpTopTagger.h"
+#include "Framework/Framework/include/NtupleClass.h"
 
 #include <string>
 

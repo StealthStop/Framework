@@ -1,6 +1,6 @@
 #define NtupleClass_cxx
-#include "../include/NtupleClass.h"
-#include "../include/Utility.h"
+#include "Framework/Framework/include/NtupleClass.h"
+#include "Framework/Framework/include/Utility.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -14,7 +14,7 @@
 #include "TopTagger/TopTagger/include/TopTaggerResults.h"
 #include "TopTagger/TopTagger/include/TopTaggerUtilities.h"
 #include "TopTagger/CfgParser/include/TTException.h"
-#include "../include/SetUpTopTagger.h"
+#include "Framework/Framework/include/SetUpTopTagger.h"
 
 void NtupleClass::Loop(std::string runtype)
 {

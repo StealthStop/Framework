@@ -5,8 +5,8 @@
 #include <TH2D.h>
 #include <TEfficiency.h>
 
-#include "NtupleClass.h"
-//#include "samples.h"
+#include "Framework/Framework/include/NtupleClass.h"
+//#include "Framework/Framework/include/samples.h"
 
 #include <map>
 #include <string>
