@@ -1,4 +1,4 @@
-#include "samples.h"
+#include "../include/samples.h"
 
 #include <string>
 #include <iostream>
