@@ -27,8 +27,8 @@ make -j4
 Now also check out our repository if not done already:
 ```
 cd $CMSSW_BASE/src
-git clone git@github.com:StealthStop/Exploration.git
-cd Exploration
+git clone git@github.com:StealthStop/Framework.git
+cd Framework/Framework/test
 source setup.csh
 ```
 
