@@ -30,6 +30,7 @@ cd $CMSSW_BASE/src
 git clone git@github.com:StealthStop/Framework.git
 cd Framework/Framework/test
 source setup.csh
+make -j4
 ```
 
 Last step is to get the cfg file for the top tagger, and the TF output model file for the resolved part.
