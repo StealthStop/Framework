@@ -28,11 +28,10 @@ echo "========================================================================="
 make -j4
 echo "========================================================================="
 cd ../../../
-#git clone git@github.com:StealthStop/Framework.git
 cd Framework/Framework/test
-source setup.csh
-getTaggerCfg.sh -t Tensorflow_Simple_Example_v1.0.0 -o
-make -j4
-echo "========================================================================="
-./MyAnalysis -s -H myoutputfile.root -D TT -E 2000
+source setup.sh
+#getTaggerCfg.sh -t Tensorflow_Simple_Example_v1.0.0 -o
+#make -j4
+#echo "========================================================================="
+#./MyAnalysis -s -H myoutputfile.root -D TT -E 2000
 echo "Yeah Buddy"
