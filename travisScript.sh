@@ -19,13 +19,16 @@ echo "============================"
 eval `scramv1 runtime -sh`
 set -x
 cp -r $TRAVIS_BUILD_DIR .
+ls -l
+pwd
+git clone https://github.com/susy2015/TopTagger.git
 cd TopTagger/TopTagger/test
 echo "========================================================================="
 ./configure TENSORFLOWDIR=
-make -j
+make -j4
 echo "========================================================================="
 cd ../../../
-git clone git@github.com:StealthStop/Framework.git
+#git clone git@github.com:StealthStop/Framework.git
 cd Framework/Framework/test
 source setup.csh
 getTaggerCfg.sh -t Tensorflow_Simple_Example_v1.0.0 -o
