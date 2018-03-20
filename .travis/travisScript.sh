@@ -29,7 +29,7 @@ make -j4
 echo "========================================================================="
 cd ../../../
 cd Framework/Framework/test
-source setup.sh
+source runTest.sh
 #getTaggerCfg.sh -t Tensorflow_Simple_Example_v1.0.0 -o
 #make -j4
 #echo "========================================================================="
