@@ -1,32 +1,35 @@
 #!/bin/bash
+
+#stop upon failed command
 set -ex
 
-cd $1
-#source /cvmfs/sft.cern.ch/lcg/views/LCG_89/x86_64-slc6-gcc62-opt/setup.sh
-source /cvmfs/cms.cern.ch/cmsset_default.sh
-
+TRAVIS_BUILD_DIR=$1
+cd $TRAVIS_BUILD_DIR/..
+export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch                                        
 export SCRAM_ARCH=slc6_amd64_gcc630
+export CMSSW_GIT_REFERENCE=/cvmfs/cms.cern.ch/cmssw.git/                       
+source $VO_CMS_SW_DIR/cmsset_default.sh 
 scramv1 project CMSSW CMSSW_9_3_3
-cd CMSSW_9_3_3/src
+cd CMSSW_9_3_3/src/
+#suppress huge printout from "cmsenv"
 set +x
+echo "============================"
+echo "SETTING UP CMSSW ENVIRONMENT"
+echo "============================"
 eval `scramv1 runtime -sh`
 set -x
-
-ls
-pwd
-
-cd -
-
-ls
-pwd
-
-git clone --depth=50 --branch=master https://github.com/susy2015/TopTagger.git 
+cp -r $TRAVIS_BUILD_DIR .
 cd TopTagger/TopTagger/test
-./configure
+echo "========================================================================="
+./configure TENSORFLOWDIR=
+make -j
+echo "========================================================================="
+cd ../../../
+git clone git@github.com:StealthStop/Framework.git
+cd Framework/Framework/test
+source setup.csh
+getTaggerCfg.sh -t Tensorflow_Simple_Example_v1.0.0 -o
 make -j4
-
-cd $1
-ls
-
-
+echo "========================================================================="
+./MyAnalysis -s -H myoutputfile.root -D TT -E 2000
 echo "Yeah Buddy"
