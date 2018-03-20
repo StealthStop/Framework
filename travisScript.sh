@@ -17,5 +17,13 @@ pwd
 cd -
 
 pwd
+git clone git@github.com:susy2015/TopTagger.git
+cd TopTagger/TopTagger/test
+./configure
+make -j4
+
+cd $1
+ls
+
 
 echo "Yeah Buddy"
