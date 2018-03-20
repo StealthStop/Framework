@@ -12,12 +12,12 @@ set +x
 eval `scramv1 runtime -sh`
 set -x
 
-pwd
+echo pwd
 
 cd -
 
-pwd
-git clone git@github.com:susy2015/TopTagger.git
+echo pwd
+git clone --depth=50 --branch=master https://github.com/susy2015/TopTagger.git susy2015/TopTagger
 cd TopTagger/TopTagger/test
 ./configure
 make -j4
