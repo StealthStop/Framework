@@ -28,15 +28,16 @@ Now also check out our repository if not done already:
 ```
 cd $CMSSW_BASE/src
 git clone git@github.com:StealthStop/Framework.git
-cd Framework/Framework/test
+git clone git@github.com:StealthStop/Analyzer.git
+cd Analyzer/Analyzer/test
 source setup.csh
 make -j4
 ```
 
 Last step is to get the cfg file for the top tagger, and the TF output model file for the resolved part.
 ```
-getTaggerCfg.sh -t Tensorflow_Simple_Example_v1.0.0 -o
-
+cmsenv
+getTaggerCfg.sh -t Tensorflow_Medium_Example_v1.0.2 -o
 ```
 
 No changes to the analysis code should be needed. 
