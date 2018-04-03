@@ -12,7 +12,7 @@ using std::vector ;
 
 static bool compare_p( math::RThetaPhiVector v1, math::RThetaPhiVector v2 ) { return (v1.R() > v2.R() ) ; }
 
-static void get_cmframe_jets( std::vector<TLorentzVector>* lab_frame_jets,
+static void get_cmframe_jets(const std::vector<TLorentzVector>* lab_frame_jets,
                               std::vector<math::RThetaPhiVector>& cm_frame_jets,
                               int max_number_of_jets = -1 ) {
 
