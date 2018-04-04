@@ -21,6 +21,9 @@ set -x
 cp -r $TRAVIS_BUILD_DIR .
 ls -l
 pwd
+git clone git@github.com:susy2015/TopTaggerTools.git
+git clone -b TopTaggingLPC git@github.com:susy2015/SusyAnaTools.git
+git clone git@github.com:StealthStop/Analyzer.git
 git clone https://github.com/susy2015/TopTagger.git
 cd TopTagger/TopTagger/test
 echo "========================================================================="
@@ -28,8 +31,10 @@ echo "========================================================================="
 make -j4
 echo "========================================================================="
 cd ../../../
-cd Framework/Framework/test
-source runTest.sh
+cd Analyzer/Analyzer/test
+source ${CMSSW_BASE}/src/TopTagger/TopTagger/test/taggerSetup.sh
+make -j4
+#source runTest.sh
 #getTaggerCfg.sh -t Tensorflow_Simple_Example_v1.0.0 -o
 #make -j4
 #echo "========================================================================="
