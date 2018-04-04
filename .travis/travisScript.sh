@@ -21,9 +21,9 @@ set -x
 cp -r $TRAVIS_BUILD_DIR .
 ls -l
 pwd
-git clone git@github.com:susy2015/TopTaggerTools.git
-git clone -b TopTaggingLPC git@github.com:susy2015/SusyAnaTools.git
-git clone git@github.com:StealthStop/Analyzer.git
+git clone https://github.com/susy2015/TopTaggerTools.git
+git clone -b TopTaggingLPC https://github.com/susy2015/SusyAnaTools.git
+git clone https://github.com/StealthStop/Analyzer.git
 git clone https://github.com/susy2015/TopTagger.git
 cd TopTagger/TopTagger/test
 echo "========================================================================="
