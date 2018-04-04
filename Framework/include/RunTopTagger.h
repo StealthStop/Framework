@@ -33,9 +33,9 @@ private:
         singlets_        = new std::vector<TLorentzVector>();
         hadtops_idx_     = new std::vector<int>();
 
-        const std::string& type = tr.getVar<std::string>("type");
+        const std::string& runtype = tr.getVar<std::string>("runtype");
 
-        if(type != "Data")
+        if(runtype != "Data")
         {
             const std::vector<TLorentzVector>& GenParticles = tr.getVec<TLorentzVector>("GenParticles");
             const std::vector<int>& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
