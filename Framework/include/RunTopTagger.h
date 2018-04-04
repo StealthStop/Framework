@@ -154,21 +154,16 @@ private:
         // Get the top tagger results object     
         const TopTaggerResults& ttr = tt_->getResults();
 
-        // Get reconstructed top                            
+        // Get reconstructed tops and derive needed variables                            
         std::vector<TopObject*>* tops = new std::vector<TopObject*>(ttr.getTops());
         countTops(tops);
 
-        // Get set of all constituents (i.e. AK4 and AK8 jets) used in one of the tops
-        std::set<Constituent const *> usedConstituents = ttr.getUsedConstituents();
-
         // Register Variables
         tr.registerDerivedVar("ttr", &ttr);
-        tr.registerDerivedVar("usedConstituents", usedConstituents);
         tr.registerDerivedVar("ntops_3jet", ntops_3jet_);
         tr.registerDerivedVar("ntops_2jet", ntops_2jet_);
         tr.registerDerivedVar("ntops_1jet", ntops_1jet_);
         tr.registerDerivedVar("nhadWs", nhadWs_);
-        tr.registerDerivedVec("tops", tops);
         tr.registerDerivedVec("hadtops", hadtops_);
         tr.registerDerivedVec("hadtopdaughters", hadtopdaughters_);
         tr.registerDerivedVec("hadWs", hadWs_);
@@ -189,13 +184,6 @@ public:
         singlinos_      (nullptr),
         singlets_       (nullptr),
         hadtops_idx_    (nullptr)
-        //hadtops_        (new std::vector<TLorentzVector>()),
-        //hadtopdaughters_(new std::vector<std::vector<const TLorentzVector*>>()),
-        //hadWs_          (new std::vector<TLorentzVector>()),
-        //neutralinos_    (new std::vector<TLorentzVector>()),
-        //singlinos_      (new std::vector<TLorentzVector>()),
-        //singlets_       (new std::vector<TLorentzVector>()),
-        //hadtops_idx_    (new std::vector<int>())
     {                
         tt_->setCfgFile(taggerCfg_);
         nhadWs_     = 0;
