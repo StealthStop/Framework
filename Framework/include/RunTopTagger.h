@@ -16,6 +16,7 @@ private:
     std::vector<int>* hadtops_idx_;
     std::string taggerCfg_;
     int nhadWs_;
+    int ntops_;
     int ntops_3jet_;
     int ntops_2jet_;
     int ntops_1jet_;
@@ -124,6 +125,8 @@ private:
     {
         for (const TopObject* top : *tops)
         {
+            ntops_++;
+
             if(top->getNConstituents() == 3 )
             {
                 ntops_3jet_++;
@@ -160,6 +163,7 @@ private:
 
         // Register Variables
         tr.registerDerivedVar("ttr", &ttr);
+        tr.registerDerivedVar("ntops", ntops_);
         tr.registerDerivedVar("ntops_3jet", ntops_3jet_);
         tr.registerDerivedVar("ntops_2jet", ntops_2jet_);
         tr.registerDerivedVar("ntops_1jet", ntops_1jet_);
@@ -187,6 +191,7 @@ public:
     {                
         tt_->setCfgFile(taggerCfg_);
         nhadWs_     = 0;
+        ntops_      = 0;
         ntops_3jet_ = 0;
         ntops_2jet_ = 0;
         ntops_1jet_ = 0;
