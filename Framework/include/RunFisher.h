@@ -17,45 +17,53 @@ private:
     std::vector<std::string> inputVarNames_top6_fwm10_;
     std::vector<double> inputVals_top6_fwm6_;
     std::vector<double> inputVals_top6_fwm10_;
+    std::shared_ptr<ReadBDT_350to650_fwm10_jmtev_top6>              eventshapeBDT_;
+    std::shared_ptr<ReadFisher_350to650_fwm10_jmtev_top6>           read_fisher_350to650_fwm10_jmtev_top6_;
+    std::shared_ptr<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v2>     read_fisher_350to650_fwm6_jmtev_top6_gt_v2_;
+    std::shared_ptr<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v3pt30> read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_;
 
-    void setUpFWM6()
+    void setUpFWM()
     {
-        std::string vname ;
-        vname = "fwm2_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-        vname = "fwm3_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-        vname = "fwm4_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-        vname = "fwm5_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-        vname = "fwm6_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-        vname = "jmt_ev0_top6" ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-        vname = "jmt_ev1_top6" ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-        vname = "jmt_ev2_top6" ; inputVarNames_top6_fwm6_.push_back( vname ) ;
 
-        for ( unsigned int i=0; i < inputVarNames_top6_fwm6_.size() ; i++ ) 
+        // FWM 2-6
         {
-            inputVals_top6_fwm6_.push_back( 0.5 ) ; //--- load vector with dummy values.
-        } // i
-    }
+            std::string vname ;
+            vname = "fwm2_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
+            vname = "fwm3_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
+            vname = "fwm4_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
+            vname = "fwm5_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
+            vname = "fwm6_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
+            vname = "jmt_ev0_top6" ; inputVarNames_top6_fwm6_.push_back( vname ) ;
+            vname = "jmt_ev1_top6" ; inputVarNames_top6_fwm6_.push_back( vname ) ;
+            vname = "jmt_ev2_top6" ; inputVarNames_top6_fwm6_.push_back( vname ) ;
 
-    void setUpFWM10()
-    {
-        std::string vname ;
-        vname = "fwm2_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "fwm3_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "fwm4_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "fwm5_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "fwm6_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "fwm7_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "fwm8_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "fwm9_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "fwm10_top6"   ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "jmt_ev0_top6" ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "jmt_ev1_top6" ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-        vname = "jmt_ev2_top6" ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            for ( unsigned int i=0; i < inputVarNames_top6_fwm6_.size() ; i++ ) 
+            {
+                inputVals_top6_fwm6_.push_back( 0.5 ) ; //--- load vector with dummy values.
+            } // i
+        }
+
+        // FWM 2-10
+        {
+            std::string vname ;
+            vname = "fwm2_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "fwm3_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "fwm4_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "fwm5_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "fwm6_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "fwm7_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "fwm8_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "fwm9_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "fwm10_top6"   ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "jmt_ev0_top6" ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "jmt_ev1_top6" ; inputVarNames_top6_fwm10_.push_back( vname ) ;
+            vname = "jmt_ev2_top6" ; inputVarNames_top6_fwm10_.push_back( vname ) ;
        
-        for ( unsigned int i=0; i < inputVarNames_top6_fwm10_.size() ; i++ ) 
-        {
-            inputVals_top6_fwm10_.push_back( 0.5 ) ; //--- load vector with dummy values.
-        } // i       
+            for ( unsigned int i=0; i < inputVarNames_top6_fwm10_.size() ; i++ ) 
+            {
+                inputVals_top6_fwm10_.push_back( 0.5 ) ; //--- load vector with dummy values.
+            } // i       
+        }
     }
 
     void runFisher(NTupleReader& tr)
@@ -94,24 +102,20 @@ private:
             inputVals_top6_fwm6_.at(vi) = eigen_vals_norm_top6[2] ; vi++ ;
         }
 
-        ReadBDT_350to650_fwm10_jmtev_top6 eventshapeBDT( inputVarNames_top6_fwm10_ );
-        double eventshape_bdt_val = eventshapeBDT.GetMvaValue( inputVals_top6_fwm10_ );        
+        double eventshape_bdt_val = eventshapeBDT_->GetMvaValue( inputVals_top6_fwm10_ );        
 
         double fisher_val;
         if( fisherVersion_ == "v1" )
         {            
-            ReadFisher_350to650_fwm10_jmtev_top6 read_fisher_350to650_fwm10_jmtev_top6( inputVarNames_top6_fwm10_ );
-            fisher_val = read_fisher_350to650_fwm10_jmtev_top6.GetMvaValue( inputVals_top6_fwm10_ );
+            fisher_val = read_fisher_350to650_fwm10_jmtev_top6_->GetMvaValue( inputVals_top6_fwm10_ );
         }
         else if ( fisherVersion_ == "v2" )
         {
-            ReadFisherG_350to650_fwm6_jmtev_top6_gt_v2 read_fisher_350to650_fwm6_jmtev_top6_gt_v2( inputVarNames_top6_fwm6_ );
-            fisher_val = read_fisher_350to650_fwm6_jmtev_top6_gt_v2.GetMvaValue( inputVals_top6_fwm6_ );
+            fisher_val = read_fisher_350to650_fwm6_jmtev_top6_gt_v2_->GetMvaValue( inputVals_top6_fwm6_ );
         }
         else if ( fisherVersion_ == "v3" )
         {
-            ReadFisherG_350to650_fwm6_jmtev_top6_gt_v3pt30  read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30 ( inputVarNames_top6_fwm6_ );
-            fisher_val = read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30.GetMvaValue( inputVals_top6_fwm6_ );
+            fisher_val = read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_->GetMvaValue( inputVals_top6_fwm6_ );
         }
 
         bool bdt_bin1 = eventshape_bdt_val > -1.00 && eventshape_bdt_val <= -0.04;
@@ -138,12 +142,20 @@ private:
     }
 
 public:
-    RunFisher(std::string fisherVersion = "v3") : fisherVersion_(fisherVersion)
-    {                
-        setUpFWM6();
-        setUpFWM10();
+    RunFisher(std::string fisherVersion = "v3") : 
+        fisherVersion_(fisherVersion),
+        eventshapeBDT_(nullptr),
+        read_fisher_350to650_fwm10_jmtev_top6_(nullptr),
+        read_fisher_350to650_fwm6_jmtev_top6_gt_v2_(nullptr),
+        read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_(nullptr)
+    {
+        setUpFWM();
+        eventshapeBDT_                                  = std::make_shared<ReadBDT_350to650_fwm10_jmtev_top6>( inputVarNames_top6_fwm10_ );
+        read_fisher_350to650_fwm10_jmtev_top6_          = std::make_shared<ReadFisher_350to650_fwm10_jmtev_top6>( inputVarNames_top6_fwm10_ );
+        read_fisher_350to650_fwm6_jmtev_top6_gt_v2_     = std::make_shared<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v2>( inputVarNames_top6_fwm6_ );
+        read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_ = std::make_shared<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v3pt30>( inputVarNames_top6_fwm6_ );
     }
-
+    
     void operator()(NTupleReader& tr)
     {
         runFisher(tr);
