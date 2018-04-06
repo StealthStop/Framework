@@ -60,6 +60,8 @@ namespace AnaSamples
         //addSample("TTbarSingleLepT",    flistdir+"/TTbarSingleLepT.txt",    "TreeMaker2/PreSelection", 831.76*0.5*TTbar_SingleLept_BR, lumi, 61901450, 1.0, kGreen);
         //addSample("TTbarSingleLepTbar", flistdir+"/TTbarSingleLepTbar.txt", "TreeMaker2/PreSelection", 831.76*0.5*TTbar_SingleLept_BR, lumi, 59860282, 1.0, kGreen);
         addSample("TT", flistdir+"/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8.txt", "TreeMaker2/PreSelection", 831.76, lumi, 155087467, 1.0, kGreen);
+        addSample("TT-skim", flistdir+"/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8-skim.txt", "PreSelection", 831.76, lumi, 155087467, 1.0, kGreen); //--- owen
+
 
         // From https://twiki.cern.ch/twiki/bin/viewauth/CMS/SummaryTable1G25ns#W_jets, kw = 1.21
         //addSample("WJetsToLNu_HT-70to100",    flistdir+"/WJetsToLNu_HT-70To100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt",    "TreeMaker2/PreSelection", 1319,    lumi, 10094300,  1.21, kMagenta+1);
@@ -81,6 +83,14 @@ namespace AnaSamples
         addSample("QCD_HT1000to1500", flistdir+"/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","TreeMaker2/PreSelection", 1207    , lumi, 15127293 , 1.0,  kBlue);
         addSample("QCD_HT1500to2000", flistdir+"/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt","TreeMaker2/PreSelection", 119.9   , lumi, 11826702 , 1.0,  kBlue);
         addSample("QCD_HT2000toInf" , flistdir+"/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt" ,"TreeMaker2/PreSelection", 25.24   , lumi, 6039005 , 1.0,  kBlue);
+
+        addSample("QCD_HT200to300-skim"  , flistdir+"/QCD_HT200to300_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-skim.txt"  ,"PreSelection", 1712000 , lumi, 57580393 , 1.0,  kBlue);
+        addSample("QCD_HT300to500-skim"  , flistdir+"/QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-skim.txt"  ,"PreSelection", 347700  , lumi, 54537903 , 1.0,  kBlue);
+        addSample("QCD_HT500to700-skim"  , flistdir+"/QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-skim.txt"  ,"PreSelection", 32100   , lumi, 62271343 , 1.0,  kBlue);
+        addSample("QCD_HT700to1000-skim" , flistdir+"/QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-skim.txt" ,"PreSelection", 6831    , lumi, 45412780 , 1.0,  kBlue);
+        addSample("QCD_HT1000to1500-skim", flistdir+"/QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-skim.txt","PreSelection", 1207    , lumi, 15127293 , 1.0,  kBlue);
+        addSample("QCD_HT1500to2000-skim", flistdir+"/QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-skim.txt","PreSelection", 119.9   , lumi, 11826702 , 1.0,  kBlue);
+        addSample("QCD_HT2000toInf-skim" , flistdir+"/QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8-skim.txt" ,"PreSelection", 25.24   , lumi, 6039005 , 1.0,  kBlue);
 
 
         // addSample("QCD_HT200to300_BGenFilter"  , flistdir+"/QCD_HT200to300_BGenFilter_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.txt"  ,"TreeMaker2/PreSelection", 156500, lumi, 8258754 , 1.0,  kBlue);
@@ -164,6 +174,10 @@ namespace AnaSamples
         addSample("Data_SingleMuon", flistdir+"/SingleMuon.txt","TreeMaker2/PreSelection",  35916.635, 1.0,  kBlack);
         addSample("Data_SinglePhoton", flistdir+"/SinglePhoton.txt","TreeMaker2/PreSelection",  35917.738, 1.0,  kBlack);
 
+        addSample("Data_SingleElectron-skim", flistdir+"/SingleElectron-skim.txt","PreSelection",  35915.877, 1.0,  kBlack);
+        addSample("Data_SingleMuon-skim", flistdir+"/SingleMuon-skim.txt","PreSelection",  35916.635, 1.0,  kBlack);
+
+
         // ----------
         // - signal -
         // ----------
@@ -202,6 +216,8 @@ namespace AnaSamples
         addSampleSet(samples, "DYJetsToLL_M-50", {"DYJetsToLL_M-50_Incl","DYJetsToLL_M-50_HT-100to200", "DYJetsToLL_M-50_HT-200to400", "DYJetsToLL_M-50_HT-400to600", "DYJetsToLL_M-50_HT-600to800", "DYJetsToLL_M-50_HT-800to1200", "DYJetsToLL_M-50_HT-1200to2500", "DYJetsToLL_M-50_HT-2500toInf"});
 
         addSampleSet(samples, "QCD", {"QCD_HT2000toInf", "QCD_HT1500to2000", "QCD_HT1000to1500", "QCD_HT700to1000", "QCD_HT500to700", "QCD_HT300to500", "QCD_HT200to300"});
+
+        addSampleSet(samples, "QCD-skim", {"QCD_HT2000toInf-skim", "QCD_HT1500to2000-skim", "QCD_HT1000to1500-skim", "QCD_HT700to1000-skim", "QCD_HT500to700-skim", "QCD_HT300to500-skim", "QCD_HT200to300-skim"});
 
         addSampleSet(samples, "ST", {"ST_tW_top", "ST_tW_antitop", "ST_s-channel", "ST_t-channel_top", "ST_t-channel_antitop", "tZq_W_lept_Z_hadron"});
 
