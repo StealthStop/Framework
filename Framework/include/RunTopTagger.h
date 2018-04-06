@@ -15,7 +15,7 @@ private:
     std::vector<TLorentzVector>* singlets_;
     std::vector<int>* hadtops_idx_;
     std::string taggerCfg_;
-    int nhadWs_;
+    int nhadWs_ ;
     int ntops_;
     int ntops_3jet_;
     int ntops_2jet_;
@@ -33,6 +33,7 @@ private:
         singlinos_       = new std::vector<TLorentzVector>();
         singlets_        = new std::vector<TLorentzVector>();
         hadtops_idx_     = new std::vector<int>();
+        nhadWs_          = 0;
 
         const std::string& runtype = tr.getVar<std::string>("runtype");
 
@@ -123,6 +124,10 @@ private:
 
     void countTops(std::vector<TopObject*>* tops)
     {
+        ntops_ = 0;
+        ntops_3jet_ = 0;
+        ntops_2jet_ = 0;
+        ntops_1jet_ = 0;
         for (const TopObject* top : *tops)
         {
             ntops_++;
@@ -190,11 +195,6 @@ public:
         hadtops_idx_    (nullptr)
     {                
         tt_->setCfgFile(taggerCfg_);
-        nhadWs_     = 0;
-        ntops_      = 0;
-        ntops_3jet_ = 0;
-        ntops_2jet_ = 0;
-        ntops_1jet_ = 0;
     }
 
     ~RunTopTagger(){}
