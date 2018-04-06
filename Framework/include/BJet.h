@@ -10,7 +10,9 @@ private:
     {
         const std::vector<TLorentzVector>& Jets = tr.getVec<TLorentzVector>("Jets");
         const std::vector<double>& Jets_bDiscriminatorCSV = tr.getVec<double>("Jets_bDiscriminatorCSV");
-            
+         
+        bjets_ = new std::vector<TLorentzVector>();
+        bjets_pt45_ = new std::vector<TLorentzVector>();
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
             TLorentzVector lv(Jets.at(ijet));
@@ -26,14 +28,15 @@ private:
         }
 
         tr.registerDerivedVec("BJets", bjets_);
-        tr.registerDerivedVar("NBJets", bjets_->size());
+        tr.registerDerivedVar("NBJets", (bjets_==nullptr)?0:bjets_->size());
         tr.registerDerivedVec("BJets_pt45", bjets_pt45_);
-        tr.registerDerivedVar("NBJets_pt45", bjets_pt45_->size());
+        tr.registerDerivedVar("NBJets_pt45", (bjets_pt45_==nullptr)?0:bjets_pt45_->size());
     }
 
 public:
     BJet() 
         : bjets_(nullptr)
+        , bjets_pt45_(nullptr)
     {}
 
     void operator()(NTupleReader& tr)

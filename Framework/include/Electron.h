@@ -10,9 +10,11 @@ private:
     {
         const std::vector<TLorentzVector>& allElectrons = tr.getVec<TLorentzVector>("Electrons");
         const std::vector<bool>& allElectrons_passIso = tr.getVec<bool>("Electrons_passIso");
-        const std::vector<int>&  allElectrons_charge  = tr.getVec<int>("Electrons_Charge");
+        const std::vector<int>&  allElectrons_charge  = tr.getVec<int>("Electrons_charge");
         const std::vector<bool>& allElectrons_tightID = tr.getVec<bool>("Electrons_tightID");
             
+        good_electrons_ = new std::vector<TLorentzVector>();
+        good_electrons_charge_ = new std::vector<int>();
         for (unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
             TLorentzVector lvel(allElectrons.at(iel));
@@ -29,7 +31,7 @@ private:
 
 
         tr.registerDerivedVec("GoodElectrons", good_electrons_);
-        tr.registerDerivedVar("NGoodElectrons", good_electrons_->size());
+        tr.registerDerivedVar("NGoodElectrons", (good_electrons_==nullptr)?0:good_electrons_->size());
         tr.registerDerivedVec("GoodElectronsCharge", good_electrons_charge_);
     }
 

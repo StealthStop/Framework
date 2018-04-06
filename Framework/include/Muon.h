@@ -10,8 +10,10 @@ private:
     {
         const std::vector<TLorentzVector>& allMuons = tr.getVec<TLorentzVector>("Muons");
         const std::vector<bool> allMuons_passIso = tr.getVec<bool>("Muons_passIso");
-        const std::vector<int> allMuons_charge = tr.getVec<int>("Muons_Charge");
+        const std::vector<int> allMuons_charge = tr.getVec<int>("Muons_charge");
             
+        good_muons_ = new std::vector<TLorentzVector>();
+        good_muons_charge_ = new std::vector<int>();
         for (unsigned int imu = 0; imu < allMuons.size(); ++imu)
         {
             TLorentzVector lvmu(allMuons.at(imu));
@@ -26,7 +28,7 @@ private:
 
 
         tr.registerDerivedVec("GoodMuons", good_muons_);
-        tr.registerDerivedVar("NGoodMuons", good_muons_->size());
+        tr.registerDerivedVar("NGoodMuons", (good_muons_==nullptr)?0:good_muons_->size());
         tr.registerDerivedVec("GoodMuonsCharge", good_muons_charge_);
     }
 

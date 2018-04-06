@@ -22,7 +22,7 @@ private:
         tr.registerDerivedVar("HT_trigger", ht);
 
         // Put leptons together
-        std::vector<TLorentzVector>* GoodLeptons;
+        std::vector<TLorentzVector>* GoodLeptons = new std::vector<TLorentzVector>();
         for (TLorentzVector muon : GoodMuons)
             GoodLeptons->push_back(muon);
         for (TLorentzVector electron : GoodElectrons)
