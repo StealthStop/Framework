@@ -26,6 +26,7 @@ private:
 
 
         tr.registerDerivedVec("GoodMuons", good_muons_);
+        tr.registerDerivedVar("NGoodMuons", good_muons_->size());
         tr.registerDerivedVec("GoodMuonsCharge", good_muons_charge_);
     }
 

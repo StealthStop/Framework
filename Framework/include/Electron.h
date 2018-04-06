@@ -29,6 +29,7 @@ private:
 
 
         tr.registerDerivedVec("GoodElectrons", good_electrons_);
+        tr.registerDerivedVar("NGoodElectrons", good_electrons_->size());
         tr.registerDerivedVec("GoodElectronsCharge", good_electrons_charge_);
     }
 
