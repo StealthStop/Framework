@@ -8,17 +8,18 @@ private:
     std::vector<int>* good_electrons_charge_;
     void electron(NTupleReader& tr)
     {
-        const std::vector<TLorentzVector>& allElectrons = tr.getVec<TLorentzVector>("Electrons");
-        const std::vector<bool>& allElectrons_passIso = tr.getVec<bool>("Electrons_passIso");
-        const std::vector<int>&  allElectrons_charge  = tr.getVec<int>("Electrons_charge");
-        const std::vector<bool>& allElectrons_tightID = tr.getVec<bool>("Electrons_tightID");
+        const auto& allElectrons = tr.getVec<TLorentzVector>("Electrons");
+        const auto& allElectrons_passIso = tr.getVec<bool>("Electrons_passIso");
+        const auto& allElectrons_charge  = tr.getVec<int>("Electrons_charge");
+        const auto& allElectrons_tightID = tr.getVec<bool>("Electrons_tightID");
+        const auto& etaCut = tr.getVar<double>("etaCut");
             
         good_electrons_ = new std::vector<TLorentzVector>();
         good_electrons_charge_ = new std::vector<int>();
         for (unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
             TLorentzVector lvel(allElectrons.at(iel));
-            if( abs(lvel.Eta()) < 2.4 && 
+            if( abs(lvel.Eta()) < etaCut && 
                 lvel.Pt() > 30 && 
                 allElectrons_passIso.at(iel) &&
                 allElectrons_tightID.at(iel) 

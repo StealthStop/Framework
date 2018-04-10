@@ -8,16 +8,17 @@ private:
     std::vector<int>* good_muons_charge_;
     void muon(NTupleReader& tr)
     {
-        const std::vector<TLorentzVector>& allMuons = tr.getVec<TLorentzVector>("Muons");
-        const std::vector<bool> allMuons_passIso = tr.getVec<bool>("Muons_passIso");
-        const std::vector<int> allMuons_charge = tr.getVec<int>("Muons_charge");
-            
+        const auto& allMuons = tr.getVec<TLorentzVector>("Muons");
+        const auto& allMuons_passIso = tr.getVec<bool>("Muons_passIso");
+        const auto& allMuons_charge = tr.getVec<int>("Muons_charge");
+        const auto& etaCut = tr.getVar<double>("etaCut");
+
         good_muons_ = new std::vector<TLorentzVector>();
         good_muons_charge_ = new std::vector<int>();
         for (unsigned int imu = 0; imu < allMuons.size(); ++imu)
         {
             TLorentzVector lvmu(allMuons.at(imu));
-            if( abs(lvmu.Eta()) < 2.4 && 
+            if( abs(lvmu.Eta()) < etaCut && 
                 lvmu.Pt() > 30 && 
                 allMuons_passIso.at(imu))
             {
