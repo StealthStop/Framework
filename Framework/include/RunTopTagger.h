@@ -39,11 +39,11 @@ private:
 
         if(runtype != "Data")
         {
-            const std::vector<TLorentzVector>& GenParticles = tr.getVec<TLorentzVector>("GenParticles");
-            const std::vector<int>& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
-            const std::vector<int>& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
-            const std::vector<int>& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");
-            const std::vector<int>& GenParticles_Status     = tr.getVec<int>("GenParticles_Status");            
+            const auto& GenParticles            = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
+            const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
+            const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");
+            const auto& GenParticles_Status     = tr.getVec<int>("GenParticles_Status");            
 
             for ( unsigned int gpi=0; gpi < GenParticles.size() ; gpi++ ) 
             {
