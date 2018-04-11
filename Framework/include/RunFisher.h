@@ -68,9 +68,10 @@ private:
 
     void runFisher(NTupleReader& tr)
     {
-        const std::vector<TLorentzVector>& Jets = tr.getVec<TLorentzVector>("Jets");
-        const int& NJets_pt30 = tr.getVar<int>("NJets_pt30");
-        const int& NJets_pt45 = tr.getVar<int>("NJets_pt45");
+        const auto& Jets       = tr.getVec<TLorentzVector>("Jets");
+        const auto& NJets_pt30 = tr.getVar<int>("NJets_pt30");
+        const auto& NJets_pt45 = tr.getVar<int>("NJets_pt45");
+
         std::vector<math::RThetaPhiVector> cm_frame_jets;
         get_cmframe_jets( &Jets, cm_frame_jets, 6 );
         EventShapeVariables esv_top6( cm_frame_jets );

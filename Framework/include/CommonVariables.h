@@ -7,16 +7,17 @@ private:
     void commonVariables(NTupleReader& tr)
     {
         // Get needed branches
-        const std::vector<TLorentzVector>& Jets = tr.getVec<TLorentzVector>("Jets");
-        const std::vector<TLorentzVector>& BJets = tr.getVec<TLorentzVector>("BJets");
-        const std::vector<TLorentzVector>& GoodMuons = tr.getVec<TLorentzVector>("GoodMuons");
-        const std::vector<TLorentzVector>& GoodElectrons = tr.getVec<TLorentzVector>("GoodElectrons");
+        const auto& Jets = tr.getVec<TLorentzVector>("Jets");
+        const auto& BJets_pt30 = tr.getVec<TLorentzVector>("BJets_pt30");
+        const auto& GoodMuons = tr.getVec<TLorentzVector>("GoodMuons");
+        const auto& GoodElectrons = tr.getVec<TLorentzVector>("GoodElectrons");
+        const auto& etaCut = tr.getVar<double>("etaCut");
 
         // HT with jets with pT>40
         double ht = 0;
         for (TLorentzVector jet : Jets)
         {
-            if(jet.Pt() > 40 && abs(jet.Eta()) < 2.4)
+            if(jet.Pt() > 40 && abs(jet.Eta()) < etaCut)
                 ht += jet.Pt();
         }
         tr.registerDerivedVar("HT_trigger", ht);
@@ -35,7 +36,7 @@ private:
         double Mbldiff = 999.;
         for(TLorentzVector lepton : *GoodLeptons)
         {
-            for(TLorentzVector bjet : BJets)
+            for(TLorentzVector bjet : BJets_pt30)
             {
                 double mbl = (lepton+bjet).M();
                 if( abs(mbl - 105) < Mbldiff)
