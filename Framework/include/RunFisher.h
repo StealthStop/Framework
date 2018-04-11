@@ -68,7 +68,10 @@ private:
 
     void runFisher(NTupleReader& tr)
     {
-        const auto& Jets = tr.getVec<TLorentzVector>("Jets");
+        const auto& Jets       = tr.getVec<TLorentzVector>("Jets");
+        const auto& NJets_pt30 = tr.getVar<int>("NJets_pt30");
+        const auto& NJets_pt45 = tr.getVar<int>("NJets_pt45");
+
         std::vector<math::RThetaPhiVector> cm_frame_jets;
         get_cmframe_jets( &Jets, cm_frame_jets, 6 );
         EventShapeVariables esv_top6( cm_frame_jets );
@@ -116,6 +119,23 @@ private:
         else if ( fisherVersion_ == "v3" )
         {
             fisher_val = read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_->GetMvaValue( inputVals_top6_fwm6_ );
+            // Apply the fisher correction in bins of njets
+            std::map<int, double> fisher_shift = {
+                {6, -0.0001},
+                {7, -0.0003},
+                {8,  0.0008},
+                {9,  0.0018},
+                {10, 0.0030},
+                {11, 0.0038},
+                {12, 0.0043},
+                {13, 0.0086},
+                {14,-0.0026},
+                {15, 0.0207},
+            };
+            if (NJets_pt30 >= 6)
+            {
+                fisher_val = fisher_val + fisher_shift[NJets_pt30];
+            }
         }
 
         bool bdt_bin1 = eventshape_bdt_val > -1.00 && eventshape_bdt_val <= -0.04;
@@ -128,6 +148,14 @@ private:
         bool fisher_bin3 = fisher_val >  0.030 && fisher_val <=  0.095;
         bool fisher_bin4 = fisher_val >  0.095 && fisher_val <=  1.000;
 
+        if (fisherVersion_ == "v3")
+        {
+            fisher_bin1 = fisher_val > -1.000 && fisher_val <= -0.015;
+            fisher_bin2 = fisher_val > -0.015 && fisher_val <=  0.020;
+            fisher_bin3 = fisher_val >  0.020 && fisher_val <=  0.060;
+            fisher_bin4 = fisher_val >  0.060 && fisher_val <=  1.000;
+            
+        }
         // Register Variables
         tr.registerDerivedVar("eventshape_bdt_val", eventshape_bdt_val);
         tr.registerDerivedVar("bdt_bin1", bdt_bin1);
