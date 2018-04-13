@@ -9,12 +9,14 @@ private:
 
         const auto& runtype      = tr.getVar<std::string>("runtype");     
         const auto& filetag      = tr.getVar<std::string>("filetag");
+        const auto& blind        = tr.getVar<bool>("blind");
         const auto& TriggerNames = tr.getVec<std::string>("TriggerNames");
         const auto& TriggerPass  = tr.getVec<int>("TriggerPass");
         const auto& NGoodLeptons = tr.getVar<int>("NGoodLeptons");
         const auto& NJets_pt45   = tr.getVar<int>("NJets_pt45");
         const auto& HT_trigger   = tr.getVar<double>("HT_trigger");
         const auto& NBJets_pt45  = tr.getVar<int>("NBJets_pt45");
+        const auto& NJets_pt30   = tr.getVar<int>("NJets_pt30"); 
 
         // ------------------------
         // -- MC dependent stuff
@@ -34,12 +36,17 @@ private:
         bool passTriggerMuon     = PassTriggerMuon(TriggerNames, TriggerPass);
         bool passTriggerElectron = PassTriggerElectron(TriggerNames, TriggerPass);
         bool passTrigger = true;
+        bool passBlind   = true;
         if (runtype == "Data")
         {
+            // Pass the right trigger
             if (filetag == "Data_JetHT" && !passTriggerAllHad) passTrigger = false;
             if (filetag == "Data_SingleMuon" && !passTriggerMuon) passTrigger = false;
             if (filetag == "Data_SingleElectron" && !passTriggerElectron) passTrigger = false;
-        }
+
+            // Blinding data 
+            if (NJets_pt30 >= 7 && blind) passBlind = false;
+        }        
         
         // -------------------------------
         // -- Define 0 Lepton Baseline
@@ -47,6 +54,7 @@ private:
         
         bool passBaseline0l = passMadHT          &&
                               passTrigger        &&
+                              passBlind          &&
                               NGoodLeptons == 0  && 
                               NJets_pt45 >= 6    && 
                               HT_trigger > 500   && 
