@@ -17,7 +17,7 @@ private:
         const auto& METPhi = tr.getVar<double>("METPhi");
 
         TLorentzVector lvMET;
-        lvMET.SetPtEtaPhiM(MET, METPhi, 0, 0);
+        lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
 
         good_muons_ = new std::vector<TLorentzVector>();
         good_muons_charge_ = new std::vector<int>();
