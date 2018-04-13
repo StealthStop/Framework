@@ -166,6 +166,49 @@ private:
         std::vector<TopObject*>* tops = new std::vector<TopObject*>(ttr.getTops());
         countTops(tops);
 
+        const auto& candidateTops = ttr.getTopCandidates();
+        double bestTopMass = -9999.9;
+        double bestTopEta = -9999.9;
+        const TopObject* bestTopMassLV = nullptr;
+        bool bestTopMassGenMatch = false;
+        bool bestTopMassTopTag = false;
+        for(int iTop = 0; iTop < candidateTops.size(); ++iTop)
+        {
+            auto& top = candidateTops[iTop];
+
+            if(fabs(top.p().M() - 173.5) < fabs(bestTopMass - 173.5) && top.getNConstituents() == 3)
+            {
+                bestTopMass = top.p().M();
+                bestTopEta = top.p().Eta();
+                bestTopMassLV = &top;
+            }
+        }
+
+        bestTopMassGenMatch = (bestTopMassLV)?(bestTopMassLV->getBestGenTopMatch(0.6) != nullptr):(false);
+        for(const auto& topPtr : (*tops)) 
+        {
+            if(topPtr == bestTopMassLV) 
+            {
+                bestTopMassTopTag = true;
+                break;
+            }
+        }
+
+        
+        // Making tight photon lv (should live somewhere else: is needed for HistoContainer.h)
+        const auto& Photons        = tr.getVec<TLorentzVector>("Photons");
+        const auto& Photons_fullID = tr.getVec<bool>("Photons_fullID");
+
+        std::vector<TLorentzVector>* tightPhotons = new std::vector<TLorentzVector>();
+        for(int i = 0; i < Photons.size(); ++i)
+        {
+            if(Photons_fullID[i])
+            {
+                tightPhotons->push_back(Photons[i]);
+            }
+        }
+
+
         // Register Variables
         tr.registerDerivedVar("ttr", &ttr);
         tr.registerDerivedVar("ntops", ntops_);
@@ -180,6 +223,12 @@ private:
         tr.registerDerivedVec("singlinos", singlinos_);
         tr.registerDerivedVec("singlets", singlets_);
         tr.registerDerivedVec("hadtops_idx", hadtops_idx_);
+        tr.registerDerivedVar("bestTopMassLV", bestTopMassLV?(bestTopMassLV->p()):(TLorentzVector()));
+        tr.registerDerivedVar("bestTopMass", bestTopMass);
+        tr.registerDerivedVar("bestTopMassTopTag", bestTopMassTopTag);
+        tr.registerDerivedVar("bestTopMassGenMatch", bestTopMassGenMatch);
+        tr.registerDerivedVar("bestTopEta", bestTopEta);
+        tr.registerDerivedVec("tightPhotons",tightPhotons);
     }
 
 public:

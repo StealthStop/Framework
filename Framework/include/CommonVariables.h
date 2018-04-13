@@ -10,7 +10,9 @@ private:
         const auto& Jets = tr.getVec<TLorentzVector>("Jets");
         const auto& BJets_pt30 = tr.getVec<TLorentzVector>("BJets_pt30");
         const auto& GoodMuons = tr.getVec<TLorentzVector>("GoodMuons");
+        const auto& GoodMuonsMTW = tr.getVec<double>("GoodMuonsMTW");
         const auto& GoodElectrons = tr.getVec<TLorentzVector>("GoodElectrons");
+        const auto& GoodElectronsMTW = tr.getVec<double>("GoodElectronsMTW");
         const auto& etaCut = tr.getVar<double>("etaCut");
 
         // HT with jets with pT>40
@@ -48,6 +50,28 @@ private:
         }
         tr.registerDerivedVar("Mbl",Mbl);
         
+        //Find single lepton for HistoContainer
+        TLorentzVector singleLepton;
+        double mTLep = 999.9;
+        for(unsigned int i = 0; i < GoodMuons.size(); ++i)
+        {
+            if(GoodMuons[i].Pt() > 20)
+            {
+                singleLepton = GoodMuons[i];
+                mTLep = GoodMuonsMTW[i];
+                break;
+            }
+        }
+        for(unsigned int i = 0; i < GoodElectrons.size(); ++i)
+        {
+            if(GoodElectrons[i].Pt() > 20)
+            {
+                singleLepton = GoodElectrons[i];
+                mTLep = GoodElectronsMTW[i];
+                break;
+            }
+        }
+        tr.registerDerivedVar("singleLepton", singleLepton);            
     }
 
 public:
