@@ -61,7 +61,9 @@ private:
                               NBJets_pt45 >= 2;
 
         tr.registerDerivedVar<bool>("passBaseline0l",passBaseline0l);
-
+        tr.registerDerivedVar<bool>("passBlind",passBlind);
+        tr.registerDerivedVar<bool>("passTrigger",passTrigger);
+        tr.registerDerivedVar<bool>("passMadHT",passMadHT);
     }
 
     bool PassTriggerGeneral(std::vector<std::string> &mytriggers, const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
