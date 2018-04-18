@@ -21,6 +21,24 @@ private:
     int ntops_2jet_;
     int ntops_1jet_;
 
+    int findParent(const int idx, const std::vector<int>& GenParticles_ParentId, const std::vector<int>& GenParticles_ParentIdx)
+    {
+        if (idx == -1)
+        {
+            return -1;
+        }
+        else if(abs(GenParticles_ParentId[idx]) == 6)
+        {
+            //printf("momid:%i  idx:%i ", GenParticles_ParentId[idx] ,idx);
+            return GenParticles_ParentIdx[idx];
+        }
+        else
+        {
+            return findParent(GenParticles_ParentIdx[idx], GenParticles_ParentId, GenParticles_ParentIdx);
+            //printf("%i",findParent(GenParticles_PdgId[GenParticles_ParentIdx[momid]], GenParticles_PdgId, GenParticles_ParentIdx));
+        }
+    }
+
     void genMatch(NTupleReader& tr)
     {
         // ----------------------------------------------
@@ -45,6 +63,11 @@ private:
             const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");
             const auto& GenParticles_Status     = tr.getVec<int>("GenParticles_Status");            
 
+            //for(int i = 0; i < GenParticles.size(); i++) 
+            //{
+            //    printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i\n",i,  GenParticles_Status[i], GenParticles_PdgId[i], GenParticles_ParentId[i], GenParticles_ParentIdx[i]);
+            //}
+            
             for ( unsigned int gpi=0; gpi < GenParticles.size() ; gpi++ ) 
             {
                 int pdgid = abs( GenParticles_PdgId.at(gpi) ) ;
@@ -63,19 +86,40 @@ private:
                 {
                     singlets_->push_back(GenParticles.at(gpi));
                 }
-                if(status == 23 && momid == 24 && pdgid < 6)
+
+
+
+
+                printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i ",gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi]); fflush(stdout);
+                int topIdx = findParent(gpi, GenParticles_ParentId, GenParticles_ParentIdx);
+                if(topIdx >= 0 && (abs(pdgid) != 24) )
+                {
+                    printf(" topIdx: %i particle: %i\n",topIdx, pdgid); fflush(stdout);
+                }
+                else
+                {
+                    printf("\n");
+                }
+
+
+
+
+
+                //if((status == 23 || status == 33) && momid == 24 && pdgid < 6)
+                if(momid == 24 && pdgid < 6)
                 {
                     // Should be the quarks from W decay
                     nhadWs_++;
                     // find the top
                     int Wmotherid = GenParticles_ParentId.at(momidx);
+                    //std::cout<<Wmotherid<<std::endl;
                     if (abs(Wmotherid) == 6){
                         int Wmotheridx = GenParticles_ParentIdx.at(momidx);
                         std::vector<int>::iterator found = std::find(hadtops_idx_->begin(), hadtops_idx_->end(), Wmotheridx);
                         if (found != hadtops_idx_->end())
                         {
                             // already found before
-                            // std::cout << "Found this top before: " << *found << std::endl;
+                            //std::cout << "Found this top before: " << *found << std::endl;
                             int position = distance(hadtops_idx_->begin(),found);
                             // add the daughter to the list
                             (*hadtopdaughters_)[position].push_back(&(GenParticles.at(gpi)));
@@ -154,7 +198,7 @@ private:
 
         // Setup variables needed for top tagger
         SetUpTopTagger st( tr, (*hadtops_), (*hadtopdaughters_) );
-        std::vector<Constituent> constituents = st.getConstituents();
+        const std::vector<Constituent>& constituents = st.getConstituents();
 
         // Run the top tagger             
         tt_->runTagger(constituents);
@@ -208,6 +252,22 @@ private:
             }
         }
 
+        //std::cout<<" Size Yo "<<hadtops_->size()<<"  "<<hadtopdaughters_->size()<<std::endl;
+        for (int i = 0; i<hadtops_->size(); ++i)
+        {
+            TLorentzVector dSum;
+            for (int j = 0; j < ((*hadtopdaughters_)[i]).size(); j++)
+            {
+                dSum += *(((*hadtopdaughters_)[i])[j]);
+            }
+            //printf("nTops: %i ndaughters %i   top: (pt %lf , eta %lf, phi %lf, mass %lf) dSum: (pt %lf , eta %lf, phi %lf, mass %lf)\n", hadtops_->size(), (*hadtopdaughters_)[i].size(), 
+            //       (*hadtops_)[i].Pt(), (*hadtops_)[i].Eta(), (*hadtops_)[i].Phi(), (*hadtops_)[i].M(), 
+            //       dSum.Pt(), dSum.Eta(), dSum.Phi(), dSum.M()
+            //      );
+
+        }
+        
+        printf("======================================================\n");
 
         // Register Variables
         tr.registerDerivedVar("ttr", &ttr);
