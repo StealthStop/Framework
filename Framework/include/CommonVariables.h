@@ -9,9 +9,13 @@ private:
         // Get needed branches
         const auto& Jets = tr.getVec<TLorentzVector>("Jets");
         const auto& BJets_pt30 = tr.getVec<TLorentzVector>("BJets_pt30");
-        const auto& GoodMuons = tr.getVec<TLorentzVector>("GoodMuons");
+        const auto& GoodMuons  = tr.getVec<TLorentzVector>("GoodMuons");
+        const auto& GoodMuonsCharge  = tr.getVec<int>("GoodMuonsCharge");
+        const auto& NGoodMuons = tr.getVar<int>("NGoodMuons");
         const auto& GoodMuonsMTW = tr.getVec<double>("GoodMuonsMTW");
         const auto& GoodElectrons = tr.getVec<TLorentzVector>("GoodElectrons");
+        const auto& GoodElectronsCharge = tr.getVec<int>("GoodElectronsCharge");
+        const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons");
         const auto& GoodElectronsMTW = tr.getVec<double>("GoodElectronsMTW");
         const auto& etaCut = tr.getVar<double>("etaCut");
 
@@ -36,6 +40,7 @@ private:
         // M(l,b); closest to 105 GeV if multiple combinations (halfway between 30 and 180 GeV)
         double Mbl = 0;
         double Mbldiff = 999.;
+        TLorentzVector used_bjet_for_mbl;
         for(TLorentzVector lepton : *GoodLeptons)
         {
             for(TLorentzVector bjet : BJets_pt30)
@@ -45,10 +50,12 @@ private:
                 {
                     Mbl = mbl;
                     Mbldiff = abs(mbl - 105);
+                    used_bjet_for_mbl = bjet;
                 }
             }
         }
         tr.registerDerivedVar("Mbl",Mbl);
+        tr.registerDerivedVar("used_bjet_for_mbl",used_bjet_for_mbl);
         
         //Find single lepton for HistoContainer
         TLorentzVector singleLepton;
@@ -72,6 +79,27 @@ private:
             }
         }
         tr.registerDerivedVar("singleLepton", singleLepton);            
+
+        // 2 lepton onZ selection variables
+        bool onZ = false;
+        double mll = 0;
+        if ( GoodLeptons->size() == 2 )
+        {
+            if ( (NGoodMuons == 2) && (GoodMuonsCharge[0] != GoodMuonsCharge[1]) )
+            {
+                mll = (GoodMuons[0] + GoodMuons[1]).M();
+                if( mll > 81 && mll < 101)
+                    onZ = true; 
+            } 
+            else if ( (NGoodElectrons == 2) && (GoodElectronsCharge[0] != GoodElectronsCharge[1]) )
+            {
+                mll = (GoodElectrons[0] + GoodElectrons[1]).M();
+                if( mll > 81 && mll < 101)
+                    onZ = true;  
+            }
+        }        
+        tr.registerDerivedVar("onZ", onZ);
+        tr.registerDerivedVar("mll", mll);
     }
 
 public:
