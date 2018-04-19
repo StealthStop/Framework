@@ -68,6 +68,7 @@ private:
                 int momidx = GenParticles_ParentIdx.at(gpi);
                 int status = GenParticles_Status.at(gpi);
                 int topIdx = findParent(gpi, GenParticles_ParentId, GenParticles_ParentIdx);
+                //printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i ", gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi]); fflush(stdout);
                 if(abs(pdgid) == 1000022 && (status==22 || status == 52))
                 {
                     neutralinos_->push_back(GenParticles.at(gpi));
@@ -79,28 +80,14 @@ private:
                 if(abs(pdgid) == 5000002 && (status == 22 || status == 52))
                 {
                     singlets_->push_back(GenParticles.at(gpi));
-                }
-                
-                //printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i ",gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi]); fflush(stdout);
-                if(topIdx >= 0 && (abs(pdgid) != 24) )
+                }                
+                if( topIdx >= 0 && (abs(pdgid) != 24) )
                 {
                     //printf(" topIdx: %i particle: %i\n", topIdx, pdgid); fflush(stdout);
                     
-                    bool found = false; int position = -1;
-                    for (const auto& i : *hadtops_idx_)
-                    {
-                        position++;
-                        if(i == topIdx)
-                        { 
-                            found = true;
-                            break;
-                        }
-                        else
-                        {
-                            found = false;
-                        }
-                    }
-                    if (found)
+                    int position = 0;
+                    for(;position < hadtops_idx_->size() && (*hadtops_idx_)[position] != topIdx; ++position);
+                    if( position < hadtops_idx_->size() )
                     {
                         (*hadtopdaughters_)[position].push_back(&(GenParticles.at(gpi)));
                     } 
