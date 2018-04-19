@@ -7,6 +7,9 @@ private:
     std::vector<TLorentzVector>* bjets_;
     std::vector<TLorentzVector>* bjets_pt30_;
     std::vector<TLorentzVector>* bjets_pt45_;
+    std::vector<TLorentzVector>* bjets_tight_;
+    std::vector<TLorentzVector>* bjets_pt30_tight_;
+    std::vector<TLorentzVector>* bjets_pt45_tight_;
 
     void bjet(NTupleReader& tr)
     {
@@ -17,6 +20,10 @@ private:
         bjets_ = new std::vector<TLorentzVector>();
         bjets_pt30_ = new std::vector<TLorentzVector>();
         bjets_pt45_ = new std::vector<TLorentzVector>();
+        bjets_tight_ = new std::vector<TLorentzVector>();
+        bjets_pt30_tight_ = new std::vector<TLorentzVector>();
+        bjets_pt45_tight_ = new std::vector<TLorentzVector>();
+
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
             TLorentzVector lv(Jets.at(ijet));
@@ -30,6 +37,17 @@ private:
                 if(lv.Pt() > 45)
                     bjets_pt45_->push_back(lv);
             }
+            
+            if( abs(lv.Eta()) < etaCut &&
+                Jets_bDiscriminatorCSV.at(ijet) > 0.9535 
+                )
+            {
+                bjets_tight_->push_back(lv); 
+                if(lv.Pt() > 30)
+                    bjets_pt30_tight_->push_back(lv);
+                if(lv.Pt() > 45)
+                    bjets_pt45_tight_->push_back(lv);
+            }
         }
 
         tr.registerDerivedVec("BJets",        bjets_);
@@ -38,6 +56,13 @@ private:
         tr.registerDerivedVar("NBJets_pt30", (bjets_pt30_==nullptr)?0:bjets_pt30_->size());
         tr.registerDerivedVec("BJets_pt45",   bjets_pt45_);
         tr.registerDerivedVar("NBJets_pt45", (bjets_pt45_==nullptr)?0:bjets_pt45_->size());
+
+        tr.registerDerivedVec("BJets_tight",        bjets_tight_);
+        tr.registerDerivedVar("NBJets_tight",      (bjets_tight_==nullptr)?0:bjets_tight_->size());
+        tr.registerDerivedVec("BJets_pt30_tight",   bjets_pt30_tight_);
+        tr.registerDerivedVar("NBJets_pt30_tight", (bjets_pt30_tight_==nullptr)?0:bjets_pt30_tight_->size());
+        tr.registerDerivedVec("BJets_pt45_tight",   bjets_pt45_tight_);
+        tr.registerDerivedVar("NBJets_pt45_tight", (bjets_pt45_tight_==nullptr)?0:bjets_pt45_tight_->size());
     }
 
 public:
@@ -45,6 +70,9 @@ public:
         : bjets_(nullptr)
         , bjets_pt30_(nullptr)
         , bjets_pt45_(nullptr)
+        , bjets_tight_(nullptr)
+        , bjets_pt30_tight_(nullptr)
+        , bjets_pt45_tight_(nullptr)
     {}
 
     void operator()(NTupleReader& tr)
