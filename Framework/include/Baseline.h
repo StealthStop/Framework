@@ -103,8 +103,8 @@ private:
                                  onZ                &&
                                  (runtype != "Data" || (NGoodMuons == 2 && filetag == "Data_SingleMuon" ) 
                                                     || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
-                                 NJets_pt30 >= 6    && 
-                                 NBJets_pt30 >= 1;
+                                 NJets_pt30 >= 6; 
+
 
         // -----------------------------------
         // -- Define 2 Lepton offZ Baseline
