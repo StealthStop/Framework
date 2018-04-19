@@ -29,13 +29,11 @@ private:
         }
         else if(abs(GenParticles_ParentId[idx]) == 6)
         {
-            //printf("momid:%i  idx:%i ", GenParticles_ParentId[idx] ,idx);
             return GenParticles_ParentIdx[idx];
         }
         else
         {
             return findParent(GenParticles_ParentIdx[idx], GenParticles_ParentId, GenParticles_ParentIdx);
-            //printf("%i",findParent(GenParticles_PdgId[GenParticles_ParentIdx[momid]], GenParticles_PdgId, GenParticles_ParentIdx));
         }
     }
 
@@ -65,109 +63,61 @@ private:
 
             for ( unsigned int gpi=0; gpi < GenParticles.size() ; gpi++ ) 
             {
-                int pdgid = abs( GenParticles_PdgId.at(gpi) ) ;
-                int momid = abs( GenParticles_ParentId.at(gpi) ) ;
+                int pdgid = GenParticles_PdgId.at(gpi);
+                int momid = GenParticles_ParentId.at(gpi) ;
                 int momidx = GenParticles_ParentIdx.at(gpi);
                 int status = GenParticles_Status.at(gpi);
                 int topIdx = findParent(gpi, GenParticles_ParentId, GenParticles_ParentIdx);
-                if(pdgid == 1000022 && (status==22 || status == 52))
+                if(abs(pdgid) == 1000022 && (status==22 || status == 52))
                 {
                     neutralinos_->push_back(GenParticles.at(gpi));
                 }
-                if(pdgid == 5000001 && (status == 22 || status == 52))
+                if(abs(pdgid) == 5000001 && (status == 22 || status == 52))
                 {
                     singlinos_->push_back(GenParticles.at(gpi));
                 }
-                if(pdgid == 5000002 && (status == 22 || status == 52))
+                if(abs(pdgid) == 5000002 && (status == 22 || status == 52))
                 {
                     singlets_->push_back(GenParticles.at(gpi));
                 }
+                
                 //printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i ",gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi]); fflush(stdout);
                 if(topIdx >= 0 && (abs(pdgid) != 24) )
                 {
                     //printf(" topIdx: %i particle: %i\n", topIdx, pdgid); fflush(stdout);
-                    std::vector<int>::iterator found = std::find(hadtops_idx_->begin(), hadtops_idx_->end(), topIdx);
-                    if (found != hadtops_idx_->end())
+                    
+                    bool found = false; int position = -1;
+                    for (const auto& i : *hadtops_idx_)
                     {
-                        // already found before
-                        //std::cout << "Found this top before: " << *found << std::endl;
-                        int position = distance(hadtops_idx_->begin(),found);
-                        // add the daughter to the list
+                        position++;
+                        if(i == topIdx)
+                        { 
+                            found = true;
+                            break;
+                        }
+                        else
+                        {
+                            found = false;
+                        }
+                    }
+                    if (found)
+                    {
                         (*hadtopdaughters_)[position].push_back(&(GenParticles.at(gpi)));
                     } 
                     else
                     {
-                        // not yet found
                         hadtops_idx_->push_back(topIdx);
                         hadtops_->push_back(GenParticles.at(topIdx));
                         std::vector<const TLorentzVector*> daughters;
                         daughters.push_back(&(GenParticles.at(gpi)));
                         hadtopdaughters_->push_back(daughters);
-                        //std::cout << "Found a new top at idx " << Wmotheridx << std::endl;
                     }
                 }
                 else
                 {
                     //printf("\n");
                 }
-                ////if((status == 23 || status == 33) && momid == 24 && pdgid < 6)
-                //if(momid == 24 && pdgid < 6)
-                //{
-                //    // Should be the quarks from W decay
-                //    nhadWs_++;
-                //    // find the top
-                //    int Wmotherid = GenParticles_ParentId.at(momidx);
-                //    //std::cout<<Wmotherid<<std::endl;
-                //    if (abs(Wmotherid) == 6){
-                //        int Wmotheridx = GenParticles_ParentIdx.at(momidx);
-                //        std::vector<int>::iterator found = std::find(hadtops_idx_->begin(), hadtops_idx_->end(), Wmotheridx);
-                //        if (found != hadtops_idx_->end())
-                //        {
-                //            // already found before
-                //            //std::cout << "Found this top before: " << *found << std::endl;
-                //            int position = distance(hadtops_idx_->begin(),found);
-                //            // add the daughter to the list
-                //            (*hadtopdaughters_)[position].push_back(&(GenParticles.at(gpi)));
-                //        } else
-                //        {
-                //            // not yet found
-                //            hadtops_idx_->push_back(Wmotheridx);
-                //            hadtops_->push_back(GenParticles.at(Wmotheridx));
-                //            hadWs_->push_back(GenParticles.at(momidx));
-                //            std::vector<const TLorentzVector*> daughters;
-                //            daughters.push_back(&(GenParticles.at(gpi)));
-                //            hadtopdaughters_->push_back(daughters);
-                //            //std::cout << "Found a new top at idx " << Wmotheridx << std::endl;
-                //        }
-                //    }
-                //} 
             }
-            //// Now check the b quarks (we only want the ones associated with a hadronic W decay for now)
-            //for ( unsigned int gpi=0; gpi < GenParticles.size() ; gpi++ ) 
-            //{
-            //    int pdgid = abs( GenParticles_PdgId.at(gpi) ) ;
-            //    int momid = abs( GenParticles_ParentId.at(gpi) ) ;
-            //    int momidx = GenParticles_ParentIdx.at(gpi);
-            //    int status = GenParticles_Status.at(gpi);
-            //  
-            //    if(status == 23 && momid == 6 && pdgid == 5)
-            //    {
-            //        // found a b quark from top decay, need to add this to the list of daughters
-            //        std::vector<int>::iterator found = std::find(hadtops_idx_->begin(), hadtops_idx_->end(), momidx);
-            //        if (found != hadtops_idx_->end())
-            //        {
-            //            // already found
-            //            int position = distance(hadtops_idx_->begin(),found);
-            //            (*hadtopdaughters_)[position].push_back(&(GenParticles.at(gpi)));
-            //            //std::cout << "(b) Found this top before: " << *found << std::endl;
-            //        } 
-            //        //else
-            //        //{
-            //        // not yet found
-            //        //std::cout << "(b) Found a new leptonic top at idx " << momidx << std::endl;
-            //        //}
-            //    }
-            //}
         }
     }
 
@@ -257,8 +207,8 @@ private:
             }
         }
 
-        //std::cout<<" Size Yo "<<hadtops_->size()<<"  "<<hadtopdaughters_->size()<<std::endl;
-        //for (int i = 0; i<hadtops_->size(); ++i)
+        ////std::cout<<" Size Yo "<<hadtops_->size()<<"  "<<hadtopdaughters_->size()<<std::endl;
+        //for (int i = 0; i < hadtops_->size(); ++i)
         //{
         //    TLorentzVector dSum;
         //    for (int j = 0; j < ((*hadtopdaughters_)[i]).size(); j++)
@@ -271,7 +221,7 @@ private:
         //          );
         //
         //}
-        
+        //
         //printf("=========================================================================================\n");
 
         // Register Variables
