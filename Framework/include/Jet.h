@@ -11,11 +11,13 @@ private:
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets");
         const auto& etaCut = tr.getVar<double>("etaCut");
+        const auto& jetsID = tr.getVec<bool>("Jets_ID");
 
         jets_pt30_ = new std::vector<TLorentzVector>();
         jets_pt45_ = new std::vector<TLorentzVector>();
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
+            if( !jetsID.at(ijet) ) continue;
             TLorentzVector lv(Jets.at(ijet));
             if( abs(lv.Eta()) < etaCut && 
                 lv.Pt() > 30 
