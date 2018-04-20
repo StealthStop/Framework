@@ -963,6 +963,7 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
 
 int main()
 {
-    make_mva_training_tree_example("temp/");
+    make_mva_training_tree_example("temp/", "rpv_stop_350", "outputfiles/mva-train-rpv_stop_350.root");
+    //make_mva_training_tree_example("temp/", "TT", "outputfiles/mva-train-example-ttbar.root");
     return 0;
 }
