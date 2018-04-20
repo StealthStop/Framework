@@ -13,6 +13,7 @@
 #include "TROOT.h"
 
 #include "TMVA/Factory.h"
+#include "TMVA/DataLoader.h"
 #include "TMVA/Tools.h"
 #include "TMVA/TMVAGui.h"
 
@@ -71,19 +72,19 @@ int tmva_train_example()
     // front of the "Silent" argument in the option string
     TMVA::Factory* factory = new TMVA::Factory( "TMVAClassification", outputFile,
                                                 "V:!Silent:Color:DrawProgressBar:Transformations=I:AnalysisType=Classification" );
+    TMVA::DataLoader* loader = new TMVA::DataLoader("fisherLoader");
 
 
 
+    loader -> AddVariable( "fwm2_top6", 'D' ) ;
+    loader -> AddVariable( "fwm3_top6", 'D' ) ;
+    loader -> AddVariable( "fwm4_top6", 'D' ) ;
+    loader -> AddVariable( "fwm5_top6", 'D' ) ;
+    loader -> AddVariable( "fwm6_top6", 'D' ) ;
 
-    factory -> AddVariable( "fwm2_top6", 'D' ) ;
-    factory -> AddVariable( "fwm3_top6", 'D' ) ;
-    factory -> AddVariable( "fwm4_top6", 'D' ) ;
-    factory -> AddVariable( "fwm5_top6", 'D' ) ;
-    factory -> AddVariable( "fwm6_top6", 'D' ) ;
-
-    factory -> AddVariable( "jmt_ev0_top6", 'D' ) ;
-    factory -> AddVariable( "jmt_ev1_top6", 'D' ) ;
-    factory -> AddVariable( "jmt_ev2_top6", 'D' ) ;
+    loader -> AddVariable( "jmt_ev0_top6", 'D' ) ;
+    loader -> AddVariable( "jmt_ev1_top6", 'D' ) ;
+    loader -> AddVariable( "jmt_ev2_top6", 'D' ) ;
 
 
 
@@ -99,25 +100,25 @@ int tmva_train_example()
     //           Duplicated variables will be duplicated in output tree, so not good.
 
 
-    factory -> AddSpectator( "ds_index", "ds_index" ) ;
-    factory -> AddSpectator( "mva_train_weight", "mva_train_weight" ) ;
+    loader -> AddSpectator( "ds_index", "ds_index" ) ;
+    loader -> AddSpectator( "mva_train_weight", "mva_train_weight" ) ;
 
-    factory -> AddSpectator( "njets_pt45_eta24", "njets_pt45_eta24" ) ;
-    factory -> AddSpectator( "njets_pt30_eta24", "njets_pt30_eta24" ) ;
-    factory -> AddSpectator( "njets_pt20_eta50", "njets_pt20_eta50" ) ;
-    factory -> AddSpectator( "nbtag_csv85_pt30_eta24", "nbtag_csv85_pt30_eta24" ) ;
-    factory -> AddSpectator( "pfht_pt40_eta24", "pfht_pt40_eta24" ) ;
-    factory -> AddSpectator( "pfht_pt45_eta24", "pfht_pt45_eta24" ) ;
-    factory -> AddSpectator( "nleptons", "nleptons" ) ;
-    factory -> AddSpectator( "leppt1", "leppt1" ) ;
-    factory -> AddSpectator( "m_lep1_b", "m_lep1_b" ) ;
-    factory -> AddSpectator( "leppt2", "leppt2" ) ;
-    factory -> AddSpectator( "m_lep2_b", "m_lep2_b" ) ;
+    loader -> AddSpectator( "njets_pt45_eta24", "njets_pt45_eta24" ) ;
+    loader -> AddSpectator( "njets_pt30_eta24", "njets_pt30_eta24" ) ;
+    loader -> AddSpectator( "njets_pt20_eta50", "njets_pt20_eta50" ) ;
+    loader -> AddSpectator( "nbtag_csv85_pt30_eta24", "nbtag_csv85_pt30_eta24" ) ;
+    loader -> AddSpectator( "pfht_pt40_eta24", "pfht_pt40_eta24" ) ;
+    loader -> AddSpectator( "pfht_pt45_eta24", "pfht_pt45_eta24" ) ;
+    loader -> AddSpectator( "nleptons", "nleptons" ) ;
+    loader -> AddSpectator( "leppt1", "leppt1" ) ;
+    loader -> AddSpectator( "m_lep1_b", "m_lep1_b" ) ;
+    loader -> AddSpectator( "leppt2", "leppt2" ) ;
+    loader -> AddSpectator( "m_lep2_b", "m_lep2_b" ) ;
 
-    factory -> AddSpectator( "evt_count", "evt_count" ) ;
-    factory -> AddSpectator( "run", "run" ) ;
-    factory -> AddSpectator( "lumi", "lumi" ) ;
-    factory -> AddSpectator( "event", "event" ) ;
+    loader -> AddSpectator( "evt_count", "evt_count" ) ;
+    loader -> AddSpectator( "run", "run" ) ;
+    loader -> AddSpectator( "lumi", "lumi" ) ;
+    loader -> AddSpectator( "event", "event" ) ;
 
 
 
@@ -146,11 +147,11 @@ int tmva_train_example()
 
 
     // You can add an arbitrary number of signal or background trees
-    factory->AddSignalTree    ( tt_signal350 , 1.    );
-    factory->AddSignalTree    ( tt_signal450 , 1.    );
-    factory->AddSignalTree    ( tt_signal550 , 1.    );
-    factory->AddSignalTree    ( tt_signal650 , 1.    );
-    factory->AddBackgroundTree( tt_ttbar, 0.388 );
+    loader->AddSignalTree    ( tt_signal350 , 1.    );
+    loader->AddSignalTree    ( tt_signal450 , 1.    );
+    loader->AddSignalTree    ( tt_signal550 , 1.    );
+    loader->AddSignalTree    ( tt_signal650 , 1.    );
+    loader->AddBackgroundTree( tt_ttbar, 0.388 );
 
     TCut mycuts = "njets_pt30_eta24>=6 && nleptons>=1 && ( (leppt1>30 && m_lep1_b > 30 && m_lep1_b < 180) || (leppt2>30 && m_lep2_b > 30 && m_lep2_b < 180) )";
     TCut mycutb = "njets_pt30_eta24>=6 && nleptons>=1 && ( (leppt1>30 && m_lep1_b > 30 && m_lep1_b < 180) || (leppt2>30 && m_lep2_b > 30 && m_lep2_b < 180) )";
@@ -158,7 +159,7 @@ int tmva_train_example()
 
     // Tell the factory how to use the training and testing events
     //
-    factory->PrepareTrainingAndTestTree( mycuts, mycutb, "SplitMode=Random:NormMode=None:!V" );
+    loader->PrepareTrainingAndTestTree( mycuts, mycutb, "SplitMode=Random:NormMode=None:!V" );
 
     // ---- Book MVA methods
     //
@@ -170,7 +171,7 @@ int tmva_train_example()
 
 
     // Fisher with Gauss-transformed input variables
-    factory->BookMethod( TMVA::Types::kFisher, "FisherG", "H:!V:VarTransform=Gauss_Background" );
+    factory->BookMethod(loader,  TMVA::Types::kFisher, "FisherG", "H:!V:VarTransform=Gauss_Background" );
 
 
 
