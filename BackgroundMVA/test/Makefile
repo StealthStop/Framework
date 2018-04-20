@@ -34,7 +34,7 @@ LDFLAGS    =
 
 INCLUDES += $(shell $(PYTHONCFG) --includes)
 
-LIBS           = $(shell root-config --glibs)
+LIBS           = $(shell root-config --glibs) -lTMVA -lTMVAGui
 LIBSTOPTAGGER += -L$(TTTDIR) -lTopTagger
 #LHAPDFLIB      = -L$(LHAPDF_DATA_PATH)/../../lib -lLHAPDF
 
