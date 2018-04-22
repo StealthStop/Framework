@@ -7,12 +7,8 @@
 #include "TSystem.h"
 #include "TH1F.h"
 
-#include "../../Framework/src/EventShapeVariables.cc"
-
-///////#include "fisher_350to650_fwm6_jmtev_top6_gt_v2.c"
-///////#include "fisher_350to650_fwm6_jmtev_top6_gt_v3pt30.c"
-
-#include "../../Framework/src/get_cmframe_jets.c"
+#include "Framework/Framework/src/EventShapeVariables.cc"
+#include "Framework/Framework/src/get_cmframe_jets.c"
 
 #ifdef __MAKECINT__
 #pragma link C++ class vector<TLorentzVector>+;
@@ -22,24 +18,13 @@
 #include <vector>
 using std::vector ;
 
-
-   ///////////////bool compare_p( math::RThetaPhiVector v1, math::RThetaPhiVector v2 ) { return (v1.R() > v2.R() ) ; }
-
-
 void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-v2/",
                                      const char* sample_string = "rpv_stop_350",
                                      const char* outfile = "outputfiles/mva-train-rpv_stop_350.root",
                                      int arg_ds_index = 11,
-                                     float lumi_times_xsec = ( 3.79 * 35.9 * 1000. )) 
+                                     float lumi_times_xsec = ( 3.79 * 35.9 * 1000.0 ),
+                                     bool verb = false) 
 {
-    
-    //bool verb(true) ;
-    bool verb(false) ;
-    
-
-
-    //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
     char fpat[1000] ;
     TChain* tt_in = new TChain( "TreeMaker2/PreSelection", "" ) ;
     sprintf( fpat, "%s/*%s*.root", ntuple_dir, sample_string ) ;
@@ -51,7 +36,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     int n_entries = tt_in -> GetEntries() ;
     if ( n_entries <= 0 ) { printf("\n\n *** No entries in ntuple chain.\n\n" ) ; gSystem->Exit(-1) ; }
     printf("  Number of entries: %d\n\n", n_entries ) ;
-
 
     //**** Need to use a pre-skim histogram in the file(s) in this chain to get the number of generated
     //     events run on in order to correctly compute the dataset weight factor.
@@ -88,13 +72,7 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     float ds_weight = lumi_times_xsec / n_entries_pre_skim ;
     printf("  Dataset weight : %.8f\n\n", ds_weight ) ;
 
-
-
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-
-
 
     gSystem -> Exec( "mkdir -p outputfiles" ) ;
 
@@ -102,28 +80,16 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     if ( tf_output == 0x0 ) { printf("\n\n *** bad output file: %s\n\n", outfile ) ; gSystem -> Exit(-1) ; }
     if ( ! tf_output -> IsOpen() ) { printf("\n\n *** bad output file: %s\n\n", outfile ) ; gSystem -> Exit(-1) ; }
 
-
     tt_in -> SetBranchStatus( "*", 1 ) ;
 
     TTree* tt_out = new TTree( "mvatraintt", "MVA training ttree" ) ;
-
-
-
-
 
     //--- Extra output histograms
 
     TH1F* h_costheta_ppweight = new TH1F( "h_costheta_ppweight", "cos(theta_ij) in CM frame, pipj/Esq weight", 110, -1.05, 1.05 ) ;
     TH1F* h_costheta_ppweight_noieqj = new TH1F( "h_costheta_ppweight_noieqj", "cos(theta_ij) in CM frame, pipj/Esq weight, excluding i=j", 110, -1.05, 1.05 ) ;
 
-
-
-
-
     //--- Branches from input for selection
-
-
-
     vector<TLorentzVector> *Jets;
     vector<double>         *Jets_bDiscriminatorCSV;
     vector<double>         *Jets_muonEnergyFraction;
@@ -164,7 +130,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     TBranch     *b_toptag_nconstituents;
     TBranch     *b_Jets_toptag_index;
     TBranch     *b_JetsAK8_toptag_index ;
-
     TBranch     *b_RunNum ;
     TBranch     *b_LumiBlockNum ;
     TBranch     *b_EvtNum ;
@@ -190,7 +155,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     LumiBlockNum = 0 ;
     EvtNum = 0 ;
 
-
     tt_in -> SetBranchAddress("Jets"                             , &Jets                                 , &b_Jets                             );
     tt_in -> SetBranchAddress("Jets_bDiscriminatorCSV"           , &Jets_bDiscriminatorCSV               , &b_Jets_bDiscriminatorCSV           );
     tt_in -> SetBranchAddress("Jets_muonEnergyFraction"          , &Jets_muonEnergyFraction              , &b_Jets_muonEnergyFraction          );
@@ -208,20 +172,9 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     tt_in -> SetBranchAddress("toptag_nconstituents"             , &toptag_nconstituents                 , &b_toptag_nconstituents             );
     tt_in -> SetBranchAddress("Jets_toptag_index"                , &Jets_toptag_index                    , &b_Jets_toptag_index                );
     tt_in -> SetBranchAddress("JetsAK8_toptag_index"             , &JetsAK8_toptag_index                 , &b_JetsAK8_toptag_index             );
-
-    tt_in -> SetBranchAddress("RunNum"             , &RunNum                 , &b_RunNum             );
-    tt_in -> SetBranchAddress("LumiBlockNum"             , &LumiBlockNum                 , &b_LumiBlockNum             );
-    tt_in -> SetBranchAddress("EvtNum"             , &EvtNum                 , &b_EvtNum             );
-
-
-
-
-
-
-
-
-
-
+    tt_in -> SetBranchAddress("RunNum"                           , &RunNum                               , &b_RunNum                           );
+    tt_in -> SetBranchAddress("LumiBlockNum"                     , &LumiBlockNum                         , &b_LumiBlockNum                     );
+    tt_in -> SetBranchAddress("EvtNum"                           , &EvtNum                               , &b_EvtNum                           );
 
     //--- New branches for output.
     int ds_index = arg_ds_index ;
@@ -229,8 +182,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
 
     float mva_train_weight = ds_weight ;
     tt_out -> Branch( "mva_train_weight", &mva_train_weight, "mva_train_weight/F" ) ;
-
-
 
     double fwm2_top6 ;
     double fwm3_top6 ;
@@ -242,8 +193,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     double jmt_ev1_top6 ;
     double jmt_ev2_top6 ;
 
-
-
     double fwm2_top6_tr_v3pt30 ;
     double fwm3_top6_tr_v3pt30 ;
     double fwm4_top6_tr_v3pt30 ;
@@ -254,10 +203,7 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     double jmt_ev1_top6_tr_v3pt30 ;
     double jmt_ev2_top6_tr_v3pt30 ;
 
-
     double event_beta_z ;
-
-
 
     int    njets_pt45_eta24 ;
     int    njets_pt30_eta24 ;
@@ -296,8 +242,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     tt_out -> Branch( "leppt2"                , &leppt2                 , "leppt2/D" ) ;
     tt_out -> Branch( "m_lep2_b"              , &m_lep2_b               , "m_lep2_b/D" ) ;
 
-
-
     tt_out -> Branch( "fwm2_top6", &fwm2_top6, "fwm2_top6/D" ) ;
     tt_out -> Branch( "fwm3_top6", &fwm3_top6, "fwm3_top6/D" ) ;
     tt_out -> Branch( "fwm4_top6", &fwm4_top6, "fwm4_top6/D" ) ;
@@ -307,16 +251,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     tt_out -> Branch( "jmt_ev1_top6", &jmt_ev1_top6, "jmt_ev1_top6/D" ) ;
     tt_out -> Branch( "jmt_ev2_top6", &jmt_ev2_top6, "jmt_ev2_top6/D" ) ;
 
-
-    ///////tt_out -> Branch( "fwm2_top6_tr_v3pt30", &fwm2_top6_tr_v3pt30, "fwm2_top6_tr_v3pt30/D" ) ;
-    ///////tt_out -> Branch( "fwm3_top6_tr_v3pt30", &fwm3_top6_tr_v3pt30, "fwm3_top6_tr_v3pt30/D" ) ;
-    ///////tt_out -> Branch( "fwm4_top6_tr_v3pt30", &fwm4_top6_tr_v3pt30, "fwm4_top6_tr_v3pt30/D" ) ;
-    ///////tt_out -> Branch( "fwm5_top6_tr_v3pt30", &fwm5_top6_tr_v3pt30, "fwm5_top6_tr_v3pt30/D" ) ;
-    ///////tt_out -> Branch( "fwm6_top6_tr_v3pt30", &fwm6_top6_tr_v3pt30, "fwm6_top6_tr_v3pt30/D" ) ;
-    ///////tt_out -> Branch( "jmt_ev0_top6_tr_v3pt30", &jmt_ev0_top6_tr_v3pt30, "jmt_ev0_top6_tr_v3pt30/D" ) ;
-    ///////tt_out -> Branch( "jmt_ev1_top6_tr_v3pt30", &jmt_ev1_top6_tr_v3pt30, "jmt_ev1_top6_tr_v3pt30/D" ) ;
-    ///////tt_out -> Branch( "jmt_ev2_top6_tr_v3pt30", &jmt_ev2_top6_tr_v3pt30, "jmt_ev2_top6_tr_v3pt30/D" ) ;
-
     tt_out -> Branch( "evt_count", &evt_count, "evt_count/I" ) ;
     tt_out -> Branch( "run", &run, "run/I" ) ;
     tt_out -> Branch( "lumi", &lumi, "lumi/I" ) ;
@@ -324,87 +258,12 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
 
     tt_out -> Branch( "event_beta_z", &event_beta_z, "event_beta_z/D" ) ;
 
-
-
-    //--- Add the mva output from previous training(s).
-
-
-    /////////double fisher_val_350to650_fwm6_jmtev_top6_gt_v2 ;
-    /////////tt_out -> Branch( "fisher_val_350to650_fwm6_jmtev_top6_gt_v2", &fisher_val_350to650_fwm6_jmtev_top6_gt_v2, "fisher_val_350to650_fwm6_jmtev_top6_gt_v2/D" ) ;
-
-    /////////double fisher_val_350to650_fwm6_jmtev_top6_gt_v3pt30 ;
-    /////////tt_out -> Branch( "fisher_val_350to650_fwm6_jmtev_top6_gt_v3pt30", &fisher_val_350to650_fwm6_jmtev_top6_gt_v3pt30, "fisher_val_350to650_fwm6_jmtev_top6_gt_v3pt30/D" ) ;
-
-
-    //////////std::vector<std::string> inputVarNames ;
-    //////////std::vector<double> bdtInputVals ;
-
-    //////////{
-    //////////   std::string vname ;
-    //////////   vname = "fwm2" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "fwm3" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "fwm4" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "fwm5" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "fwm6" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "fwm7" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "fwm8" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "fwm9" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "fwm10" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "jmt_ev0" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "jmt_ev1" ; inputVarNames.push_back( vname ) ;
-    //////////   vname = "jmt_ev2" ; inputVarNames.push_back( vname ) ;
-
-    //////////   for ( unsigned int i=0; i < inputVarNames.size() ; i++ ) {
-    //////////      bdtInputVals.push_back( 0.5 ) ; //--- load vector with dummy values.
-    //////////   } // i
-
-    //////////}
-
-
-
-
-    //////////std::vector<double> transformed_inputs ;
-    //////////
-    //////////
-    //////////std::vector<std::string> inputVarNames_top6_fwm6 ;
-    //////////std::vector<double> bdtInputVals_top6_fwm6 ;
-    //////////
-    //////////{
-    //////////   std::string vname ;
-    //////////   vname = "fwm2_top6" ; inputVarNames_top6_fwm6.push_back( vname ) ;
-    //////////   vname = "fwm3_top6" ; inputVarNames_top6_fwm6.push_back( vname ) ;
-    //////////   vname = "fwm4_top6" ; inputVarNames_top6_fwm6.push_back( vname ) ;
-    //////////   vname = "fwm5_top6" ; inputVarNames_top6_fwm6.push_back( vname ) ;
-    //////////   vname = "fwm6_top6" ; inputVarNames_top6_fwm6.push_back( vname ) ;
-    //////////   vname = "jmt_ev0_top6" ; inputVarNames_top6_fwm6.push_back( vname ) ;
-    //////////   vname = "jmt_ev1_top6" ; inputVarNames_top6_fwm6.push_back( vname ) ;
-    //////////   vname = "jmt_ev2_top6" ; inputVarNames_top6_fwm6.push_back( vname ) ;
-
-    //////////   for ( unsigned int i=0; i < inputVarNames_top6_fwm6.size() ; i++ ) {
-    //////////      bdtInputVals_top6_fwm6.push_back( 0.5 ) ; //--- load vector with dummy values.
-    //////////   } // i
-
-    //////////}
-
-
-
-    /////////ReadFisherG_350to650_fwm6_jmtev_top6_gt_v2 read_fisher_350to650_fwm6_jmtev_top6_gt_v2( inputVarNames_top6_fwm6 ) ;
-
-    /////////ReadFisherG_350to650_fwm6_jmtev_top6_gt_v3pt30 read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30( inputVarNames_top6_fwm6 ) ;
-
-
-
-
-
-
-
     //--- Loop over events
 
     Long64_t nevts_ttree = tt_in -> GetEntries() ;
     printf("\n\n Number of events in input tree: %lld\n\n", nevts_ttree ) ;
 
     //////nevts_ttree = 5000 ; // *** testing.
-
 
     int modnum(1) ;
     if ( nevts_ttree > 0 ) modnum = nevts_ttree / 100 ;
@@ -459,12 +318,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
             printf("\n") ;
         }
 
-
-
-
-
-
-
         //--- Initialize all derived ntuple variables.
 
         njets_pt45_eta24 = 0 ;
@@ -473,8 +326,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         njets_pt45_eta50 = 0 ;
         njets_pt30_eta50 = 0 ;
         njets_pt20_eta50 = 0 ;
-
-
 
         fwm2_top6 = 0 ;
         fwm3_top6 = 0 ;
@@ -485,7 +336,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         jmt_ev1_top6 = 0 ;
         jmt_ev2_top6 = 0 ;
 
-
         fwm2_top6_tr_v3pt30 = 0 ;
         fwm3_top6_tr_v3pt30 = 0 ;
         fwm4_top6_tr_v3pt30 = 0 ;
@@ -494,8 +344,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         jmt_ev0_top6_tr_v3pt30 = 0 ;
         jmt_ev1_top6_tr_v3pt30 = 0 ;
         jmt_ev2_top6_tr_v3pt30 = 0 ;
-
-
 
         pfht_pt40_eta24 = 0 ;
         pfht_pt45_eta24 = 0 ;
@@ -507,11 +355,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         m_lep2_b = 0 ;
 
         event_beta_z = -9. ;
-
-
-
-
-
 
 
         TLorentzVector rlv_all_jets ;
@@ -563,12 +406,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
             }
 
         } // rji
-
-
-
-
-
-
 
 
         double reco_jets_beta = rlv_all_jets.Pz() / rlv_all_jets.E() ;
@@ -651,52 +488,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         TVectorD eigen_vals_norm_top6 = esv_top6.getEigenValues() ;
 
 
-////   //---- code test
-
-////     std::vector<math::RThetaPhiVector> cm_frame_jets_test ;
-////     get_cmframe_jets( Jets, cm_frame_jets_test, 6 ) ;
-////     EventShapeVariables esv_top6_test( cm_frame_jets_test ) ;
-////     TVectorD eigen_vals_norm_top6_test = esv_top6_test.getEigenValues() ;
-
-
-////     printf("\n\n ======== CODE TEST BEGIN\n\n") ;
-////     for ( unsigned int ji=0; ji<cm_frame_jets_test.size(); ji++ ) {
-////        printf("  from new code : %2d :  (%7.1f, %7.3f, %7.3f)\n", ji,
-////          cm_frame_jets_test.at(ji).R(),
-////          cm_frame_jets_test.at(ji).Theta(),
-////          cm_frame_jets_test.at(ji).Phi()
-////          ) ;
-////     } // ji
-////     printf("\n") ;
-////     for ( unsigned int ji=0; ji<cm_frame_jets_test.size(); ji++ ) {
-////        printf("  from old code : %2d :  (%7.1f, %7.3f, %7.3f)\n", ji,
-////          cm_jets_psort.at(ji).R(),
-////          cm_jets_psort.at(ji).Theta(),
-////          cm_jets_psort.at(ji).Phi()
-////          ) ;
-////     } // ji
-////     printf("\n") ;
-////     printf("  fwm2 (old,new) : %7.4f, %7.4f\n", esv_top6.getFWmoment(2), esv_top6_test.getFWmoment(2) ) ;
-////     printf("  fwm3 (old,new) : %7.4f, %7.4f\n", esv_top6.getFWmoment(3), esv_top6_test.getFWmoment(3) ) ;
-////     printf("  fwm4 (old,new) : %7.4f, %7.4f\n", esv_top6.getFWmoment(4), esv_top6_test.getFWmoment(4) ) ;
-////     printf("  fwm5 (old,new) : %7.4f, %7.4f\n", esv_top6.getFWmoment(5), esv_top6_test.getFWmoment(5) ) ;
-////     printf("\n") ;
-////     printf("  jmt_ev0 (old,new) :  %7.4f, %7.4f\n", eigen_vals_norm_top6[0], eigen_vals_norm_top6_test[0] ) ;
-////     printf("  jmt_ev1 (old,new) :  %7.4f, %7.4f\n", eigen_vals_norm_top6[1], eigen_vals_norm_top6_test[1] ) ;
-////     printf("  jmt_ev2 (old,new) :  %7.4f, %7.4f\n", eigen_vals_norm_top6[2], eigen_vals_norm_top6_test[2] ) ;
-
-////     printf("\n") ;
-////     printf("\n\n ======== CODE TEST END\n\n") ;
-
-
-
-////   //---- code test
-
-
-
-
-
-
         fwm2_top6 = esv_top6.getFWmoment( 2 ) ;
         fwm3_top6 = esv_top6.getFWmoment( 3 ) ;
         fwm4_top6 = esv_top6.getFWmoment( 4 ) ;
@@ -706,47 +497,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         jmt_ev0_top6 = eigen_vals_norm_top6[0] ;
         jmt_ev1_top6 = eigen_vals_norm_top6[1] ;
         jmt_ev2_top6 = eigen_vals_norm_top6[2] ;
-
-
-
-        //---- Test BDT reader
-
-        {
-
-            //////////int vi ;
-
-            //////////vi = 0 ;
-            //////////bdtInputVals_top6_fwm6.at(vi) = fwm2_top6 ; vi++ ;
-            //////////bdtInputVals_top6_fwm6.at(vi) = fwm3_top6 ; vi++ ;
-            //////////bdtInputVals_top6_fwm6.at(vi) = fwm4_top6 ; vi++ ;
-            //////////bdtInputVals_top6_fwm6.at(vi) = fwm5_top6 ; vi++ ;
-            //////////bdtInputVals_top6_fwm6.at(vi) = fwm6_top6 ; vi++ ;
-            //////////bdtInputVals_top6_fwm6.at(vi) = jmt_ev0_top6 ; vi++ ;
-            //////////bdtInputVals_top6_fwm6.at(vi) = jmt_ev1_top6 ; vi++ ;
-            //////////bdtInputVals_top6_fwm6.at(vi) = jmt_ev2_top6 ; vi++ ;
-
-
-            /////////////fisher_val_350to650_fwm6_jmtev_top6_gt_v2 = read_fisher_350to650_fwm6_jmtev_top6_gt_v2.GetMvaValue( bdtInputVals_top6_fwm6 ) ;
-
-
-
-            /////////////fisher_val_350to650_fwm6_jmtev_top6_gt_v3pt30 = read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30.GetMvaValue( bdtInputVals_top6_fwm6 ) ;
-
-            /////////////read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30.get_transformed_inputs( bdtInputVals_top6_fwm6, transformed_inputs ) ;
-
-            //////////vi = 0 ;
-            //////////fwm2_top6_tr_v3pt30 = transformed_inputs.at(vi) ; vi++ ;
-            //////////fwm3_top6_tr_v3pt30 = transformed_inputs.at(vi) ; vi++ ;
-            //////////fwm4_top6_tr_v3pt30 = transformed_inputs.at(vi) ; vi++ ;
-            //////////fwm5_top6_tr_v3pt30 = transformed_inputs.at(vi) ; vi++ ;
-            //////////fwm6_top6_tr_v3pt30 = transformed_inputs.at(vi) ; vi++ ;
-            //////////jmt_ev0_top6_tr_v3pt30 = transformed_inputs.at(vi) ; vi++ ;
-            //////////jmt_ev1_top6_tr_v3pt30 = transformed_inputs.at(vi) ; vi++ ;
-            //////////jmt_ev2_top6_tr_v3pt30 = transformed_inputs.at(vi) ; vi++ ;
-
-
-        }
-
 
 
         //---- variables related to leptons.
