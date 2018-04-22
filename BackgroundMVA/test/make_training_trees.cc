@@ -10,6 +10,8 @@
 #include "Framework/Framework/src/EventShapeVariables.cc"
 #include "Framework/Framework/src/get_cmframe_jets.c"
 
+#include "SusyAnaTools/Tools/NTupleReader.h"
+
 void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-v2/",
                                      const char* sample_string = "rpv_stop_350",
                                      const char* outfile = "outputfiles/mva-train-rpv_stop_350.root",
@@ -28,6 +30,7 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     int n_entries = tt_in->GetEntries() ;
     if ( n_entries <= 0 ) { printf("\n\n *** No entries in ntuple chain.\n\n" ) ; gSystem->Exit(-1) ; }
     printf("  Number of entries: %d\n\n", n_entries ) ;
+    NTupleReader tr(tt_in);
 
     //**** Need to use a pre-skim histogram in the file(s) in this chain to get the number of generated
     //     events run on in order to correctly compute the dataset weight factor.
@@ -45,13 +48,11 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         if ( fp == nullptr ) { printf("\n\n *** pointer to TFile is null.\n\n" ) ; gSystem->Exit(-1) ; }
         if ( ! fp->IsOpen() ) { printf("\n\n *** file is not open.\n\n" ) ; gSystem->Exit(-1) ; }
         TH1F* hp = (TH1F*) fp->Get( "h_njets_pt45" ) ;
-        //TH1F* hp = (TH1F*) fp->Get( "h_njets_pt45" ) ;
         if ( hp == nullptr ) 
         { 
             printf("\n\n *** can't find histogram h_njets_pt45 in file %d\n", fi ) ; 
-            n_entries_pre_skim = n_entries;
+            n_entries_pre_skim += n_entries;
             break;
-            //gSystem->Exit(-1) ; 
         }
         printf("  hist pointer : %p\n", hp ) ;
         printf("  hist name : %s \n", hp->GetName() ) ;
@@ -81,99 +82,11 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         gSystem->Exit(-1) ;
     }
     
-    tt_in->SetBranchStatus( "*", 1 ) ;
-
     TTree* tt_out = new TTree( "mvatraintt", "MVA training ttree" ) ;
 
     //--- Extra output histograms
     TH1F* h_costheta_ppweight = new TH1F( "h_costheta_ppweight", "cos(theta_ij) in CM frame, pipj/Esq weight", 110, -1.05, 1.05 ) ;
     TH1F* h_costheta_ppweight_noieqj = new TH1F( "h_costheta_ppweight_noieqj", "cos(theta_ij) in CM frame, pipj/Esq weight, excluding i=j", 110, -1.05, 1.05 ) ;
-
-    //--- Branches from input for selection
-    vector<TLorentzVector> *Jets;
-    vector<double>         *Jets_bDiscriminatorCSV;
-    vector<double>         *Jets_muonEnergyFraction;
-    vector<double>         *Jets_neutralEmEnergyFraction;
-    vector<TLorentzVector> *JetsAK8;
-    vector<double>         *JetsAK8_NsubjettinessTau1;
-    vector<double>         *JetsAK8_NsubjettinessTau2;
-    vector<double>         *JetsAK8_NsubjettinessTau3;
-    vector<double>         *JetsAK8_softDropMass;
-    vector<TLorentzVector> *Muons;
-    vector<int>            *Muons_charge;
-    vector<TLorentzVector> *Electrons;
-    vector<int>            *Electrons_charge;
-    vector<TLorentzVector> *toptag_tlv;
-    vector<int>            *toptag_nconstituents;
-    vector<int>            *Jets_toptag_index;
-    vector<int>            *JetsAK8_toptag_index;
-
-    UInt_t RunNum ;
-    UInt_t LumiBlockNum ;
-    ULong64_t EvtNum ;
-
-    TBranch     *b_Jets;
-    TBranch     *b_Jets_bDiscriminatorCSV;
-    TBranch     *b_Jets_muonEnergyFraction;
-    TBranch     *b_Jets_neutralEmEnergyFraction;
-    TBranch     *b_JetsAK8;
-    TBranch     *b_JetsAK8_NsubjettinessTau1;
-    TBranch     *b_JetsAK8_NsubjettinessTau2;
-    TBranch     *b_JetsAK8_NsubjettinessTau3;
-    TBranch     *b_JetsAK8_softDropMass;
-    TBranch     *b_Muons;
-    TBranch     *b_Muons_charge;
-    TBranch     *b_Electrons;
-    TBranch     *b_Electrons_charge;
-    TBranch     *b_toptag_tlv;
-    TBranch     *b_toptag_nconstituents;
-    TBranch     *b_Jets_toptag_index;
-    TBranch     *b_JetsAK8_toptag_index ;
-    TBranch     *b_RunNum ;
-    TBranch     *b_LumiBlockNum ;
-    TBranch     *b_EvtNum ;
-
-    Jets = 0 ;
-    Jets_bDiscriminatorCSV = 0 ;
-    Jets_muonEnergyFraction = 0 ;
-    Jets_neutralEmEnergyFraction = 0 ;
-    JetsAK8 = 0 ;
-    JetsAK8_NsubjettinessTau1 = 0 ;
-    JetsAK8_NsubjettinessTau2 = 0 ;
-    JetsAK8_NsubjettinessTau3 = 0 ;
-    JetsAK8_softDropMass = 0 ;
-    Muons = 0 ;
-    Muons_charge = 0 ;
-    Electrons = 0 ;
-    Electrons_charge = 0 ;
-    toptag_tlv = 0 ;
-    toptag_nconstituents = 0 ;
-    Jets_toptag_index = 0 ;
-    JetsAK8_toptag_index = 0 ;
-    RunNum = 0 ;
-    LumiBlockNum = 0 ;
-    EvtNum = 0 ;
-
-    tt_in->SetBranchAddress("Jets"                             , &Jets                                 , &b_Jets                             );
-    tt_in->SetBranchAddress("Jets_bDiscriminatorCSV"           , &Jets_bDiscriminatorCSV               , &b_Jets_bDiscriminatorCSV           );
-    tt_in->SetBranchAddress("Jets_muonEnergyFraction"          , &Jets_muonEnergyFraction              , &b_Jets_muonEnergyFraction          );
-    tt_in->SetBranchAddress("Jets_neutralEmEnergyFraction"     , &Jets_neutralEmEnergyFraction         , &b_Jets_neutralEmEnergyFraction     );
-    tt_in->SetBranchAddress("JetsAK8"                          , &JetsAK8                              , &b_JetsAK8                          );
-    tt_in->SetBranchAddress("JetsAK8_NsubjettinessTau1"        , &JetsAK8_NsubjettinessTau1            , &b_JetsAK8_NsubjettinessTau1        );
-    tt_in->SetBranchAddress("JetsAK8_NsubjettinessTau2"        , &JetsAK8_NsubjettinessTau2            , &b_JetsAK8_NsubjettinessTau2        );
-    tt_in->SetBranchAddress("JetsAK8_NsubjettinessTau3"        , &JetsAK8_NsubjettinessTau3            , &b_JetsAK8_NsubjettinessTau3        );
-    tt_in->SetBranchAddress("JetsAK8_softDropMass"             , &JetsAK8_softDropMass                 , &b_JetsAK8_softDropMass             );
-    tt_in->SetBranchAddress("Muons"                            , &Muons                                , &b_Muons                            );
-    tt_in->SetBranchAddress("Muons_charge"                     , &Muons_charge                         , &b_Muons_charge                     );
-    tt_in->SetBranchAddress("Electrons"                        , &Electrons                            , &b_Electrons                        );
-    tt_in->SetBranchAddress("Electrons_charge"                 , &Electrons_charge                     , &b_Electrons_charge                 );
-    tt_in->SetBranchAddress("toptag_tlv"                       , &toptag_tlv                           , &b_toptag_tlv                       );
-    tt_in->SetBranchAddress("toptag_nconstituents"             , &toptag_nconstituents                 , &b_toptag_nconstituents             );
-    tt_in->SetBranchAddress("Jets_toptag_index"                , &Jets_toptag_index                    , &b_Jets_toptag_index                );
-    tt_in->SetBranchAddress("JetsAK8_toptag_index"             , &JetsAK8_toptag_index                 , &b_JetsAK8_toptag_index             );
-    tt_in->SetBranchAddress("RunNum"                           , &RunNum                               , &b_RunNum                           );
-    tt_in->SetBranchAddress("LumiBlockNum"                     , &LumiBlockNum                         , &b_LumiBlockNum                     );
-    tt_in->SetBranchAddress("EvtNum"                           , &EvtNum                               , &b_EvtNum                           );
 
     //--- New branches for output.
     int ds_index = arg_ds_index ;
@@ -251,19 +164,33 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     Long64_t nevts_ttree = tt_in->GetEntries() ;
     printf("\n\n Number of events in input tree: %lld\n\n", nevts_ttree ) ;
 
-    //////nevts_ttree = 5000 ; // *** testing.
-
     int modnum(1) ;
     if ( nevts_ttree > 0 ) modnum = nevts_ttree / 100 ;
     if ( modnum <= 0 ) modnum = 1 ;
 
     int nsave(0) ;
 
-    for ( Long64_t ei=0; ei<nevts_ttree ; ei++ ) 
+    Long64_t ei=-1;
+    while( tr.getNextEvent() )
     {
+        const auto& Jets                         = tr.getVec<TLorentzVector>("Jets");
+        const auto& Jets_bDiscriminatorCSV       = tr.getVec<double>        ("Jets_bDiscriminatorCSV");
+        const auto& Jets_muonEnergyFraction      = tr.getVec<double>        ("Jets_muonEnergyFraction");
+        const auto& Jets_neutralEmEnergyFraction = tr.getVec<double>        ("Jets_neutralEmEnergyFraction");
+        const auto& JetsAK8                      = tr.getVec<TLorentzVector>("JetsAK8");
+        const auto& JetsAK8_NsubjettinessTau1    = tr.getVec<double>        ("JetsAK8_NsubjettinessTau1");
+        const auto& JetsAK8_NsubjettinessTau2    = tr.getVec<double>        ("JetsAK8_NsubjettinessTau2");
+        const auto& JetsAK8_NsubjettinessTau3    = tr.getVec<double>        ("JetsAK8_NsubjettinessTau3");
+        const auto& JetsAK8_softDropMass         = tr.getVec<double>        ("JetsAK8_softDropMass");
+        const auto& Muons                        = tr.getVec<TLorentzVector>("Muons");
+        const auto& Muons_charge                 = tr.getVec<int>           ("Muons_charge");
+        const auto& Electrons                    = tr.getVec<TLorentzVector>("Electrons");
+        const auto& Electrons_charge             = tr.getVec<int>           ("Electrons_charge");
+        const auto& RunNum                       = tr.getVar<UInt_t>        ("RunNum");
+        const auto& LumiBlockNum                 = tr.getVar<UInt_t>        ("LumiBlockNum");
+        const auto& EvtNum                       = tr.getVar<ULong64_t>     ("EvtNum");
 
-        tt_in->GetEntry(ei ) ;
-
+        ei++;
         if ( ei%modnum == 0 ) printf("   %9lld / %9lld\n", ei, nevts_ttree ) ;
 
         evt_count = ei ;
@@ -277,13 +204,13 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
             printf(" =============== Count : %lld, run=%10d, lumi=%10d, event=%10llu\n", ei, run, lumi, event ) ;
             printf("\n") ;
             printf("   AK4 jets:\n" ) ;
-            for ( unsigned int rji=0; rji<Jets->size() ; rji ++ ) 
+            for ( unsigned int rji=0; rji<Jets.size() ; rji ++ ) 
             {
                 printf("  %3d : Pt = %7.1f, Eta = %7.3f, Phi = %7.3f | CSV = %8.3f , mu fr = %7.3f , neut EM fr = %7.3f\n",
-                       rji, Jets->at(rji).Pt(), Jets->at(rji).Eta(), Jets->at(rji).Phi(),
-                       Jets_bDiscriminatorCSV->at(rji),
-                       Jets_muonEnergyFraction->at(rji),
-                       Jets_neutralEmEnergyFraction->at(rji)
+                       rji, Jets.at(rji).Pt(), Jets.at(rji).Eta(), Jets.at(rji).Phi(),
+                       Jets_bDiscriminatorCSV.at(rji),
+                       Jets_muonEnergyFraction.at(rji),
+                       Jets_neutralEmEnergyFraction.at(rji)
                       ) ;
             } // rji
             printf("\n") ;
@@ -293,18 +220,18 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         {
             printf("\n") ;
             printf("   AK8 jets:\n" ) ;
-            for ( unsigned int fji=0; fji<JetsAK8->size() ; fji++ ) 
+            for ( unsigned int fji=0; fji<JetsAK8.size() ; fji++ ) 
             {
                 double t31(0) ;
                 double t21(0) ;
-                if ( JetsAK8_NsubjettinessTau1->at(fji) > 0 ) 
+                if ( JetsAK8_NsubjettinessTau1.at(fji) > 0 ) 
                 {
-                    t31 = (JetsAK8_NsubjettinessTau3->at(fji)) / (JetsAK8_NsubjettinessTau1->at(fji)) ;
-                    t21 = (JetsAK8_NsubjettinessTau2->at(fji)) / (JetsAK8_NsubjettinessTau1->at(fji)) ;
+                    t31 = (JetsAK8_NsubjettinessTau3.at(fji)) / (JetsAK8_NsubjettinessTau1.at(fji)) ;
+                    t21 = (JetsAK8_NsubjettinessTau2.at(fji)) / (JetsAK8_NsubjettinessTau1.at(fji)) ;
                 }
                 printf("  %3d : Pt = %7.1f, Eta = %7.3f, Phi = %7.3f | SD mass = %7.1f , tau3/tau1 = %7.3f , tau2/tau1 = %7.3f\n",
-                       fji, JetsAK8->at(fji).Pt(), JetsAK8->at(fji).Eta(), JetsAK8->at(fji).Phi(),
-                       JetsAK8_softDropMass->at(fji), t31, t21
+                       fji, JetsAK8.at(fji).Pt(), JetsAK8.at(fji).Eta(), JetsAK8.at(fji).Phi(),
+                       JetsAK8_softDropMass.at(fji), t31, t21
                     ) ;
             } // ji
             printf("\n") ;
@@ -356,11 +283,11 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         pfht_pt45_eta24 = 0. ;
 
         int ngood_pt30_eta24(0) ;
-        for ( unsigned int rji=0; rji < Jets->size() ; rji++ ) 
+        for ( unsigned int rji=0; rji < Jets.size() ; rji++ ) 
         {
 
-            TLorentzVector jlv( Jets->at(rji) ) ;
-            TLorentzVector rj_tlv( Jets->at(rji) ) ;
+            TLorentzVector jlv( Jets.at(rji) ) ;
+            TLorentzVector rj_tlv( Jets.at(rji) ) ;
 
             rlv_all_jets += jlv ;
 
@@ -378,7 +305,7 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
                     if ( ngood_pt30_eta24 >= 7 ) 
                     {
                     }
-                    if ( Jets_bDiscriminatorCSV->at(rji) > 0.85 ) 
+                    if ( Jets_bDiscriminatorCSV.at(rji) > 0.85 ) 
                     {
                         nbtag_csv85_pt30_eta24++ ;
                     }
@@ -412,9 +339,9 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
 
         std::vector<math::RThetaPhiVector> cm_jets ;
 
-        for ( unsigned int rji=0; rji < Jets->size() ; rji++ ) 
+        for ( unsigned int rji=0; rji < Jets.size() ; rji++ ) 
         {
-            TLorentzVector jlvcm( Jets->at(rji) ) ;
+            TLorentzVector jlvcm( Jets.at(rji) ) ;
             jlvcm.Boost( rec_boost_beta_vec ) ;
 
             math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() ) ;
@@ -502,10 +429,10 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         int lep2_q(0) ;
         nleptons = 0 ;
 
-        for ( unsigned int mi=0; mi<Muons->size(); mi++ ) 
+        for ( unsigned int mi=0; mi<Muons.size(); mi++ ) 
         {
-            if ( Muons->at(mi).Pt() > 0 ) nleptons ++ ;
-            if ( Muons->at(mi).Pt() > lep1_tlv.Pt() ) 
+            if ( Muons.at(mi).Pt() > 0 ) nleptons ++ ;
+            if ( Muons.at(mi).Pt() > lep1_tlv.Pt() ) 
             {
                 if ( lep1_tlv.Pt() > 0 ) 
                 {
@@ -514,21 +441,21 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
                     lep2_is_mu = lep1_is_mu ;
                     lep2_is_e  = lep1_is_e  ;
                 }
-                lep1_tlv =  Muons->at(mi) ;
-                lep1_q = Muons_charge->at(mi) ;
+                lep1_tlv =  Muons.at(mi) ;
+                lep1_q = Muons_charge.at(mi) ;
                 lep1_is_mu = true ;
             } 
-            else if ( Muons->at(mi).Pt() > lep2_tlv.Pt() ) 
+            else if ( Muons.at(mi).Pt() > lep2_tlv.Pt() ) 
             {
-                lep2_tlv =  Muons->at(mi) ;
-                lep2_q = Muons_charge->at(mi) ;
+                lep2_tlv =  Muons.at(mi) ;
+                lep2_q = Muons_charge.at(mi) ;
                 lep2_is_mu = true ;
             }
         }
-        for ( unsigned int ei=0; ei<Electrons->size(); ei++ ) 
+        for ( unsigned int ei=0; ei<Electrons.size(); ei++ ) 
         {
-            if ( Electrons->at(ei).Pt() > 0 ) nleptons ++ ;
-            if ( Electrons->at(ei).Pt() > lep1_tlv.Pt() ) 
+            if ( Electrons.at(ei).Pt() > 0 ) nleptons ++ ;
+            if ( Electrons.at(ei).Pt() > lep1_tlv.Pt() ) 
             {
                 if ( lep1_tlv.Pt() > 0 ) 
                 {
@@ -537,14 +464,14 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
                     lep2_is_mu = lep1_is_mu ;
                     lep2_is_e  = lep1_is_e ;
                 }
-                lep1_tlv =  Electrons->at(ei) ;
-                lep1_q = Electrons_charge->at(ei) ;
+                lep1_tlv =  Electrons.at(ei) ;
+                lep1_q = Electrons_charge.at(ei) ;
                 lep1_is_e = true ;
             } 
-            else if ( Electrons->at(ei).Pt() > lep2_tlv.Pt() ) 
+            else if ( Electrons.at(ei).Pt() > lep2_tlv.Pt() ) 
             {
-                lep2_tlv =  Electrons->at(ei) ;
-                lep2_q = Electrons_charge->at(ei) ;
+                lep2_tlv =  Electrons.at(ei) ;
+                lep2_q = Electrons_charge.at(ei) ;
                 lep2_is_e = true ;
             }
         }
@@ -563,9 +490,9 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
             double lowest_m_lep1_b(999.) ;
             double lowest_m_lep2_b(999.) ;
 
-            for ( unsigned int rji=0; rji<Jets->size(); rji++ ) 
+            for ( unsigned int rji=0; rji<Jets.size(); rji++ ) 
             {
-                TLorentzVector j_tlv = Jets->at(rji) ;
+                TLorentzVector j_tlv = Jets.at(rji) ;
 
                 if ( lep1_tlv.Pt() > 5 && lep1_tlv.DeltaR( j_tlv ) < 0.05 ) 
                 {
@@ -575,8 +502,8 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
                                 ( lep1_is_mu ? "mu" : "e " ),
                                 lep1_tlv.DeltaR( j_tlv ),
                                 j_tlv.P() / lep1_tlv.P(),
-                                Jets_muonEnergyFraction->at(rji),
-                                Jets_neutralEmEnergyFraction->at(rji) ) ;
+                                Jets_muonEnergyFraction.at(rji),
+                                Jets_neutralEmEnergyFraction.at(rji) ) ;
                         printf("   lepton  Pt = %7.1f, Eta = %7.3f, Phi = %7.3f\n", lep1_tlv.Pt(), lep1_tlv.Eta(), lep1_tlv.Phi() ) ;
                         printf("   jet     Pt = %7.1f, Eta = %7.3f, Phi = %7.3f\n", j_tlv.Pt(), j_tlv.Eta(), j_tlv.Phi() ) ;
                     }
@@ -590,8 +517,8 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
                                 ( lep2_is_mu ? "mu" : "e " ),
                                 lep2_tlv.DeltaR( j_tlv ),
                                 j_tlv.P() / lep2_tlv.P(),
-                                Jets_muonEnergyFraction->at(rji),
-                                Jets_neutralEmEnergyFraction->at(rji) ) ;
+                                Jets_muonEnergyFraction.at(rji),
+                                Jets_neutralEmEnergyFraction.at(rji) ) ;
                         printf("   lepton  Pt = %7.1f, Eta = %7.3f, Phi = %7.3f\n", lep2_tlv.Pt(), lep2_tlv.Eta(), lep2_tlv.Phi() ) ;
                         printf("   jet     Pt = %7.1f, Eta = %7.3f, Phi = %7.3f\n", j_tlv.Pt(), j_tlv.Eta(), j_tlv.Phi() ) ;
                     }
@@ -599,7 +526,7 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
                 }
 
 
-                if ( Jets_bDiscriminatorCSV->at(rji) > 0.85 ) 
+                if ( Jets_bDiscriminatorCSV.at(rji) > 0.85 ) 
                 {
 
                     TLorentzVector lep1_b_tlv = lep1_tlv + j_tlv ;
