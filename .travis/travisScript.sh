@@ -20,16 +20,19 @@ eval `scramv1 runtime -sh`
 set -x
 cp -r $TRAVIS_BUILD_DIR .
 ls -l
-pwd
+echo "============================"
+echo "Testing the top tagger"
+echo "============================"
 git clone https://github.com/susy2015/TopTaggerTools.git
 git clone -b TopTaggingLPC https://github.com/susy2015/SusyAnaTools.git
 git clone https://github.com/StealthStop/Analyzer.git
 git clone https://github.com/susy2015/TopTagger.git
 cd TopTagger/TopTagger/test
-echo "========================================================================="
 ./configure TENSORFLOWDIR=
 make -j4
-echo "========================================================================="
+echo "============================"
+echo "Testing Analyzer"
+echo "============================"
 cd ../../../
 cd Analyzer/Analyzer/test
 source ${CMSSW_BASE}/src/TopTagger/TopTagger/test/taggerSetup.sh
@@ -39,4 +42,12 @@ make -j4
 #make -j4
 #echo "========================================================================="
 #./MyAnalysis -s -H myoutputfile.root -D TT -E 2000
+
+echo "============================"
+echo "Testing BackgroundMVA"
+echo "============================"
+cd ../../../
+cd Framework/BackgroundMVA/test
+make -j4
+
 echo "Yeah Buddy"
