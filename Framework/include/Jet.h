@@ -6,8 +6,8 @@ class Jet
 private:
     std::vector<TLorentzVector>* jets_pt30_;
     std::vector<TLorentzVector>* jets_pt45_;
-    std::vector<TLorentzVector>* clean_jets_pt30_;
-    std::vector<TLorentzVector>* clean_jets_pt45_;
+    std::vector<TLorentzVector>* jets_pt30_clean_;
+    std::vector<TLorentzVector>* jets_pt45_clean_;
 
     void jet(NTupleReader& tr)
     {
@@ -34,21 +34,21 @@ private:
             }
         }
 
-        clean_jets_pt30_ = new std::vector<TLorentzVector>();
-        clean_jets_pt45_ = new std::vector<TLorentzVector>();
+        jets_pt30_clean_ = new std::vector<TLorentzVector>();
+        jets_pt45_clean_ = new std::vector<TLorentzVector>();
 
         for (unsigned int icjet = 0; icjet < cleanJets.size(); ++icjet)
         {
-            if( !cleanJetsID.at(icljet) ) continue;
+            if( !cleanJetsID.at(icjet) ) continue;
 
             TLorentzVector lv(cleanJets.at(icjet));
             if( abs(lv.Eta()) < etaCut &&
                 lv.Pt() > 30
                 )
             {
-                clean_jets_pt30_->push_back(lv);
+                jets_pt30_clean_->push_back(lv);
                 if( lv.Pt() > 45 )
-                    clean_jets_pt45_->push_back(lv);
+                    jets_pt45_clean_->push_back(lv);
             }
         }
 
@@ -59,16 +59,18 @@ private:
         tr.registerDerivedVar("NJets_pt45", (jets_pt45_==nullptr)?0:jets_pt45_->size());
 
         tr.registerDerivedVar("NCleanJets",         cleanJets.size());
-        tr.reigsterDerivedVec("Clean_Jets_pt30",    clean_jets_pt30_);
-        tr.registerDerivedVar("NClean_Jets_pt30",  (clean_jets_pt30_==nullptr)?0:clean_jets_pt30->size());
-        tr.registerDerivedVec("Clean_Jets_pt45",    clean_jets_pt45_);
-        tr.registerDerivedVar("NClean_Jets_pt45",  (clean_jets_pt45_==nullptr)?0:clean_jets_pt45->size());
+        tr.registerDerivedVec("Clean_Jets_pt30",    jets_pt30_clean_);
+        tr.registerDerivedVar("NClean_Jets_pt30",  (jets_pt30_clean_==nullptr)?0:jets_pt30_clean_->size());
+        tr.registerDerivedVec("Clean_Jets_pt45",    jets_pt45_clean_);
+        tr.registerDerivedVar("NClean_Jets_pt45",  (jets_pt45_clean_==nullptr)?0:jets_pt45_clean_->size());
     }
 
 public:
     Jet() : 
-        jets_pt30_(nullptr),
-        jets_pt45_(nullptr)
+        jets_pt30_(nullptr)
+      , jets_pt45_(nullptr)
+      , jets_pt30_clean_(nullptr)
+      , jets_pt45_clean_(nullptr)
     {
     }
 
