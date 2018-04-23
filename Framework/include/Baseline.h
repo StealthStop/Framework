@@ -6,7 +6,6 @@ class Baseline
 private:
     void baseline(NTupleReader& tr)
     {
-
         const auto& runtype      = tr.getVar<std::string>("runtype");     
         const auto& filetag      = tr.getVar<std::string>("filetag");
         const auto& blind        = tr.getVar<bool>("blind");
@@ -40,8 +39,9 @@ private:
         bool passTriggerAllHad   = PassTriggerAllHad(TriggerNames, TriggerPass);
         bool passTriggerMuon     = PassTriggerMuon(TriggerNames, TriggerPass);
         bool passTriggerElectron = PassTriggerElectron(TriggerNames, TriggerPass);
-        bool passTrigger = true;
-        bool passBlind   = true;
+        bool passTrigger  = true;
+        bool passBlindHad = true;
+        bool passBlindLep = true;
         if (runtype == "Data")
         {
             // Pass the right trigger
@@ -50,8 +50,9 @@ private:
             if (filetag == "Data_SingleElectron" && !passTriggerElectron) passTrigger = false;
 
             // Blinding data 
-            if (NJets_pt30 >= 7 && blind) passBlind = false;
-        }        
+            if (NJets_pt30 >= 9 && blind) passBlindHad = false;
+            if (NJets_pt30 >= 7 && blind) passBlindLep = false;
+        }
         
         // -------------------------------
         // -- Define 0 Lepton Baseline
@@ -60,7 +61,7 @@ private:
         bool passBaseline0l = JetID              &&
                               passMadHT          &&
                               passTrigger        &&
-                              passBlind          &&
+                              passBlindHad       &&
                               NGoodLeptons == 0  && 
                               NJets_pt45 >= 6    && 
                               HT_trigger > 500   && 
@@ -74,7 +75,7 @@ private:
                                passMadHT           &&
                                passTrigger         &&
                                (runtype != "Data" || filetag == "Data_SingleMuon") &&
-                               passBlind           &&
+                               passBlindLep        &&
                                NGoodMuons == 1     && 
                                NGoodElectrons == 0 &&
                                NJets_pt30 >= 6     && 
@@ -84,7 +85,7 @@ private:
                                passMadHT           &&
                                passTrigger         &&
                                (runtype != "Data" || filetag == "Data_SingleElectron") &&
-                               passBlind           &&
+                               passBlindLep        &&
                                NGoodElectrons == 1 &&
                                NGoodMuons == 0     &&
                                NJets_pt30 >= 6     && 
@@ -113,7 +114,7 @@ private:
         bool passBaseline2l = JetID              &&
                               passMadHT          &&
                               passTrigger        &&
-                              passBlind          &&
+                              passBlindLep       &&
                               NGoodLeptons == 2  && 
                               !onZ               &&
                               (runtype != "Data" || (NGoodMuons >= 1 && filetag == "Data_SingleMuon" ) 
@@ -127,7 +128,8 @@ private:
         tr.registerDerivedVar<bool>("passBaseline1el",passBaseline1el);
         tr.registerDerivedVar<bool>("passBaseline2lonZ",passBaseline2lonZ);
         tr.registerDerivedVar<bool>("passBaseline2l",passBaseline2l);
-        tr.registerDerivedVar<bool>("passBlind",passBlind);
+        tr.registerDerivedVar<bool>("passBlindHad",passBlindHad);
+        tr.registerDerivedVar<bool>("passBlindLep",passBlindLep);
         tr.registerDerivedVar<bool>("passTrigger",passTrigger);
         tr.registerDerivedVar<bool>("passMadHT",passMadHT);
     }
