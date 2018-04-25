@@ -33,6 +33,7 @@ git clone -b TopTaggingLPC git@github.com:susy2015/SusyAnaTools.git
 git clone git@github.com:StealthStop/Analyzer.git
 cd Analyzer/Analyzer/test
 source setup.csh
+getSamplesCfg.sh
 make -j4
 ```
 
