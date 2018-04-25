@@ -53,10 +53,10 @@ sampPyWrap: $(ODIR)/samplesModule.so
 $(ODIR)/samplesModule.so: $(ODIR)/samplesPyWrap.o $(ODIR)/samplesModulePyWrap.o
 	$(CXX) -shared -o $@ $^
 
-$(ODIR)/samplesPyWrap.o: $(SFWDIR)/samples.cc $(IFWDIR)/samples.h 
+$(ODIR)/samplesPyWrap.o: $(SSDIR)/samples.cc $(SSDIR)/samples.h 
 	$(CXX) --std=c++11 -c -fPIC -o $@ $<
 
-$(ODIR)/samplesModulePyWrap.o: $(SFWDIR)/samplesModule.cc
+$(ODIR)/samplesModulePyWrap.o: $(SSDIR)/samplesModule.cc
 	$(CXX) --std=c++11 -c -fPIC -o $@ $<
 
 #Framework Repo
