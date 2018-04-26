@@ -1,10 +1,10 @@
 
   Wed Apr 18 13:56:43 PDT 2018
 
-  The code make_mva_training_tree_example.c produces a small TTree that's used as input
-  to the mva training that's done by tmva_train_example.c
+  The code make_training_trees.C produces a small TTree that's used as input
+  to the mva training that's done by train_tmva.C
 
-  When you run tmva_train_example.c, the output will be in a couple of places.
+  When you run train_tmva.C, the output will be in a couple of places.
 
     ==== outputfiles/tmva-train-example-output.root
 
