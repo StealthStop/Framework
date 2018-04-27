@@ -32,7 +32,6 @@ private:
         const auto& modnum                       = tr.getVar<int>           ("modnum");
 
         ei_++;
-        if ( ei_%modnum == 0 ) printf("   %9lld / %9lld\n", ei_, nevts_ttree ) ;
 
         //--- Initialize all derived ntuple variables.
         double fwm2_top6 = 0.0;

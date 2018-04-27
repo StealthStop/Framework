@@ -1,3 +1,7 @@
+#include "SusyAnaTools/Tools/samples.h"
+#include "SusyAnaTools/Tools/NTupleReader.h"
+#include "Framework/BackgroundMVA/include/MakeMVAVariables.h"
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -7,27 +11,46 @@
 #include "TSystem.h"
 #include "TH1F.h"
 
-#include "SusyAnaTools/Tools/NTupleReader.h"
-#include "Framework/BackgroundMVA/include/MakeMVAVariables.h"
+#include <iostream>
+#include <getopt.h>
+#include <string>
 
-void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-v2/",
-                                     const char* sample_string = "rpv_stop_350",
-                                     const char* outfile = "outputfiles/mva-train-rpv_stop_350.root",
-                                     int arg_ds_index = 11,
+std::set<AnaSamples::FileSummary> setFS(const std::string& dataSets, const bool& isCondor)
+{
+    AnaSamples::SampleSet        ss("sampleSets.cfg", isCondor);
+    AnaSamples::SampleCollection sc("sampleCollections.cfg", ss);
+
+    std::map<std::string, std::vector<AnaSamples::FileSummary>> fileMap;
+    if(ss[dataSets] != ss.null())
+    {
+        fileMap[dataSets] = {ss[dataSets]};
+        for(const auto& colls : ss[dataSets].getCollections())
+        {
+            fileMap[colls] = {ss[dataSets]};
+        }
+    }
+    else if(sc[dataSets] != sc.null())
+    {
+        fileMap[dataSets] = {sc[dataSets]};
+        int i = 0;
+        for(const auto& fs : sc[dataSets])
+        {
+            fileMap[sc.getSampleLabels(dataSets)[i++]].push_back(fs);
+        }
+    }
+    std::set<AnaSamples::FileSummary> vvf;
+    for(auto& fsVec : fileMap) for(auto& fs : fsVec.second) vvf.insert(fs);
+
+    return vvf;
+}
+
+void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const int maxEvts = -1, 
+                                     const int totalEvts = -1, int arg_ds_index = 11,
                                      float lumi_times_xsec = ( 3.79 * 35.9 * 1000.0 ),
                                      bool verb = false) 
 {
-    char fpat[1000] ;
-    TChain* tt_in = new TChain( "TreeMaker2/PreSelection", "" ) ;
-    sprintf( fpat, "%s/*%s*.root", ntuple_dir, sample_string ) ;
-    printf("\n\n Loading files that match %s\n", fpat ) ;
-
-    int n_added = tt_in->Add( fpat ) ;
-    if ( n_added <= 0 ) { printf("\n\n *** No files match %s\n\n", fpat ) ; gSystem->Exit(-1) ; }
-    printf("  Added %d files to chain.\n", n_added ) ;
-    NTupleReader tr(tt_in);
-
     Long64_t nevts_ttree = tr.getNEntries() ;
+    //Long64_t nevts_ttree = totalEvts;
     tr.registerDerivedVar("nevts_ttree", nevts_ttree);
     printf("\n\n Number of events in input tree: %lld\n\n", nevts_ttree ) ;
 
@@ -36,13 +59,6 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
 
     gSystem->Exec( "mkdir -p outputfiles" ) ;
 
-    TFile* tf_output = new TFile( outfile, "RECREATE" ) ;
-    if ( tf_output == nullptr || !tf_output->IsOpen() ) 
-    {
-        printf("\n\n *** bad output file: %s\n\n", outfile ) ; 
-        gSystem->Exit(-1) ;
-    }
-    
     TTree* tt_out = new TTree( "mvatraintt", "MVA training ttree" ) ;
 
     //--- Extra output histograms
@@ -169,6 +185,13 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         lumi      = tr.getVar<int>("lumi");
         event     = tr.getVar<ULong64_t>("event");
 
+        // ------------------------
+        // -- Print event number
+        // -----------------------        
+
+        if(maxEvts != -1 && tr.getEvtNum() >= maxEvts) break;        
+        if ( tr.getEvtNum() % 1000 == 0 ) printf("  Event %i\n", tr.getEvtNum() ) ;
+
         // Make cos theta ppweight histos
         double esum_total(0.) ;
         for ( unsigned int i = 0 ; i < cm_jets.size() ; i ++ ) 
@@ -211,17 +234,67 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     printf("\n\n Done.\n") ;
     if ( nevts_ttree > 0 ) printf("  Saved %9d / %9lld  (%.4f)\n", nsave, nevts_ttree, (1.*nsave)/(1.*nevts_ttree) ) ;
     printf("  ds_weight = %.3f\n", ds_weight ) ;
-    printf("  Created %s\n\n", outfile ) ;
 
     // Cleaning up dynamic memory
-    delete tt_in;
     delete tf_output;
 
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+    int opt, option_index = 0;
+    bool runOnCondor = false;
+    std::string histFile = "", dataSets = "";
+    int nFiles = -1, startFile = 0, maxEvts = -1;
+
+    static struct option long_options[] = {
+        {"condor",             no_argument, 0, 'c'},
+        {"histFile",     required_argument, 0, 'H'},
+        {"dataSets",     required_argument, 0, 'D'},
+        {"numFiles",     required_argument, 0, 'N'},
+        {"startFile",    required_argument, 0, 'M'},
+        {"numEvts",      required_argument, 0, 'E'},
+    };
+
+    while((opt = getopt_long(argc, argv, "cH:D:N:M:E:", long_options, &option_index)) != -1)
+    {
+        switch(opt)
+        {
+            case 'c': runOnCondor      = true;              break;
+            case 'H': histFile         = optarg;            break;
+            case 'D': dataSets         = optarg;            break;
+            case 'N': nFiles           = int(atoi(optarg)); break;
+            case 'M': startFile        = int(atoi(optarg)); break;
+            case 'E': maxEvts          = int(atoi(optarg)); break;
+        }
+    }
+
+    if(runOnCondor)
+    {
+        char thistFile[128];
+        sprintf(thistFile, "make_training_trees_%s_%d.root", dataSets.c_str(), startFile);
+        histFile = thistFile;
+    }
+
+    std::set<AnaSamples::FileSummary> vvf = setFS(dataSets, runOnCondor); 
+    TFile* outfile = TFile::Open(histFile.c_str(), "RECREATE");
+    printf("  Created %s\n\n", histFile.c_str() ) ;
+
+    for(const AnaSamples::FileSummary& file : vvf)
+    {
+        TChain* ch = new TChain( (file.treePath).c_str() );
+        file.addFilesToChain(ch, startFile, nFiles);
+        NTupleReader tr(ch);
+        
+        // Loop over all of the events and fill trees
+        make_mva_training_tree_example(tr, outfile, maxEvts, file.nEvts);
+
+        // Cleaning up dynamic memory
+        delete ch;
+            
+    }
+
     //make_mva_training_tree_example("temp/", "rpv_stop_350", "outputfiles/mva-train-rpv_stop_350.root");
-    make_mva_training_tree_example("temp/", "TT", "outputfiles/mva-train-example-ttbar.root");
+    //make_mva_training_tree_example("temp/", "TT", "outputfiles/mva-train-example-ttbar.root");
     return 0;
 }
