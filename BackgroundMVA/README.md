@@ -1,8 +1,28 @@
+# BackgroundMVA
+The code make_training_trees.C produces a small TTree that's used as input to the mva training that's done by train_tmva.C
 
-  Wed Apr 18 13:56:43 PDT 2018
+## Example Code
+Make trees to run the training on
 
-  The code make_training_trees.C produces a small TTree that's used as input
-  to the mva training that's done by train_tmva.C
+```
+cd test
+make -j8
+./make_training_trees -D rpv_stop_350 -H outputfiles/mva-trees-rpv_stop_350.root
+./make_training_trees -D rpv_stop_450 -H outputfiles/mva-trees-rpv_stop_450.root
+./make_training_trees -D rpv_stop_550 -H outputfiles/mva-trees-rpv_stop_550.root
+./make_training_trees -D rpv_stop_650 -H outputfiles/mva-trees-rpv_stop_650.root
+./make_training_trees -D rpv_stop_750 -H outputfiles/mva-trees-rpv_stop_750.root
+./make_training_trees -D rpv_stop_850 -H outputfiles/mva-trees-rpv_stop_850.root
+
+./make_training_trees -D TT -H outputfiles/mva-trees-ttbar.root
+```
+
+Run the training
+```
+./train_tmva
+```
+
+## Output
 
   When you run train_tmva.C, the output will be in a couple of places.
 

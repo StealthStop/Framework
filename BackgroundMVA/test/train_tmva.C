@@ -93,48 +93,48 @@ int tmva_train_example()
     //--- owen : What will happen if I add spectators for vars used in MVA?
     //           Duplicated variables will be duplicated in output tree, so not good.
 
-    loader -> AddSpectator( "ds_index", "ds_index" ) ;
-    loader -> AddSpectator( "mva_train_weight", "mva_train_weight" ) ;
-    loader -> AddSpectator( "njets_pt45_eta24", "njets_pt45_eta24" ) ;
-    loader -> AddSpectator( "njets_pt30_eta24", "njets_pt30_eta24" ) ;
-    loader -> AddSpectator( "njets_pt20_eta50", "njets_pt20_eta50" ) ;
-    loader -> AddSpectator( "nbtag_csv85_pt30_eta24", "nbtag_csv85_pt30_eta24" ) ;
-    loader -> AddSpectator( "pfht_pt40_eta24", "pfht_pt40_eta24" ) ;
-    loader -> AddSpectator( "pfht_pt45_eta24", "pfht_pt45_eta24" ) ;
-    loader -> AddSpectator( "nleptons", "nleptons" ) ;
-    loader -> AddSpectator( "leppt1", "leppt1" ) ;
-    loader -> AddSpectator( "m_lep1_b", "m_lep1_b" ) ;
-    loader -> AddSpectator( "leppt2", "leppt2" ) ;
-    loader -> AddSpectator( "m_lep2_b", "m_lep2_b" ) ;
-    loader -> AddSpectator( "evt_count", "evt_count" ) ;
-    loader -> AddSpectator( "run", "run" ) ;
-    loader -> AddSpectator( "lumi", "lumi" ) ;
-    loader -> AddSpectator( "event", "event" ) ;
+    //loader -> AddSpectator( "ds_index", "ds_index" ) ;
+    //loader -> AddSpectator( "mva_train_weight", "mva_train_weight" ) ;
+    //loader -> AddSpectator( "njets_pt45_eta24", "njets_pt45_eta24" ) ;
+    //loader -> AddSpectator( "njets_pt30_eta24", "njets_pt30_eta24" ) ;
+    //loader -> AddSpectator( "njets_pt20_eta50", "njets_pt20_eta50" ) ;
+    //loader -> AddSpectator( "nbtag_csv85_pt30_eta24", "nbtag_csv85_pt30_eta24" ) ;
+    //loader -> AddSpectator( "pfht_pt40_eta24", "pfht_pt40_eta24" ) ;
+    //loader -> AddSpectator( "pfht_pt45_eta24", "pfht_pt45_eta24" ) ;
+    //loader -> AddSpectator( "nleptons", "nleptons" ) ;
+    //loader -> AddSpectator( "leppt1", "leppt1" ) ;
+    //loader -> AddSpectator( "m_lep1_b", "m_lep1_b" ) ;
+    //loader -> AddSpectator( "leppt2", "leppt2" ) ;
+    //loader -> AddSpectator( "m_lep2_b", "m_lep2_b" ) ;
+    //loader -> AddSpectator( "evt_count", "evt_count" ) ;
+    //loader -> AddSpectator( "run", "run" ) ;
+    //loader -> AddSpectator( "lumi", "lumi" ) ;
+    //loader -> AddSpectator( "event", "event" ) ;
 
     // Read training and test data
-    TFile *input_signal350  = TFile::Open( "outputfiles/mva-train-rpv_stop_350.root" ) ;
-    //TFile *input_signal450  = TFile::Open( "outputfiles/mva-train-example-signal-rpv_stop_450.root" ) ;
-    //TFile *input_signal550  = TFile::Open( "outputfiles/mva-train-example-signal-rpv_stop_550.root" ) ;
-    //TFile *input_signal650  = TFile::Open( "outputfiles/mva-train-example-signal-rpv_stop_650.root" ) ;
-    //
-    TFile *input_ttbar   = TFile::Open( "outputfiles/mva-train-example-ttbar.root" ) ;
+    TFile *input_signal350  = TFile::Open( "outputfiles/mva-trees-rpv_stop_350.root" ) ;
+    TFile *input_signal450  = TFile::Open( "outputfiles/mva-trees-rpv_stop_450.root" ) ;
+    TFile *input_signal550  = TFile::Open( "outputfiles/mva-trees-rpv_stop_550.root" ) ;
+    TFile *input_signal650  = TFile::Open( "outputfiles/mva-trees-rpv_stop_650.root" ) ;
+    
+    TFile *input_ttbar      = TFile::Open( "outputfiles/mva-trees-ttbar.root" ) ;
 
     // --- Register the training and test trees
     TTree *tt_signal350  = (TTree*) input_signal350  -> Get( "mvatraintt" ) ;
-    //TTree *tt_signal450  = (TTree*) input_signal450  -> Get( "mvatraintt" ) ;
-    //TTree *tt_signal550  = (TTree*) input_signal550  -> Get( "mvatraintt" ) ;
-    //TTree *tt_signal650  = (TTree*) input_signal650  -> Get( "mvatraintt" ) ;
+    TTree *tt_signal450  = (TTree*) input_signal450  -> Get( "mvatraintt" ) ;
+    TTree *tt_signal550  = (TTree*) input_signal550  -> Get( "mvatraintt" ) ;
+    TTree *tt_signal650  = (TTree*) input_signal650  -> Get( "mvatraintt" ) ;
     TTree *tt_ttbar      = (TTree*) input_ttbar      -> Get( "mvatraintt" ) ;
 
     // You can add an arbitrary number of signal or background trees
     loader->AddSignalTree    ( tt_signal350 , 1.    );
-    //loader->AddSignalTree    ( tt_signal450 , 1.    );
-    //loader->AddSignalTree    ( tt_signal550 , 1.    );
-    //loader->AddSignalTree    ( tt_signal650 , 1.    );
+    loader->AddSignalTree    ( tt_signal450 , 1.    );
+    loader->AddSignalTree    ( tt_signal550 , 1.    );
+    loader->AddSignalTree    ( tt_signal650 , 1.    );
     loader->AddBackgroundTree( tt_ttbar, 0.388 );
 
-    TCut mycuts = "njets_pt30_eta24>=6 && nleptons>=1 && ( (leppt1>30 && m_lep1_b > 30 && m_lep1_b < 180) || (leppt2>30 && m_lep2_b > 30 && m_lep2_b < 180) )";
-    TCut mycutb = "njets_pt30_eta24>=6 && nleptons>=1 && ( (leppt1>30 && m_lep1_b > 30 && m_lep1_b < 180) || (leppt2>30 && m_lep2_b > 30 && m_lep2_b < 180) )";
+    TCut mycuts = "passBaseline1l && Mbl>30 && Mbl<180";
+    TCut mycutb = "passBaseline1l && Mbl>30 && Mbl<180";
 
     // Tell the factory how to use the training and testing events
     loader->PrepareTrainingAndTestTree( mycuts, mycutb, "SplitMode=Random:NormMode=None:!V" );
