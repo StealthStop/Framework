@@ -56,8 +56,6 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
                                      float lumi_times_xsec = ( 3.79 * 35.9 * 1000.0 ),
                                      bool verb = false) 
 {
-    gSystem->Exec( "mkdir -p outputfiles" ) ;
-
     TTree* tt_out = new TTree( "mvatraintt", "MVA training ttree" ) ;
 
     //--- Extra output histograms
@@ -215,8 +213,9 @@ int main(int argc, char *argv[])
     }
 
     std::set<AnaSamples::FileSummary> vvf = setFS(dataSets, runOnCondor); 
+    gSystem->Exec( "mkdir -p outputfiles" );
     TFile* outfile = TFile::Open(histFile.c_str(), "RECREATE");
-    printf("  Created %s\n\n", histFile.c_str() ) ;
+    printf("  Created %s\n\n", histFile.c_str() );
 
     for(const AnaSamples::FileSummary& file : vvf)
     {
