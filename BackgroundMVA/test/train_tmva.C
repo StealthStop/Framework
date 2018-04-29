@@ -93,23 +93,23 @@ int tmva_train_example()
     //--- owen : What will happen if I add spectators for vars used in MVA?
     //           Duplicated variables will be duplicated in output tree, so not good.
 
-    loader -> AddSpectator( "ds_index", "ds_index" ) ;
-    loader -> AddSpectator( "mva_train_weight", "mva_train_weight" ) ;
-    loader -> AddSpectator( "njets_pt45_eta24", "njets_pt45_eta24" ) ;
-    loader -> AddSpectator( "njets_pt30_eta24", "njets_pt30_eta24" ) ;
-    loader -> AddSpectator( "njets_pt20_eta50", "njets_pt20_eta50" ) ;
-    loader -> AddSpectator( "nbtag_csv85_pt30_eta24", "nbtag_csv85_pt30_eta24" ) ;
-    loader -> AddSpectator( "pfht_pt40_eta24", "pfht_pt40_eta24" ) ;
-    loader -> AddSpectator( "pfht_pt45_eta24", "pfht_pt45_eta24" ) ;
-    loader -> AddSpectator( "nleptons", "nleptons" ) ;
-    loader -> AddSpectator( "leppt1", "leppt1" ) ;
-    loader -> AddSpectator( "m_lep1_b", "m_lep1_b" ) ;
-    loader -> AddSpectator( "leppt2", "leppt2" ) ;
-    loader -> AddSpectator( "m_lep2_b", "m_lep2_b" ) ;
-    loader -> AddSpectator( "evt_count", "evt_count" ) ;
-    loader -> AddSpectator( "run", "run" ) ;
-    loader -> AddSpectator( "lumi", "lumi" ) ;
-    loader -> AddSpectator( "event", "event" ) ;
+    //loader -> AddSpectator( "ds_index", "ds_index" ) ;
+    //loader -> AddSpectator( "mva_train_weight", "mva_train_weight" ) ;
+    //loader -> AddSpectator( "njets_pt45_eta24", "njets_pt45_eta24" ) ;
+    //loader -> AddSpectator( "njets_pt30_eta24", "njets_pt30_eta24" ) ;
+    //loader -> AddSpectator( "njets_pt20_eta50", "njets_pt20_eta50" ) ;
+    //loader -> AddSpectator( "nbtag_csv85_pt30_eta24", "nbtag_csv85_pt30_eta24" ) ;
+    //loader -> AddSpectator( "pfht_pt40_eta24", "pfht_pt40_eta24" ) ;
+    //loader -> AddSpectator( "pfht_pt45_eta24", "pfht_pt45_eta24" ) ;
+    //loader -> AddSpectator( "nleptons", "nleptons" ) ;
+    //loader -> AddSpectator( "leppt1", "leppt1" ) ;
+    //loader -> AddSpectator( "m_lep1_b", "m_lep1_b" ) ;
+    //loader -> AddSpectator( "leppt2", "leppt2" ) ;
+    //loader -> AddSpectator( "m_lep2_b", "m_lep2_b" ) ;
+    //loader -> AddSpectator( "evt_count", "evt_count" ) ;
+    //loader -> AddSpectator( "run", "run" ) ;
+    //loader -> AddSpectator( "lumi", "lumi" ) ;
+    //loader -> AddSpectator( "event", "event" ) ;
 
     // Read training and test data
     TFile *input_signal350  = TFile::Open( "outputfiles/mva-train-rpv_stop_350.root" ) ;
