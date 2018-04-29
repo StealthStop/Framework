@@ -56,14 +56,6 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
                                      float lumi_times_xsec = ( 3.79 * 35.9 * 1000.0 ),
                                      bool verb = false) 
 {
-    //Long64_t nevts_ttree = tr.getNEntries() ;
-    //Long64_t nevts_ttree = totalEvts;
-    //tr.registerDerivedVar("nevts_ttree", nevts_ttree);
-    //printf("\n\n Number of events in input tree: %lld\n\n", nevts_ttree ) ;
-
-    //float ds_weight = lumi_times_xsec / nevts_ttree ;
-    //printf("  Dataset weight : %.8f\n\n", ds_weight ) ;
-
     gSystem->Exec( "mkdir -p outputfiles" ) ;
 
     TTree* tt_out = new TTree( "mvatraintt", "MVA training ttree" ) ;
@@ -73,6 +65,7 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     TH1F* h_costheta_ppweight_noieqj = new TH1F( "h_costheta_ppweight_noieqj", "cos(theta_ij) in CM frame, pipj/Esq weight, excluding i=j", 110, -1.05, 1.05 ) ;
 
     //--- New branches for output.
+    bool passBaseline0l;
     bool passBaseline1l;
     double Mbl;          
     double fwm2_top6;
@@ -85,6 +78,7 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     double jmt_ev2_top6;
     double event_beta_z;
 
+    tt_out->Branch( "passBaseline0l", &passBaseline0l, "passBaseline0l/B" ) ;
     tt_out->Branch( "passBaseline1l", &passBaseline1l, "passBaseline1l/B" ) ;
     tt_out->Branch( "Mbl",            &Mbl,            "Mbl/D" ) ;
     tt_out->Branch( "fwm2_top6", &fwm2_top6, "fwm2_top6/D" ) ;
@@ -96,24 +90,6 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     tt_out->Branch( "jmt_ev1_top6", &jmt_ev1_top6, "jmt_ev1_top6/D" ) ;
     tt_out->Branch( "jmt_ev2_top6", &jmt_ev2_top6, "jmt_ev2_top6/D" ) ;
     tt_out->Branch( "event_beta_z", &event_beta_z, "event_beta_z/D" ) ;
-    //tt_out->Branch( "njets_pt45_eta24", &njets_pt45_eta24, "njets_pt45_eta24/I" ) ;
-    //tt_out->Branch( "njets_pt30_eta24", &njets_pt30_eta24, "njets_pt30_eta24/I" ) ;
-    //tt_out->Branch( "njets_pt20_eta24", &njets_pt20_eta24, "njets_pt20_eta24/I" ) ;
-    //tt_out->Branch( "njets_pt45_eta50", &njets_pt45_eta50, "njets_pt45_eta50/I" ) ;
-    //tt_out->Branch( "njets_pt30_eta50", &njets_pt30_eta50, "njets_pt30_eta50/I" ) ;
-    //tt_out->Branch( "njets_pt20_eta50", &njets_pt20_eta50, "njets_pt20_eta50/I" ) ;
-    //tt_out->Branch( "nbtag_csv85_pt30_eta24", &nbtag_csv85_pt30_eta24, "nbtag_csv85_pt30_eta24/I" ) ;
-    //tt_out->Branch( "pfht_pt40_eta24"       , &pfht_pt40_eta24        , "pfht_pt40_eta24/D" ) ;
-    //tt_out->Branch( "pfht_pt45_eta24"       , &pfht_pt45_eta24        , "pfht_pt45_eta24/D" ) ;
-    //tt_out->Branch( "nleptons"              , &nleptons               , "nleptons/I" ) ;
-    //tt_out->Branch( "leppt1"                , &leppt1                 , "leppt1/D" ) ;
-    //tt_out->Branch( "m_lep1_b"              , &m_lep1_b               , "m_lep1_b/D" ) ;
-    //tt_out->Branch( "leppt2"                , &leppt2                 , "leppt2/D" ) ;
-    //tt_out->Branch( "m_lep2_b"              , &m_lep2_b               , "m_lep2_b/D" ) ;
-    //tt_out->Branch( "evt_count", &evt_count, "evt_count/I" ) ;
-    //tt_out->Branch( "run", &run, "run/I" ) ;
-    //tt_out->Branch( "lumi", &lumi, "lumi/I" ) ;
-    //tt_out->Branch( "event", &event, "event/l" ) ;
 
     //--- Loop over events
     MakeMVAVariables makeMVAVariables(false);
@@ -136,6 +112,7 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     {
         const auto& cm_jets = tr.getVec<math::RThetaPhiVector>("cm_jets");
 
+        passBaseline0l = tr.getVar<bool>("passBaseline0l");
         passBaseline1l = tr.getVar<bool>("passBaseline1l");
         Mbl            = tr.getVar<double>("Mbl");
         fwm2_top6 = tr.getVar<double>("fwm2_top6");
@@ -153,7 +130,7 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
         // -----------------------        
 
         if(maxEvts != -1 && tr.getEvtNum() >= maxEvts) break;        
-        if ( tr.getEvtNum() % 1000 == 0 ) printf("  Event %i\n", tr.getEvtNum() ) ;
+        if ( tr.getEvtNum() % 10000 == 0 ) printf("  Event %i\n", tr.getEvtNum() ) ;
 
         // Make cos theta ppweight histos
         double esum_total(0.) ;
@@ -183,7 +160,7 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
         } // i
 
         nsave++ ;
-        tt_out->Fill() ;
+        if(passBaseline0l or passBaseline1l) tt_out->Fill() ;
 
     } // event loop
 
@@ -263,7 +240,5 @@ int main(int argc, char *argv[])
             
     }
 
-    //make_mva_training_tree_example("temp/", "rpv_stop_350", "outputfiles/mva-train-rpv_stop_350.root");
-    //make_mva_training_tree_example("temp/", "TT", "outputfiles/mva-train-example-ttbar.root");
     return 0;
 }

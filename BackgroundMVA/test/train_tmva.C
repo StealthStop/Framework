@@ -112,25 +112,25 @@ int tmva_train_example()
     //loader -> AddSpectator( "event", "event" ) ;
 
     // Read training and test data
-    TFile *input_signal350  = TFile::Open( "outputfiles/mva-train-rpv_stop_350.root" ) ;
-    //TFile *input_signal450  = TFile::Open( "outputfiles/mva-train-example-signal-rpv_stop_450.root" ) ;
-    //TFile *input_signal550  = TFile::Open( "outputfiles/mva-train-example-signal-rpv_stop_550.root" ) ;
-    //TFile *input_signal650  = TFile::Open( "outputfiles/mva-train-example-signal-rpv_stop_650.root" ) ;
+    TFile *input_signal350  = TFile::Open( "outputfiles/mva-trees-rpv_stop_350.root" ) ;
+    TFile *input_signal450  = TFile::Open( "outputfiles/mva-trees-rpv_stop_450.root" ) ;
+    TFile *input_signal550  = TFile::Open( "outputfiles/mva-trees-rpv_stop_550.root" ) ;
+    TFile *input_signal650  = TFile::Open( "outputfiles/mva-trees-rpv_stop_650.root" ) ;
     
-    TFile *input_ttbar   = TFile::Open( "outputfiles/mva-train-example-ttbar.root" ) ;
+    TFile *input_ttbar      = TFile::Open( "outputfiles/mva-trees-ttbar.root" ) ;
 
     // --- Register the training and test trees
     TTree *tt_signal350  = (TTree*) input_signal350  -> Get( "mvatraintt" ) ;
-    //TTree *tt_signal450  = (TTree*) input_signal450  -> Get( "mvatraintt" ) ;
-    //TTree *tt_signal550  = (TTree*) input_signal550  -> Get( "mvatraintt" ) ;
-    //TTree *tt_signal650  = (TTree*) input_signal650  -> Get( "mvatraintt" ) ;
+    TTree *tt_signal450  = (TTree*) input_signal450  -> Get( "mvatraintt" ) ;
+    TTree *tt_signal550  = (TTree*) input_signal550  -> Get( "mvatraintt" ) ;
+    TTree *tt_signal650  = (TTree*) input_signal650  -> Get( "mvatraintt" ) ;
     TTree *tt_ttbar      = (TTree*) input_ttbar      -> Get( "mvatraintt" ) ;
 
     // You can add an arbitrary number of signal or background trees
     loader->AddSignalTree    ( tt_signal350 , 1.    );
-    //loader->AddSignalTree    ( tt_signal450 , 1.    );
-    //loader->AddSignalTree    ( tt_signal550 , 1.    );
-    //loader->AddSignalTree    ( tt_signal650 , 1.    );
+    loader->AddSignalTree    ( tt_signal450 , 1.    );
+    loader->AddSignalTree    ( tt_signal550 , 1.    );
+    loader->AddSignalTree    ( tt_signal650 , 1.    );
     loader->AddBackgroundTree( tt_ttbar, 0.388 );
 
     TCut mycuts = "passBaseline1l && Mbl>30 && Mbl<180";
