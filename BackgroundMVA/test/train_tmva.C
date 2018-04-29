@@ -116,7 +116,7 @@ int tmva_train_example()
     //TFile *input_signal450  = TFile::Open( "outputfiles/mva-train-example-signal-rpv_stop_450.root" ) ;
     //TFile *input_signal550  = TFile::Open( "outputfiles/mva-train-example-signal-rpv_stop_550.root" ) ;
     //TFile *input_signal650  = TFile::Open( "outputfiles/mva-train-example-signal-rpv_stop_650.root" ) ;
-    //
+    
     TFile *input_ttbar   = TFile::Open( "outputfiles/mva-train-example-ttbar.root" ) ;
 
     // --- Register the training and test trees
@@ -133,8 +133,8 @@ int tmva_train_example()
     //loader->AddSignalTree    ( tt_signal650 , 1.    );
     loader->AddBackgroundTree( tt_ttbar, 0.388 );
 
-    TCut mycuts = "njets_pt30_eta24>=6 && nleptons>=1 && ( (leppt1>30 && m_lep1_b > 30 && m_lep1_b < 180) || (leppt2>30 && m_lep2_b > 30 && m_lep2_b < 180) )";
-    TCut mycutb = "njets_pt30_eta24>=6 && nleptons>=1 && ( (leppt1>30 && m_lep1_b > 30 && m_lep1_b < 180) || (leppt2>30 && m_lep2_b > 30 && m_lep2_b < 180) )";
+    TCut mycuts = "passBaseline1l && Mbl>30 && Mbl<180";
+    TCut mycutb = "passBaseline1l && Mbl>30 && Mbl<180";
 
     // Tell the factory how to use the training and testing events
     loader->PrepareTrainingAndTestTree( mycuts, mycutb, "SplitMode=Random:NormMode=None:!V" );

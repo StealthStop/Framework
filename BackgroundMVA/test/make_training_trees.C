@@ -1,6 +1,13 @@
 #include "SusyAnaTools/Tools/samples.h"
 #include "SusyAnaTools/Tools/NTupleReader.h"
+
 #include "Framework/BackgroundMVA/include/MakeMVAVariables.h"
+#include "Framework/Framework/include/Jet.h"
+#include "Framework/Framework/include/Muon.h"
+#include "Framework/Framework/include/Electron.h"
+#include "Framework/Framework/include/BJet.h"
+#include "Framework/Framework/include/CommonVariables.h"
+#include "Framework/Framework/include/Baseline.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -66,46 +73,20 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     TH1F* h_costheta_ppweight_noieqj = new TH1F( "h_costheta_ppweight_noieqj", "cos(theta_ij) in CM frame, pipj/Esq weight, excluding i=j", 110, -1.05, 1.05 ) ;
 
     //--- New branches for output.
-    //int ds_index = arg_ds_index ;
-    //float mva_train_weight = ds_weight ;
-    double fwm2_top6 ;
-    double fwm3_top6 ;
-    double fwm4_top6 ;
-    double fwm5_top6 ;
-    double fwm6_top6 ;
-    double jmt_ev0_top6 ;
-    double jmt_ev1_top6 ;
-    double jmt_ev2_top6 ;
-    //double fwm2_top6_tr_v3pt30 ;
-    //double fwm3_top6_tr_v3pt30 ;
-    //double fwm4_top6_tr_v3pt30 ;
-    //double fwm5_top6_tr_v3pt30 ;
-    //double fwm6_top6_tr_v3pt30 ;
-    //double jmt_ev0_top6_tr_v3pt30 ;
-    //double jmt_ev1_top6_tr_v3pt30 ;
-    //double jmt_ev2_top6_tr_v3pt30 ;
-    double event_beta_z ;
-    //int    njets_pt45_eta24 ;
-    //int    njets_pt30_eta24 ;
-    //int    njets_pt20_eta24 ;
-    //int    njets_pt45_eta50 ;
-    //int    njets_pt30_eta50 ;
-    //int    njets_pt20_eta50 ;
-    //double pfht_pt40_eta24 ;
-    //double pfht_pt45_eta24 ;
-    //int    nleptons ;
-    //int    nbtag_csv85_pt30_eta24 ;
-    //double leppt1 ;
-    //double m_lep1_b ;
-    //double leppt2 ;
-    //double m_lep2_b ;
-    //int    evt_count ;
-    //int    run ;
-    //int    lumi ;
-    //ULong64_t  event ;
+    bool passBaseline1l;
+    double Mbl;          
+    double fwm2_top6;
+    double fwm3_top6;
+    double fwm4_top6;
+    double fwm5_top6;
+    double fwm6_top6;
+    double jmt_ev0_top6;
+    double jmt_ev1_top6;
+    double jmt_ev2_top6;
+    double event_beta_z;
 
-    //tt_out->Branch( "mva_train_weight", &mva_train_weight, "mva_train_weight/F" ) ;
-    //tt_out->Branch( "ds_index", &ds_index, "ds_index/I" ) ;
+    tt_out->Branch( "passBaseline1l", &passBaseline1l, "passBaseline1l/B" ) ;
+    tt_out->Branch( "Mbl",            &Mbl,            "Mbl/D" ) ;
     tt_out->Branch( "fwm2_top6", &fwm2_top6, "fwm2_top6/D" ) ;
     tt_out->Branch( "fwm3_top6", &fwm3_top6, "fwm3_top6/D" ) ;
     tt_out->Branch( "fwm4_top6", &fwm4_top6, "fwm4_top6/D" ) ;
@@ -135,20 +116,28 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     //tt_out->Branch( "event", &event, "event/l" ) ;
 
     //--- Loop over events
-
-    //int modnum(1) ;
-    //if ( nevts_ttree > 0 ) modnum = nevts_ttree / 100 ;
-    //if ( modnum <= 0 ) modnum = 1 ;
-    //tr.registerDerivedVar("modnum", modnum);
-
-    int nsave(0) ;
-
     MakeMVAVariables makeMVAVariables(false);
+    Jet jet;
+    Muon muon;
+    Electron electron;
+    BJet bjet;
+    CommonVariables commonVariables;
+    Baseline baseline;
     tr.registerFunction( std::move(makeMVAVariables) );
+    tr.registerFunction( std::move(jet) );
+    tr.registerFunction( std::move(muon) );
+    tr.registerFunction( std::move(electron) );
+    tr.registerFunction( std::move(bjet) );
+    tr.registerFunction( std::move(commonVariables) );
+    tr.registerFunction( std::move(baseline) );
 
+    int nsave = 0;
     while( tr.getNextEvent() )
     {
         const auto& cm_jets = tr.getVec<math::RThetaPhiVector>("cm_jets");
+
+        passBaseline1l = tr.getVar<bool>("passBaseline1l");
+        Mbl            = tr.getVar<double>("Mbl");
         fwm2_top6 = tr.getVar<double>("fwm2_top6");
         fwm3_top6 = tr.getVar<double>("fwm3_top6");
         fwm4_top6 = tr.getVar<double>("fwm4_top6");
@@ -157,33 +146,7 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
         jmt_ev0_top6 = tr.getVar<double>("jmt_ev0_top6");
         jmt_ev1_top6 = tr.getVar<double>("jmt_ev1_top6");
         jmt_ev2_top6 = tr.getVar<double>("jmt_ev2_top6");
-        //fwm2_top6_tr_v3pt30 = tr.getVar<double>("fwm2_top6_tr_v3pt30");
-        //fwm3_top6_tr_v3pt30 = tr.getVar<double>("fwm3_top6_tr_v3pt30");
-        //fwm4_top6_tr_v3pt30 = tr.getVar<double>("fwm4_top6_tr_v3pt30");
-        //fwm5_top6_tr_v3pt30 = tr.getVar<double>("fwm5_top6_tr_v3pt30");
-        //fwm6_top6_tr_v3pt30 = tr.getVar<double>("fwm6_top6_tr_v3pt30");
-        //jmt_ev0_top6_tr_v3pt30 = tr.getVar<double>("jmt_ev0_top6_tr_v3pt30");
-        //jmt_ev1_top6_tr_v3pt30 = tr.getVar<double>("jmt_ev1_top6_tr_v3pt30");
-        //jmt_ev2_top6_tr_v3pt30 = tr.getVar<double>("jmt_ev2_top6_tr_v3pt30");
         event_beta_z = tr.getVar<double>("event_beta_z");
-        //njets_pt45_eta24 = tr.getVar<int>("njets_pt45_eta24");
-        //njets_pt30_eta24 = tr.getVar<int>("njets_pt30_eta24");
-        //njets_pt20_eta24 = tr.getVar<int>("njets_pt20_eta24");
-        //njets_pt45_eta50 = tr.getVar<int>("njets_pt45_eta50");
-        //njets_pt30_eta50 = tr.getVar<int>("njets_pt30_eta50");
-        //njets_pt20_eta50 = tr.getVar<int>("njets_pt20_eta50");
-        //pfht_pt40_eta24  = tr.getVar<double>("pfht_pt40_eta24");
-        //pfht_pt45_eta24  = tr.getVar<double>("pfht_pt45_eta24");
-        //nleptons         = tr.getVar<int>("nleptons");
-        //nbtag_csv85_pt30_eta24 = tr.getVar<int>("nbtag_csv85_pt30_eta24");
-        //leppt1    = tr.getVar<double>("leppt1");
-        //m_lep1_b  = tr.getVar<double>("m_lep1_b");
-        //leppt2    = tr.getVar<double>("leppt2");
-        //m_lep2_b  = tr.getVar<double>("m_lep2_b");
-        //evt_count = tr.getVar<int>("evt_count");
-        //run       = tr.getVar<int>("run");
-        //lumi      = tr.getVar<int>("lumi");
-        //event     = tr.getVar<ULong64_t>("event");
 
         // ------------------------
         // -- Print event number
@@ -232,8 +195,6 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     tf_output->Close() ;
 
     printf("\n\n Done.\n") ;
-    //if ( nevts_ttree > 0 ) printf("  Saved %9d / %9lld  (%.4f)\n", nsave, nevts_ttree, (1.*nsave)/(1.*nevts_ttree) ) ;
-    //printf("  ds_weight = %.3f\n", ds_weight ) ;
 
     // Cleaning up dynamic memory
     delete tf_output;
@@ -285,6 +246,14 @@ int main(int argc, char *argv[])
         TChain* ch = new TChain( (file.treePath).c_str() );
         file.addFilesToChain(ch, startFile, nFiles);
         NTupleReader tr(ch);
+        double weight = file.getWeight(); // not used currently
+        std::string runtype = (file.tag.find("Data") != std::string::npos) ? "Data" : "MC";
+        std::cout << "Starting loop (in run)" << std::endl;
+        printf( "runtype: %s fileWeight: %f nFiles: %i startFile: %i maxEvts: %i \n",runtype.c_str(),weight,nFiles,startFile,maxEvts ); fflush( stdout );
+        tr.registerDerivedVar<std::string>("runtype",runtype);
+        tr.registerDerivedVar<std::string>("filetag",file.tag);
+        tr.registerDerivedVar<double>("etaCut",2.4);
+        tr.registerDerivedVar<bool>("blind",true);
         
         // Loop over all of the events and fill trees
         make_mva_training_tree_example(tr, outfile, maxEvts, file.nEvts);
