@@ -1,12 +1,22 @@
 # BackgroundMVA
 The code make_training_trees.C produces a small TTree that's used as input to the mva training that's done by train_tmva.C
 
-## Example Code
-Make trees to run the training on
+## Setup
 
+cmsrel CMSSW_9_3_3
+cd CMSSW_9_3_3/src/
+cmsenv
+git clone git@github.com:StealthStop/Framework.git
+git clone -b TopTaggingLPC git@github.com:susy2015/SusyAnaTools.git
+cd Framework/BackgroundMVA/test/
+$CMSSW_BASE/src/Framework/Framework/scripts/getSamplesCfg.sh 
+make -j4 
+
+## Example Code
+Make trees to run the training on 
+
+Make trees interactively
 ```
-cd test
-make -j8
 ./make_training_trees -D rpv_stop_350 -H outputfiles/mva-trees-rpv_stop_350.root
 ./make_training_trees -D rpv_stop_450 -H outputfiles/mva-trees-rpv_stop_450.root
 ./make_training_trees -D rpv_stop_550 -H outputfiles/mva-trees-rpv_stop_550.root
@@ -15,6 +25,13 @@ make -j8
 ./make_training_trees -D rpv_stop_850 -H outputfiles/mva-trees-rpv_stop_850.root
 
 ./make_training_trees -D TT -H outputfiles/mva-trees-ttbar.root
+```
+
+Make trees with condor (Same options as Analyzer)
+```
+cd condor
+python condorSubmit.py -d AllSignal,TT,QCD -n 10
+./combineTree.sh
 ```
 
 Run the training
