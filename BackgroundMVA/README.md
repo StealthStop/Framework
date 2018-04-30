@@ -12,7 +12,7 @@ git clone -b TopTaggingLPC git@github.com:susy2015/SusyAnaTools.git
 cd Framework/BackgroundMVA/test/
 $CMSSW_BASE/src/Framework/Framework/scripts/getSamplesCfg.sh 
 make -j4 
-``
+```
 
 ## Example Code
 Make trees to run the training on 
