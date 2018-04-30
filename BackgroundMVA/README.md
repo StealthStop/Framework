@@ -1,8 +1,9 @@
 # BackgroundMVA
-The code make_training_trees.C produces a small TTree that's used as input to the mva training that's done by train_tmva.C
+The code make_training_trees.C produces a small TTree that is used as the input to the mva training done by train_tmva.C
 
 ## Setup
 
+```
 cmsrel CMSSW_9_3_3
 cd CMSSW_9_3_3/src/
 cmsenv
@@ -11,6 +12,7 @@ git clone -b TopTaggingLPC git@github.com:susy2015/SusyAnaTools.git
 cd Framework/BackgroundMVA/test/
 $CMSSW_BASE/src/Framework/Framework/scripts/getSamplesCfg.sh 
 make -j4 
+``
 
 ## Example Code
 Make trees to run the training on 
