@@ -1,3 +1,14 @@
+#include "SusyAnaTools/Tools/samples.h"
+#include "SusyAnaTools/Tools/NTupleReader.h"
+
+#include "Framework/BackgroundMVA/include/MakeMVAVariables.h"
+#include "Framework/Framework/include/Jet.h"
+#include "Framework/Framework/include/Muon.h"
+#include "Framework/Framework/include/Electron.h"
+#include "Framework/Framework/include/BJet.h"
+#include "Framework/Framework/include/CommonVariables.h"
+#include "Framework/Framework/include/Baseline.h"
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
@@ -7,42 +18,44 @@
 #include "TSystem.h"
 #include "TH1F.h"
 
-#include "SusyAnaTools/Tools/NTupleReader.h"
-#include "Framework/BackgroundMVA/include/MakeMVAVariables.h"
+#include <iostream>
+#include <getopt.h>
+#include <string>
 
-void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-v2/",
-                                     const char* sample_string = "rpv_stop_350",
-                                     const char* outfile = "outputfiles/mva-train-rpv_stop_350.root",
-                                     int arg_ds_index = 11,
+std::set<AnaSamples::FileSummary> setFS(const std::string& dataSets, const bool& isCondor)
+{
+    AnaSamples::SampleSet        ss("sampleSets.cfg", isCondor);
+    AnaSamples::SampleCollection sc("sampleCollections.cfg", ss);
+
+    std::map<std::string, std::vector<AnaSamples::FileSummary>> fileMap;
+    if(ss[dataSets] != ss.null())
+    {
+        fileMap[dataSets] = {ss[dataSets]};
+        for(const auto& colls : ss[dataSets].getCollections())
+        {
+            fileMap[colls] = {ss[dataSets]};
+        }
+    }
+    else if(sc[dataSets] != sc.null())
+    {
+        fileMap[dataSets] = {sc[dataSets]};
+        int i = 0;
+        for(const auto& fs : sc[dataSets])
+        {
+            fileMap[sc.getSampleLabels(dataSets)[i++]].push_back(fs);
+        }
+    }
+    std::set<AnaSamples::FileSummary> vvf;
+    for(auto& fsVec : fileMap) for(auto& fs : fsVec.second) vvf.insert(fs);
+
+    return vvf;
+}
+
+void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const int maxEvts = -1, 
+                                     const int totalEvts = -1, int arg_ds_index = 11,
                                      float lumi_times_xsec = ( 3.79 * 35.9 * 1000.0 ),
                                      bool verb = false) 
 {
-    char fpat[1000] ;
-    TChain* tt_in = new TChain( "TreeMaker2/PreSelection", "" ) ;
-    sprintf( fpat, "%s/*%s*.root", ntuple_dir, sample_string ) ;
-    printf("\n\n Loading files that match %s\n", fpat ) ;
-
-    int n_added = tt_in->Add( fpat ) ;
-    if ( n_added <= 0 ) { printf("\n\n *** No files match %s\n\n", fpat ) ; gSystem->Exit(-1) ; }
-    printf("  Added %d files to chain.\n", n_added ) ;
-    NTupleReader tr(tt_in);
-
-    Long64_t nevts_ttree = tr.getNEntries() ;
-    tr.registerDerivedVar("nevts_ttree", nevts_ttree);
-    printf("\n\n Number of events in input tree: %lld\n\n", nevts_ttree ) ;
-
-    float ds_weight = lumi_times_xsec / nevts_ttree ;
-    printf("  Dataset weight : %.8f\n\n", ds_weight ) ;
-
-    gSystem->Exec( "mkdir -p outputfiles" ) ;
-
-    TFile* tf_output = new TFile( outfile, "RECREATE" ) ;
-    if ( tf_output == nullptr || !tf_output->IsOpen() ) 
-    {
-        printf("\n\n *** bad output file: %s\n\n", outfile ) ; 
-        gSystem->Exit(-1) ;
-    }
-    
     TTree* tt_out = new TTree( "mvatraintt", "MVA training ttree" ) ;
 
     //--- Extra output histograms
@@ -50,46 +63,22 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     TH1F* h_costheta_ppweight_noieqj = new TH1F( "h_costheta_ppweight_noieqj", "cos(theta_ij) in CM frame, pipj/Esq weight, excluding i=j", 110, -1.05, 1.05 ) ;
 
     //--- New branches for output.
-    int ds_index = arg_ds_index ;
-    float mva_train_weight = ds_weight ;
-    double fwm2_top6 ;
-    double fwm3_top6 ;
-    double fwm4_top6 ;
-    double fwm5_top6 ;
-    double fwm6_top6 ;
-    double jmt_ev0_top6 ;
-    double jmt_ev1_top6 ;
-    double jmt_ev2_top6 ;
-    double fwm2_top6_tr_v3pt30 ;
-    double fwm3_top6_tr_v3pt30 ;
-    double fwm4_top6_tr_v3pt30 ;
-    double fwm5_top6_tr_v3pt30 ;
-    double fwm6_top6_tr_v3pt30 ;
-    double jmt_ev0_top6_tr_v3pt30 ;
-    double jmt_ev1_top6_tr_v3pt30 ;
-    double jmt_ev2_top6_tr_v3pt30 ;
-    double event_beta_z ;
-    int    njets_pt45_eta24 ;
-    int    njets_pt30_eta24 ;
-    int    njets_pt20_eta24 ;
-    int    njets_pt45_eta50 ;
-    int    njets_pt30_eta50 ;
-    int    njets_pt20_eta50 ;
-    double pfht_pt40_eta24 ;
-    double pfht_pt45_eta24 ;
-    int    nleptons ;
-    int    nbtag_csv85_pt30_eta24 ;
-    double leppt1 ;
-    double m_lep1_b ;
-    double leppt2 ;
-    double m_lep2_b ;
-    int    evt_count ;
-    int    run ;
-    int    lumi ;
-    ULong64_t  event ;
+    bool passBaseline0l;
+    bool passBaseline1l;
+    double Mbl;          
+    double fwm2_top6;
+    double fwm3_top6;
+    double fwm4_top6;
+    double fwm5_top6;
+    double fwm6_top6;
+    double jmt_ev0_top6;
+    double jmt_ev1_top6;
+    double jmt_ev2_top6;
+    double event_beta_z;
 
-    tt_out->Branch( "mva_train_weight", &mva_train_weight, "mva_train_weight/F" ) ;
-    tt_out->Branch( "ds_index", &ds_index, "ds_index/I" ) ;
+    tt_out->Branch( "passBaseline0l", &passBaseline0l, "passBaseline0l/B" ) ;
+    tt_out->Branch( "passBaseline1l", &passBaseline1l, "passBaseline1l/B" ) ;
+    tt_out->Branch( "Mbl",            &Mbl,            "Mbl/D" ) ;
     tt_out->Branch( "fwm2_top6", &fwm2_top6, "fwm2_top6/D" ) ;
     tt_out->Branch( "fwm3_top6", &fwm3_top6, "fwm3_top6/D" ) ;
     tt_out->Branch( "fwm4_top6", &fwm4_top6, "fwm4_top6/D" ) ;
@@ -99,40 +88,31 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     tt_out->Branch( "jmt_ev1_top6", &jmt_ev1_top6, "jmt_ev1_top6/D" ) ;
     tt_out->Branch( "jmt_ev2_top6", &jmt_ev2_top6, "jmt_ev2_top6/D" ) ;
     tt_out->Branch( "event_beta_z", &event_beta_z, "event_beta_z/D" ) ;
-    tt_out->Branch( "njets_pt45_eta24", &njets_pt45_eta24, "njets_pt45_eta24/I" ) ;
-    tt_out->Branch( "njets_pt30_eta24", &njets_pt30_eta24, "njets_pt30_eta24/I" ) ;
-    tt_out->Branch( "njets_pt20_eta24", &njets_pt20_eta24, "njets_pt20_eta24/I" ) ;
-    tt_out->Branch( "njets_pt45_eta50", &njets_pt45_eta50, "njets_pt45_eta50/I" ) ;
-    tt_out->Branch( "njets_pt30_eta50", &njets_pt30_eta50, "njets_pt30_eta50/I" ) ;
-    tt_out->Branch( "njets_pt20_eta50", &njets_pt20_eta50, "njets_pt20_eta50/I" ) ;
-    tt_out->Branch( "nbtag_csv85_pt30_eta24", &nbtag_csv85_pt30_eta24, "nbtag_csv85_pt30_eta24/I" ) ;
-    tt_out->Branch( "pfht_pt40_eta24"       , &pfht_pt40_eta24        , "pfht_pt40_eta24/D" ) ;
-    tt_out->Branch( "pfht_pt45_eta24"       , &pfht_pt45_eta24        , "pfht_pt45_eta24/D" ) ;
-    tt_out->Branch( "nleptons"              , &nleptons               , "nleptons/I" ) ;
-    tt_out->Branch( "leppt1"                , &leppt1                 , "leppt1/D" ) ;
-    tt_out->Branch( "m_lep1_b"              , &m_lep1_b               , "m_lep1_b/D" ) ;
-    tt_out->Branch( "leppt2"                , &leppt2                 , "leppt2/D" ) ;
-    tt_out->Branch( "m_lep2_b"              , &m_lep2_b               , "m_lep2_b/D" ) ;
-    tt_out->Branch( "evt_count", &evt_count, "evt_count/I" ) ;
-    tt_out->Branch( "run", &run, "run/I" ) ;
-    tt_out->Branch( "lumi", &lumi, "lumi/I" ) ;
-    tt_out->Branch( "event", &event, "event/l" ) ;
 
     //--- Loop over events
-
-    int modnum(1) ;
-    if ( nevts_ttree > 0 ) modnum = nevts_ttree / 100 ;
-    if ( modnum <= 0 ) modnum = 1 ;
-    tr.registerDerivedVar("modnum", modnum);
-
-    int nsave(0) ;
-
     MakeMVAVariables makeMVAVariables(false);
+    Jet jet;
+    Muon muon;
+    Electron electron;
+    BJet bjet;
+    CommonVariables commonVariables;
+    Baseline baseline;
     tr.registerFunction( std::move(makeMVAVariables) );
+    tr.registerFunction( std::move(jet) );
+    tr.registerFunction( std::move(muon) );
+    tr.registerFunction( std::move(electron) );
+    tr.registerFunction( std::move(bjet) );
+    tr.registerFunction( std::move(commonVariables) );
+    tr.registerFunction( std::move(baseline) );
 
+    int nsave = 0;
     while( tr.getNextEvent() )
     {
         const auto& cm_jets = tr.getVec<math::RThetaPhiVector>("cm_jets");
+
+        passBaseline0l = tr.getVar<bool>("passBaseline0l");
+        passBaseline1l = tr.getVar<bool>("passBaseline1l");
+        Mbl            = tr.getVar<double>("Mbl");
         fwm2_top6 = tr.getVar<double>("fwm2_top6");
         fwm3_top6 = tr.getVar<double>("fwm3_top6");
         fwm4_top6 = tr.getVar<double>("fwm4_top6");
@@ -141,33 +121,14 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         jmt_ev0_top6 = tr.getVar<double>("jmt_ev0_top6");
         jmt_ev1_top6 = tr.getVar<double>("jmt_ev1_top6");
         jmt_ev2_top6 = tr.getVar<double>("jmt_ev2_top6");
-        fwm2_top6_tr_v3pt30 = tr.getVar<double>("fwm2_top6_tr_v3pt30");
-        fwm3_top6_tr_v3pt30 = tr.getVar<double>("fwm3_top6_tr_v3pt30");
-        fwm4_top6_tr_v3pt30 = tr.getVar<double>("fwm4_top6_tr_v3pt30");
-        fwm5_top6_tr_v3pt30 = tr.getVar<double>("fwm5_top6_tr_v3pt30");
-        fwm6_top6_tr_v3pt30 = tr.getVar<double>("fwm6_top6_tr_v3pt30");
-        jmt_ev0_top6_tr_v3pt30 = tr.getVar<double>("jmt_ev0_top6_tr_v3pt30");
-        jmt_ev1_top6_tr_v3pt30 = tr.getVar<double>("jmt_ev1_top6_tr_v3pt30");
-        jmt_ev2_top6_tr_v3pt30 = tr.getVar<double>("jmt_ev2_top6_tr_v3pt30");
         event_beta_z = tr.getVar<double>("event_beta_z");
-        njets_pt45_eta24 = tr.getVar<int>("njets_pt45_eta24");
-        njets_pt30_eta24 = tr.getVar<int>("njets_pt30_eta24");
-        njets_pt20_eta24 = tr.getVar<int>("njets_pt20_eta24");
-        njets_pt45_eta50 = tr.getVar<int>("njets_pt45_eta50");
-        njets_pt30_eta50 = tr.getVar<int>("njets_pt30_eta50");
-        njets_pt20_eta50 = tr.getVar<int>("njets_pt20_eta50");
-        pfht_pt40_eta24  = tr.getVar<double>("pfht_pt40_eta24");
-        pfht_pt45_eta24  = tr.getVar<double>("pfht_pt45_eta24");
-        nleptons         = tr.getVar<int>("nleptons");
-        nbtag_csv85_pt30_eta24 = tr.getVar<int>("nbtag_csv85_pt30_eta24");
-        leppt1    = tr.getVar<double>("leppt1");
-        m_lep1_b  = tr.getVar<double>("m_lep1_b");
-        leppt2    = tr.getVar<double>("leppt2");
-        m_lep2_b  = tr.getVar<double>("m_lep2_b");
-        evt_count = tr.getVar<int>("evt_count");
-        run       = tr.getVar<int>("run");
-        lumi      = tr.getVar<int>("lumi");
-        event     = tr.getVar<ULong64_t>("event");
+
+        // ------------------------
+        // -- Print event number
+        // -----------------------        
+
+        if(maxEvts != -1 && tr.getEvtNum() >= maxEvts) break;        
+        if ( tr.getEvtNum() % 10000 == 0 ) printf("  Event %i\n", tr.getEvtNum() ) ;
 
         // Make cos theta ppweight histos
         double esum_total(0.) ;
@@ -197,7 +158,7 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
         } // i
 
         nsave++ ;
-        tt_out->Fill() ;
+        if(passBaseline0l or passBaseline1l) tt_out->Fill() ;
 
     } // event loop
 
@@ -209,19 +170,74 @@ void make_mva_training_tree_example( const char* ntuple_dir = "prod-hadlep-skim-
     tf_output->Close() ;
 
     printf("\n\n Done.\n") ;
-    if ( nevts_ttree > 0 ) printf("  Saved %9d / %9lld  (%.4f)\n", nsave, nevts_ttree, (1.*nsave)/(1.*nevts_ttree) ) ;
-    printf("  ds_weight = %.3f\n", ds_weight ) ;
-    printf("  Created %s\n\n", outfile ) ;
 
     // Cleaning up dynamic memory
-    delete tt_in;
     delete tf_output;
 
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    //make_mva_training_tree_example("temp/", "rpv_stop_350", "outputfiles/mva-train-rpv_stop_350.root");
-    make_mva_training_tree_example("temp/", "TT", "outputfiles/mva-train-example-ttbar.root");
+    int opt, option_index = 0;
+    bool runOnCondor = false;
+    std::string histFile = "", dataSets = "";
+    int nFiles = -1, startFile = 0, maxEvts = -1;
+
+    static struct option long_options[] = {
+        {"condor",             no_argument, 0, 'c'},
+        {"histFile",     required_argument, 0, 'H'},
+        {"dataSets",     required_argument, 0, 'D'},
+        {"numFiles",     required_argument, 0, 'N'},
+        {"startFile",    required_argument, 0, 'M'},
+        {"numEvts",      required_argument, 0, 'E'},
+    };
+
+    while((opt = getopt_long(argc, argv, "cH:D:N:M:E:", long_options, &option_index)) != -1)
+    {
+        switch(opt)
+        {
+            case 'c': runOnCondor      = true;              break;
+            case 'H': histFile         = optarg;            break;
+            case 'D': dataSets         = optarg;            break;
+            case 'N': nFiles           = int(atoi(optarg)); break;
+            case 'M': startFile        = int(atoi(optarg)); break;
+            case 'E': maxEvts          = int(atoi(optarg)); break;
+        }
+    }
+
+    if(runOnCondor)
+    {
+        char thistFile[128];
+        sprintf(thistFile, "make_training_trees_%s_%d.root", dataSets.c_str(), startFile);
+        histFile = thistFile;
+    }
+
+    std::set<AnaSamples::FileSummary> vvf = setFS(dataSets, runOnCondor); 
+    gSystem->Exec( "mkdir -p outputfiles" );
+    TFile* outfile = TFile::Open(histFile.c_str(), "RECREATE");
+    printf("  Created %s\n\n", histFile.c_str() );
+
+    for(const AnaSamples::FileSummary& file : vvf)
+    {
+        TChain* ch = new TChain( (file.treePath).c_str() );
+        file.addFilesToChain(ch, startFile, nFiles);
+        NTupleReader tr(ch);
+        double weight = file.getWeight(); // not used currently
+        std::string runtype = (file.tag.find("Data") != std::string::npos) ? "Data" : "MC";
+        std::cout << "Starting loop (in run)" << std::endl;
+        printf( "runtype: %s fileWeight: %f nFiles: %i startFile: %i maxEvts: %i \n",runtype.c_str(),weight,nFiles,startFile,maxEvts ); fflush( stdout );
+        tr.registerDerivedVar<std::string>("runtype",runtype);
+        tr.registerDerivedVar<std::string>("filetag",file.tag);
+        tr.registerDerivedVar<double>("etaCut",2.4);
+        tr.registerDerivedVar<bool>("blind",true);
+        
+        // Loop over all of the events and fill trees
+        make_mva_training_tree_example(tr, outfile, maxEvts, file.nEvts);
+
+        // Cleaning up dynamic memory
+        delete ch;
+            
+    }
+
     return 0;
 }
