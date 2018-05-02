@@ -246,6 +246,7 @@ public:
         hadtops_idx_    (nullptr)
     {                
         tt_->setCfgFile(taggerCfg_);
+        std::cout<<"Using "+taggerCfg+" as the TopTagger config file"<<std::endl;
     }
 
     ~RunTopTagger(){}
