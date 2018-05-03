@@ -9,6 +9,8 @@
 #include "Framework/Framework/src/fisher_350to650_fwm6_jmtev_top6_gt_v2.c"
 #include "Framework/Framework/src/fisher_350to650_fwm6_jmtev_top6_gt_v3pt30.c"
 
+//#include "Framework/BackgroundMVA/test/fisherLoader/weights/TMVAClassification_FisherG.class.C"
+
 class RunFisher
 {
 private:
@@ -21,6 +23,7 @@ private:
     std::shared_ptr<ReadFisher_350to650_fwm10_jmtev_top6>           read_fisher_350to650_fwm10_jmtev_top6_;
     std::shared_ptr<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v2>     read_fisher_350to650_fwm6_jmtev_top6_gt_v2_;
     std::shared_ptr<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v3pt30> read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_;
+    //std::shared_ptr<ReadFisherG>                                    read_fisher_test_;
 
     void setUpFWM()
     {
@@ -137,6 +140,10 @@ private:
                 fisher_val = fisher_val + fisher_shift[NJets_pt30];
             }
         }
+        //else if (fisherVersion_ == "test")
+        //{
+        //    fisher_val = read_fisher_test_->GetMvaValue( inputVals_top6_fwm6_ );
+        //}
 
         bool bdt_bin1 = eventshape_bdt_val > -1.00 && eventshape_bdt_val <= -0.04;
         bool bdt_bin2 = eventshape_bdt_val > -0.04 && eventshape_bdt_val <=  0.00;
@@ -170,18 +177,21 @@ private:
     }
 
 public:
-    RunFisher(std::string fisherVersion = "v3") : 
-        fisherVersion_(fisherVersion),
-        eventshapeBDT_(nullptr),
-        read_fisher_350to650_fwm10_jmtev_top6_(nullptr),
-        read_fisher_350to650_fwm6_jmtev_top6_gt_v2_(nullptr),
-        read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_(nullptr)
+    RunFisher(std::string fisherVersion = "v3") 
+        : fisherVersion_(fisherVersion)
+        , eventshapeBDT_(nullptr)
+        , read_fisher_350to650_fwm10_jmtev_top6_(nullptr)
+        , read_fisher_350to650_fwm6_jmtev_top6_gt_v2_(nullptr)
+        , read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_(nullptr)
+        //, read_fisher_test_(nullptr)
     {
         setUpFWM();
         eventshapeBDT_                                  = std::make_shared<ReadBDT_350to650_fwm10_jmtev_top6>( inputVarNames_top6_fwm10_ );
         read_fisher_350to650_fwm10_jmtev_top6_          = std::make_shared<ReadFisher_350to650_fwm10_jmtev_top6>( inputVarNames_top6_fwm10_ );
         read_fisher_350to650_fwm6_jmtev_top6_gt_v2_     = std::make_shared<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v2>( inputVarNames_top6_fwm6_ );
         read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_ = std::make_shared<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v3pt30>( inputVarNames_top6_fwm6_ );
+        //read_fisher_test_                               = std::make_shared<ReadFisherG>( inputVarNames_top6_fwm6_ );
+        std::cout<<"Using Fisher version: "+fisherVersion<<std::endl;
     }
     
     void operator()(NTupleReader& tr)
