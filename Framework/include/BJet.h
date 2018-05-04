@@ -49,7 +49,9 @@ private:
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
             if( !JetsID.at(ijet) ) continue;
+            
             TLorentzVector lv(Jets.at(ijet));
+            
             if( abs(lv.Eta()) < etaCut &&
                 Jets_bDiscriminatorCSV.at(ijet) > 0.8484 
                 )
@@ -73,29 +75,63 @@ private:
             }
         }
 
-        for( unsigned int icjet = 0; icjet < cleanJets.size(); ++icjet ) 
-        {
-            if( !cleanJetsID.at(icjet) ) continue;
-            TLorentzVector lv( cleanJets.at(icjet) );
-            if( abs( lv.Eta() ) < etaCut &&
-                cleanJetsCSV.at(icjet) > 0.8484 
-                )
+        if( cleanJets.size() != 0 ) {
+            for( unsigned int icjet = 0; icjet < cleanJets.size(); ++icjet ) 
             {
-                bjets_clean_->push_back(lv);
-                if( lv.Pt() > 30 )
-                    bjets_pt30_clean_->push_back(lv);
-                if( lv.Pt() > 45 )
-                    bjets_pt45_clean_->push_back(lv);
-            }
+                if( !cleanJetsID.at(icjet) ) continue;
+                TLorentzVector lv( cleanJets.at(icjet) );
+            
+                if( abs( lv.Eta() ) < etaCut &&
+                    cleanJetsCSV.at(icjet) > 0.8484 
+                    )
+                {
+                    bjets_clean_->push_back(lv);
+                    if( lv.Pt() > 30 )
+                        bjets_pt30_clean_->push_back(lv);
+                    if( lv.Pt() > 45 )
+                        bjets_pt45_clean_->push_back(lv);
+                }
 
-            if( abs( lv.Eta() ) < etaCut &&
-                cleanJetsCSV.at(icjet) > 0.9535
-                )
-                bjets_tight_->push_back(lv);
-                if( lv.Pt() > 30 )
-                    bjets_pt30_tight_clean_->push_back(lv);
-                if( lv.Pt() > 45 )
-                    bjets_pt45_tight_clean_->push_back(lv);
+                if( abs( lv.Eta() ) < etaCut &&
+                    cleanJetsCSV.at(icjet) > 0.9535
+                    )
+                {
+                    bjets_tight_clean_->push_back(lv);
+                    if( lv.Pt() > 30 )
+                        bjets_pt30_tight_clean_->push_back(lv);
+                    if( lv.Pt() > 45 )
+                        bjets_pt45_tight_clean_->push_back(lv);
+                }
+            }
+        }
+        else if( cleanJets.size() == 0 ) {
+            for( unsigned int icjet = 0; icjet < Jets.size(); ++icjet ) 
+            {
+                if( !jetsID.at(icjet) ) continue;
+                TLorentzVector lv( Jets.at(icjet) );
+            
+                if( abs( lv.Eta() ) < etaCut &&
+                    Jets_bDiscriminatorCSV.at(icjet) > 0.8484 
+                    )
+                {
+                    bjets_clean_->push_back(lv);
+                    if( lv.Pt() > 30 )
+                        bjets_pt30_clean_->push_back(lv);
+                    if( lv.Pt() > 45 )
+                        bjets_pt45_clean_->push_back(lv);
+                }
+
+                if( abs( lv.Eta() ) < etaCut &&
+                    Jets_bDiscriminatorCSV.at(icjet) > 0.9535
+                    )
+                {
+                    bjets_tight_clean_->push_back(lv);
+                    if( lv.Pt() > 30 )
+                        bjets_pt30_tight_clean_->push_back(lv);
+                    if( lv.Pt() > 45 )
+                        bjets_pt45_tight_clean_->push_back(lv);
+                }
+            }   
         }
 
         tr.registerDerivedVec("BJets",        bjets_);
