@@ -7,12 +7,12 @@
 #include "TopTagger/TopTagger/include/TopTaggerResults.h"
 #include <vector>
 
-class NTupleReader;
+#include "SusyAnaTools/Tools/NTupleReader.h"
 
 class SetUpTopTagger
 {
 private:
-    const NTupleReader& tr_;
+    NTupleReader& tr_;
     const std::vector<TLorentzVector>& Jets_;                      
     const std::vector<double>& Jets_bDiscriminatorCSV_;    
     const std::vector<double>& Jets_qgLikelihood_;         
@@ -22,22 +22,31 @@ private:
     const std::vector<double>& JetsAK8_NsubjettinessTau3_; 
     const std::vector<double>& JetsAK8_softDropMass_;      
     const std::vector<std::vector<TLorentzVector>>& JetsAK8_subjets_;           
-    const std::vector<double>& Jets_ptD_;                  
-    const std::vector<double>& Jets_axismajor_;            
-    const std::vector<double>& Jets_axisminor_;            
-    const std::vector<int>& Jets_multiplicity_;         
     const std::vector<TLorentzVector>& hadtops_;                   
     const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters_;           
     
     ttUtility::ConstAK4Inputs* AK4Inputs_;
     ttUtility::ConstAK8Inputs* AK8Inputs_;
-    std::vector<double> vecDouble_;
     
-    std::vector<double> intVecTodoubleVec(const std::vector<int>& vecInt);
+    std::vector<double>* intVecTodoubleVec(NTupleReader& tr, const std::string& vType);
+
+    template<typename I> std::vector<I>* add2Vec(NTupleReader& tr, const std::string& name1, const std::string& name2)
+    {
+        const auto& vec1 = tr.getVec<I>(name1);
+        const auto& vec2 = tr.getVec<I>(name2);
+        std::vector<I>* sumVec = new std::vector<I>(vec1.size());
+        for(int i = 0; i < vec1.size(); i++)
+        {
+            (*sumVec)[i] = vec1[i] + vec2[i];
+        }
+        tr.registerDerivedVec(name1+"AddedTo"+name2, sumVec);
+        return sumVec;
+    }
+
     void addVariables();
     
 public:  
-    SetUpTopTagger(const NTupleReader& tr, const std::vector<TLorentzVector>& hadtops, const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters);
+    SetUpTopTagger(NTupleReader& tr, const std::vector<TLorentzVector>& hadtops, const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters);
     ~SetUpTopTagger();
     std::vector<Constituent> getConstituents() const;
 };
