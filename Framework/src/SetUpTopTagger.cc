@@ -1,9 +1,9 @@
 #include "Framework/Framework/include/SetUpTopTagger.h"
-#include "SusyAnaTools/Tools/NTupleReader.h"
 
 #include <string>
+#include <iostream>
 
-SetUpTopTagger::SetUpTopTagger(const NTupleReader& tr, 
+SetUpTopTagger::SetUpTopTagger(NTupleReader& tr, 
 			       const std::vector<TLorentzVector>& hadtops, 
 			       const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters) : 
     tr_                        (tr),
@@ -18,10 +18,6 @@ SetUpTopTagger::SetUpTopTagger(const NTupleReader& tr,
     JetsAK8_NsubjettinessTau3_ (tr.getVec<double>("JetsAK8_NsubjettinessTau3")),
     JetsAK8_softDropMass_      (tr.getVec<double>("JetsAK8_softDropMass")),
     JetsAK8_subjets_           (tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets")),
-    Jets_ptD_                  (tr.getVec<double>("Jets_ptD")),
-    Jets_axismajor_            (tr.getVec<double>("Jets_axismajor")),
-    Jets_axisminor_            (tr.getVec<double>("Jets_axisminor")),
-    Jets_multiplicity_         (tr.getVec<int>("Jets_multiplicity")),
     hadtops_                   (hadtops),
     hadtopdaughters_           (hadtopdaughters)
 {
@@ -53,22 +49,52 @@ SetUpTopTagger::~SetUpTopTagger()
     delete AK8Inputs_;
 }
 
-std::vector<double> SetUpTopTagger::intVecTodoubleVec(const std::vector<int>& vecInt)
+std::vector<double>* SetUpTopTagger::intVecTodoubleVec(NTupleReader& tr, const std::string& name)
 {
-    vecDouble_.clear();
-    for(int i = 0; i < vecInt.size(); i++)
+    const auto& vI = tr.getVec<int>(name);
+    std::vector<double>* vD = new std::vector<double>(vI.size());
+    for(int i = 0; i < vI.size(); i++)
     {
-        vecDouble_.push_back(vecInt[i]);
+        (*vD)[i] = vI[i];
     }
-    return vecDouble_;
+    tr.registerDerivedVec(name+"ConvertedToDouble", vD);
+    return vD;
 }
 
 void SetUpTopTagger::addVariables()
 {
-    AK4Inputs_->addSupplamentalVector("qgPtD",   Jets_ptD_);
-    AK4Inputs_->addSupplamentalVector("qgAxis1", Jets_axismajor_);
-    AK4Inputs_->addSupplamentalVector("qgAxis2", Jets_axisminor_);
-    AK4Inputs_->addSupplamentalVector("qgMult",  intVecTodoubleVec(Jets_multiplicity_));
+    //AK4Inputs_->addSupplamentalVector("qgLikelihood",                        tr_.getVec<double>("Jets_qgLikelihood"));
+    AK4Inputs_->addSupplamentalVector("qgPtD",                               tr_.getVec<double>("Jets_ptD"));
+    AK4Inputs_->addSupplamentalVector("qgAxis1",                             tr_.getVec<double>("Jets_axismajor"));
+    AK4Inputs_->addSupplamentalVector("qgAxis2",                             tr_.getVec<double>("Jets_axisminor"));
+    //AK4Inputs_->addSupplamentalVector("recoJetschargedHadronEnergyFraction", tr_.getVec<double>("Jets_chargedHadronEnergyFraction"));
+    //AK4Inputs_->addSupplamentalVector("recoJetschargedEmEnergyFraction",     tr_.getVec<double>("Jets_chargedEmEnergyFraction"));
+    //AK4Inputs_->addSupplamentalVector("recoJetsneutralEmEnergyFraction",     tr_.getVec<double>("Jets_neutralEmEnergyFraction"));
+    //AK4Inputs_->addSupplamentalVector("recoJetsmuonEnergyFraction",          tr_.getVec<double>("Jets_muonEnergyFraction"));
+    //AK4Inputs_->addSupplamentalVector("recoJetsHFHadronEnergyFraction",      tr_.getVec<double>("Jets_hfHadronEnergyFraction"));
+    //AK4Inputs_->addSupplamentalVector("recoJetsHFEMEnergyFraction",          tr_.getVec<double>("Jets_hfEMEnergyFraction"));
+    //AK4Inputs_->addSupplamentalVector("recoJetsneutralEnergyFraction",       *add2Vec<double>(tr_,"Jets_neutralEmEnergyFraction","Jets_neutralHadronEnergyFraction"));
+    //AK4Inputs_->addSupplamentalVector("PhotonEnergyFraction",                tr_.getVec<double>("Jets_photonEnergyFraction"));
+    //AK4Inputs_->addSupplamentalVector("ElectronEnergyFraction",              tr_.getVec<double>("Jets_electronEnergyFraction"));
+    //AK4Inputs_->addSupplamentalVector("ChargedHadronMultiplicity",           *intVecTodoubleVec(tr_,"Jets_chargedHadronMultiplicity"));
+    //AK4Inputs_->addSupplamentalVector("NeutralHadronMultiplicity",           *intVecTodoubleVec(tr_,"Jets_neutralMultiplicity"));
+    //AK4Inputs_->addSupplamentalVector("PhotonMultiplicity",                  *intVecTodoubleVec(tr_,"Jets_photonMultiplicity"));
+    //AK4Inputs_->addSupplamentalVector("ElectronMultiplicity",                *intVecTodoubleVec(tr_,"Jets_electronMultiplicity"));
+    //AK4Inputs_->addSupplamentalVector("MuonMultiplicity",                    *intVecTodoubleVec(tr_,"Jets_muonMultiplicity"));
+    //AK4Inputs_->addSupplamentalVector("DeepCSVb",                            tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepCSVc",                            tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepCSVl",                            tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepCSVbb",                           tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepCSVcc",                           tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavorb",                         tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavorbb",                        tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavorlepb",                      tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavorc",                         tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavoruds",                       tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavorg",                         tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("CvsL",                                tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("CvsB",                                tr.getVec<double>(""));
+    AK4Inputs_->addSupplamentalVector("qgMult",  *intVecTodoubleVec(tr_,"Jets_multiplicity"));
 }
 
 // Create jets constituents list combining AK4 and AK8 jets, these are used to construct top candiates
