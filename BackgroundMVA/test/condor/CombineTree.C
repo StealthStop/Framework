@@ -18,7 +18,7 @@
 
 void CombineTree(const std::string& infile, const std::string& outfile)
 { 
-    gSystem->Exec( ("rm  " + outfile).c_str() );
+    //gSystem->Exec( ("rm  " + outfile).c_str() );
    
     std::ifstream in;
     in.open( infile.c_str() );
