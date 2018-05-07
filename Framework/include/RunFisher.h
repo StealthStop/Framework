@@ -27,48 +27,45 @@ private:
     std::shared_ptr<ReadFisherG_SHuHd_350to850_fwm6_jmtev_top6_gt_v1pt30> read_fisher_SHuHd_350to850_fwm6_jmtev_top6_gt_v1pt30_;
     //std::shared_ptr<ReadFisherG>                                    read_fisher_test_;
 
+    void prepareFWMVecs(const std::vector<std::string>& names, std::vector<double>& values)
+    {
+        for ( unsigned int i=0; i < names.size() ; i++ ) 
+        {
+            values.push_back( 0.5 ) ; //--- load vector with dummy values.
+        }
+    }
+
+    void resetFWMVecs(std::vector<double>& v, EventShapeVariables& esv)
+    {
+        int index = -1;
+        TVectorD eigen_vals_norm_top6 = esv.getEigenValues();
+        for(int i = 0; i < v.size(); i++)
+        {
+            if(i < v.size() - 3)
+            {
+                v[i] = esv.getFWmoment(i+2);
+            }
+            else
+            {
+                index++;
+                v[i] = eigen_vals_norm_top6[index];
+            }
+        }
+    }
+
     void setUpFWM()
     {
-
         // FWM 2-6
-        {
-            std::string vname ;
-            vname = "fwm2_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-            vname = "fwm3_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-            vname = "fwm4_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-            vname = "fwm5_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-            vname = "fwm6_top6"    ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-            vname = "jmt_ev0_top6" ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-            vname = "jmt_ev1_top6" ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-            vname = "jmt_ev2_top6" ; inputVarNames_top6_fwm6_.push_back( vname ) ;
-
-            for ( unsigned int i=0; i < inputVarNames_top6_fwm6_.size() ; i++ ) 
-            {
-                inputVals_top6_fwm6_.push_back( 0.5 ) ; //--- load vector with dummy values.
-            } // i
-        }
+        inputVarNames_top6_fwm6_ = {"fwm2_top6","fwm3_top6","fwm4_top6","fwm5_top6","fwm6_top6",
+                                    "jmt_ev0_top6","jmt_ev1_top6","jmt_ev2_top6"};
+        
+        prepareFWMVecs(inputVarNames_top6_fwm6_, inputVals_top6_fwm6_);
 
         // FWM 2-10
-        {
-            std::string vname ;
-            vname = "fwm2_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "fwm3_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "fwm4_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "fwm5_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "fwm6_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "fwm7_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "fwm8_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "fwm9_top6"    ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "fwm10_top6"   ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "jmt_ev0_top6" ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "jmt_ev1_top6" ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-            vname = "jmt_ev2_top6" ; inputVarNames_top6_fwm10_.push_back( vname ) ;
-       
-            for ( unsigned int i=0; i < inputVarNames_top6_fwm10_.size() ; i++ ) 
-            {
-                inputVals_top6_fwm10_.push_back( 0.5 ) ; //--- load vector with dummy values.
-            } // i       
-        }
+        inputVarNames_top6_fwm10_  = {"fwm2_top6","fwm3_top6","fwm4_top6","fwm5_top6","fwm6_top6","fwm7_top6","fwm8_top6","fwm9_top6","fwm10_top6",
+                                      "jmt_ev0_top6","jmt_ev1_top6","jmt_ev2_top6"};
+
+        prepareFWMVecs(inputVarNames_top6_fwm10_, inputVals_top6_fwm10_);
     }
 
     void runFisher(NTupleReader& tr)
@@ -80,36 +77,8 @@ private:
         std::vector<math::RThetaPhiVector> cm_frame_jets;
         get_cmframe_jets( &Jets, cm_frame_jets, 6 );
         EventShapeVariables esv_top6( cm_frame_jets );
-        TVectorD eigen_vals_norm_top6 = esv_top6.getEigenValues();
-
-        {
-            int vi(0) ;
-            inputVals_top6_fwm10_.at(vi) = esv_top6.getFWmoment(2)  ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = esv_top6.getFWmoment(3)  ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = esv_top6.getFWmoment(4)  ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = esv_top6.getFWmoment(5)  ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = esv_top6.getFWmoment(6)  ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = esv_top6.getFWmoment(7)  ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = esv_top6.getFWmoment(8)  ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = esv_top6.getFWmoment(9)  ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = esv_top6.getFWmoment(10) ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = eigen_vals_norm_top6[0]  ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = eigen_vals_norm_top6[1]  ; vi++ ;
-            inputVals_top6_fwm10_.at(vi) = eigen_vals_norm_top6[2]  ; vi++ ;
-        }
- 
-        {
-            int vi(0) ;
-            inputVals_top6_fwm6_.at(vi) = esv_top6.getFWmoment(2) ; vi++ ;
-            inputVals_top6_fwm6_.at(vi) = esv_top6.getFWmoment(3) ; vi++ ;
-            inputVals_top6_fwm6_.at(vi) = esv_top6.getFWmoment(4) ; vi++ ;
-            inputVals_top6_fwm6_.at(vi) = esv_top6.getFWmoment(5) ; vi++ ;
-            inputVals_top6_fwm6_.at(vi) = esv_top6.getFWmoment(6) ; vi++ ;
-            inputVals_top6_fwm6_.at(vi) = eigen_vals_norm_top6[0] ; vi++ ;
-            inputVals_top6_fwm6_.at(vi) = eigen_vals_norm_top6[1] ; vi++ ;
-            inputVals_top6_fwm6_.at(vi) = eigen_vals_norm_top6[2] ; vi++ ;
-        }
-
+        resetFWMVecs(inputVals_top6_fwm10_, esv_top6);
+        resetFWMVecs(inputVals_top6_fwm6_, esv_top6);
         double eventshape_bdt_val = eventshapeBDT_->GetMvaValue( inputVals_top6_fwm10_ );        
 
         double fisher_val;
