@@ -107,7 +107,7 @@ private:
         else if( cleanJets.size() == 0 ) {
             for( unsigned int icjet = 0; icjet < Jets.size(); ++icjet ) 
             {
-                if( !jetsID.at(icjet) ) continue;
+                if( !JetsID.at(icjet) ) continue;
                 TLorentzVector lv( Jets.at(icjet) );
             
                 if( abs( lv.Eta() ) < etaCut &&
