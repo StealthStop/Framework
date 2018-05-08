@@ -39,7 +39,7 @@ LIBSTOPTAGGER += -L$(TTTDIR) -lTopTagger
 #OBJS       = $(patsubst %, $(ODIR)/%, $(OBJ))
 
 
-PROGRAMS = make_training_trees train_tmva
+PROGRAMS = make_training_trees train_tmva plot
 
 
 all: mkobj sampPyWrap $(PROGRAMS)
@@ -102,6 +102,9 @@ make_training_trees: $(ODIR)/make_training_trees.o $(ODIR)/NTupleReader.o $(ODIR
 	$(LD) $^ $(LIBS) -o $@
 
 train_tmva: $(ODIR)/train_tmva.o
+	$(LD) $^ $(LIBS) -o $@
+
+plot: $(ODIR)/plot.o
 	$(LD) $^ $(LIBS) -o $@
 
 clean:
