@@ -30,7 +30,7 @@ void loadTree(TMVA::DataLoader* loader, const std::string& type, const double we
     }
 }
 
-int tmva_train_example()
+int train_tmva()
 {
     TString myMethodList = "" ;
     
@@ -176,5 +176,5 @@ int tmva_train_example()
 
 int main()
 {
-    return tmva_train_example(); 
+    return train_tmva(); 
 }
