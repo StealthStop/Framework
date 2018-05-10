@@ -22,6 +22,11 @@ private:
     const std::vector<double>& JetsAK8_NsubjettinessTau3_; 
     const std::vector<double>& JetsAK8_softDropMass_;      
     const std::vector<std::vector<TLorentzVector>>& JetsAK8_subjets_;           
+    //const std::vector<std::vector<double>>& JetsAk8_subjets_bDiscriminatorCSV_;
+    //const std::vector<std::vector<double>>& JetsAk8_subjets_multiplicity_;
+    //const std::vector<std::vector<double>>& JetsAk8_subjets_ptD_;
+    //const std::vector<std::vector<double>>& JetsAk8_subjets_axismajor_;
+    //const std::vector<std::vector<double>>& JetsAk8_subjets_axisminor_;
     const std::vector<TLorentzVector>& hadtops_;                   
     const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters_;           
     
