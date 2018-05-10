@@ -18,6 +18,11 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     JetsAK8_NsubjettinessTau3_ (tr.getVec<double>("JetsAK8_NsubjettinessTau3")),
     JetsAK8_softDropMass_      (tr.getVec<double>("JetsAK8_softDropMass")),
     JetsAK8_subjets_           (tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets")),
+    //JetsAk8_subjets_bDiscriminatorCSV_(tr.getVec<std::vector<double>>("JetsAk8_subjets_bDiscriminatorCSV")),
+    //JetsAk8_subjets_multiplicity_     (tr.getVec<std::vector<double>>("JetsAk8_subjets_multiplicity")),
+    //JetsAk8_subjets_ptD_              (tr.getVec<std::vector<double>>("JetsAk8_subjets_ptD")),
+    //JetsAk8_subjets_axismajor_        (tr.getVec<std::vector<double>>("JetsAk8_subjets_axismajor")),
+    //JetsAk8_subjets_axisminor_        (tr.getVec<std::vector<double>>("JetsAk8_subjets_axisminor")),
     hadtops_                   (hadtops),
     hadtopdaughters_           (hadtopdaughters)
 {
@@ -37,6 +42,11 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
                                                JetsAK8_NsubjettinessTau3_,
                                                JetsAK8_softDropMass_,
                                                JetsAK8_subjets_,
+                                               //JetsAk8_subjets_bDiscriminatorCSV_,
+                                               //JetsAk8_subjets_multiplicity_,
+                                               //JetsAk8_subjets_ptD_,
+                                               //JetsAk8_subjets_axismajor_,
+                                               //JetsAk8_subjets_axisminor_,
                                                hadtops_,
                                                hadtopdaughters_);  
     //Add variables that are not passed to the constructor

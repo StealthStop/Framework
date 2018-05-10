@@ -66,6 +66,7 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     bool passBaseline0l;
     bool passBaseline1l;
     double Mbl;          
+    double Weight;
     double fwm2_top6;
     double fwm3_top6;
     double fwm4_top6;
@@ -79,6 +80,7 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     tt_out->Branch( "passBaseline0l", &passBaseline0l, "passBaseline0l/B" ) ;
     tt_out->Branch( "passBaseline1l", &passBaseline1l, "passBaseline1l/B" ) ;
     tt_out->Branch( "Mbl",            &Mbl,            "Mbl/D" ) ;
+    tt_out->Branch( "Weight",         &Weight,         "Weight/D") ;
     tt_out->Branch( "fwm2_top6", &fwm2_top6, "fwm2_top6/D" ) ;
     tt_out->Branch( "fwm3_top6", &fwm3_top6, "fwm3_top6/D" ) ;
     tt_out->Branch( "fwm4_top6", &fwm4_top6, "fwm4_top6/D" ) ;
@@ -113,6 +115,7 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
         passBaseline0l = tr.getVar<bool>("passBaseline0l");
         passBaseline1l = tr.getVar<bool>("passBaseline1l");
         Mbl            = tr.getVar<double>("Mbl");
+        Weight         = tr.getVar<double>("Weight");
         fwm2_top6 = tr.getVar<double>("fwm2_top6");
         fwm3_top6 = tr.getVar<double>("fwm3_top6");
         fwm4_top6 = tr.getVar<double>("fwm4_top6");

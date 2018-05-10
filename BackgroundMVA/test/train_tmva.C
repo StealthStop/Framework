@@ -30,7 +30,7 @@ void loadTree(TMVA::DataLoader* loader, const std::string& type, const double we
     }
 }
 
-int tmva_train_example()
+int train_tmva()
 {
     TString myMethodList = "" ;
     
@@ -115,8 +115,15 @@ int tmva_train_example()
     loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_750_SHuHd_0.root", "mvatraintt");
     loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_850_SHuHd_0.root", "mvatraintt");
 
-    loadTree(loader, "Background", 0.388, "condor/output-files/TT/make_training_trees_TT.root"  , "mvatraintt");
+    //loadTree(loader, "Background", 0.388, "condor/output-files/TT/make_training_trees_TT.root"  , "mvatraintt");
     //loadTree(loader, "Background", 0.388, "condor/output-files/QCD/mva-trees-QCD.root", "mvatraintt");
+    
+    loadTree(loader, "Background", 1.0, "condor/output-files/TT/make_training_trees_TT.root"  , "mvatraintt");
+    loadTree(loader, "Background", 1.0, "condor/output-files/QCD/make_training_trees_QCD.root", "mvatraintt");
+
+    //Define Event wise weight
+    loader->SetBackgroundWeightExpression("Weight");
+    loader->SetSignalWeightExpression    ("Weight");
 
     // 0 Lepton Selection
     TCut mycuts = "passBaseline0l";
@@ -172,5 +179,5 @@ int tmva_train_example()
 
 int main()
 {
-    return tmva_train_example(); 
+    return train_tmva(); 
 }
