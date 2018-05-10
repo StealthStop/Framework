@@ -108,15 +108,15 @@ int tmva_train_example()
     // Read training and test data
     //loadTree(TMVA::DataLoader* loader, const std::string& type, const double weight, const std::string& file)
 
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_350_0.root", "mvatraintt");
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_450_0.root", "mvatraintt");
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_550_0.root", "mvatraintt");
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_650_0.root", "mvatraintt");
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_750_0.root", "mvatraintt");
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_850_0.root", "mvatraintt");
+    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_350_SHuHd_0.root", "mvatraintt");
+    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_450_SHuHd_0.root", "mvatraintt");
+    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_550_SHuHd_0.root", "mvatraintt");
+    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_650_SHuHd_0.root", "mvatraintt");
+    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_750_SHuHd_0.root", "mvatraintt");
+    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_850_SHuHd_0.root", "mvatraintt");
 
     loadTree(loader, "Background", 0.388, "condor/output-files/TT/make_training_trees_TT.root"  , "mvatraintt");
-    loadTree(loader, "Background", 0.388, "condor/output-files/QCD/make_training_trees_QCD.root", "mvatraintt");
+    //loadTree(loader, "Background", 0.388, "condor/output-files/QCD/mva-trees-QCD.root", "mvatraintt");
 
     // 0 Lepton Selection
     TCut mycuts = "passBaseline0l";
