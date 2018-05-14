@@ -106,9 +106,22 @@ private:
                 {14,-0.0026},
                 {15, 0.0207},
             };
+
+            std::map<int, double> fisher_width_shift = {
+                {6,  1.00757},
+                {7,  0.99947},
+                {8,  0.99986},
+                {9,  1.00043},
+                {10, 1.00156},
+                {11, 0.99087},
+                {12, 0.99593},
+                {13, 0.97372},
+                {14, 0.98426},
+                {15, 0.99431},
+            };
             if (NJets_pt30 >= 6)
             {
-                fisher_val = fisher_val + fisher_shift[NJets_pt30];
+                fisher_val = fisher_width_shift[NJets_pt30]*(fisher_val + fisher_shift[NJets_pt30]);
             }
         }
         else if ( fisherVersion_ == "SHuHd" )
@@ -161,7 +174,7 @@ private:
     }
 
 public:
-    RunFisher(std::string fisherVersion = "SHuHd") 
+    RunFisher(std::string fisherVersion = "v3") 
         : fisherVersion_(fisherVersion)
         , eventshapeBDT_(nullptr)
         , read_fisher_350to650_fwm10_jmtev_top6_(nullptr)
