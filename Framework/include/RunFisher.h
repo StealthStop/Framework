@@ -8,6 +8,7 @@
 #include "Framework/Framework/src/fisher_350to650_fwm10_jmtev_top6.c"
 #include "Framework/Framework/src/fisher_350to650_fwm6_jmtev_top6_gt_v2.c"
 #include "Framework/Framework/src/fisher_350to650_fwm6_jmtev_top6_gt_v3pt30.c"
+//#include "Framework/Framework/src/fisher_SHuHd_350to850_fwm6_jmtev_top6_gt_v1pt30.c"
 
 //#include "Framework/BackgroundMVA/test/fisherLoader/weights/TMVAClassification_FisherG.class.C"
 
@@ -23,6 +24,7 @@ private:
     std::shared_ptr<ReadFisher_350to650_fwm10_jmtev_top6>           read_fisher_350to650_fwm10_jmtev_top6_;
     std::shared_ptr<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v2>     read_fisher_350to650_fwm6_jmtev_top6_gt_v2_;
     std::shared_ptr<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v3pt30> read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_;
+    //std::shared_ptr<ReadFisherG_SHuHd_350to850_fwm6_jmtev_top6_gt_v1pt30> read_fisher_SHuHd_350to850_fwm6_jmtev_top6_gt_v1pt30_;
     //std::shared_ptr<ReadFisherG>                                    read_fisher_test_;
 
     void prepareFWMVecs(const std::vector<std::string>& names, std::vector<double>& values)
@@ -104,11 +106,29 @@ private:
                 {14,-0.0026},
                 {15, 0.0207},
             };
+
+            std::map<int, double> fisher_width_shift = {
+                {6,  1.00757},
+                {7,  0.99947},
+                {8,  0.99986},
+                {9,  1.00043},
+                {10, 1.00156},
+                {11, 0.99087},
+                {12, 0.99593},
+                {13, 0.97372},
+                {14, 0.98426},
+                {15, 0.99431},
+            };
             if (NJets_pt30 >= 6)
             {
-                fisher_val = fisher_val + fisher_shift[NJets_pt30];
+                fisher_val = fisher_width_shift[NJets_pt30]*(fisher_val + fisher_shift[NJets_pt30]);
             }
         }
+        /*else if ( fisherVersion_ == "SHuHd" )
+        {
+            fisher_val = read_fisher_SHuHd_350to850_fwm6_jmtev_top6_gt_v1pt30_->GetMvaValue( inputVals_top6_fwm6_ );
+        }*/
+
         //else if (fisherVersion_ == "test")
         //{
         //    fisher_val = read_fisher_test_->GetMvaValue( inputVals_top6_fwm6_ );
@@ -132,6 +152,14 @@ private:
             fisher_bin4 = fisher_val >  0.060 && fisher_val <=  1.000;
             
         }
+
+        /*else if( fisherVersion_ == "SHuHd" )
+        /{
+            fisher_bin1 = fisher_val > -1.000 && fisher_val <= -0.014;
+            fisher_bin2 = fisher_val > -0.014 && fisher_val <= -0.005;
+            fisher_bin3 = fisher_val > -0.005 && fisher_val <= 0.004;
+            fisher_bin4 = fisher_val > 0.004 && fisher_val <= 1.000; 
+        }*/
         // Register Variables
         tr.registerDerivedVar("eventshape_bdt_val", eventshape_bdt_val);
         tr.registerDerivedVar("bdt_bin1", bdt_bin1);
@@ -152,6 +180,7 @@ public:
         , read_fisher_350to650_fwm10_jmtev_top6_(nullptr)
         , read_fisher_350to650_fwm6_jmtev_top6_gt_v2_(nullptr)
         , read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_(nullptr)
+        //, read_fisher_SHuHd_350to850_fwm6_jmtev_top6_gt_v1pt30_(nullptr)
         //, read_fisher_test_(nullptr)
     {
         setUpFWM();
@@ -159,6 +188,7 @@ public:
         read_fisher_350to650_fwm10_jmtev_top6_          = std::make_shared<ReadFisher_350to650_fwm10_jmtev_top6>( inputVarNames_top6_fwm10_ );
         read_fisher_350to650_fwm6_jmtev_top6_gt_v2_     = std::make_shared<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v2>( inputVarNames_top6_fwm6_ );
         read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_ = std::make_shared<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v3pt30>( inputVarNames_top6_fwm6_ );
+        //read_fisher_SHuHd_350to850_fwm6_jmtev_top6_gt_v1pt30_ = std::make_shared<ReadFisherG_SHuHd_350to850_fwm6_jmtev_top6_gt_v1pt30>( inputVarNames_top6_fwm6_ );
         //read_fisher_test_                               = std::make_shared<ReadFisherG>( inputVarNames_top6_fwm6_ );
         std::cout<<"Using Fisher version: "+fisherVersion<<std::endl;
     }
