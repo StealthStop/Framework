@@ -104,16 +104,28 @@ private:
                 {14,-0.0026},
                 {15, 0.0207},
             };
+//            if (NJets_pt30 >= 6)
+//            {
+//                fisher_val = fisher_val + fisher_shift[NJets_pt30];
+//            }
+
+            std::map<int, double> fisher_width_shift = {
+                {6,  0.99248},
+                {7,  1.00053},
+                {8,  1.00014},
+                {9,  0.99957},
+                {10, 0.99844},
+                {11, 1.00922},
+                {12, 1.00409},
+                {13, 1.02699},
+                {14, 1.01599},
+                {15, 1.00572},
+            };
             if (NJets_pt30 >= 6)
             {
-                fisher_val = fisher_val + fisher_shift[NJets_pt30];
+                fisher_val = fisher_width_shift[NJets_pt30]*(fisher_val + fisher_shift[NJets_pt30]);
             }
         }
-        //else if (fisherVersion_ == "test")
-        //{
-        //    fisher_val = read_fisher_test_->GetMvaValue( inputVals_top6_fwm6_ );
-        //}
-
         bool bdt_bin1 = eventshape_bdt_val > -1.00 && eventshape_bdt_val <= -0.04;
         bool bdt_bin2 = eventshape_bdt_val > -0.04 && eventshape_bdt_val <=  0.00;
         bool bdt_bin3 = eventshape_bdt_val >  0.00 && eventshape_bdt_val <=  0.04;
@@ -132,6 +144,7 @@ private:
             fisher_bin4 = fisher_val >  0.060 && fisher_val <=  1.000;
             
         }
+
         // Register Variables
         tr.registerDerivedVar("eventshape_bdt_val", eventshape_bdt_val);
         tr.registerDerivedVar("bdt_bin1", bdt_bin1);
