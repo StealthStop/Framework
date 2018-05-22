@@ -21,19 +21,19 @@ private:
     int ntops_2jet_;
     int ntops_1jet_;
 
-    int findParent(const int idx, const std::vector<int>& GenParticles_ParentId, const std::vector<int>& GenParticles_ParentIdx)
+    int findParent(const int p, const int idx, const std::vector<int>& GenParticles_ParentId, const std::vector<int>& GenParticles_ParentIdx)
     {
         if (idx == -1)
         {
             return -1;
         }
-        else if(abs(GenParticles_ParentId[idx]) == 6)
+        else if(abs(GenParticles_ParentId[idx]) == p)
         {
             return GenParticles_ParentIdx[idx];
         }
         else
         {
-            return findParent(GenParticles_ParentIdx[idx], GenParticles_ParentId, GenParticles_ParentIdx);
+            return findParent(p, GenParticles_ParentIdx[idx], GenParticles_ParentId, GenParticles_ParentIdx);
         }
     }
 
@@ -60,15 +60,24 @@ private:
             const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
             const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");
             const auto& GenParticles_Status     = tr.getVec<int>("GenParticles_Status");            
+            //const auto& GenParticles_TTFlag     = tr.getVec<bool>("GenParticles_TTFlag");
 
             for ( unsigned int gpi=0; gpi < GenParticles.size() ; gpi++ ) 
             {
                 int pdgid = GenParticles_PdgId.at(gpi);
+                int status = GenParticles_Status.at(gpi);
                 int momid = GenParticles_ParentId.at(gpi) ;
                 int momidx = GenParticles_ParentIdx.at(gpi);
-                int status = GenParticles_Status.at(gpi);
-                int topIdx = findParent(gpi, GenParticles_ParentId, GenParticles_ParentIdx);
-                //printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i ", gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi]); fflush(stdout);
+                int momstatus = (momidx == -1) ? -1 : GenParticles_Status.at(momidx);
+                int topIdx = findParent(6, gpi, GenParticles_ParentId, GenParticles_ParentIdx);
+                //bool passTopStatus = status == 22 || status == 23 || status == 52;
+                //bool passWMomStatus = false;
+                //if((abs(momid) == 24) && (momstatus != 1 || status == 2 || momstatus != 22 || momstatus != 23 || momstatus != 52) )
+                //{
+                //    passWMomStatus = true;
+                //}
+                //else if(abs(pdgid) == 5) passWMomStatus = true;
+                //printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i TTFlag: %6i", gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi], int(GenParticles_TTFlag[gpi]) ); fflush(stdout);
                 if(abs(pdgid) == 1000022 && (status==22 || status == 52))
                 {
                     neutralinos_->push_back(GenParticles.at(gpi));
@@ -80,8 +89,9 @@ private:
                 if(abs(pdgid) == 5000002 && (status == 22 || status == 52))
                 {
                     singlets_->push_back(GenParticles.at(gpi));
-                }                
-                if( topIdx >= 0 && (abs(pdgid) != 24) )
+                }
+                //if( topIdx >= 0 && (abs(pdgid) != 24) && passTopStatus && passWMomStatus)
+                if( topIdx >= 0 && (abs(pdgid) != 24))
                 {
                     //printf(" topIdx: %i particle: %i\n", topIdx, pdgid); fflush(stdout);
                     
@@ -104,7 +114,7 @@ private:
                 {
                     //printf("\n");
                 }
-            }
+            }            
         }
     }
 
