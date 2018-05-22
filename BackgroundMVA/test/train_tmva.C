@@ -106,7 +106,12 @@ int train_tmva()
     //loader -> AddSpectator( "ds_index", "ds_index" ) ;
 
     // Read training and test data
-    //loadTree(TMVA::DataLoader* loader, const std::string& type, const double weight, const std::string& file)
+    //loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_350_SHuHd_0.root", "mvatraintt");
+    //loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_450_SHuHd_0.root", "mvatraintt");
+    //loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_550_SHuHd_0.root", "mvatraintt");
+    //loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_650_SHuHd_0.root", "mvatraintt");
+    //loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_750_SHuHd_0.root", "mvatraintt");
+    //loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_850_SHuHd_0.root", "mvatraintt");
 
     loadTree(loader, "Signal", 1.00, "condor/output-files/AllSignal/make_training_trees_rpv_stop_350_0.root", "mvatraintt");
     //loadTree(loader, "Signal", 0.9, "condor/output-files/AllSignal/make_training_trees_rpv_stop_450_0.root", "mvatraintt");
