@@ -108,19 +108,19 @@ int train_tmva()
     // Read training and test data
     //loadTree(TMVA::DataLoader* loader, const std::string& type, const double weight, const std::string& file)
 
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_350_0.root", "mvatraintt");
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_450_0.root", "mvatraintt");
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_550_0.root", "mvatraintt");
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_650_0.root", "mvatraintt");
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_750_0.root", "mvatraintt");
-    loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_rpv_stop_850_0.root", "mvatraintt");
+    loadTree(loader, "Signal", 1.00, "condor/output-files/AllSignal/make_training_trees_rpv_stop_350_0.root", "mvatraintt");
+    //loadTree(loader, "Signal", 0.9, "condor/output-files/AllSignal/make_training_trees_rpv_stop_450_0.root", "mvatraintt");
+    //loadTree(loader, "Signal", 0.8, "condor/output-files/AllSignal/make_training_trees_rpv_stop_550_0.root", "mvatraintt");
+    //loadTree(loader, "Signal", 0.7, "condor/output-files/AllSignal/make_training_trees_rpv_stop_650_0.root", "mvatraintt");
+    //loadTree(loader, "Signal", 0.6, "condor/output-files/AllSignal/make_training_trees_rpv_stop_750_0.root", "mvatraintt");
+    //loadTree(loader, "Signal", 0.5, "condor/output-files/AllSignal/make_training_trees_rpv_stop_850_0.root", "mvatraintt");
 
-    loadTree(loader, "Background", 1.0, "condor/output-files/TT/make_training_trees_TT.root"  , "mvatraintt");
-    loadTree(loader, "Background", 1.0, "condor/output-files/QCD/make_training_trees_QCD.root", "mvatraintt");
+    loadTree(loader, "Background", 50.0, "condor/output-files/TT/make_training_trees_TT.root"  , "mvatraintt");
+    loadTree(loader, "Background", 100.0, "condor/output-files/QCD/make_training_trees_QCD.root", "mvatraintt");
 
     //Define Event wise weight
     loader->SetBackgroundWeightExpression("Weight");
-    loader->SetSignalWeightExpression    ("Weight");
+    //loader->SetSignalWeightExpression    ("Weight");
 
     // 0 Lepton Selection
     TCut mycuts = "passBaseline0l";
