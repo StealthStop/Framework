@@ -13,6 +13,15 @@ private:
     std::vector<TLorentzVector>* bjets_pt30_tight_;
     std::vector<TLorentzVector>* bjets_pt45_tight_;
     
+    std::vector<TLorentzVector>* goodbjets_;
+    std::vector<TLorentzVector>* goodbjets_pt30_;
+    std::vector<TLorentzVector>* goodbjets_pt40_;
+    std::vector<TLorentzVector>* goodbjets_pt45_;
+    
+    std::vector<TLorentzVector>* goodbjets_tight_;
+    std::vector<TLorentzVector>* goodbjets_pt30_tight_;
+    std::vector<TLorentzVector>* goodbjets_pt45_tight_;
+    
     void bjet(NTupleReader& tr)
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets");
@@ -78,6 +87,59 @@ private:
         tr.registerDerivedVec("BJets_pt45_tight",   bjets_pt45_tight_);
         tr.registerDerivedVar("NBJets_pt45_tight", (bjets_pt45_tight_==nullptr)?0:bjets_pt45_tight_->size());
 
+        goodbjets_ = new std::vector<TLorentzVector>();
+        goodbjets_pt30_ = new std::vector<TLorentzVector>();
+        goodbjets_pt40_ = new std::vector<TLorentzVector>();
+        goodbjets_pt45_ = new std::vector<TLorentzVector>();
+
+        goodbjets_tight_ = new std::vector<TLorentzVector>();
+        goodbjets_pt30_tight_ = new std::vector<TLorentzVector>();
+        goodbjets_pt45_tight_ = new std::vector<TLorentzVector>();
+        
+        const auto& GoodJets        = tr.getVec<TLorentzVector>("GoodJets");
+        const auto& GoodJets_CSV    = tr.getVec<double>("GoodJets_bDiscriminatorCSV");
+
+        for( unsigned int igjet = 0; igjet < GoodJets.size(); ++igjet ) {
+
+            TLorentzVector myGoodJet( GoodJets.at(igjet) );
+
+            if( myGoodJet.Eta() < etaCut &&
+                GoodJets_CSV.at(igjet) > 0.8484 ) {
+
+                goodbjets_->push_back( myGoodJet );
+                if( myGoodJet.Pt() > 30 )
+                    goodbjets_pt30_->push_back( myGoodJet );
+                if( myGoodJet.Pt() > 40 )
+                    goodbjets_pt40_->push_back( myGoodJet );
+                if( myGoodJet.Pt() > 45 )
+                    goodbjets_pt45_->push_back( myGoodJet );
+            }
+
+            if( myGoodJet.Eta() < etaCut &&
+                GoodJets_CSV.at(igjet) > 0.9535 ) {
+            
+                if( myGoodJet.Pt() > 30 )
+                    goodbjets_pt30_tight_->push_back( myGoodJet );
+                if( myGoodJet.Pt() > 45 )
+                    goodbjets_pt45_tight_->push_back( myGoodJet );
+            }
+
+        }
+        
+        tr.registerDerivedVec("GoodBJets",        goodbjets_);
+        tr.registerDerivedVar("NGoodBJets",      (goodbjets_==nullptr)?0:goodbjets_->size());
+        tr.registerDerivedVec("GoodBJets_pt30",   goodbjets_pt30_);
+        tr.registerDerivedVar("NGoodBJets_pt30", (goodbjets_pt30_==nullptr)?0:goodbjets_pt30_->size());
+        tr.registerDerivedVec("GoodBJets_pt40",   goodbjets_pt40_);
+        tr.registerDerivedVar("NGoodBJets_pt40", (goodbjets_pt40_==nullptr)?0:goodbjets_pt40_->size());
+        tr.registerDerivedVec("GoodBJets_pt45",   goodbjets_pt45_);
+        tr.registerDerivedVar("NGoodBJets_pt45", (goodbjets_pt45_==nullptr)?0:goodbjets_pt45_->size());
+
+        tr.registerDerivedVec("GoodBJets_pt30_tight",   goodbjets_pt30_tight_);
+        tr.registerDerivedVar("NGoodBJets_pt30_tight", (goodbjets_pt30_tight_==nullptr)?0:goodbjets_pt30_tight_->size());
+        tr.registerDerivedVec("GoodBJets_pt45_tight",   goodbjets_pt45_tight_);
+        tr.registerDerivedVar("NGoodBJets_pt45_tight", (goodbjets_pt45_tight_==nullptr)?0:goodbjets_pt45_tight_->size());
+
     }
 
 public:
@@ -89,6 +151,12 @@ public:
         , bjets_tight_(nullptr)
         , bjets_pt30_tight_(nullptr)
         , bjets_pt45_tight_(nullptr)
+        , goodbjets_(nullptr)
+        , goodbjets_pt30_(nullptr)
+        , goodbjets_pt40_(nullptr)
+        , goodbjets_pt45_(nullptr)
+        , goodbjets_pt30_tight_(nullptr)
+        , goodbjets_pt45_tight_(nullptr)
     {}
 
     void operator()(NTupleReader& tr)
