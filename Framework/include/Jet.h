@@ -29,7 +29,6 @@ private:
         jets_pt30_      = new std::vector<TLorentzVector>();
         jets_pt40_      = new std::vector<TLorentzVector>();
         jets_pt45_      = new std::vector<TLorentzVector>();
-        jets_pt45_csv_  = new std::vector<double>();
         
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
@@ -46,7 +45,6 @@ private:
                     
                     if(lv.Pt() > 45) {   
                         jets_pt45_->push_back(lv);
-                        jets_pt45_csv_->push_back(Jets_CSV.at(ijet));
                     }
                 }
             }
@@ -158,7 +156,6 @@ public:
         jets_pt30_(nullptr)
       , jets_pt40_(nullptr)
       , jets_pt45_(nullptr)
-      , jets_pt45_csv_(nullptr)
       , goodjets_(nullptr)
       , goodjets_pt30_(nullptr)
       , goodjets_pt40_(nullptr)
