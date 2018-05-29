@@ -7,13 +7,12 @@ private:
     std::vector<TLorentzVector>* jets_pt30_;
     std::vector<TLorentzVector>* jets_pt40_;
     std::vector<TLorentzVector>* jets_pt45_;
-    std::vector<double>*         jets_pt45_csv_;
     
-    std::vector<TLorentzVector>* goodJets_;
+    std::vector<TLorentzVector>* goodjets_;
     std::vector<TLorentzVector>* goodjets_pt30_;
     std::vector<TLorentzVector>* goodjets_pt40_;
     std::vector<TLorentzVector>* goodjets_pt45_;
-    std::vector<double>*         goodjets_CSV_;
+    std::vector<double>*         goodjets_csv_;
         
 
     void jet(NTupleReader& tr)
@@ -59,24 +58,21 @@ private:
         tr.registerDerivedVec("Jets_pt40",   jets_pt40_);
         tr.registerDerivedVar("NJets_pt40", (jets_pt40_==nullptr)?0:jets_pt40_->size());
         tr.registerDerivedVec("Jets_pt45",   jets_pt45_);
-        tr.registerDerivedVec("Jets_pt45_CSV",   jets_pt45_csv_);
         tr.registerDerivedVar("NJets_pt45", (jets_pt45_==nullptr)?0:jets_pt45_->size());
 
         //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same
         
-        goodJets_       = new std::vector<TLorentzVector>();
+        goodjets_       = new std::vector<TLorentzVector>(Jets);
         goodjets_pt30_  = new std::vector<TLorentzVector>();
         goodjets_pt40_  = new std::vector<TLorentzVector>();
         goodjets_pt45_  = new std::vector<TLorentzVector>();
-        goodjets_CSV_   = new std::vector<double>();
+        goodjets_csv_   = new std::vector<double>(Jets_CSV);
 
-        std::vector<TLorentzVector>   goodjets_      = Jets;
-        std::vector<double>           goodjets_csv_  = Jets_CSV;
         std::vector<int>              removedJetsIndices;
 
         if( NMuons > 0 ) {
 
-            for( TLorentzVector myMuon : Muons ) {
+            for( const auto& myMuon : Muons ) {
                 
                 double          tempDeltaR = 10.0;
                 int             tempJetIt  = -1;
@@ -103,7 +99,7 @@ private:
         
         if( NElectrons > 0 ) {
 
-            for( TLorentzVector myElectron : Electrons ) {
+            for( const auto& myElectron : Electrons ) {
                 
                 double      tempDeltaR = 10.0;
                 int         tempJetIt  = -1;
@@ -130,11 +126,11 @@ private:
         std::sort(removedJetsIndices.begin(), removedJetsIndices.end(), std::greater<>());
         
         for( int i = 0; i < removedJetsIndices.size(); i++ ) {
-            goodjets_.erase( goodjets_.begin() + removedJetsIndices[i] );
-            goodjets_csv_.erase( goodjets_csv_.begin() + removedJetsIndices[i] );
+            goodjets_->erase( goodjets_->begin() + removedJetsIndices[i] );
+            goodjets_csv_->erase( goodjets_csv_->begin() + removedJetsIndices[i] );
         }
         
-        for( TLorentzVector myGoodJet : goodjets_ ){
+        for( const auto& myGoodJet : *goodjets_ ){
             if( myGoodJet.Pt() > 30 && std::fabs( myGoodJet.Eta()) < etaCut ) {
                 goodjets_pt30_->push_back(myGoodJet);
                 if( myGoodJet.Pt() > 40 && std::fabs( myGoodJet.Eta() ) < etaCut ) {
@@ -146,17 +142,9 @@ private:
             }
         }
 
-        for( double goodCsvValue : goodjets_csv_ ) {
-            goodjets_CSV_->push_back( goodCsvValue );
-        }
-        
-        for( TLorentzVector myGoodJet : goodjets_ ) {
-            goodJets_->push_back( myGoodJet );
-        }
-        
-        tr.registerDerivedVec("GoodJets",                   goodJets_);
-        tr.registerDerivedVar("NGoodJets",                  goodjets_.size());
-        tr.registerDerivedVec("GoodJets_bDiscriminatorCSV", goodjets_CSV_);
+        tr.registerDerivedVec("GoodJets",                   goodjets_);
+        tr.registerDerivedVar("NGoodJets",                  goodjets_->size());
+        tr.registerDerivedVec("GoodJets_bDiscriminatorCSV", goodjets_csv_);
         tr.registerDerivedVec("GoodJets_pt30",              goodjets_pt30_);
         tr.registerDerivedVar("NGoodJets_pt30",            (goodjets_pt30_==nullptr)?0:goodjets_pt30_->size());
         tr.registerDerivedVec("GoodJets_pt40",              goodjets_pt40_);
@@ -171,11 +159,11 @@ public:
       , jets_pt40_(nullptr)
       , jets_pt45_(nullptr)
       , jets_pt45_csv_(nullptr)
-      , goodJets_(nullptr)
+      , goodjets_(nullptr)
       , goodjets_pt30_(nullptr)
       , goodjets_pt40_(nullptr)
       , goodjets_pt45_(nullptr)
-      , goodjets_CSV_(nullptr)
+      , goodjets_csv_(nullptr)
     {
     }
 
