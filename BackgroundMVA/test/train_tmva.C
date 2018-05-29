@@ -114,8 +114,8 @@ int train_tmva()
     //loadTree(loader, "Signal", 1.0, "condor/output-files/AllSignal/make_training_trees_stealth_stop_850_SHuHd_0.root", "mvatraintt");
 
     loadTree(loader, "Signal", 1.00, "condor/output-files/AllSignal/make_training_trees_rpv_stop_350_0.root", "mvatraintt");
-    //loadTree(loader, "Signal", 0.9, "condor/output-files/AllSignal/make_training_trees_rpv_stop_450_0.root", "mvatraintt");
-    //loadTree(loader, "Signal", 0.8, "condor/output-files/AllSignal/make_training_trees_rpv_stop_550_0.root", "mvatraintt");
+    loadTree(loader, "Signal", 0.9, "condor/output-files/AllSignal/make_training_trees_rpv_stop_450_0.root", "mvatraintt");
+    loadTree(loader, "Signal", 0.8, "condor/output-files/AllSignal/make_training_trees_rpv_stop_550_0.root", "mvatraintt");
     //loadTree(loader, "Signal", 0.7, "condor/output-files/AllSignal/make_training_trees_rpv_stop_650_0.root", "mvatraintt");
     //loadTree(loader, "Signal", 0.6, "condor/output-files/AllSignal/make_training_trees_rpv_stop_750_0.root", "mvatraintt");
     //loadTree(loader, "Signal", 0.5, "condor/output-files/AllSignal/make_training_trees_rpv_stop_850_0.root", "mvatraintt");
@@ -128,12 +128,12 @@ int train_tmva()
     //loader->SetSignalWeightExpression    ("Weight");
 
     // 0 Lepton Selection
-    TCut mycuts = "passBaseline0l";
-    TCut mycutb = "passBaseline0l";
+    TCut mycuts = "passBaseline0l_Good";
+    TCut mycutb = "passBaseline0l_Good";
 
     // 1 Lepton Selection
-    //TCut mycuts = "passBaseline1l && Mbl>30 && Mbl<180";
-    //TCut mycutb = "passBaseline1l && Mbl>30 && Mbl<180";
+    //TCut mycuts = "passBaseline1l_Good && Mbl>30 && Mbl<180";
+    //TCut mycutb = "passBaseline1l_Good && Mbl>30 && Mbl<180";
 
     // Tell the factory how to use the training and testing events
     loader->PrepareTrainingAndTestTree( mycuts, mycutb, "SplitMode=Random:NormMode=None:!V" );
