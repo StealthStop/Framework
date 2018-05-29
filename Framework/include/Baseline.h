@@ -15,17 +15,16 @@ private:
         const auto& NGoodMuons          = tr.getVar<int>("NGoodMuons");
         const auto& NGoodElectrons      = tr.getVar<int>("NGoodElectrons");
         const auto& NJets_pt45          = tr.getVar<int>("NJets_pt45");
-        const auto& NJets_pt45_clean    = tr.getVar<int>("NJets_pt45_clean");
         const auto& HT_trigger          = tr.getVar<double>("HT_trigger");
         const auto& NBJets_pt45         = tr.getVar<int>("NBJets_pt45");
-        const auto& NBJets_pt45_clean   = tr.getVar<int>("NBJets_pt45_clean");
         const auto& NBJets_pt30         = tr.getVar<int>("NBJets_pt30"); 
-        const auto& NBJets_pt30_clean   = tr.getVar<int>("NBJets_pt30_clean"); 
         const auto& NJets_pt30          = tr.getVar<int>("NJets_pt30"); 
-        const auto& NJets_pt30_clean    = tr.getVar<int>("NJets_pt30_clean"); 
         const auto& onZ                 = tr.getVar<bool>("onZ"); 
         const auto& JetID               = tr.getVar<bool>("JetID"); 
-        const auto& JetID_clean         = tr.getVar<bool>("JetIDclean"); 
+        const auto& NGoodJets_pt45      = tr.getVar<int>("NGoodJets_pt45");
+        const auto& NGoodBJets_pt45     = tr.getVar<int>("NGoodBJets_pt45");
+        const auto& NGoodBJets_pt30     = tr.getVar<int>("NGoodBJets_pt30"); 
+        const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"); 
 
         // ------------------------
         // -- MC dependent stuff
@@ -47,6 +46,10 @@ private:
         bool passTrigger  = true;
         bool passBlindHad = true;
         bool passBlindLep = true;
+        
+        bool passBlindHad_Good = true;
+        bool passBlindLep_Good = true;
+        
         if (runtype == "Data")
         {
             // Pass the right trigger
@@ -57,6 +60,9 @@ private:
             // Blinding data 
             if (NJets_pt30 >= 9 && blind) passBlindHad = false;
             if (NJets_pt30 >= 7 && blind) passBlindLep = false;
+            
+            if (NGoodJets_pt30 >= 9 && blind) passBlindHad_Good = false;
+            if (NGoodJets_pt30 >= 7 && blind) passBlindLep_Good = false;
         }
         
         // -------------------------------
@@ -72,14 +78,23 @@ private:
                               HT_trigger > 500   && 
                               NBJets_pt45 >= 2;
         
-        bool passBaseline0l_clean = JetID_clean  &&
+        bool passBaseline0l_Good = JetID          &&
+                              passMadHT           &&
+                              passTrigger         &&
+                              passBlindHad_Good   &&
+                              NGoodLeptons == 0   && 
+                              NGoodJets_pt45 >= 6 && 
+                              HT_trigger > 500    && 
+                              NGoodBJets_pt45 >= 2;
+        
+        bool passBaseline0l_hadTrig = JetID              &&
                               passMadHT          &&
                               passTrigger        &&
                               passBlindHad       &&
-                              NGoodLeptons == 0  && 
-                              NJets_pt45_clean >= 6    && 
+                              NJets_pt45 >= 6    && 
                               HT_trigger > 500   && 
-                              NBJets_pt45_clean >= 2;
+                              NBJets_pt45 >= 2;
+        
 
         // -------------------------------
         // -- Define 1 Lepton Baseline
@@ -107,32 +122,27 @@ private:
 
         bool passBaseline1l = passBaseline1mu || passBaseline1el;
         
-        // -------------------------------
-        // -- Define 1 Lepton Baseline with Clean Jets
-        // -------------------------------
-        
-        bool passBaseline1mu_clean =    JetID_clean         &&
-                                        passMadHT           &&
-                                        passTrigger         &&
-                                        (runtype != "Data" || filetag == "Data_SingleMuon") &&
-                                        passBlindLep        &&
-                                        NGoodMuons == 1     && 
-                                        NGoodElectrons == 0 &&
-                                        NJets_pt30_clean >= 6 && 
-                                        NBJets_pt30_clean >= 1;
+        bool passBaseline1mu_Good = JetID          &&
+                               passMadHT           &&
+                               passTrigger         &&
+                               (runtype != "Data" || filetag == "Data_SingleMuon") &&
+                               passBlindLep_Good   &&
+                               NGoodMuons == 1     && 
+                               NGoodElectrons == 0 &&
+                               NGoodJets_pt30 >= 6 && 
+                               NGoodBJets_pt30 >= 1;
 
-        bool passBaseline1el_clean =    JetID_clean         &&
-                                        passMadHT           &&
-                                        passTrigger         &&
-                                        (runtype != "Data" || filetag == "Data_SingleElectron") &&
-                                        passBlindLep        &&
-                                        NGoodElectrons == 1 &&
-                                        NGoodMuons == 0     &&
-                                        NJets_pt30_clean >= 6     && 
-                                        NBJets_pt30_clean >= 1;
+        bool passBaseline1el_Good = JetID          &&
+                               passMadHT           &&
+                               passTrigger         &&
+                               (runtype != "Data" || filetag == "Data_SingleElectron") &&
+                               passBlindLep_Good   &&
+                               NGoodElectrons == 1 &&
+                               NGoodMuons == 0     &&
+                               NGoodJets_pt30 >= 6 && 
+                               NGoodBJets_pt30 >= 1;
 
-        bool passBaseline1l_clean = passBaseline1mu_clean || passBaseline1el_clean;
-        
+        bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
         // -------------------------------
         // -- Define 1 Lepton Baseline with no Jet ID
         // -------------------------------
@@ -159,32 +169,6 @@ private:
 
         bool passBaseline1l_noID = passBaseline1mu_noID || passBaseline1el_noID;
         
-        // -------------------------------
-        // -- Define 1 Lepton Baseline with Clean Jets and no Jet ID
-        // -------------------------------
-        
-        bool passBaseline1mu_noID_clean = 
-                                        passMadHT           &&
-                                        passTrigger         &&
-                                        (runtype != "Data" || filetag == "Data_SingleMuon") &&
-                                        passBlindLep        &&
-                                        NGoodMuons == 1     && 
-                                        NGoodElectrons == 0 &&
-                                        NJets_pt30_clean >= 6 && 
-                                        NBJets_pt30_clean >= 1;
-
-        bool passBaseline1el_noID_clean = 
-                                        passMadHT           &&
-                                        passTrigger         &&
-                                        (runtype != "Data" || filetag == "Data_SingleElectron") &&
-                                        passBlindLep        &&
-                                        NGoodElectrons == 1 &&
-                                        NGoodMuons == 0     &&
-                                        NJets_pt30_clean >= 6     && 
-                                        NBJets_pt30_clean >= 1;
-
-        bool passBaseline1l_noID_clean = passBaseline1mu_noID_clean || passBaseline1el_noID_clean;
-
         // ----------------------------------
         // -- Define 2 Lepton onZ Baseline
         // ----------------------------------
@@ -198,18 +182,14 @@ private:
                                                     || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
                                  NJets_pt30 >= 6; 
         
-        // ----------------------------------
-        // -- Define 2 Lepton onZ Baseline with Clean Jets
-        // ----------------------------------
-        
-        bool passBaseline2lonZ_clean =  JetID_clean              &&
-                                        passMadHT          &&
-                                        passTrigger        &&
-                                        NGoodLeptons == 2  && 
-                                        onZ                &&
-                                        (runtype != "Data" || (NGoodMuons == 2 && filetag == "Data_SingleMuon" ) 
-                                                           || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
-                                        NJets_pt30_clean >= 6; 
+        bool passBaseline2lonZ_Good = JetID         &&
+                                 passMadHT          &&
+                                 passTrigger        &&
+                                 NGoodLeptons == 2  && 
+                                 onZ                &&
+                                 (runtype != "Data" || (NGoodMuons == 2 && filetag == "Data_SingleMuon" ) 
+                                                    || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
+                                 NGoodJets_pt30 >= 6; 
         
         // ----------------------------------
         // -- Define 2 Lepton onZ Baseline with no JetID
@@ -223,18 +203,6 @@ private:
                                                                || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
                                             NJets_pt30 >= 6; 
         
-        // ----------------------------------
-        // -- Define 2 Lepton onZ Baseline with Clean Jets with no JetID
-        // ----------------------------------
-        
-        bool passBaseline2lonZ_noID_clean =     passMadHT          &&
-                                                passTrigger        &&
-                                                NGoodLeptons == 2  && 
-                                                onZ                &&
-                                                (runtype != "Data" || (NGoodMuons == 2 && filetag == "Data_SingleMuon" ) 
-                                                                   || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
-                                                NJets_pt30_clean >= 6; 
-
 
         // -----------------------------------
         // -- Define 2 Lepton offZ Baseline
@@ -251,33 +219,35 @@ private:
                               NJets_pt30 >= 6    && 
                               NBJets_pt30 >= 1;
         
-        bool passBaseline2l_clean = JetID_clean  &&
-                              passMadHT          &&
-                              passTrigger        &&
-                              passBlindLep       &&
-                              NGoodLeptons == 2  && 
-                              !onZ               &&
-                              (runtype != "Data" || (NGoodMuons >= 1 && filetag == "Data_SingleMuon" ) 
-                                                 || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
-                              NJets_pt30_clean >= 6    && 
-                              NBJets_pt30_clean >= 1;
+        bool passBaseline2l_Good = JetID          &&
+                              passMadHT           &&
+                              passTrigger         &&
+                              passBlindLep_Good   &&
+                              NGoodLeptons == 2   && 
+                              !onZ                &&
+                              (runtype != "Data"  || (NGoodMuons >= 1 && filetag == "Data_SingleMuon" ) 
+                                                  || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
+                              NGoodJets_pt30 >= 6 && 
+                              NGoodBJets_pt30 >= 1;
+        
 
         tr.registerDerivedVar<bool>("passBaseline0l",passBaseline0l);
-        tr.registerDerivedVar<bool>("passBaseline0l_clean",passBaseline0l_clean);
+        tr.registerDerivedVar<bool>("passBaseline0l_Good",passBaseline0l_Good);
+        tr.registerDerivedVar<bool>("passBaseline0l_hadTrig", passBaseline0l_hadTrig);
         tr.registerDerivedVar<bool>("passBaseline1l",passBaseline1l);
-        tr.registerDerivedVar<bool>("passBaseline1l_clean",passBaseline1l_clean);
+        tr.registerDerivedVar<bool>("passBaseline1l_Good",passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1l_noID",passBaseline1l_noID);
-        tr.registerDerivedVar<bool>("passBaseline1l_noID_clean",passBaseline1l_noID_clean);
         tr.registerDerivedVar<bool>("passBaseline1mu",passBaseline1mu);
         tr.registerDerivedVar<bool>("passBaseline1el",passBaseline1el);
         tr.registerDerivedVar<bool>("passBaseline2lonZ",passBaseline2lonZ);
-        tr.registerDerivedVar<bool>("passBaseline2lonZ_clean",passBaseline2lonZ_clean);
+        tr.registerDerivedVar<bool>("passBaseline2lonZ_Good",passBaseline2lonZ_Good);
         tr.registerDerivedVar<bool>("passBaseline2lonZ_noID",passBaseline2lonZ_noID);
-        tr.registerDerivedVar<bool>("passBaseline2lonZ_noID_clean",passBaseline2lonZ_noID_clean);
         tr.registerDerivedVar<bool>("passBaseline2l",passBaseline2l);
-        tr.registerDerivedVar<bool>("passBaseline2l_clean",passBaseline2l_clean);
+        tr.registerDerivedVar<bool>("passBaseline2l_Good",passBaseline2l_Good);
         tr.registerDerivedVar<bool>("passBlindHad",passBlindHad);
         tr.registerDerivedVar<bool>("passBlindLep",passBlindLep);
+        tr.registerDerivedVar<bool>("passBlindHad_Good",passBlindHad_Good);
+        tr.registerDerivedVar<bool>("passBlindLep_Good",passBlindLep_Good);
         tr.registerDerivedVar<bool>("passTrigger",passTrigger);
         tr.registerDerivedVar<bool>("passMadHT",passMadHT);
     }
