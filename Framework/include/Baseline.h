@@ -87,7 +87,7 @@ private:
                               HT_trigger > 500    && 
                               NGoodBJets_pt45 >= 2;
         
-        bool passBaseline0l_hadTrig = JetID              &&
+        bool passBaseline0l_hadTrig = JetID      &&
                               passMadHT          &&
                               passTrigger        &&
                               passBlindHad       &&

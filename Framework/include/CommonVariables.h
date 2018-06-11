@@ -7,8 +7,8 @@ private:
     void commonVariables(NTupleReader& tr)
     {
         // Get needed branches
-        const auto& Jets = tr.getVec<TLorentzVector>("Jets");
-        const auto& BJets_pt30 = tr.getVec<TLorentzVector>("BJets_pt30");
+        const auto& GoodJets = tr.getVec<TLorentzVector>("GoodJets");
+        const auto& GoodBJets_pt30 = tr.getVec<TLorentzVector>("GoodBJets_pt30");
         const auto& GoodMuons  = tr.getVec<TLorentzVector>("GoodMuons");
         const auto& GoodMuonsCharge  = tr.getVec<int>("GoodMuonsCharge");
         const auto& NGoodMuons = tr.getVar<int>("NGoodMuons");
@@ -21,7 +21,7 @@ private:
 
         // HT with jets with pT>40
         double ht = 0;
-        for (TLorentzVector jet : Jets)
+        for (TLorentzVector jet : GoodJets)
         {
             if(jet.Pt() > 40 && abs(jet.Eta()) < etaCut)
                 ht += jet.Pt();
@@ -43,7 +43,7 @@ private:
         TLorentzVector used_bjet_for_mbl;
         for(TLorentzVector lepton : *GoodLeptons)
         {
-            for(TLorentzVector bjet : BJets_pt30)
+            for(TLorentzVector bjet : GoodBJets_pt30)
             {
                 double mbl = (lepton+bjet).M();
                 if( abs(mbl - 105) < Mbldiff)
