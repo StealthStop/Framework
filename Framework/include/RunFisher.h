@@ -8,6 +8,7 @@
 #include "Framework/Framework/src/fisher_350to650_fwm10_jmtev_top6.c"
 #include "Framework/Framework/src/fisher_350to650_fwm6_jmtev_top6_gt_v2.c"
 #include "Framework/Framework/src/fisher_350to650_fwm6_jmtev_top6_gt_v3pt30.c"
+#include "Framework/Framework/src/fisher_0lepton_v1.c"
 
 //#include "Framework/BackgroundMVA/test/fisherLoader/weights/TMVAClassification_FisherG.class.C"
 
@@ -23,6 +24,8 @@ private:
     std::shared_ptr<ReadFisher_350to650_fwm10_jmtev_top6>           read_fisher_350to650_fwm10_jmtev_top6_;
     std::shared_ptr<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v2>     read_fisher_350to650_fwm6_jmtev_top6_gt_v2_;
     std::shared_ptr<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v3pt30> read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_;
+    std::shared_ptr<ReadFisherG_0lepton_v1>                         read_fisher_0lepton_v1_;
+
     //std::shared_ptr<ReadFisherG>                                    read_fisher_test_;
 
     void prepareFWMVecs(const std::vector<std::string>& names, std::vector<double>& values)
@@ -104,10 +107,6 @@ private:
                 {14,-0.0026},
                 {15, 0.0207},
             };
-//            if (NJets_pt30 >= 6)
-//            {
-//                fisher_val = fisher_val + fisher_shift[NJets_pt30];
-//            }
 
             std::map<int, double> fisher_width_shift = {
                 {6,  0.99248},
@@ -121,11 +120,38 @@ private:
                 {14, 1.01599},
                 {15, 1.00572},
             };
-            if (NJets_pt30 >= 6)
+            if (NJets_pt30 >= 6 && NJets_pt30 <= 16)
             {
+                //fisher_val = fisher_val + fisher_shift[NJets_pt30];
                 fisher_val = fisher_width_shift[NJets_pt30]*(fisher_val + fisher_shift[NJets_pt30]);
             }
         }
+        else if ( fisherVersion_ == "0lepton_v1")
+        {
+            fisher_val = read_fisher_0lepton_v1_->GetMvaValue( inputVals_top6_fwm6_ );
+            // Apply the fisher correction in bins of njets
+            std::map<int, double> fisher_shift = {
+                {6,  -0.0001644},
+                {7,  -0.0002359},
+                {8,   0.0004749},
+                {9,   0.0015723},
+                {10,  0.0002881},
+                {11,  0.0027997},
+                {12, -0.0003774},
+                {13, -0.0136242},
+                {14, -0.0368304},
+                {15,  0.0209468},
+            };
+            if (NJets_pt30 >= 6 && NJets_pt30 <= 16)
+            {
+                fisher_val = fisher_val + fisher_shift[NJets_pt30];
+            }
+        }
+        //else if ( fisherVersion_ == "test")
+        //{
+        //    fisher_val = read_fisher_test_->GetMvaValue( inputVals_top6_fwm6_ );
+        //}
+
         bool bdt_bin1 = eventshape_bdt_val > -1.00 && eventshape_bdt_val <= -0.04;
         bool bdt_bin2 = eventshape_bdt_val > -0.04 && eventshape_bdt_val <=  0.00;
         bool bdt_bin3 = eventshape_bdt_val >  0.00 && eventshape_bdt_val <=  0.04;
@@ -141,8 +167,14 @@ private:
             fisher_bin1 = fisher_val > -1.000 && fisher_val <= -0.015;
             fisher_bin2 = fisher_val > -0.015 && fisher_val <=  0.020;
             fisher_bin3 = fisher_val >  0.020 && fisher_val <=  0.060;
-            fisher_bin4 = fisher_val >  0.060 && fisher_val <=  1.000;
-            
+            fisher_bin4 = fisher_val >  0.060 && fisher_val <=  1.000;            
+        }
+        else if (fisherVersion_ == "0lepton_v1")
+        {
+            fisher_bin1 = fisher_val > -1.0000 && fisher_val <= -0.1225;
+            fisher_bin2 = fisher_val > -0.1225 && fisher_val <= -0.0725;
+            fisher_bin3 = fisher_val > -0.0725 && fisher_val <= -0.0175;
+            fisher_bin4 = fisher_val > -0.0175 && fisher_val <=  1.0000;            
         }
 
         // Register Variables
@@ -165,6 +197,7 @@ public:
         , read_fisher_350to650_fwm10_jmtev_top6_(nullptr)
         , read_fisher_350to650_fwm6_jmtev_top6_gt_v2_(nullptr)
         , read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_(nullptr)
+        , read_fisher_0lepton_v1_(nullptr)
         //, read_fisher_test_(nullptr)
     {
         setUpFWM();
@@ -172,6 +205,7 @@ public:
         read_fisher_350to650_fwm10_jmtev_top6_          = std::make_shared<ReadFisher_350to650_fwm10_jmtev_top6>( inputVarNames_top6_fwm10_ );
         read_fisher_350to650_fwm6_jmtev_top6_gt_v2_     = std::make_shared<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v2>( inputVarNames_top6_fwm6_ );
         read_fisher_350to650_fwm6_jmtev_top6_gt_v3pt30_ = std::make_shared<ReadFisherG_350to650_fwm6_jmtev_top6_gt_v3pt30>( inputVarNames_top6_fwm6_ );
+        read_fisher_0lepton_v1_                         = std::make_shared<ReadFisherG_0lepton_v1>( inputVarNames_top6_fwm6_ );
         //read_fisher_test_                               = std::make_shared<ReadFisherG>( inputVarNames_top6_fwm6_ );
         std::cout<<"Using Fisher version: "+fisherVersion<<std::endl;
     }

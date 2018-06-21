@@ -63,8 +63,8 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     TH1F* h_costheta_ppweight_noieqj = new TH1F( "h_costheta_ppweight_noieqj", "cos(theta_ij) in CM frame, pipj/Esq weight, excluding i=j", 110, -1.05, 1.05 ) ;
 
     //--- New branches for output.
-    bool passBaseline0l;
-    bool passBaseline1l;
+    bool passBaseline0l_Good;
+    bool passBaseline1l_Good;
     double Mbl;          
     double Weight;
     double fwm2_top6;
@@ -77,8 +77,8 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     double jmt_ev2_top6;
     double event_beta_z;
 
-    tt_out->Branch( "passBaseline0l", &passBaseline0l, "passBaseline0l/B" ) ;
-    tt_out->Branch( "passBaseline1l", &passBaseline1l, "passBaseline1l/B" ) ;
+    tt_out->Branch( "passBaseline0l_Good", &passBaseline0l_Good, "passBaseline0l_Good/B" ) ;
+    tt_out->Branch( "passBaseline1l_Good", &passBaseline1l_Good, "passBaseline1l_Good/B" ) ;
     tt_out->Branch( "Mbl",            &Mbl,            "Mbl/D" ) ;
     tt_out->Branch( "Weight",         &Weight,         "Weight/D") ;
     tt_out->Branch( "fwm2_top6", &fwm2_top6, "fwm2_top6/D" ) ;
@@ -92,17 +92,17 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     tt_out->Branch( "event_beta_z", &event_beta_z, "event_beta_z/D" ) ;
 
     //--- Loop over events
-    MakeMVAVariables makeMVAVariables(false);
-    Jet jet;
     Muon muon;
     Electron electron;
+    MakeMVAVariables makeMVAVariables(false);
+    Jet jet;
     BJet bjet;
     CommonVariables commonVariables;
     Baseline baseline;
-    tr.registerFunction( std::move(makeMVAVariables) );
-    tr.registerFunction( std::move(jet) );
     tr.registerFunction( std::move(muon) );
     tr.registerFunction( std::move(electron) );
+    tr.registerFunction( std::move(makeMVAVariables) );
+    tr.registerFunction( std::move(jet) );
     tr.registerFunction( std::move(bjet) );
     tr.registerFunction( std::move(commonVariables) );
     tr.registerFunction( std::move(baseline) );
@@ -112,8 +112,8 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
     {
         const auto& cm_jets = tr.getVec<math::RThetaPhiVector>("cm_jets");
 
-        passBaseline0l = tr.getVar<bool>("passBaseline0l");
-        passBaseline1l = tr.getVar<bool>("passBaseline1l");
+        passBaseline0l_Good = tr.getVar<bool>("passBaseline0l_Good");
+        passBaseline1l_Good = tr.getVar<bool>("passBaseline1l_Good");
         Mbl            = tr.getVar<double>("Mbl");
         Weight         = tr.getVar<double>("Weight");
         fwm2_top6 = tr.getVar<double>("fwm2_top6");
@@ -161,7 +161,7 @@ void make_mva_training_tree_example( NTupleReader& tr, TFile* tf_output, const i
         } // i
 
         nsave++ ;
-        if(passBaseline0l or passBaseline1l) tt_out->Fill() ;
+        if(passBaseline0l_Good or passBaseline1l_Good) tt_out->Fill() ;
 
     } // event loop
 
