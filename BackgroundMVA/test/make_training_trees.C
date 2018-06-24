@@ -1,7 +1,7 @@
 #include "SusyAnaTools/Tools/samples.h"
 #include "SusyAnaTools/Tools/NTupleReader.h"
 
-#include "Framework/BackgroundMVA/include/MakeMVAVariables.h"
+#include "Framework/Framework/include/MakeMVAVariables.h"
 #include "Framework/Framework/include/Jet.h"
 #include "Framework/Framework/include/Muon.h"
 #include "Framework/Framework/include/Electron.h"
