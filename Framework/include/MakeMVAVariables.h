@@ -19,6 +19,10 @@ private:
         double fwm4_top6 = 0.0;
         double fwm5_top6 = 0.0;
         double fwm6_top6 = 0.0;
+        double fwm7_top6 = 0.0;
+        double fwm8_top6 = 0.0;
+        double fwm9_top6 = 0.0;
+        double fwm10_top6 = 0.0;
         double jmt_ev0_top6 = 0.0;
         double jmt_ev1_top6 = 0.0;
         double jmt_ev2_top6 = 0.0;
@@ -83,6 +87,10 @@ private:
         fwm4_top6 = esv_top6.getFWmoment( 4 ) ;
         fwm5_top6 = esv_top6.getFWmoment( 5 ) ;
         fwm6_top6 = esv_top6.getFWmoment( 6 ) ;
+        fwm7_top6 = esv_top6.getFWmoment( 6 ) ;
+        fwm8_top6 = esv_top6.getFWmoment( 6 ) ;
+        fwm9_top6 = esv_top6.getFWmoment( 6 ) ;
+        fwm10_top6 = esv_top6.getFWmoment( 6 ) ;
 
         jmt_ev0_top6 = eigen_vals_norm_top6[0] ;
         jmt_ev1_top6 = eigen_vals_norm_top6[1] ;
@@ -95,6 +103,10 @@ private:
         tr.registerDerivedVar("fwm4_top6", fwm4_top6);
         tr.registerDerivedVar("fwm5_top6", fwm5_top6);
         tr.registerDerivedVar("fwm6_top6", fwm6_top6);
+        tr.registerDerivedVar("fwm7_top6", fwm7_top6);
+        tr.registerDerivedVar("fwm8_top6", fwm8_top6);
+        tr.registerDerivedVar("fwm9_top6", fwm9_top6);
+        tr.registerDerivedVar("fwm10_top6", fwm10_top6);
         tr.registerDerivedVar("jmt_ev0_top6", jmt_ev0_top6);
         tr.registerDerivedVar("jmt_ev1_top6", jmt_ev1_top6);
         tr.registerDerivedVar("jmt_ev2_top6", jmt_ev2_top6);
