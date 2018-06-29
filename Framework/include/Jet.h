@@ -52,11 +52,11 @@ private:
 
         tr.registerDerivedVar("NJets",       Jets.size());
         tr.registerDerivedVec("Jets_pt30",   jets_pt30_);
-        tr.registerDerivedVar("NJets_pt30", (jets_pt30_==nullptr)?0:jets_pt30_->size());
+        tr.registerDerivedVar("NJets_pt30", static_cast<int>((jets_pt30_==nullptr)?0:jets_pt30_->size()));
         tr.registerDerivedVec("Jets_pt40",   jets_pt40_);
-        tr.registerDerivedVar("NJets_pt40", (jets_pt40_==nullptr)?0:jets_pt40_->size());
+        tr.registerDerivedVar("NJets_pt40", static_cast<int>((jets_pt40_==nullptr)?0:jets_pt40_->size()));
         tr.registerDerivedVec("Jets_pt45",   jets_pt45_);
-        tr.registerDerivedVar("NJets_pt45", (jets_pt45_==nullptr)?0:jets_pt45_->size());
+        tr.registerDerivedVar("NJets_pt45", static_cast<int>((jets_pt45_==nullptr)?0:jets_pt45_->size()));
 
         //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same
         
@@ -144,11 +144,11 @@ private:
         tr.registerDerivedVar("NGoodJets",                  goodjets_->size());
         tr.registerDerivedVec("GoodJets_bDiscriminatorCSV", goodjets_csv_);
         tr.registerDerivedVec("GoodJets_pt30",              goodjets_pt30_);
-        tr.registerDerivedVar("NGoodJets_pt30",            (goodjets_pt30_==nullptr)?0:goodjets_pt30_->size());
+        tr.registerDerivedVar("NGoodJets_pt30",            static_cast<int>((goodjets_pt30_==nullptr)?0:goodjets_pt30_->size()));
         tr.registerDerivedVec("GoodJets_pt40",              goodjets_pt40_);
-        tr.registerDerivedVar("NGoodJets_pt40",            (goodjets_pt40_==nullptr)?0:goodjets_pt40_->size());
+        tr.registerDerivedVar("NGoodJets_pt40",            static_cast<int>((goodjets_pt40_==nullptr)?0:goodjets_pt40_->size()));
         tr.registerDerivedVec("GoodJets_pt45",              goodjets_pt45_);
-        tr.registerDerivedVar("NGoodJets_pt45",            (goodjets_pt45_==nullptr)?0:goodjets_pt45_->size());
+        tr.registerDerivedVar("NGoodJets_pt45",            static_cast<int>((goodjets_pt45_==nullptr)?0:goodjets_pt45_->size()));
     }
 
 public:

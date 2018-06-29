@@ -35,10 +35,10 @@ private:
                 good_muons_mtw_->push_back(mtw);
             }
         }
-
+        
 
         tr.registerDerivedVec("GoodMuons", good_muons_);
-        tr.registerDerivedVar("NGoodMuons", (good_muons_==nullptr)?0:good_muons_->size());
+        tr.registerDerivedVar("NGoodMuons", static_cast<int>((good_muons_==nullptr)?0:good_muons_->size()));
         tr.registerDerivedVec("GoodMuonsCharge", good_muons_charge_);
         tr.registerDerivedVec("GoodMuonsMTW", good_muons_mtw_);
     }
