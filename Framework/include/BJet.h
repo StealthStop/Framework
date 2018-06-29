@@ -72,20 +72,20 @@ private:
 
 
         tr.registerDerivedVec("BJets",        bjets_);
-        tr.registerDerivedVar("NBJets",      (bjets_==nullptr)?0:bjets_->size());
+        tr.registerDerivedVar("NBJets",      static_cast<int>((bjets_==nullptr)?0:bjets_->size()));
         tr.registerDerivedVec("BJets_pt30",   bjets_pt30_);
-        tr.registerDerivedVar("NBJets_pt30", (bjets_pt30_==nullptr)?0:bjets_pt30_->size());
+        tr.registerDerivedVar("NBJets_pt30", static_cast<int>((bjets_pt30_==nullptr)?0:bjets_pt30_->size()));
         tr.registerDerivedVec("BJets_pt40",   bjets_pt40_);
-        tr.registerDerivedVar("NBJets_pt40", (bjets_pt40_==nullptr)?0:bjets_pt40_->size());
+        tr.registerDerivedVar("NBJets_pt40", static_cast<int>((bjets_pt40_==nullptr)?0:bjets_pt40_->size()));
         tr.registerDerivedVec("BJets_pt45",   bjets_pt45_);
-        tr.registerDerivedVar("NBJets_pt45", (bjets_pt45_==nullptr)?0:bjets_pt45_->size());
+        tr.registerDerivedVar("NBJets_pt45", static_cast<int>((bjets_pt45_==nullptr)?0:bjets_pt45_->size()));
 
         tr.registerDerivedVec("BJets_tight",        bjets_tight_);
-        tr.registerDerivedVar("NBJets_tight",      (bjets_tight_==nullptr)?0:bjets_tight_->size());
+        tr.registerDerivedVar("NBJets_tight",      static_cast<int>((bjets_tight_==nullptr)?0:bjets_tight_->size()));
         tr.registerDerivedVec("BJets_pt30_tight",   bjets_pt30_tight_);
-        tr.registerDerivedVar("NBJets_pt30_tight", (bjets_pt30_tight_==nullptr)?0:bjets_pt30_tight_->size());
+        tr.registerDerivedVar("NBJets_pt30_tight", static_cast<int>((bjets_pt30_tight_==nullptr)?0:bjets_pt30_tight_->size()));
         tr.registerDerivedVec("BJets_pt45_tight",   bjets_pt45_tight_);
-        tr.registerDerivedVar("NBJets_pt45_tight", (bjets_pt45_tight_==nullptr)?0:bjets_pt45_tight_->size());
+        tr.registerDerivedVar("NBJets_pt45_tight", static_cast<int>((bjets_pt45_tight_==nullptr)?0:bjets_pt45_tight_->size()));
 
         goodbjets_ = new std::vector<TLorentzVector>();
         goodbjets_pt30_ = new std::vector<TLorentzVector>();
@@ -127,18 +127,18 @@ private:
         }
         
         tr.registerDerivedVec("GoodBJets",        goodbjets_);
-        tr.registerDerivedVar("NGoodBJets",      (goodbjets_==nullptr)?0:goodbjets_->size());
+        tr.registerDerivedVar("NGoodBJets",      static_cast<int>((goodbjets_==nullptr)?0:goodbjets_->size()));
         tr.registerDerivedVec("GoodBJets_pt30",   goodbjets_pt30_);
-        tr.registerDerivedVar("NGoodBJets_pt30", (goodbjets_pt30_==nullptr)?0:goodbjets_pt30_->size());
+        tr.registerDerivedVar("NGoodBJets_pt30", static_cast<int>((goodbjets_pt30_==nullptr)?0:goodbjets_pt30_->size()));
         tr.registerDerivedVec("GoodBJets_pt40",   goodbjets_pt40_);
-        tr.registerDerivedVar("NGoodBJets_pt40", (goodbjets_pt40_==nullptr)?0:goodbjets_pt40_->size());
+        tr.registerDerivedVar("NGoodBJets_pt40", static_cast<int>((goodbjets_pt40_==nullptr)?0:goodbjets_pt40_->size()));
         tr.registerDerivedVec("GoodBJets_pt45",   goodbjets_pt45_);
-        tr.registerDerivedVar("NGoodBJets_pt45", (goodbjets_pt45_==nullptr)?0:goodbjets_pt45_->size());
-
+        tr.registerDerivedVar("NGoodBJets_pt45", static_cast<int>((goodbjets_pt45_==nullptr)?0:goodbjets_pt45_->size()));
+        
         tr.registerDerivedVec("GoodBJets_pt30_tight",   goodbjets_pt30_tight_);
-        tr.registerDerivedVar("NGoodBJets_pt30_tight", (goodbjets_pt30_tight_==nullptr)?0:goodbjets_pt30_tight_->size());
+        tr.registerDerivedVar("NGoodBJets_pt30_tight", static_cast<int>((goodbjets_pt30_tight_==nullptr)?0:goodbjets_pt30_tight_->size()));
         tr.registerDerivedVec("GoodBJets_pt45_tight",   goodbjets_pt45_tight_);
-        tr.registerDerivedVar("NGoodBJets_pt45_tight", (goodbjets_pt45_tight_==nullptr)?0:goodbjets_pt45_tight_->size());
+        tr.registerDerivedVar("NGoodBJets_pt45_tight", static_cast<int>((goodbjets_pt45_tight_==nullptr)?0:goodbjets_pt45_tight_->size()));
 
     }
 

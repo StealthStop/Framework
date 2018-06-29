@@ -35,7 +35,7 @@ private:
         for (TLorentzVector electron : GoodElectrons)
             GoodLeptons->push_back(electron);
         tr.registerDerivedVec("GoodLeptons", GoodLeptons);
-        tr.registerDerivedVar("NGoodLeptons", GoodLeptons->size());
+        tr.registerDerivedVar("NGoodLeptons", static_cast<int>(GoodLeptons->size()));
         
         // M(l,b); closest to 105 GeV if multiple combinations (halfway between 30 and 180 GeV)
         double Mbl = 0;

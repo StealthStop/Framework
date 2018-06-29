@@ -87,10 +87,10 @@ private:
         fwm4_top6 = esv_top6.getFWmoment( 4 ) ;
         fwm5_top6 = esv_top6.getFWmoment( 5 ) ;
         fwm6_top6 = esv_top6.getFWmoment( 6 ) ;
-        fwm7_top6 = esv_top6.getFWmoment( 6 ) ;
-        fwm8_top6 = esv_top6.getFWmoment( 6 ) ;
-        fwm9_top6 = esv_top6.getFWmoment( 6 ) ;
-        fwm10_top6 = esv_top6.getFWmoment( 6 ) ;
+        fwm7_top6 = esv_top6.getFWmoment( 7 ) ;
+        fwm8_top6 = esv_top6.getFWmoment( 8 ) ;
+        fwm9_top6 = esv_top6.getFWmoment( 9 ) ;
+        fwm10_top6 = esv_top6.getFWmoment( 10 ) ;
 
         jmt_ev0_top6 = eigen_vals_norm_top6[0] ;
         jmt_ev1_top6 = eigen_vals_norm_top6[1] ;
