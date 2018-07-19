@@ -28,27 +28,27 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
 {
     // Use helper function to create input list 
     // Create AK4 inputs object
-    AK4Inputs_ = new ttUtility::ConstAK4Inputs(
-                                               Jets_, 
-                                               Jets_bDiscriminatorCSV_,
-                                               Jets_qgLikelihood_, 
-                                               hadtops_, 
-                                               hadtopdaughters_);  
+    AK4Inputs_ = new ttUtility::ConstAK4Inputs<double>(
+        Jets_, 
+        Jets_bDiscriminatorCSV_,
+        Jets_qgLikelihood_, 
+        hadtops_, 
+        hadtopdaughters_);  
     // Create AK8 inputs object
-    AK8Inputs_ = new ttUtility::ConstAK8Inputs(
-                                               JetsAK8_,
-                                               JetsAK8_NsubjettinessTau1_,
-                                               JetsAK8_NsubjettinessTau2_,
-                                               JetsAK8_NsubjettinessTau3_,
-                                               JetsAK8_softDropMass_,
-                                               JetsAK8_subjets_,
-                                               //JetsAk8_subjets_bDiscriminatorCSV_,
-                                               //JetsAk8_subjets_multiplicity_,
-                                               //JetsAk8_subjets_ptD_,
-                                               //JetsAk8_subjets_axismajor_,
-                                               //JetsAk8_subjets_axisminor_,
-                                               hadtops_,
-                                               hadtopdaughters_);  
+    AK8Inputs_ = new ttUtility::ConstAK8Inputs<double>(
+        JetsAK8_,
+        JetsAK8_NsubjettinessTau1_,
+        JetsAK8_NsubjettinessTau2_,
+        JetsAK8_NsubjettinessTau3_,
+        JetsAK8_softDropMass_,
+        JetsAK8_subjets_,
+        //JetsAk8_subjets_bDiscriminatorCSV_,
+        //JetsAk8_subjets_multiplicity_,
+        //JetsAk8_subjets_ptD_,
+        //JetsAk8_subjets_axismajor_,
+        //JetsAk8_subjets_axisminor_,
+        hadtops_,
+        hadtopdaughters_);  
     //Add variables that are not passed to the constructor
     addVariables();      
 }

@@ -30,8 +30,8 @@ private:
     const std::vector<TLorentzVector>& hadtops_;                   
     const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters_;           
     
-    ttUtility::ConstAK4Inputs* AK4Inputs_;
-    ttUtility::ConstAK8Inputs* AK8Inputs_;
+    ttUtility::ConstAK4Inputs<double>* AK4Inputs_;
+    ttUtility::ConstAK8Inputs<double>* AK8Inputs_;
     
     std::vector<double>* intVecTodoubleVec(NTupleReader& tr, const std::string& vType);
 

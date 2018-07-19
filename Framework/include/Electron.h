@@ -41,7 +41,7 @@ private:
 
 
         tr.registerDerivedVec("GoodElectrons", good_electrons_);
-        tr.registerDerivedVar("NGoodElectrons", (good_electrons_==nullptr)?0:good_electrons_->size());
+        tr.registerDerivedVar("NGoodElectrons", static_cast<int>((good_electrons_==nullptr)?0:good_electrons_->size()));
         tr.registerDerivedVec("GoodElectronsCharge", good_electrons_charge_);
         tr.registerDerivedVec("GoodElectronsMTW", good_electrons_mtw_);
     }
