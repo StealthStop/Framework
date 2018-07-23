@@ -17,7 +17,21 @@ private:
 
     void jet(NTupleReader& tr)
     {
-        const auto& Jets        = tr.getVec<TLorentzVector>("Jets");
+        const int jecOn         = 0; //If -1 it is down, if +1 it is up
+        const int jerOn         = 0; //If -1 it is down, if +1 it is up
+
+        if( jecOn * jerOn != 0 ) {
+            std::cerr<<"You cannot have both jet energy corrections and jet energy resolutions on at the same time"<<std::endl;
+        }
+
+        //This is to rename the variables in the tree properly so that the data cards can eventually use them
+        /*std::string                 myVarSuffix = "";
+        if      ( jecOn == 1 )      myVarSuffix = "JECup";
+        else if ( jecOn == -1 )     myVarSuffix = "JECdown";
+        else if ( jerOn == 1 )      myVarSuffix = "JERup";
+        else if ( jerOn == -1 )     myVarSuffix = "JERdown";
+*/
+        const auto& Jets        = tr.getVec<TLorentzVector>(("Jets"));
         const auto& etaCut      = tr.getVar<double>("etaCut");
         const auto& Jets_CSV    = tr.getVec<double>("Jets_bDiscriminatorCSV");
 
