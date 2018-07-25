@@ -17,7 +17,7 @@ private:
 
     void jet(NTupleReader& tr)
     {
-        const auto& Jets        = tr.getVec<TLorentzVector>(("Jets"));
+        const auto& Jets        = tr.getVec<TLorentzVector>("Jets");
         const auto& etaCut      = tr.getVar<double>("etaCut");
         const auto& Jets_CSV    = tr.getVec<double>("Jets_bDiscriminatorCSV");
 
