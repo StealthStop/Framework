@@ -9,6 +9,67 @@
 #include "cstdio"
 #include "cstring"
 
+class EventShapeCalculator
+{
+private:
+    float* basePtr_;
+    int len_;
+
+    int fwm2_top6_, fwm3_top6_, fwm4_top6_, fwm5_top6_, fwm6_top6_, fwm7_top6_, fwm8_top6_, fwm9_top6_, fwm10_top6_, jmt_ev0_top6_, jmt_ev1_top6_, jmt_ev2_top6_;
+
+public:
+    EventShapeCalculator()
+    {
+        fwm2_top6_ = fwm3_top6_ = fwm4_top6_ = fwm5_top6_ = fwm6_top6_ = fwm7_top6_ = fwm8_top6_ = fwm9_top6_ = fwm10_top6_ = jmt_ev0_top6_ = jmt_ev1_top6_ = jmt_ev2_top6_ = -1;
+    }
+
+    /**
+     *The job of mapVars is to populate the internal offests for all variables in the input variable list with their memory location in the data array.  To be called only once.
+     */
+    void mapVars(const std::vector<std::string>& vars)
+    {
+        len_ = vars.size();
+
+        for(unsigned int i = 0; i < vars.size(); ++i)
+        {
+            if(     vars[i].compare("fwm2_top6") == 0)  fwm2_top6_ = i;
+            else if(vars[i].compare("fwm3_top6") == 0)  fwm3_top6_ = i;
+            else if(vars[i].compare("fwm4_top6") == 0)  fwm4_top6_ = i;
+            else if(vars[i].compare("fwm5_top6") == 0)  fwm5_top6_ = i;
+            else if(vars[i].compare("fwm6_top6") == 0)  fwm6_top6_ = i;
+            else if(vars[i].compare("fwm7_top6") == 0)  fwm7_top6_ = i;
+            else if(vars[i].compare("fwm8_top6") == 0)  fwm8_top6_ = i;
+            else if(vars[i].compare("fwm9_top6") == 0)  fwm9_top6_ = i;
+            else if(vars[i].compare("fwm10_top6") == 0) fwm10_top6_ = i;
+            else if(vars[i].compare("jmt_ev0_top6") == 0) jmt_ev0_top6_ = i;
+            else if(vars[i].compare("jmt_ev1_top6") == 0) jmt_ev1_top6_ = i;
+            else if(vars[i].compare("jmt_ev2_top6") == 0) jmt_ev2_top6_ = i;
+        }
+    }
+    /**
+     *The job of setPtr is to set the starting place of memory block where the data will be written. To be called only once for the creation of the array pointed to by data.
+     */
+    void setPtr(float* data) {basePtr_ = data;}
+    /**
+     *Calculate the requested variables and store the values directly in the input array for the MVA
+     */
+    void calculateVars(const NTupleReader& tr, int iCand)
+    {
+        if(fwm2_top6_ >= 0)  *(basePtr_ + fwm2_top6_ + len_*iCand) =  tr.getVar<double>("fwm2_top6");
+        if(fwm3_top6_ >= 0)  *(basePtr_ + fwm3_top6_ + len_*iCand) =  tr.getVar<double>("fwm3_top6");
+        if(fwm4_top6_ >= 0)  *(basePtr_ + fwm4_top6_ + len_*iCand) =  tr.getVar<double>("fwm4_top6");
+        if(fwm5_top6_ >= 0)  *(basePtr_ + fwm5_top6_ + len_*iCand) =  tr.getVar<double>("fwm5_top6");
+        if(fwm6_top6_ >= 0)  *(basePtr_ + fwm6_top6_ + len_*iCand) =  tr.getVar<double>("fwm6_top6");
+        if(fwm7_top6_ >= 0)  *(basePtr_ + fwm7_top6_ + len_*iCand) =  tr.getVar<double>("fwm7_top6");
+        if(fwm8_top6_ >= 0)  *(basePtr_ + fwm8_top6_ + len_*iCand) =  tr.getVar<double>("fwm8_top6");
+        if(fwm9_top6_ >= 0)  *(basePtr_ + fwm9_top6_ + len_*iCand) =  tr.getVar<double>("fwm9_top6");
+        if(fwm10_top6_ >= 0) *(basePtr_ + fwm10_top6_ + len_*iCand) =  tr.getVar<double>("fwm10_top6");
+        if(jmt_ev0_top6_ >= 0) *(basePtr_ + jmt_ev0_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev0_top6");
+        if(jmt_ev1_top6_ >= 0) *(basePtr_ + jmt_ev1_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev1_top6");
+        if(jmt_ev2_top6_ >= 0) *(basePtr_ + jmt_ev2_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev2_top6");
+    }
+};
+
 class DeepEventShape
 {
 private:
@@ -24,6 +85,9 @@ private:
     std::vector<TF_Output>     inputs_;
     std::vector<TF_Output>     outputs_;
     std::vector<TF_Operation*> targets_;
+
+    //variable calclator
+    std::shared_ptr<EventShapeCalculator> varCalculator_;
 
     void getParameters(const std::unique_ptr<cfg::CfgDocument>& cfgDoc, const std::string& localContextName)
     {
@@ -86,6 +150,10 @@ private:
         targets_.emplace_back(op_y);
         
         TF_DeleteStatus(status);
+
+        //map variables
+        varCalculator_.reset(new EventShapeCalculator());
+        varCalculator_->mapVars(vars_);
     }
 
     void runDeepEventShape(NTupleReader& tr)
@@ -105,8 +173,11 @@ private:
         TF_Tensor* input_values_0 =  TF_AllocateTensor(TF_FLOAT, dims.data(), dims.size(), elemSize*nelem);
         
         input_values = { input_values_0 };
-        //varCalculator_->setPtr(static_cast<float*>(TF_TensorData(input_values_0)));
-        
+        varCalculator_->setPtr(static_cast<float*>(TF_TensorData(input_values_0)));
+
+        int iCand = 0;
+        varCalculator_->calculateVars(tr, iCand);
+
         //predict values
         TF_SessionRun(session_,
                       // RunOptions
@@ -124,7 +195,6 @@ private:
         
         //Get output discriminators 
         auto discriminators = static_cast<float*>(TF_TensorData(output_values[0]));                
-        int iCand = 0;
         
         //discriminators is a 2D array, we only want the first entry of every array
         double discriminator = static_cast<double>(discriminators[iCand*TF_Dim(output_values[0], 1)]);
