@@ -205,7 +205,6 @@ private:
         TF_DeleteStatus(status);
         
         // Register Variables
-        std::cout<<discriminator<<std::endl;
         tr.registerDerivedVar("deepEventShape_val", discriminator);
     }
 
