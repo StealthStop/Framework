@@ -95,6 +95,14 @@ private:
                               HT_trigger > 500   && 
                               NBJets_pt45 >= 2;
         
+        bool passBaseline0l_hadTrig_Good = JetID  &&
+                              passMadHT           &&
+                              passTrigger         &&
+                              passBlindHad_Good   &&
+                              NGoodJets_pt45 >= 6 && 
+                              HT_trigger > 500    && 
+                              NGoodBJets_pt45 >= 2;
+        
 
         // -------------------------------
         // -- Define 1 Lepton Baseline
@@ -234,6 +242,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline0l",passBaseline0l);
         tr.registerDerivedVar<bool>("passBaseline0l_Good",passBaseline0l_Good);
         tr.registerDerivedVar<bool>("passBaseline0l_hadTrig", passBaseline0l_hadTrig);
+        tr.registerDerivedVar<bool>("passBaseline0l_hadTrig_Good", passBaseline0l_hadTrig_Good);
         tr.registerDerivedVar<bool>("passBaseline1l",passBaseline1l);
         tr.registerDerivedVar<bool>("passBaseline1l_Good",passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1l_noID",passBaseline1l_noID);
