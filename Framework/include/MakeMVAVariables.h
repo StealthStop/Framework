@@ -8,10 +8,11 @@ class MakeMVAVariables
 {
 private:
     bool verb_;
+    std::string myVarSuffix_;
 
     void makeMVAVariables(NTupleReader& tr)
     {
-        const auto& Jets = tr.getVec<TLorentzVector>("Jets");
+        const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
 
         //--- Initialize all derived ntuple variables.
         double fwm2_top6 = 0.0;
@@ -114,7 +115,8 @@ private:
     }
 
 public:
-    MakeMVAVariables(const bool verb = false) : verb_(verb)
+    MakeMVAVariables(const bool verb = false) : verb_(verb) :
+        myVarSuffix_(myVarSuffix)
     {
     }
 

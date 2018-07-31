@@ -4,6 +4,8 @@
 class Jet
 {
 private:
+
+    std::string                  myVarSuffix_;
     std::vector<TLorentzVector>* jets_pt30_;
     std::vector<TLorentzVector>* jets_pt40_;
     std::vector<TLorentzVector>* jets_pt45_;
@@ -17,9 +19,9 @@ private:
 
     void jet(NTupleReader& tr)
     {
-        const auto& Jets        = tr.getVec<TLorentzVector>("Jets");
+        const auto& Jets        = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
         const auto& etaCut      = tr.getVar<double>("etaCut");
-        const auto& Jets_CSV    = tr.getVec<double>("Jets_bDiscriminatorCSV");
+        const auto& Jets_CSV    = tr.getVec<double>("Jets"+myVarSuffix_+"_bDiscriminatorCSV");
 
         const auto& Muons       = tr.getVec<TLorentzVector>("GoodMuons");
         const auto& NMuons      = tr.getVar<int>("NGoodMuons");
@@ -152,8 +154,9 @@ private:
     }
 
 public:
-    Jet() : 
-        jets_pt30_(nullptr)
+    Jet(std::string myVarSuffix = "") : 
+        myVarSuffix_(myVarSuffix)
+      , jets_pt30_(nullptr)
       , jets_pt40_(nullptr)
       , jets_pt45_(nullptr)
       , goodjets_(nullptr)

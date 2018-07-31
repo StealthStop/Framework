@@ -15,6 +15,7 @@
 class RunFisher
 {
 private:
+    std::string myVarSuffix_;
     std::string fisherVersion_;
     std::vector<std::string> inputVarNames_top6_fwm6_;
     std::vector<std::string> inputVarNames_top6_fwm10_;
@@ -71,7 +72,7 @@ private:
 
     void runFisher(NTupleReader& tr)
     {
-        const auto& Jets       = tr.getVec<TLorentzVector>("Jets");
+        const auto& Jets       = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
         const auto& NJets_pt30 = tr.getVar<int>("NJets_pt30");
         const auto& NJets_pt45 = tr.getVar<int>("NJets_pt45");
 
@@ -191,8 +192,9 @@ private:
     }
 
 public:
-    RunFisher(std::string fisherVersion = "v3") 
+    RunFisher(std::string fisherVersion = "v3", std::string myVarSuffix = "") 
         : fisherVersion_(fisherVersion)
+        , myVarSuffix_(myVarSuffix)
         , eventshapeBDT_(nullptr)
         , read_fisher_350to650_fwm10_jmtev_top6_(nullptr)
         , read_fisher_350to650_fwm6_jmtev_top6_gt_v2_(nullptr)
