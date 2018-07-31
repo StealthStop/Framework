@@ -4,6 +4,8 @@
 class BJet
 {
 private:
+
+    std::string                  myVarSuffix_;
     std::vector<TLorentzVector>* bjets_;
     std::vector<TLorentzVector>* bjets_pt30_;
     std::vector<TLorentzVector>* bjets_pt40_;
@@ -24,10 +26,10 @@ private:
     
     void bjet(NTupleReader& tr)
     {
-        const auto& Jets = tr.getVec<TLorentzVector>("Jets");
-        const auto& Jets_bDiscriminatorCSV = tr.getVec<double>("Jets_bDiscriminatorCSV");
+        const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+        const auto& Jets_bDiscriminatorCSV = tr.getVec<double>("Jets"+myVarSuffix_+"_bDiscriminatorCSV");
         const auto& etaCut = tr.getVar<double>("etaCut");
-        const auto& JetsID = tr.getVec<bool>("Jets_ID");
+        const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         
         bjets_ = new std::vector<TLorentzVector>();
         bjets_pt30_ = new std::vector<TLorentzVector>();
@@ -143,8 +145,9 @@ private:
     }
 
 public:
-    BJet() 
-        : bjets_(nullptr)
+    BJet( std::string myVarSuffix ) 
+        : myVarSuffix_(myVarSuffix)
+        , bjets_(nullptr)
         , bjets_pt30_(nullptr)
         , bjets_pt40_(nullptr)
         , bjets_pt45_(nullptr)
