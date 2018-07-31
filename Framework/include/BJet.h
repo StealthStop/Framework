@@ -145,7 +145,7 @@ private:
     }
 
 public:
-    BJet( std::string myVarSuffix ) 
+    BJet( std::string myVarSuffix = "" ) 
         : myVarSuffix_(myVarSuffix)
         , bjets_(nullptr)
         , bjets_pt30_(nullptr)
