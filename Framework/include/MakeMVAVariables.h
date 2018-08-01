@@ -115,8 +115,9 @@ private:
     }
 
 public:
-    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "") : verb_(verb) :
-        myVarSuffix_(myVarSuffix)
+    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "")
+        : verb_(verb)
+        , myVarSuffix_(myVarSuffix)
     {
     }
 
