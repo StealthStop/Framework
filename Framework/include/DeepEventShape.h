@@ -113,7 +113,7 @@ private:
                 keepLooping = true;
         
                 vars_.push_back(varName);
-                std::cout<<varName<<std::endl;
+                //std::cout<<varName<<std::endl;
             }
             ++iVar;
         }
@@ -250,6 +250,8 @@ public:
         //pass raw text to cfg parser, to return parsed document
         std::unique_ptr<cfg::CfgDocument> cfgDoc = cfg::CfgDocument::parseDocument(cfgText);
         getParameters(cfgDoc, localContextName);
+
+        std::cout<<"Using "+cfgFileName+" as the DeepEventShape config file"<<std::endl;
     }
 
     ~DeepEventShape()
