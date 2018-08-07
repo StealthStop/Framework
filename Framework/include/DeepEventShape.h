@@ -203,9 +203,19 @@ private:
         for(auto tensor : output_values) TF_DeleteTensor(tensor);
         
         TF_DeleteStatus(status);
+
+        //Define bins (try to have the same amount of events in all 4 bins)
+        bool deepESM_bin1 = discriminator > 0.0000 && discriminator <= 0.4425;
+        bool deepESM_bin2 = discriminator > 0.4425 && discriminator <= 0.4975;
+        bool deepESM_bin3 = discriminator > 0.4975 && discriminator <= 0.5225;
+        bool deepESM_bin4 = discriminator > 0.5225 && discriminator <= 1.0000;
         
         // Register Variables
-        tr.registerDerivedVar("deepEventShape_val", discriminator);
+        tr.registerDerivedVar("deepESM_val", discriminator);
+        tr.registerDerivedVar("deepESM_bin1", deepESM_bin1);
+        tr.registerDerivedVar("deepESM_bin2", deepESM_bin2);
+        tr.registerDerivedVar("deepESM_bin3", deepESM_bin3);
+        tr.registerDerivedVar("deepESM_bin4", deepESM_bin4);
     }
 
     static void free_buffer(void* data, size_t length) 
