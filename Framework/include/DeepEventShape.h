@@ -15,12 +15,12 @@ private:
     float* basePtr_;
     int len_;
 
-    int fwm2_top6_, fwm3_top6_, fwm4_top6_, fwm5_top6_, fwm6_top6_, fwm7_top6_, fwm8_top6_, fwm9_top6_, fwm10_top6_, jmt_ev0_top6_, jmt_ev1_top6_, jmt_ev2_top6_;
+    int fwm2_top6_, fwm3_top6_, fwm4_top6_, fwm5_top6_, fwm6_top6_, fwm7_top6_, fwm8_top6_, fwm9_top6_, fwm10_top6_, jmt_ev0_top6_, jmt_ev1_top6_, jmt_ev2_top6_, NGoodJets_double_;
 
 public:
     EventShapeCalculator()
     {
-        fwm2_top6_ = fwm3_top6_ = fwm4_top6_ = fwm5_top6_ = fwm6_top6_ = fwm7_top6_ = fwm8_top6_ = fwm9_top6_ = fwm10_top6_ = jmt_ev0_top6_ = jmt_ev1_top6_ = jmt_ev2_top6_ = -1;
+        fwm2_top6_ = fwm3_top6_ = fwm4_top6_ = fwm5_top6_ = fwm6_top6_ = fwm7_top6_ = fwm8_top6_ = fwm9_top6_ = fwm10_top6_ = jmt_ev0_top6_ = jmt_ev1_top6_ = jmt_ev2_top6_ = NGoodJets_double_ = -1;
     }
 
     /**
@@ -44,6 +44,7 @@ public:
             else if(vars[i].compare("jmt_ev0_top6") == 0) jmt_ev0_top6_ = i;
             else if(vars[i].compare("jmt_ev1_top6") == 0) jmt_ev1_top6_ = i;
             else if(vars[i].compare("jmt_ev2_top6") == 0) jmt_ev2_top6_ = i;
+            else if(vars[i].compare("NGoodJets_double") == 0) NGoodJets_double_ = i;
         }
     }
     /**
@@ -67,6 +68,7 @@ public:
         if(jmt_ev0_top6_ >= 0) *(basePtr_ + jmt_ev0_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev0_top6");
         if(jmt_ev1_top6_ >= 0) *(basePtr_ + jmt_ev1_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev1_top6");
         if(jmt_ev2_top6_ >= 0) *(basePtr_ + jmt_ev2_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev2_top6");
+        if(NGoodJets_double_ >= 0) *(basePtr_ + NGoodJets_double_ + len_*iCand) =  static_cast<double>(tr.getVar<unsigned long>("NGoodJets"));
     }
 };
 
