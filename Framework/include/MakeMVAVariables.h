@@ -14,57 +14,49 @@ private:
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
 
-        //--- Initialize all derived ntuple variables.
-        double fwm2_top6 = 0.0;
-        double fwm3_top6 = 0.0;
-        double fwm4_top6 = 0.0;
-        double fwm5_top6 = 0.0;
-        double fwm6_top6 = 0.0;
-        double fwm7_top6 = 0.0;
-        double fwm8_top6 = 0.0;
-        double fwm9_top6 = 0.0;
-        double fwm10_top6 = 0.0;
-        double jmt_ev0_top6 = 0.0;
-        double jmt_ev1_top6 = 0.0;
-        double jmt_ev2_top6 = 0.0;
-        double event_beta_z = -9.0;
-
-        TLorentzVector rlv_all_jets ;
-
-        for ( unsigned int rji=0; rji < Jets.size() ; rji++ ) 
-        {
-            TLorentzVector jlv( Jets.at(rji) ) ;
-            rlv_all_jets += jlv ;
-
-        } // rji
-
-        double reco_jets_beta = rlv_all_jets.Pz() / rlv_all_jets.E() ;
-        event_beta_z = reco_jets_beta ;
-
-        TVector3 rec_boost_beta_vec( 0.0, 0.0, -1.0*reco_jets_beta ) ;
+        //--- Sum all jets together
+        TLorentzVector rlv_all_jets;
+        for(auto jlv : Jets) rlv_all_jets += jlv;
 
         //--- Fill vector of jet momenta in CM frame.
-        std::vector<math::RThetaPhiVector>* cm_jets = new std::vector<math::RThetaPhiVector>();
+        //    Boost to the CM frame
+        //TLorentzVector jetSum = rlv_all_jets;
+        //TVector3 cm_boost_beta_vec( -jetSum.BoostVector() );
 
-        for ( unsigned int rji=0; rji < Jets.size() ; rji++ ) 
+        //    Boost to the CM frame (only in z)
+        double event_beta_z = -9.0;
+        double reco_jets_beta = rlv_all_jets.Pz() / rlv_all_jets.E();
+        event_beta_z = reco_jets_beta;
+        TVector3 rec_boost_beta_vec( 0.0, 0.0, -reco_jets_beta );
+        auto* cm_jets = new std::vector<math::RThetaPhiVector>();
+        auto* Jets_cm = new std::vector<TLorentzVector>();
+ 
+        for (auto jlvcm : Jets)
         {
-            TLorentzVector jlvcm( Jets.at(rji) ) ;
-            jlvcm.Boost( rec_boost_beta_vec ) ;
+            jlvcm.Boost( rec_boost_beta_vec );
+            Jets_cm->push_back( jlvcm );
 
-            math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() ) ;
-            cm_jets->push_back( cmvec ) ;
-
-        } // rji
+            math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() );
+            cm_jets->push_back( cmvec );
+        }
 
         //--- Try using only the 6 highest-P jets in the CM frame in the event shape vars.
         //    First, need to make a new input vector of jets containing only those jets.
-
-        std::vector<math::RThetaPhiVector> cm_jets_psort = *cm_jets ;
+        auto cm_jets_psort = *cm_jets ;
         std::sort( cm_jets_psort.begin(), cm_jets_psort.end(), compare_p ) ;
         std::vector<math::RThetaPhiVector> cm_jets_top6 ;
-        for ( unsigned int ji=0; ji<cm_jets->size(); ji++ ) 
+
+        auto Jets_cm_psort = *Jets_cm;
+        std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.P() > v2.P();} );
+        auto* Jets_cm_top6 = new std::vector<TLorentzVector>();
+
+        for( unsigned int ji=0; ji<cm_jets->size(); ji++ ) 
         {
-            if ( ji < 6 ) cm_jets_top6.push_back( cm_jets_psort.at(ji) ) ;
+            if ( ji < 6 ) 
+            {
+                cm_jets_top6.push_back( cm_jets_psort.at(ji) ) ;
+                Jets_cm_top6->push_back( Jets_cm_psort.at(ji) ) ;
+            }
         } // ji
 
         if ( verb_ ) 
@@ -75,30 +67,35 @@ private:
                 printf("  %2d :  (%7.1f, %7.3f, %7.3f) | (%7.1f, %7.3f, %7.3f)\n", ji,
                        cm_jets->at(ji).R(), cm_jets->at(ji).Theta(), cm_jets->at(ji).Phi(),
                        cm_jets_psort.at(ji).R(), cm_jets_psort.at(ji).Theta(), cm_jets_psort.at(ji).Phi() ) ;
+                
+                printf("  %2d :  (%7.1f, %7.3f, %7.3f) | (%7.1f, %7.3f, %7.3f)\n", ji,
+                       Jets_cm->at(ji).P(), Jets_cm->at(ji).Theta(), Jets_cm->at(ji).Phi(),
+                       Jets_cm_top6->at(ji).P(), Jets_cm_top6->at(ji).Theta(), Jets_cm_top6->at(ji).Phi() ) ;
             } // ji
             printf("\n\n") ;
         }
 
+        //--- Make and get the event shape variables for the 6 highest-P jets in the CM frame
         EventShapeVariables esv_top6( cm_jets_top6 ) ;
-
         TVectorD eigen_vals_norm_top6 = esv_top6.getEigenValues() ;
 
-        fwm2_top6 = esv_top6.getFWmoment( 2 ) ;
-        fwm3_top6 = esv_top6.getFWmoment( 3 ) ;
-        fwm4_top6 = esv_top6.getFWmoment( 4 ) ;
-        fwm5_top6 = esv_top6.getFWmoment( 5 ) ;
-        fwm6_top6 = esv_top6.getFWmoment( 6 ) ;
-        fwm7_top6 = esv_top6.getFWmoment( 7 ) ;
-        fwm8_top6 = esv_top6.getFWmoment( 8 ) ;
-        fwm9_top6 = esv_top6.getFWmoment( 9 ) ;
-        fwm10_top6 = esv_top6.getFWmoment( 10 ) ;
+        double fwm2_top6 = esv_top6.getFWmoment( 2 ) ;
+        double fwm3_top6 = esv_top6.getFWmoment( 3 ) ;
+        double fwm4_top6 = esv_top6.getFWmoment( 4 ) ;
+        double fwm5_top6 = esv_top6.getFWmoment( 5 ) ;
+        double fwm6_top6 = esv_top6.getFWmoment( 6 ) ;
+        double fwm7_top6 = esv_top6.getFWmoment( 7 ) ;
+        double fwm8_top6 = esv_top6.getFWmoment( 8 ) ;
+        double fwm9_top6 = esv_top6.getFWmoment( 9 ) ;
+        double fwm10_top6 = esv_top6.getFWmoment( 10 ) ;
+        double jmt_ev0_top6 = eigen_vals_norm_top6[0] ;
+        double jmt_ev1_top6 = eigen_vals_norm_top6[1] ;
+        double jmt_ev2_top6 = eigen_vals_norm_top6[2] ;
 
-        jmt_ev0_top6 = eigen_vals_norm_top6[0] ;
-        jmt_ev1_top6 = eigen_vals_norm_top6[1] ;
-        jmt_ev2_top6 = eigen_vals_norm_top6[2] ;
-
-        // register Variables
+        //--- register Variables
         tr.registerDerivedVec("cm_jets", cm_jets);
+        tr.registerDerivedVec("Jets_cm", Jets_cm);
+        tr.registerDerivedVec("Jets_cm_top6", Jets_cm_top6);
         tr.registerDerivedVar("fwm2_top6", fwm2_top6);
         tr.registerDerivedVar("fwm3_top6", fwm3_top6);
         tr.registerDerivedVar("fwm4_top6", fwm4_top6);
