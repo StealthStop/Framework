@@ -4,9 +4,6 @@
 class Electron
 {
 private:
-    std::vector<TLorentzVector>* good_electrons_;
-    std::vector<int>* good_electrons_charge_;
-    std::vector<double>* good_electrons_mtw_;
     void electron(NTupleReader& tr)
     {
         const auto& allElectrons = tr.getVec<TLorentzVector>("Electrons");
@@ -20,9 +17,9 @@ private:
         TLorentzVector lvMET;
         lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
             
-        good_electrons_ = new std::vector<TLorentzVector>();
-        good_electrons_charge_ = new std::vector<int>();
-        good_electrons_mtw_ = new std::vector<double>();
+        auto* good_electrons_ = new std::vector<TLorentzVector>();
+        auto* good_electrons_charge_ = new std::vector<int>();
+        auto* good_electrons_mtw_ = new std::vector<double>();
         for (unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
             TLorentzVector lvel(allElectrons.at(iel));
@@ -39,7 +36,6 @@ private:
             }
         }
 
-
         tr.registerDerivedVec("GoodElectrons", good_electrons_);
         tr.registerDerivedVar("NGoodElectrons", static_cast<int>((good_electrons_==nullptr)?0:good_electrons_->size()));
         tr.registerDerivedVec("GoodElectronsCharge", good_electrons_charge_);
@@ -48,9 +44,6 @@ private:
 
 public:
     Electron() 
-        : good_electrons_(nullptr)
-        , good_electrons_charge_(nullptr) 
-        , good_electrons_mtw_(nullptr)
     {}
 
     void operator()(NTupleReader& tr)

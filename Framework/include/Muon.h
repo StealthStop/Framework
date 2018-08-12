@@ -4,9 +4,6 @@
 class Muon
 {
 private:
-    std::vector<TLorentzVector>* good_muons_;
-    std::vector<int>* good_muons_charge_;
-    std::vector<double>* good_muons_mtw_;
     void muon(NTupleReader& tr)
     {
         const auto& allMuons = tr.getVec<TLorentzVector>("Muons");
@@ -19,9 +16,9 @@ private:
         TLorentzVector lvMET;
         lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
 
-        good_muons_ = new std::vector<TLorentzVector>();
-        good_muons_charge_ = new std::vector<int>();
-        good_muons_mtw_ = new std::vector<double>;
+        auto* good_muons_ = new std::vector<TLorentzVector>();
+        auto* good_muons_charge_ = new std::vector<int>();
+        auto* good_muons_mtw_ = new std::vector<double>;
         for (unsigned int imu = 0; imu < allMuons.size(); ++imu)
         {
             TLorentzVector lvmu(allMuons.at(imu));
@@ -36,7 +33,6 @@ private:
             }
         }
         
-
         tr.registerDerivedVec("GoodMuons", good_muons_);
         tr.registerDerivedVar("NGoodMuons", static_cast<int>((good_muons_==nullptr)?0:good_muons_->size()));
         tr.registerDerivedVec("GoodMuonsCharge", good_muons_charge_);
@@ -45,9 +41,6 @@ private:
 
 public:
     Muon() 
-        : good_muons_(nullptr)
-        , good_muons_charge_(nullptr) 
-        , good_muons_mtw_(nullptr)
     {}
 
     void operator()(NTupleReader& tr)
