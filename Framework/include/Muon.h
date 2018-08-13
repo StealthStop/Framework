@@ -16,27 +16,31 @@ private:
         TLorentzVector lvMET;
         lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
 
-        auto* good_muons_ = new std::vector<TLorentzVector>();
-        auto* good_muons_charge_ = new std::vector<int>();
-        auto* good_muons_mtw_ = new std::vector<double>;
-        for (unsigned int imu = 0; imu < allMuons.size(); ++imu)
-        {
+        auto* good_muons_ = new std::vector<bool>();
+        auto* muons_mtw_ = new std::vector<double>;
+        int NGoodMuons = 0;
+        for(unsigned int imu = 0; imu < allMuons.size(); ++imu)
+        {            
             TLorentzVector lvmu(allMuons.at(imu));
             double mtw = sqrt( 2*( lvMET.Pt()*lvmu.Pt() - (lvMET.Px()*lvmu.Px() + lvMET.Py()*lvmu.Py()) ) );
+            muons_mtw_->push_back(mtw);
             if( abs(lvmu.Eta()) < etaCut && 
                 lvmu.Pt() > 30 && 
-                allMuons_passIso.at(imu))
+                allMuons_passIso.at(imu)
+                )
             {
-                good_muons_->push_back(lvmu);
-                good_muons_charge_->push_back(allMuons_charge.at(imu));
-                good_muons_mtw_->push_back(mtw);
+                good_muons_->push_back(true);
+                NGoodMuons++;
+            }
+            else
+            {
+                good_muons_->push_back(false);
             }
         }
         
-        tr.registerDerivedVec("GoodMuons", good_muons_);
-        tr.registerDerivedVar("NGoodMuons", static_cast<int>((good_muons_==nullptr)?0:good_muons_->size()));
-        tr.registerDerivedVec("GoodMuonsCharge", good_muons_charge_);
-        tr.registerDerivedVec("GoodMuonsMTW", good_muons_mtw_);
+        tr.registerDerivedVec("GoodMuons",  good_muons_);
+        tr.registerDerivedVar("NGoodMuons", NGoodMuons );
+        tr.registerDerivedVec("MuonsMTW",   muons_mtw_ );
     }
 
 public:
