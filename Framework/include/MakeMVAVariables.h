@@ -10,28 +10,51 @@ private:
     bool verb_;
     std::string myVarSuffix_;
 
+    std::vector<int> decToBinary(int n, int max)
+    {
+        std::vector<int> binaryNum(max, 0);
+        int i = 0;
+        while(n > 0) 
+        {
+            binaryNum[i] = n % 2;
+            n = n / 2;
+            i++;
+        }
+        return binaryNum;
+    }
+
     void makeMVAVariables(NTupleReader& tr)
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+        const auto& GoodLeptons = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
+        const auto& NGoodLeptons = tr.getVar<int>("NGoodLeptons");
+        const auto& MET = tr.getVar<double>("MET"); 
+        const auto& METPhi = tr.getVar<double>("METPhi");
 
-        //--- Sum all jets together
-        TLorentzVector rlv_all_jets;
-        for(auto jlv : Jets) rlv_all_jets += jlv;
+        //--- Get the 4-vec for the MET
+        TLorentzVector lvMET;
+        lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
+
+        //--- Sum all jets, leptons, and MET together
+        TLorentzVector rlv_all;
+        for(auto jlv : Jets) rlv_all += jlv;
+        for(auto pair : GoodLeptons) rlv_all += pair.second;
+        rlv_all += lvMET;
 
         //--- Fill vector of jet momenta in CM frame.
         //    Boost to the CM frame
-        //TLorentzVector jetSum = rlv_all_jets;
+        //TLorentzVector jetSum = rlv_all;
         //TVector3 cm_boost_beta_vec( -jetSum.BoostVector() );
 
         //    Boost to the CM frame (only in z)
         double event_beta_z = -9.0;
-        double reco_jets_beta = rlv_all_jets.Pz() / rlv_all_jets.E();
+        double reco_jets_beta = rlv_all.Pz() / rlv_all.E();
         event_beta_z = reco_jets_beta;
         TVector3 rec_boost_beta_vec( 0.0, 0.0, -reco_jets_beta );
         auto* cm_jets = new std::vector<math::RThetaPhiVector>();
         auto* Jets_cm = new std::vector<TLorentzVector>();
  
-        for (auto jlvcm : Jets)
+        for(auto jlvcm : Jets)
         {
             jlvcm.Boost( rec_boost_beta_vec );
             Jets_cm->push_back( jlvcm );
@@ -109,6 +132,75 @@ private:
         tr.registerDerivedVar("jmt_ev1_top6", jmt_ev1_top6);
         tr.registerDerivedVar("jmt_ev2_top6", jmt_ev2_top6);
         tr.registerDerivedVar("event_beta_z", event_beta_z);
+
+        // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
+        if(NGoodLeptons == 1)
+        {
+            //--- Boost the leptons and MET in the event 
+            std::vector<TLorentzVector> GoodLeptons_cm;
+            for(auto pair : GoodLeptons)
+            {
+                pair.second.Boost( rec_boost_beta_vec );
+                GoodLeptons_cm.push_back( pair.second );
+            }
+            TLorentzVector lvMET_cm = lvMET;
+            lvMET_cm.Boost( rec_boost_beta_vec );
+            
+            //--- Making a vector of all Jets, leptons, and MET
+            std::vector<TLorentzVector> lv_all_cm = *Jets_cm;
+            //adding the lepton and MET for 1 lepton selection
+            lv_all_cm.push_back( GoodLeptons_cm[0] + lvMET_cm );
+            //lv_all_cm.insert( lv_all_cm.end(), GoodLeptons_cm.begin(), GoodLeptons_cm.end() );
+            //lv_all_cm.push_back(lvMET_cm);
+
+            //--- Form all possible combos of summing lv into two lv
+            //std::cout<<"Jets size: "<<Jets_cm->size()<<" Total lv in event:"<<lv_all_cm.size()<<std::endl;
+            int NJets_cm = lv_all_cm.size();
+            int maxDec = 0;
+            std::vector<std::pair<TLorentzVector, TLorentzVector>> combinedJets;
+            for(int i = 1; i <= NJets_cm - 1; i++) maxDec += pow(2,NJets_cm - i);
+            for(int i = 1; i <= maxDec; i++) 
+            {                
+                std::vector<int> jetCombo = decToBinary( i, NJets_cm);
+                TLorentzVector v1, v2;
+                int tempCount1 = 0, tempCount2 = 0;
+                for(int ijet = 0; ijet < lv_all_cm.size(); ijet++)
+                {
+                    jetCombo[ijet];
+                    if(jetCombo[ijet] == 0) 
+                    {
+                        v1 += lv_all_cm.at(ijet);
+                        tempCount1++;
+                    }
+                    else if(jetCombo[ijet] == 1)
+                    {
+                        v2 += lv_all_cm.at(ijet);
+                        tempCount2++;
+                    }
+                }
+                //for (int j = lv_all_cm.size() - 1; j >= 0; j--)
+                //    std::cout << jetCombo[j];                    
+                //std::cout<<" "<<tempCount1<<" "<<tempCount2<<" ("<<v1.M()<<", "<<v1.Pt()<<", "<<v1.Eta()<<", "<<v1.Phi()<<") ("
+                //         <<v2.M()<<", "<<v2.Pt()<<", "<<v2.Eta()<<", "<<v2.Phi()<<")"<<std::endl;;
+                combinedJets.push_back( std::make_pair(v1, v2) );
+            }
+            //std::cout<<combinedJets.size()<<std::endl;
+
+            //--- Find the best combo of lv pair, looks more like the pair production
+            std::pair<TLorentzVector, TLorentzVector> BestComboJets;
+            double massDiff = 999999999999;
+            for(const auto& pair : combinedJets)
+            {
+                double mD = abs( pair.first.M() - pair.second.M() );
+                if(mD < massDiff)
+                {
+                    massDiff = mD;
+                    BestComboJets = pair;
+                }
+            }
+            //std::cout<<"Best mass diff Jets_cm: ("<<BestComboJets.first.M()<<", "<<BestComboJets.first.Pt()<<", "<<BestComboJets.first.Eta()<<", "<<BestComboJets.first.Phi()<<") ("
+            //         <<BestComboJets.second.M()<<", "<<BestComboJets.second.Pt()<<", "<<BestComboJets.second.Eta()<<", "<<BestComboJets.second.Phi()<<")"<<std::endl;
+        }
     }
 
 public:
