@@ -15,12 +15,12 @@ private:
     float* basePtr_;
     int len_;
 
-    int fwm2_top6_, fwm3_top6_, fwm4_top6_, fwm5_top6_, fwm6_top6_, fwm7_top6_, fwm8_top6_, fwm9_top6_, fwm10_top6_, jmt_ev0_top6_, jmt_ev1_top6_, jmt_ev2_top6_;
+    int fwm2_top6_, fwm3_top6_, fwm4_top6_, fwm5_top6_, fwm6_top6_, fwm7_top6_, fwm8_top6_, fwm9_top6_, fwm10_top6_, jmt_ev0_top6_, jmt_ev1_top6_, jmt_ev2_top6_, NGoodJets_double_;
 
 public:
     EventShapeCalculator()
     {
-        fwm2_top6_ = fwm3_top6_ = fwm4_top6_ = fwm5_top6_ = fwm6_top6_ = fwm7_top6_ = fwm8_top6_ = fwm9_top6_ = fwm10_top6_ = jmt_ev0_top6_ = jmt_ev1_top6_ = jmt_ev2_top6_ = -1;
+        fwm2_top6_ = fwm3_top6_ = fwm4_top6_ = fwm5_top6_ = fwm6_top6_ = fwm7_top6_ = fwm8_top6_ = fwm9_top6_ = fwm10_top6_ = jmt_ev0_top6_ = jmt_ev1_top6_ = jmt_ev2_top6_ = NGoodJets_double_ = -1;
     }
 
     /**
@@ -44,6 +44,7 @@ public:
             else if(vars[i].compare("jmt_ev0_top6") == 0) jmt_ev0_top6_ = i;
             else if(vars[i].compare("jmt_ev1_top6") == 0) jmt_ev1_top6_ = i;
             else if(vars[i].compare("jmt_ev2_top6") == 0) jmt_ev2_top6_ = i;
+            else if(vars[i].compare("NGoodJets_double") == 0) NGoodJets_double_ = i;
         }
     }
     /**
@@ -67,6 +68,7 @@ public:
         if(jmt_ev0_top6_ >= 0) *(basePtr_ + jmt_ev0_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev0_top6");
         if(jmt_ev1_top6_ >= 0) *(basePtr_ + jmt_ev1_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev1_top6");
         if(jmt_ev2_top6_ >= 0) *(basePtr_ + jmt_ev2_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev2_top6");
+        if(NGoodJets_double_ >= 0) *(basePtr_ + NGoodJets_double_ + len_*iCand) =  static_cast<double>(tr.getVar<unsigned long>("NGoodJets"));
     }
 };
 
@@ -203,9 +205,19 @@ private:
         for(auto tensor : output_values) TF_DeleteTensor(tensor);
         
         TF_DeleteStatus(status);
+
+        //Define bins (try to have the same amount of events in all 4 bins)
+        bool deepESM_bin1 = discriminator > 0.0000 && discriminator <= 0.4425;
+        bool deepESM_bin2 = discriminator > 0.4425 && discriminator <= 0.4975;
+        bool deepESM_bin3 = discriminator > 0.4975 && discriminator <= 0.5225;
+        bool deepESM_bin4 = discriminator > 0.5225 && discriminator <= 1.0000;
         
         // Register Variables
-        tr.registerDerivedVar("deepEventShape_val", discriminator);
+        tr.registerDerivedVar("deepESM_val", discriminator);
+        tr.registerDerivedVar("deepESM_bin1", deepESM_bin1);
+        tr.registerDerivedVar("deepESM_bin2", deepESM_bin2);
+        tr.registerDerivedVar("deepESM_bin3", deepESM_bin3);
+        tr.registerDerivedVar("deepESM_bin4", deepESM_bin4);
     }
 
     static void free_buffer(void* data, size_t length) 

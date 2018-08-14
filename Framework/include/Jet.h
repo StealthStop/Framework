@@ -4,166 +4,139 @@
 class Jet
 {
 private:
+    std::string myVarSuffix_;
 
-    std::string                  myVarSuffix_;
-    std::vector<TLorentzVector>* jets_pt30_;
-    std::vector<TLorentzVector>* jets_pt40_;
-    std::vector<TLorentzVector>* jets_pt45_;
-    
-    std::vector<TLorentzVector>* goodjets_;
-    std::vector<TLorentzVector>* goodjets_pt30_;
-    std::vector<TLorentzVector>* goodjets_pt40_;
-    std::vector<TLorentzVector>* goodjets_pt45_;
-    std::vector<double>*         goodjets_csv_;
-        
+    void setJetVar(bool pass, std::vector<bool>* boolVec, int& n)
+    {
+        if( pass )
+        {
+            boolVec->push_back(true);                
+            n++;
+        }
+        else
+        {
+            boolVec->push_back(false);
+        }            
+    }
 
     void jet(NTupleReader& tr)
     {
-        const auto& Jets        = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
-        const auto& etaCut      = tr.getVar<double>("etaCut");
-        const auto& Jets_CSV    = tr.getVec<double>("Jets"+myVarSuffix_+"_bDiscriminatorCSV");
+        const auto& Jets          = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
+        const auto& etaCut        = tr.getVar<double>("etaCut");
+        const auto& Jets_CSV      = tr.getVec<double>("Jets"+myVarSuffix_+"_bDiscriminatorCSV");
 
-        const auto& Muons       = tr.getVec<TLorentzVector>("GoodMuons");
-        const auto& NMuons      = tr.getVar<int>("NGoodMuons");
-        const auto& Electrons   = tr.getVec<TLorentzVector>("GoodElectrons");
-        const auto& NElectrons  = tr.getVar<int>("NGoodElectrons");
+        const auto& Muons         = tr.getVec<TLorentzVector>("Muons");
+        const auto& GoodMuons     = tr.getVec<bool>("GoodMuons");
+        const auto& NMuons        = tr.getVar<int>("NGoodMuons");
+        const auto& Electrons     = tr.getVec<TLorentzVector>("Electrons");
+        const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons");
+        const auto& NElectrons    = tr.getVar<int>("NGoodElectrons");
 
-        jets_pt30_      = new std::vector<TLorentzVector>();
-        jets_pt40_      = new std::vector<TLorentzVector>();
-        jets_pt45_      = new std::vector<TLorentzVector>();
-        
-        for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
+        //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) 
+        //if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same
+
+        auto* tempGoodJets = new std::vector<bool>(Jets.size(), true);
+
+        if( NMuons > 0 ) 
         {
-            TLorentzVector lv(Jets.at(ijet));
-            if( abs(lv.Eta()) < etaCut && 
-                lv.Pt() > 30 
-                )
-            {
-                jets_pt30_->push_back(lv);
-                
-                if(lv.Pt() > 40) {
-                    
-                    jets_pt40_->push_back(lv);
-                    
-                    if(lv.Pt() > 45) {   
-                        jets_pt45_->push_back(lv);
-                    }
-                }
-            }
-        }
-
-        tr.registerDerivedVar("NJets",       Jets.size());
-        tr.registerDerivedVec("Jets_pt30",   jets_pt30_);
-        tr.registerDerivedVar("NJets_pt30", static_cast<int>((jets_pt30_==nullptr)?0:jets_pt30_->size()));
-        tr.registerDerivedVec("Jets_pt40",   jets_pt40_);
-        tr.registerDerivedVar("NJets_pt40", static_cast<int>((jets_pt40_==nullptr)?0:jets_pt40_->size()));
-        tr.registerDerivedVec("Jets_pt45",   jets_pt45_);
-        tr.registerDerivedVar("NJets_pt45", static_cast<int>((jets_pt45_==nullptr)?0:jets_pt45_->size()));
-
-        //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same
-        
-        goodjets_       = new std::vector<TLorentzVector>(Jets);
-        goodjets_pt30_  = new std::vector<TLorentzVector>();
-        goodjets_pt40_  = new std::vector<TLorentzVector>();
-        goodjets_pt45_  = new std::vector<TLorentzVector>();
-        goodjets_csv_   = new std::vector<double>(Jets_CSV);
-
-        std::vector<int>              removedJetsIndices;
-
-        if( NMuons > 0 ) {
-
-            for( const auto& myMuon : Muons ) {
-                
-                double          tempDeltaR = 10.0;
-                int             tempJetIt  = -1;
-                
-                for( int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) {
-                    
+            for(unsigned int imu = 0; imu < Muons.size(); ++imu)
+            {            
+                if(!GoodMuons[imu]) continue;
+                TLorentzVector myMuon = Muons.at(imu);
+                double         tempDeltaR = 10.0;
+                int            tempJetIt  = -1;                
+                for( int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
+                {                    
                     TLorentzVector myJet = Jets.at(myJetIt);
                     //First check pT matching between Jet and Muon
                     if( std::fabs( myJet.Pt() - myMuon.Pt() ) / myMuon.Pt() > 1.0 ) continue; 
-                    double jetDeltaR = myMuon.DeltaR(myJet);
-                    
-                    if( jetDeltaR < tempDeltaR ) {
+                    double jetDeltaR = myMuon.DeltaR(myJet);                    
+                    if( jetDeltaR < tempDeltaR ) 
+                    {
                         tempDeltaR = jetDeltaR;
                         tempJetIt  = myJetIt;
-                    }
-                    
+                    }                    
                 }//END of looping through jets
-
-                if( tempDeltaR < 0.4 ) {
-                    if( std::find(removedJetsIndices.begin(), removedJetsIndices.end(), tempJetIt ) == removedJetsIndices.end() )  removedJetsIndices.push_back( tempJetIt );
+                if( tempDeltaR < 0.4 && tempJetIt != -1) 
+                {
+                    tempGoodJets->at(tempJetIt) = false;
                 }
             }//END of looping through muons
         }//END of NMuons if statement
         
-        if( NElectrons > 0 ) {
-
-            for( const auto& myElectron : Electrons ) {
-                
-                double      tempDeltaR = 10.0;
-                int         tempJetIt  = -1;
-                
-                for( int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) {
-               
+        if( NElectrons > 0 ) 
+        {
+            for(unsigned int iel = 0; iel < Electrons.size(); ++iel)
+            {
+                if(!GoodElectrons[iel]) continue;
+                TLorentzVector myElectron = Electrons.at(iel);
+                double         tempDeltaR = 10.0;
+                int            tempJetIt  = -1;                
+                for( int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
+                {               
                     TLorentzVector myJet = Jets.at(myJetIt);
                     //Check pT matching between Jet and Electron
                     if( std::fabs( myJet.Pt() - myElectron.Pt() ) / myElectron.Pt() > 1.0 ) continue;
-                    double jetDeltaR = myElectron.DeltaR(myJet);
-                    
-                    if( jetDeltaR < tempDeltaR ) {
+                    double jetDeltaR = myElectron.DeltaR(myJet);                    
+                    if( jetDeltaR < tempDeltaR ) 
+                    {
                         tempDeltaR = jetDeltaR;
                         tempJetIt  = myJetIt;
                     }
-                }//END of looping through jets
-                
-                if( tempDeltaR < 0.4 ) {
-                    if( std::find(removedJetsIndices.begin(), removedJetsIndices.end(), tempJetIt ) == removedJetsIndices.end() )  removedJetsIndices.push_back( tempJetIt );
+                }//END of looping through jets                
+                if( tempDeltaR < 0.4 && tempJetIt != -1) 
+                {
+                    tempGoodJets->at(tempJetIt) = false;
                 }
             }//END of looping through electrons
         }//END of NElectrons if statement
-        
-        std::sort(removedJetsIndices.begin(), removedJetsIndices.end(), std::greater<>());
-        
-        for( int i = 0; i < removedJetsIndices.size(); i++ ) {
-            goodjets_->erase( goodjets_->begin() + removedJetsIndices[i] );
-            goodjets_csv_->erase( goodjets_csv_->begin() + removedJetsIndices[i] );
-        }
-        
-        for( const auto& myGoodJet : *goodjets_ ){
-            if( myGoodJet.Pt() > 30 && std::fabs( myGoodJet.Eta()) < etaCut ) {
-                goodjets_pt30_->push_back(myGoodJet);
-                if( myGoodJet.Pt() > 40 && std::fabs( myGoodJet.Eta() ) < etaCut ) {
-                    goodjets_pt40_->push_back(myGoodJet);
-                    if( myGoodJet.Pt() >  45 && std::fabs( myGoodJet.Eta() ) < etaCut )  {
-                        goodjets_pt45_->push_back(myGoodJet);
-                    }
-                }
-            }
+
+        auto* jets_pt30_ = new std::vector<bool>();
+        auto* jets_pt40_ = new std::vector<bool>();
+        auto* jets_pt45_ = new std::vector<bool>();
+        int NJets_pt30 = 0, NJets_pt40 = 0, NJets_pt45 = 0;
+
+        auto* goodjets_       = new std::vector<bool>();
+        auto* goodjets_pt30_  = new std::vector<bool>();
+        auto* goodjets_pt40_  = new std::vector<bool>();
+        auto* goodjets_pt45_  = new std::vector<bool>();
+        int NGoodJets = 0, NGoodJets_pt30 = 0, NGoodJets_pt40 = 0, NGoodJets_pt45 = 0;
+
+        for( int i = 0; i < Jets.size(); ++i ) 
+        {               
+            TLorentzVector lv = Jets.at(i);
+            
+            setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 30, jets_pt30_, NJets_pt30);
+            setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 40, jets_pt40_, NJets_pt40);
+            setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 45, jets_pt45_, NJets_pt45);
+
+            setJetVar( abs(lv.Eta()) < etaCut &&                 tempGoodJets->at(i), goodjets_,      NGoodJets     );
+            setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 30 && goodjets_->at(i),    goodjets_pt30_, NGoodJets_pt30);
+            setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 40 && goodjets_->at(i),    goodjets_pt40_, NGoodJets_pt40);
+            setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 45 && goodjets_->at(i),    goodjets_pt45_, NGoodJets_pt45);
         }
 
-        tr.registerDerivedVec("GoodJets",                   goodjets_);
-        tr.registerDerivedVar("NGoodJets",                  goodjets_->size());
-        tr.registerDerivedVec("GoodJets_bDiscriminatorCSV", goodjets_csv_);
-        tr.registerDerivedVec("GoodJets_pt30",              goodjets_pt30_);
-        tr.registerDerivedVar("NGoodJets_pt30",            static_cast<int>((goodjets_pt30_==nullptr)?0:goodjets_pt30_->size()));
-        tr.registerDerivedVec("GoodJets_pt40",              goodjets_pt40_);
-        tr.registerDerivedVar("NGoodJets_pt40",            static_cast<int>((goodjets_pt40_==nullptr)?0:goodjets_pt40_->size()));
-        tr.registerDerivedVec("GoodJets_pt45",              goodjets_pt45_);
-        tr.registerDerivedVar("NGoodJets_pt45",            static_cast<int>((goodjets_pt45_==nullptr)?0:goodjets_pt45_->size()));
+        tr.registerDerivedVar("NJets",       static_cast<int>(Jets.size()));
+        tr.registerDerivedVec("Jets_pt30",   jets_pt30_);
+        tr.registerDerivedVar("NJets_pt30",  NJets_pt30);
+        tr.registerDerivedVec("Jets_pt40",   jets_pt40_);
+        tr.registerDerivedVar("NJets_pt40",  NJets_pt40);
+        tr.registerDerivedVec("Jets_pt45",   jets_pt45_);
+        tr.registerDerivedVar("NJets_pt45",  NJets_pt45);
+        
+        tr.registerDerivedVec("GoodJets",       goodjets_);
+        tr.registerDerivedVar("NGoodJets",      NGoodJets);
+        tr.registerDerivedVec("GoodJets_pt30",  goodjets_pt30_);
+        tr.registerDerivedVar("NGoodJets_pt30", NGoodJets_pt30);
+        tr.registerDerivedVec("GoodJets_pt40",  goodjets_pt40_);
+        tr.registerDerivedVar("NGoodJets_pt40", NGoodJets_pt40);
+        tr.registerDerivedVec("GoodJets_pt45",  goodjets_pt45_);
+        tr.registerDerivedVar("NGoodJets_pt45", NGoodJets_pt45);
     }
 
 public:
-    Jet(std::string myVarSuffix = "") : 
-        myVarSuffix_(myVarSuffix)
-      , jets_pt30_(nullptr)
-      , jets_pt40_(nullptr)
-      , jets_pt45_(nullptr)
-      , goodjets_(nullptr)
-      , goodjets_pt30_(nullptr)
-      , goodjets_pt40_(nullptr)
-      , goodjets_pt45_(nullptr)
-      , goodjets_csv_(nullptr)
+    Jet(std::string myVarSuffix = "") 
+        : myVarSuffix_(myVarSuffix)
     {
     }
 
