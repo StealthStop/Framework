@@ -40,12 +40,14 @@ private:
         // Put leptons together
         auto* GoodLeptons = new std::vector<std::pair<std::string, TLorentzVector>>();
         auto* GoodLeptonsCharge = new std::vector<int>();
+        int NGoodLeptons = 0;
         for(unsigned int imu = 0; imu < Muons.size(); ++imu)
         {            
             if(!GoodMuons[imu]) continue;
             TLorentzVector muon = Muons.at(imu);
             GoodLeptons->push_back( std::make_pair("m", muon) );
             GoodLeptonsCharge->push_back( MuonsCharge.at(imu) );
+            NGoodLeptons++;
         }
         for(unsigned int iel = 0; iel < Electrons.size(); ++iel)
         {
@@ -53,10 +55,11 @@ private:
             TLorentzVector electron = Electrons.at(iel);
             GoodLeptons->push_back( std::make_pair("e", electron) );
             GoodLeptonsCharge->push_back( ElectronsCharge.at(iel) );
+            NGoodLeptons++;
         }
 
-        tr.registerDerivedVec("GoodLeptons",  GoodLeptons);
-        tr.registerDerivedVar("NGoodLeptons", static_cast<int>(GoodLeptons->size()));
+        tr.registerDerivedVec("GoodLeptons", GoodLeptons);
+        tr.registerDerivedVar("NGoodLeptons", NGoodLeptons);
         tr.registerDerivedVec("GoodLeptonsCharge", GoodLeptonsCharge);
         
         // M(l,b); closest to 105 GeV if multiple combinations (halfway between 30 and 180 GeV)
@@ -120,7 +123,7 @@ private:
             }
         }
         tr.registerDerivedVar("onZ", onZ);
-        tr.registerDerivedVar("mll", mll);
+        tr.registerDerivedVar("mll", mll);        
     }
 
 public:
