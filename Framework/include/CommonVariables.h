@@ -4,6 +4,27 @@
 class CommonVariables
 {
 private:
+    void genMatch(NTupleReader& tr) const
+    {
+        const auto& runtype = tr.getVar<std::string>("runtype");
+        int used_gen_bjet_for_mbl = -1;
+        
+        if(runtype != "Data")
+        {
+            const auto& GenParticles = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& Mbl_Index    = tr.getVar<int>("used_bjet_for_mbl");
+            const auto& Jets         = tr.getVec<TLorentzVector>("Jets");
+
+            for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++ ) 
+            {
+                if(Mbl_Index < 0) continue;
+                double deltaR = Jets.at(Mbl_Index).DeltaR( GenParticles.at(gpi) );
+                if(deltaR < 0.4) used_gen_bjet_for_mbl = gpi;
+            }            
+        }
+        tr.registerDerivedVar("used_gen_bjet_for_mbl", used_gen_bjet_for_mbl);
+    }
+
     void commonVariables(NTupleReader& tr)
     {
         // Get needed branches
@@ -65,7 +86,7 @@ private:
         // M(l,b); closest to 105 GeV if multiple combinations (halfway between 30 and 180 GeV)
         double Mbl = 0;
         double Mbldiff = 999.;
-        int used_bjet_for_mbl;
+        int used_bjet_for_mbl = -1;
         for(const auto& pair : *GoodLeptons)
         {
             TLorentzVector lepton = pair.second;
@@ -84,6 +105,7 @@ private:
         }
         tr.registerDerivedVar("Mbl",Mbl);
         tr.registerDerivedVar("used_bjet_for_mbl",used_bjet_for_mbl);
+        genMatch(tr);
         
         //Find single lepton for HistoContainer
         TLorentzVector singleLepton;
