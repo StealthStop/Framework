@@ -168,6 +168,14 @@ private:
         double jmt_ev2_top6 = eigen_vals_norm_top6[2] ;
 
         //--- register Variables
+        //
+        for(unsigned int i = 0; i < 6; i++) //Hard code, bad
+        {
+            tr.registerDerivedVar("Jet_pt_"+std::to_string(i+1),  static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Pt()  : 0.0));
+            tr.registerDerivedVar("Jet_eta_"+std::to_string(i+1), static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Eta() : 0.0));
+            tr.registerDerivedVar("Jet_phi_"+std::to_string(i+1), static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Phi() : 0.0));
+            tr.registerDerivedVar("Jet_m_"+std::to_string(i+1),   static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).M()   : 0.0));
+        }
         tr.registerDerivedVec("cm_jets", cm_jets);
         tr.registerDerivedVec("Jets_cm", Jets_cm);
         tr.registerDerivedVec("Jets_cm_top6", Jets_cm_top6);
@@ -264,6 +272,7 @@ private:
         }
         tr.registerDerivedVar("BestCombo", BestCombo);
         tr.registerDerivedVar("MegaJetsTopsGenMatched", genMatched);
+        tr.registerDerivedVar("BestComboAvgMass", static_cast<double>(( BestCombo.first.M() + BestCombo.second.M() )/2));
     }
     
 public:
