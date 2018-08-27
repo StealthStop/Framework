@@ -194,7 +194,7 @@ private:
         tr.registerDerivedVar("event_beta_z", event_beta_z);
 
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
-        std::pair<TLorentzVector, TLorentzVector> BestCombo;
+        std::pair<TLorentzVector, TLorentzVector> BestCombo, genBestCombo;
         bool genMatched = false;
         if(NGoodLeptons == 1)
         {
@@ -264,6 +264,9 @@ private:
                     BestCombo = std::make_pair(cLV.v1, cLV.v2);
                     BestJetCombo = cLV.jetCombo;
                 }
+
+                bool matched = genMatch(tr, lv_all, cLV.jetCombo);
+                if(matched) genBestCombo = std::make_pair(cLV.v1, cLV.v2);
             }
             genMatched = genMatch(tr, lv_all, BestJetCombo);
             //std::cout<<"Best mass diff Jets: ("<<BestCombo.first.M()<<", "<<BestCombo.first.Pt()<<", "<<BestCombo.first.Eta()<<", "<<BestCombo.first.Phi()<<") ("
@@ -271,6 +274,7 @@ private:
             //         <<" GenMatched: "<<genMatched<<std::endl;
         }
         tr.registerDerivedVar("BestCombo", BestCombo);
+        tr.registerDerivedVar("genBestCombo", genBestCombo);
         tr.registerDerivedVar("MegaJetsTopsGenMatched", genMatched);
         tr.registerDerivedVar("BestComboAvgMass", static_cast<double>(( BestCombo.first.M() + BestCombo.second.M() )/2));
     }

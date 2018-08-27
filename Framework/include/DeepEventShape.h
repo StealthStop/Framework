@@ -265,10 +265,13 @@ private:
         TF_DeleteStatus(status);
 
         //Define bins (try to have the same amount of events in all 4 bins)
-        bool deepESM_bin1 = discriminator > 0.0000 && discriminator <= 0.4425;
-        bool deepESM_bin2 = discriminator > 0.4425 && discriminator <= 0.4975;
-        bool deepESM_bin3 = discriminator > 0.4975 && discriminator <= 0.5225;
-        bool deepESM_bin4 = discriminator > 0.5225 && discriminator <= 1.0000;
+        //double bin12 = 0.4075, bin23 = 0.4375, bin34 = 0.4875; //24Vars_GRTrue
+        double bin12 = 0.4525, bin23 = 0.4725, bin34 = 0.5075; //24Vars_GRTrue_v2
+
+        bool deepESM_bin1 = discriminator > 0.000 && discriminator <= bin12;
+        bool deepESM_bin2 = discriminator > bin12 && discriminator <= bin23;
+        bool deepESM_bin3 = discriminator > bin23 && discriminator <= bin34;
+        bool deepESM_bin4 = discriminator > bin34 && discriminator <= 1.000;
         
         // Register Variables
         tr.registerDerivedVar("deepESM_val", discriminator);
