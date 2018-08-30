@@ -22,5 +22,10 @@ namespace utility
         return sqrt( dphi*dphi + deta*deta ) ;
     }
 
-    
+    double calcMT(const TLorentzVector& lepton, const TLorentzVector& met)
+    {
+        // Assuming that both lepton and met are massless
+        double mt_sq = 2 * lepton.Pt() * met.Pt() * ( 1-cos(met.Phi()-lepton.Phi()) );
+        return sqrt(mt_sq);
+    }    
 }
