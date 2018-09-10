@@ -93,11 +93,18 @@ private:
         tr.registerDerivedVar( "PDFweightNom",  central );
         
         //Adding code for implementing electron scale factors
-        const auto& electrons       = tr.getVec<TLorentzVector>("Electrons");
-        const auto& goodElectrons   = tr.getVec<bool>("GoodElectrons");
+        const auto& electrons           = tr.getVec<TLorentzVector>("Electrons");
+        const auto& goodElectrons       = tr.getVec<bool>("GoodElectrons");
         
-        auto* electronSFs           = new std::vector<double>;
-        double leadingElectronSF = -1.0;
+        auto* electronsSF               = new std::vector<double>;
+        auto* electronsSFErr            = new std::vector<double>;
+        auto* electronsSF_Up            = new std::vector<double>;
+        auto* electronsSF_Down          = new std::vector<double>;
+        
+        double totGoodElectronSF        = 1.0;
+        double totGoodElectronSFErr     = 1.0;
+        double totGoodElectronSF_Up     = 1.0;
+        double totGoodElectronSF_Down   = 1.0;
 
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
 
@@ -158,22 +165,54 @@ private:
 
 
                 if( xbin != 0 && ybin != 0 && ptbin != 0 && etabin != 0 ) {
-                    double eleTotSF = eleSFHistoTight->GetBinContent( xbin, ybin ) * eleSFHistoIso->GetBinContent( xbin,ybin ) * eleSFHistoReco->GetBinContent( etabin, ptbin );
+                    double eleTightSF       = eleSFHistoTight->GetBinContent( xbin, ybin );
+                    double eleTightSFErr    = eleSFHistoTight->GetBinError( xbin, ybin );
+                    double eleTightPErr     = eleTightSFErr/eleTightSF;
+
+                    double eleIsoSF         = eleSFHistoIso->GetBinContent( xbin, ybin );
+                    double eleIsoSFErr      = eleSFHistoIso->GetBinError( xbin, ybin );
+                    double eleIsoPErr       = eleIsoSFErr/eleIsoSF;
+
+                    double eleRecoSF        = eleSFHistoReco->GetBinContent( etabin, ptbin );
+                    double eleRecoSFErr     = eleSFHistoReco->GetBinError( etabin, ptbin );
+                    double eleRecoPErr      = eleRecoSFErr/eleRecoSF;
+
+                    //The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
+                    double eleTotSF         = eleTightSF * eleIsoSF * eleRecoSF; 
+                    double eleTotPErr       = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr );
+                    double eleTotSFErr      = eleTotPErr * eleTotSF;
+
+                    double eleTotSF_Up      = eleTotSF + eleTotSFErr;
+                    double eleTotSF_Down    = eleTotSF - eleTotSFErr;
+
                     if( eleTotSF < 0.1 ) {
                         std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbin<<" "<<ybin<<" "<<etabin<<" "<<ptbin<<" "<<eleSFHistoTight->GetBinContent(xbin,ybin)<<" "<<eleSFHistoIso->GetBinContent(xbin,ybin)<<" "<<eleSFHistoReco->GetBinContent(etabin, ptbin)<<std::endl;
                     }
-                    electronSFs->push_back(eleTotSF);
                     
-                    //If leadingElectronSF is -1.0, then set it to the first electron SF obtained (ranked by pT)
-                    if( leadingElectronSF < 0.0) {
-                        leadingElectronSF = eleTotSF;
-                    }
+                    electronsSF->push_back(eleTotSF);
+                    electronsSFErr->push_back(eleTotSFErr);
+                    electronsSF_Up->push_back(eleTotSF_Up);
+                    electronsSF_Down->push_back(eleTotSF_Down);
+                    
                 }
             }
         }
 
-        tr.registerDerivedVar( "leadGoodElectronSF", leadingElectronSF );
-        tr.registerDerivedVec( "electronSFs", electronSFs );
+        if( electronsSF.size() != 0 ) {
+            for( unsigned int iSF = 0; iSF < electronsSF.size(); iSF++ + {
+                
+            }
+        }
+
+        tr.registerDerivedVar( "totGoodElectronSF",         totGoodElectronSF );
+        tr.registerDerivedVar( "totGoodElectronSFErr",      totGoodElectronSFErr );
+        tr.registerDerivedVar( "totGoodElectronSF_Up",      totGoodElectronSF_Up );
+        tr.registerDerivedVar( "totGoodElectronSF_Down",    totGoodElectronSF_Down );
+
+        tr.registerDerivedVec( "electronsSF",       electronsSF );
+        tr.registerDerivedVec( "electronsSFErr",    electronsSFErr );
+        tr.registerDerivedVec( "electronsSF_Up",    electronsSF_Up );
+        tr.registerDerivedVec( "electronsSF_Down",  electronsSF_Down );
 
         //Adding code for implementing muon scale factors
         TFile muSFRootFile( muSFRootFileName_.c_str() );
