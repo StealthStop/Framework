@@ -6,12 +6,10 @@ class ScaleFactors
 {
 private:
 
-    std::string eleSFRootFileName_;
-    std::string muSFRootFileName_;
+    std::string SFRootFileName_;
 
     void scaleFactors(NTupleReader& tr)
     {
-        // Get needed branches
 
         //First for PDF Uncertainties
         const auto& scaleWeights    = tr.getVec<double>("ScaleWeights");
@@ -93,6 +91,11 @@ private:
         tr.registerDerivedVar( "PDFweightNom",  central );
         
         //Adding code for implementing electron scale factors
+
+        TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
+
+        TFile SFRootFile( SFRootFileName_.c_str() );
+
         const auto& electrons           = tr.getVec<TLorentzVector>("Electrons");
         const auto& goodElectrons       = tr.getVec<bool>("GoodElectrons");
         
@@ -100,24 +103,26 @@ private:
         auto* electronsSFErr            = new std::vector<double>;
         auto* electronsSF_Up            = new std::vector<double>;
         auto* electronsSF_Down          = new std::vector<double>;
-        
+
         double totGoodElectronSF        = 1.0;
         double totGoodElectronSFErr     = 1.0;
         double totGoodElectronSF_Up     = 1.0;
         double totGoodElectronSF_Down   = 1.0;
-
-        TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
-
-        TFile eleSFRootFile( muSFRootFileName_.c_str() );
         
-        TH2F *eleSFHistoTight = (TH2F*)eleSFRootFile.Get("GsfElectronToCutBasedSpring15T");
-        TH2F *eleSFHistoIso   = (TH2F*)eleSFRootFile.Get("MVAVLooseElectronToMini");
-        TH2F *eleSFHistoReco  = (TH2F*)eleSFRootFile.Get("EGamma_SF2D");
+        TH2F *eleSFHistoTight = (TH2F*)SFRootFile.Get("GsfElectronToCutBasedSpring15T");
+        TH2F *eleSFHistoIso   = (TH2F*)SFRootFile.Get("MVAVLooseElectronToMini");
+        TH2F *eleSFHistoReco  = (TH2F*)SFRootFile.Get("EGamma_SF2D");
 
         //Loop through the electrons
         for( unsigned int iel = 0; iel < electrons.size(); iel++ ) {
+
             //If it is not a good lepton, give scale factor of 1.0
-            if( !goodElectrons.at(iel) ) electronSFs->push_back(1.0);
+            if( !goodElectrons.at(iel) ) {
+                electronsSF->push_back(1.0);
+                electronsSFErr->push_back(0.0);
+                electronsSF_Up->push_back(1.0);
+                electronsSF_Down->push_back(1.0);
+            }
 
             else {
                 //Get the scale factor from the rootfile
@@ -193,15 +198,25 @@ private:
                     electronsSFErr->push_back(eleTotSFErr);
                     electronsSF_Up->push_back(eleTotSF_Up);
                     electronsSF_Down->push_back(eleTotSF_Down);
-                    
                 }
             }
         }
 
-        if( electronsSF.size() != 0 ) {
-            for( unsigned int iSF = 0; iSF < electronsSF.size(); iSF++ + {
-                
+        if( electronsSF->size() != 0 ) {
+           
+            double tempTotGoodElectronSF         = 1.0;
+            double tempTotGoodElectronSFPErr2    = 0.0;
+         
+            for( unsigned int iSF = 0; iSF < electronsSF->size(); iSF++ ) {
+                tempTotGoodElectronSF *= electronsSF->at(iSF);
+                tempTotGoodElectronSFPErr2 += (electronsSFErr->at(iSF)/electronsSF->at(iSF)) * (electronsSFErr->at(iSF)/electronsSF->at(iSF));
             }
+            
+            totGoodElectronSF       = tempTotGoodElectronSF;
+            totGoodElectronSFErr    = std::sqrt(tempTotGoodElectronSFPErr2) * tempTotGoodElectronSF;
+            totGoodElectronSF_Up    = totGoodElectronSF + totGoodElectronSFErr;
+            totGoodElectronSF_Down  = totGoodElectronSF - totGoodElectronSFErr;
+
         }
 
         tr.registerDerivedVar( "totGoodElectronSF",         totGoodElectronSF );
@@ -215,21 +230,33 @@ private:
         tr.registerDerivedVec( "electronsSF_Down",  electronsSF_Down );
 
         //Adding code for implementing muon scale factors
-        TFile muSFRootFile( muSFRootFileName_.c_str() );
 
-        TH2F *muSFHisto     = (TH2F*)muSFRootFile.Get("sf_mu_mediumID_mini02");
-        TGraph *muSFHistoReco = (TGraph*)muSFRootFile.Get("ratio_eff_aeta_dr030e030_corr");
+        TH2F *muSFHisto             = (TH2F*)SFRootFile.Get("sf_mu_mediumID_mini02");
+        TGraph *muSFHistoReco       = (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr");
 
         const auto& muons           = tr.getVec<TLorentzVector>("Muons");
         const auto& goodMuons       = tr.getVec<bool>("GoodMuons");
 
-        auto* muonSFs               = new std::vector<double>;
-        double leadingMuonSF = -1.0;
+        auto* muonsSF               = new std::vector<double>;
+        auto* muonsSFErr            = new std::vector<double>;
+        auto* muonsSF_Up            = new std::vector<double>;
+        auto* muonsSF_Down          = new std::vector<double>;
+
+        double totGoodMuonSF        = 1.0;
+        double totGoodMuonSFErr     = 1.0;
+        double totGoodMuonSF_Up     = 1.0;
+        double totGoodMuonSF_Down   = 1.0;
 
         //Loop through the muons
         for( unsigned int imu = 0; imu < muons.size(); imu++ ) {
+            
             //If it is not a good lepton, give scale factor of 1.0
-            if( !goodMuons.at(imu) ) muonSFs->push_back(1.0);
+            if( !goodMuons.at(imu) ) {
+                muonsSF->push_back(1.0);
+                muonsSFErr->push_back(0.0);
+                muonsSF_Up->push_back(1.0);
+                muonsSF_Down->push_back(1.0);
+            }
 
             else {
                 //Get the scale factor from the rootfile
@@ -253,35 +280,64 @@ private:
                         break;
                     }
                 }
-                
-                
-                if( xbin == 0 && mupt > 200.0) xbin = muSFHisto->GetNbinsX(); //std::cout<<elpt<<std::endl;
+               
+                if( xbin == 0 && mupt > 200.0) xbin = muSFHisto->GetNbinsX();
                 if( ybin == 0 ) std::cerr<<"Invalid eta stored for a good muon!"<<std::endl;
                 
                 //std::cout<<"MU pt: "<<mupt<<" ; eta: "<<mueta<<"; "<<xbin<<" "<<ybin<<" "<<muSFHisto->GetBinContent(xbin,ybin)<<" "<<muSFHistoReco->Eval(mueta)<<";"<<muSFHisto->GetBinContent(xbin,ybin)*muSFHistoReco->Eval(mueta)<<std::endl;
 
                 if( xbin != 0 && ybin != 0) {
 
-                    double muTotSF = muSFHisto->GetBinContent( xbin, ybin ) * muSFHistoReco->Eval( mueta );
-                    std::cout<<muTotSF<<std::endl;
-                    muonSFs->push_back(muTotSF);
+                    //The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg
+                    double muIDSF           = muSFHisto->GetBinContent( xbin, ybin );
+                    double muIDSFPErr       = .03;
+                    double muIDSFErr        = muIDSF * muIDSFPErr;
                     
-                    //If leadingElectronSF is -1.0, then set it to the first electron SF obtained (ranked by pT)
-                    if( leadingMuonSF < 0.0) {
-                        leadingMuonSF = muTotSF;
-                    }
+                    //For the general track reconstruction they claim that the systematics for the systematic still need to be finalized.
+                    double muRecoSF         = muSFHistoReco->Eval( mueta );
+
+                    double muTotSF          = muIDSF * muRecoSF;
+                    
+                    muonsSF->push_back(muTotSF);
+                    muonsSFErr->push_back(muIDSFErr);
+                    muonsSF_Up->push_back(muTotSF + muIDSFErr);
+                    muonsSF_Down->push_back(muTotSF - muIDSFErr);
+                    
                 }
             }
         }
         
-        tr.registerDerivedVar( "leadGoodMuonSF", leadingMuonSF );
-        tr.registerDerivedVec( "muonSFs", muonSFs );
+        if( muonsSF->size() != 0 ) {
+           
+            double tempTotGoodMuonSF        = 1.0;
+            double tempTotGoodMuonSFPErr2    = 0.0;
+         
+            for( unsigned int iSF = 0; iSF < muonsSF->size(); iSF++ ) {
+                tempTotGoodMuonSF *= muonsSF->at(iSF);
+                tempTotGoodMuonSFPErr2 += ( muonsSFErr->at(iSF)/muonsSF->at(iSF)) * (muonsSFErr->at(iSF)/muonsSF->at(iSF));
+            }
+        
+            totGoodMuonSF       = tempTotGoodMuonSF;
+            totGoodMuonSFErr    = std::sqrt(tempTotGoodMuonSFPErr2) * tempTotGoodMuonSF;
+            totGoodMuonSF_Up    = totGoodMuonSF + totGoodMuonSFErr;
+            totGoodMuonSF_Down  = totGoodMuonSF - totGoodMuonSFErr;
+
+        }
+
+        tr.registerDerivedVar( "totGoodMuonSF",         totGoodMuonSF );
+        tr.registerDerivedVar( "totGoodMuonSFErr",      totGoodMuonSFErr );
+        tr.registerDerivedVar( "totGoodMuonSF_Up",      totGoodMuonSF_Up );
+        tr.registerDerivedVar( "totGoodMuonSF_Down",    totGoodMuonSF_Down );
+
+        tr.registerDerivedVec( "muonsSF",       muonsSF );
+        tr.registerDerivedVec( "muonsSFErr",    muonsSFErr );
+        tr.registerDerivedVec( "muonsSF_Up",    muonsSF_Up );
+        tr.registerDerivedVec( "muonsSF_Down",  muonsSF_Down );
     }
 
 public:
-    ScaleFactors( std::string eleSFRootFileName = "ElectronScaleFactors_Run2016.root", std::string muSFRootFileName = "allINone_leptonSF_Moriond17.root")
-        : eleSFRootFileName_(eleSFRootFileName)
-        , muSFRootFileName_(muSFRootFileName)
+    ScaleFactors( std::string SFRootFileName = "2016ScaleFactorHistos.root" )
+        : SFRootFileName_(SFRootFileName)
     {}
 
     void operator()(NTupleReader& tr)
