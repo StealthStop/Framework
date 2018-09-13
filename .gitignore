@@ -1,29 +1,30 @@
 #Binary and Image
-*.exe
-*.png
-*.jpg
-*.gif
-*.bmp
-*.pdf
-*.ps
-*.jpeg
-*.eps
+**.exe
+**.png
+**.jpg
+**.gif
+**.bmp
+**.pdf
+**.ps
+**.jpeg
+**.eps
 
 #condor log files
-*.log
-*.stderr
-*.stdout
+**.log
+**.stderr
+**.stdout
 
 #Root
-*.root
+**.root
 
 #other data files
-*.csv
-*.pkl
+**.csv
+**.pkl
+**.cfg
 
 #MVA model files 
-*.pb
-*.model
+**.pb
+**.model
 
 #Network File System
 .nfs*

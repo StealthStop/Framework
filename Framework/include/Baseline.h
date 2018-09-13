@@ -40,7 +40,7 @@ private:
         // -- Data dependent stuff
         // ------------------------------
         
-        bool passTriggerAllHad   = PassTriggerAllHad(TriggerNames, TriggerPass);
+        bool passTriggerAllHad   = PassTriggerAllHad2016(TriggerNames, TriggerPass) || PassTriggerAllHad2017(TriggerNames, TriggerPass);
         bool passTriggerMuon     = PassTriggerMuon(TriggerNames, TriggerPass);
         bool passTriggerElectron = PassTriggerElectron(TriggerNames, TriggerPass);
         bool passTrigger  = true;
@@ -261,7 +261,7 @@ private:
         tr.registerDerivedVar<bool>("passMadHT",passMadHT);
     }
 
-    bool PassTriggerGeneral(std::vector<std::string> &mytriggers, const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    bool PassTriggerGeneral(std::vector<std::string>& mytriggers, const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         bool passTrigger = false;
         for(unsigned int i=0; i<TriggerNames.size(); ++i)
@@ -279,16 +279,23 @@ private:
 
     }
 
-    bool PassTriggerAllHad(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    bool PassTriggerAllHad2016(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
-        std::vector<std::string> mytriggers {
-            //"HLT_PFHT1050", // 2017 trigger
-            //"HLT_PFHT900"
-            //"HLT_PFHT380_SixPFJet32_DoublePFBTagCSV", // 2017 trigger
-            //"HLT_PFHT430_SixPFJet40_PFBTagCSV", // 2017 trigger
+        std::vector<std::string> mytriggers = {
+            //"HLT_PFHT900",
             "HLT_PFHT450_SixJet40_BTagCSV",
-                "HLT_PFHT400_SixJet30_DoubleBTagCSV",            
-                };
+            "HLT_PFHT400_SixJet30_DoubleBTagCSV",            
+        };
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+
+    bool PassTriggerAllHad2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        std::vector<std::string> mytriggers = {
+            //"HLT_PFHT1050",
+            "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV",
+            "HLT_PFHT430_SixPFJet40_PFBTagCSV",
+        };
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
