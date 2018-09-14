@@ -34,6 +34,7 @@ private:
             const auto& madHT  = tr.getVar<double>("madHT");
             // Exclude events with MadGraph HT > 100 from the DY inclusive sample
             if(filetag == "DYJetsToLL_M-50_Incl" && madHT > 100) passMadHT = false;
+            if(filetag == "WJetsToLNu_Incl" && madHT > 100) passMadHT = false;
         }
         
         // ------------------------------
