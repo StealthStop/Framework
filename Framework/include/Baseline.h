@@ -328,7 +328,7 @@ private:
 
     bool PassTriggerPhoton(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
-        std::vector<std::string> mytriggers = {"HLT_Photon175_v8"};
+        std::vector<std::string> mytriggers = {"HLT_Photon175_v"};
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
