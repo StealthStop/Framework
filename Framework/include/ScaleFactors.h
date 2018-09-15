@@ -99,13 +99,9 @@ private:
         const auto& electrons           = tr.getVec<TLorentzVector>("Electrons");
         const auto& goodElectrons       = tr.getVec<bool>("GoodElectrons");
         
-        auto* electronsSF               = new std::vector<double>;
-        auto* electronsSFErr            = new std::vector<double>;
-        auto* electronsSF_Up            = new std::vector<double>;
-        auto* electronsSF_Down          = new std::vector<double>;
-
         double totGoodElectronSF        = 1.0;
-        double totGoodElectronSFErr     = 1.0;
+        double totGoodElectronSFPErr2   = 0.0;
+        double totGoodElectronSFErr     = 0.0;
         double totGoodElectronSF_Up     = 1.0;
         double totGoodElectronSF_Down   = 1.0;
         
@@ -117,12 +113,7 @@ private:
         for( unsigned int iel = 0; iel < electrons.size(); iel++ ) {
 
             //If it is not a good lepton, give scale factor of 1.0
-            if( !goodElectrons.at(iel) ) {
-                electronsSF->push_back(1.0);
-                electronsSFErr->push_back(0.0);
-                electronsSF_Up->push_back(1.0);
-                electronsSF_Down->push_back(1.0);
-            }
+            if( !goodElectrons.at(iel) ) continue;
 
             else {
                 //Get the scale factor from the rootfile
@@ -187,47 +178,24 @@ private:
                     double eleTotPErr       = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr );
                     double eleTotSFErr      = eleTotPErr * eleTotSF;
 
-                    double eleTotSF_Up      = eleTotSF + eleTotSFErr;
-                    double eleTotSF_Down    = eleTotSF - eleTotSFErr;
-
-                    if( eleTotSF < 0.1 ) {
-                        std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbin<<" "<<ybin<<" "<<etabin<<" "<<ptbin<<" "<<eleSFHistoTight->GetBinContent(xbin,ybin)<<" "<<eleSFHistoIso->GetBinContent(xbin,ybin)<<" "<<eleSFHistoReco->GetBinContent(etabin, ptbin)<<std::endl;
-                    }
+                    //if( eleTotSF < 0.1 ) {
+                    //    std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbin<<" "<<ybin<<" "<<etabin<<" "<<ptbin<<" "<<eleSFHistoTight->GetBinContent(xbin,ybin)<<" "<<eleSFHistoIso->GetBinContent(xbin,ybin)<<" "<<eleSFHistoReco->GetBinContent(etabin, ptbin)<<std::endl;
+                    //}
                     
-                    electronsSF->push_back(eleTotSF);
-                    electronsSFErr->push_back(eleTotSFErr);
-                    electronsSF_Up->push_back(eleTotSF_Up);
-                    electronsSF_Down->push_back(eleTotSF_Down);
+                    totGoodElectronSF       *= eleTotSF; 
+                    totGoodElectronSFPErr2  += eleTotPErr * eleTotPErr;
                 }
             }
         }
 
-        if( electronsSF->size() != 0 ) {
-           
-            double tempTotGoodElectronSF         = 1.0;
-            double tempTotGoodElectronSFPErr2    = 0.0;
-         
-            for( unsigned int iSF = 0; iSF < electronsSF->size(); iSF++ ) {
-                tempTotGoodElectronSF *= electronsSF->at(iSF);
-                tempTotGoodElectronSFPErr2 += (electronsSFErr->at(iSF)/electronsSF->at(iSF)) * (electronsSFErr->at(iSF)/electronsSF->at(iSF));
-            }
-            
-            totGoodElectronSF       = tempTotGoodElectronSF;
-            totGoodElectronSFErr    = std::sqrt(tempTotGoodElectronSFPErr2) * tempTotGoodElectronSF;
-            totGoodElectronSF_Up    = totGoodElectronSF + totGoodElectronSFErr;
-            totGoodElectronSF_Down  = totGoodElectronSF - totGoodElectronSFErr;
-
-        }
+        totGoodElectronSFErr    = std::sqrt(totGoodElectronSFPErr2) * totGoodElectronSF;
+        totGoodElectronSF_Up    = totGoodElectronSF + totGoodElectronSFErr;
+        totGoodElectronSF_Down  = totGoodElectronSF - totGoodElectronSFErr;
 
         tr.registerDerivedVar( "totGoodElectronSF",         totGoodElectronSF );
         tr.registerDerivedVar( "totGoodElectronSFErr",      totGoodElectronSFErr );
         tr.registerDerivedVar( "totGoodElectronSF_Up",      totGoodElectronSF_Up );
         tr.registerDerivedVar( "totGoodElectronSF_Down",    totGoodElectronSF_Down );
-
-        tr.registerDerivedVec( "electronsSF",       electronsSF );
-        tr.registerDerivedVec( "electronsSFErr",    electronsSFErr );
-        tr.registerDerivedVec( "electronsSF_Up",    electronsSF_Up );
-        tr.registerDerivedVec( "electronsSF_Down",  electronsSF_Down );
 
         //Adding code for implementing muon scale factors
 
@@ -237,26 +205,17 @@ private:
         const auto& muons           = tr.getVec<TLorentzVector>("Muons");
         const auto& goodMuons       = tr.getVec<bool>("GoodMuons");
 
-        auto* muonsSF               = new std::vector<double>;
-        auto* muonsSFErr            = new std::vector<double>;
-        auto* muonsSF_Up            = new std::vector<double>;
-        auto* muonsSF_Down          = new std::vector<double>;
-
         double totGoodMuonSF        = 1.0;
-        double totGoodMuonSFErr     = 1.0;
+        double totGoodMuonSFPErr2   = 0.0;
+        double totGoodMuonSFErr     = 0.0;
         double totGoodMuonSF_Up     = 1.0;
         double totGoodMuonSF_Down   = 1.0;
 
         //Loop through the muons
         for( unsigned int imu = 0; imu < muons.size(); imu++ ) {
             
-            //If it is not a good lepton, give scale factor of 1.0
-            if( !goodMuons.at(imu) ) {
-                muonsSF->push_back(1.0);
-                muonsSFErr->push_back(0.0);
-                muonsSF_Up->push_back(1.0);
-                muonsSF_Down->push_back(1.0);
-            }
+            //If it is not a good lepton, no need to calculate scale factor since we are not using it in the analysis
+            if( !goodMuons.at(imu) ) continue;
 
             else {
                 //Get the scale factor from the rootfile
@@ -281,8 +240,8 @@ private:
                     }
                 }
                
-                if( xbin == 0 && mupt > 200.0) xbin = muSFHisto->GetNbinsX();
-                if( ybin == 0 ) std::cerr<<"Invalid eta stored for a good muon!"<<std::endl;
+                if( xbin == 0 && mupt > 200.0) xbin = muSFHisto->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
+                if( ybin == 0 ) std::cerr<<"Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
                 
                 //std::cout<<"MU pt: "<<mupt<<" ; eta: "<<mueta<<"; "<<xbin<<" "<<ybin<<" "<<muSFHisto->GetBinContent(xbin,ybin)<<" "<<muSFHistoReco->Eval(mueta)<<";"<<muSFHisto->GetBinContent(xbin,ybin)*muSFHistoReco->Eval(mueta)<<std::endl;
 
@@ -297,42 +256,22 @@ private:
                     double muRecoSF         = muSFHistoReco->Eval( mueta );
 
                     double muTotSF          = muIDSF * muRecoSF;
-                    
-                    muonsSF->push_back(muTotSF);
-                    muonsSFErr->push_back(muIDSFErr);
-                    muonsSF_Up->push_back(muTotSF + muIDSFErr);
-                    muonsSF_Down->push_back(muTotSF - muIDSFErr);
-                    
+                    double muTotSFPErr      = muIDSFPErr; //This is a place holder for if and when we get the reconstruction scale factor systematic
+
+                    totGoodMuonSF           *= muTotSF;
+                    totGoodMuonSFPErr2      += muTotSFPErr * muTotSFPErr;
                 }
             }
         }
-        
-        if( muonsSF->size() != 0 ) {
-           
-            double tempTotGoodMuonSF        = 1.0;
-            double tempTotGoodMuonSFPErr2    = 0.0;
-         
-            for( unsigned int iSF = 0; iSF < muonsSF->size(); iSF++ ) {
-                tempTotGoodMuonSF *= muonsSF->at(iSF);
-                tempTotGoodMuonSFPErr2 += ( muonsSFErr->at(iSF)/muonsSF->at(iSF)) * (muonsSFErr->at(iSF)/muonsSF->at(iSF));
-            }
-        
-            totGoodMuonSF       = tempTotGoodMuonSF;
-            totGoodMuonSFErr    = std::sqrt(tempTotGoodMuonSFPErr2) * tempTotGoodMuonSF;
-            totGoodMuonSF_Up    = totGoodMuonSF + totGoodMuonSFErr;
-            totGoodMuonSF_Down  = totGoodMuonSF - totGoodMuonSFErr;
 
-        }
+        totGoodMuonSFErr    = std::sqrt(totGoodMuonSFPErr2) * totGoodMuonSF;
+        totGoodMuonSF_Up    = totGoodMuonSF + totGoodMuonSFErr;
+        totGoodMuonSF_Down  = totGoodMuonSF - totGoodMuonSFErr;
 
         tr.registerDerivedVar( "totGoodMuonSF",         totGoodMuonSF );
         tr.registerDerivedVar( "totGoodMuonSFErr",      totGoodMuonSFErr );
         tr.registerDerivedVar( "totGoodMuonSF_Up",      totGoodMuonSF_Up );
         tr.registerDerivedVar( "totGoodMuonSF_Down",    totGoodMuonSF_Down );
-
-        tr.registerDerivedVec( "muonsSF",       muonsSF );
-        tr.registerDerivedVec( "muonsSFErr",    muonsSFErr );
-        tr.registerDerivedVec( "muonsSF_Up",    muonsSF_Up );
-        tr.registerDerivedVec( "muonsSF_Down",  muonsSF_Down );
     }
 
 public:
