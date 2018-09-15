@@ -18,11 +18,10 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     JetsAK8_NsubjettinessTau3_ (tr.getVec<double>("JetsAK8_NsubjettinessTau3")),
     JetsAK8_softDropMass_      (tr.getVec<double>("JetsAK8_softDropMass")),
     JetsAK8_subjets_           (tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets")),
-    //JetsAk8_subjets_bDiscriminatorCSV_(tr.getVec<std::vector<double>>("JetsAk8_subjets_bDiscriminatorCSV")),
-    //JetsAk8_subjets_multiplicity_     (tr.getVec<std::vector<double>>("JetsAk8_subjets_multiplicity")),
-    //JetsAk8_subjets_ptD_              (tr.getVec<std::vector<double>>("JetsAk8_subjets_ptD")),
-    //JetsAk8_subjets_axismajor_        (tr.getVec<std::vector<double>>("JetsAk8_subjets_axismajor")),
-    //JetsAk8_subjets_axisminor_        (tr.getVec<std::vector<double>>("JetsAk8_subjets_axisminor")),
+    //JetsAK8_subjets_bDiscriminatorCSV_(tr.getVec<std::vector<double>>("JetsAK8_subjets_bDiscriminatorCSV")),
+    //JetsAK8_subjets_ptD_              (tr.getVec<std::vector<double>>("JetsAK8_subjets_ptD")),
+    //JetsAK8_subjets_axismajor_        (tr.getVec<std::vector<double>>("JetsAK8_subjets_axismajor")),
+    //JetsAK8_subjets_axisminor_        (tr.getVec<std::vector<double>>("JetsAK8_subjets_axisminor")),
     hadtops_                   (hadtops),
     hadtopdaughters_           (hadtopdaughters)
 {
@@ -42,11 +41,11 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
         JetsAK8_NsubjettinessTau3_,
         JetsAK8_softDropMass_,
         JetsAK8_subjets_,
-        //JetsAk8_subjets_bDiscriminatorCSV_,
-        //JetsAk8_subjets_multiplicity_,
-        //JetsAk8_subjets_ptD_,
-        //JetsAk8_subjets_axismajor_,
-        //JetsAk8_subjets_axisminor_,
+        //JetsAK8_subjets_bDiscriminatorCSV_,
+        //*VecVecintToVecVecdouble(tr_, "JetsAK8_subjets_multiplicity"),
+        //JetsAK8_subjets_ptD_,
+        //JetsAK8_subjets_axismajor_,
+        //JetsAK8_subjets_axisminor_,
         hadtops_,
         hadtopdaughters_);  
     //Add variables that are not passed to the constructor
@@ -71,6 +70,23 @@ std::vector<double>* SetUpTopTagger::intVecTodoubleVec(NTupleReader& tr, const s
     return vD;
 }
 
+std::vector<std::vector<double>>* SetUpTopTagger::VecVecintToVecVecdouble(NTupleReader& tr, const std::string& name)
+{
+    const auto& vvI = tr.getVec<std::vector<int>>(name);
+    std::vector<std::vector<double>>* vvD = new std::vector<std::vector<double>>();
+    for(int i = 0; i < vvI.size(); i++)
+    {
+        std::vector<double> vD;
+        for(int j = 0; j < vvI[i].size(); j++)
+        {
+            vD.push_back(vvI[i][j]);
+        }
+        vvD->push_back(vD);
+    }
+    tr.registerDerivedVec(name+"ConvertedToDouble", vvD);
+    return vvD;
+}
+
 void SetUpTopTagger::addVariables()
 {
     //AK4Inputs_->addSupplamentalVector("qgLikelihood",                        tr_.getVec<double>("Jets_qgLikelihood"));
@@ -91,19 +107,19 @@ void SetUpTopTagger::addVariables()
     //AK4Inputs_->addSupplamentalVector("PhotonMultiplicity",                  *intVecTodoubleVec(tr_,"Jets_photonMultiplicity"));
     //AK4Inputs_->addSupplamentalVector("ElectronMultiplicity",                *intVecTodoubleVec(tr_,"Jets_electronMultiplicity"));
     //AK4Inputs_->addSupplamentalVector("MuonMultiplicity",                    *intVecTodoubleVec(tr_,"Jets_muonMultiplicity"));
-    //AK4Inputs_->addSupplamentalVector("DeepCSVb",                            tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("DeepCSVc",                            tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("DeepCSVl",                            tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("DeepCSVbb",                           tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("DeepCSVcc",                           tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("DeepFlavorb",                         tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("DeepFlavorbb",                        tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("DeepFlavorlepb",                      tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("DeepFlavorc",                         tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("DeepFlavoruds",                       tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("DeepFlavorg",                         tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("CvsL",                                tr.getVec<double>(""));
-    //AK4Inputs_->addSupplamentalVector("CvsB",                                tr.getVec<double>(""));
+    //AK4Inputs_->addSupplamentalVector("DeepCSVb",                            tr_.getVec<double>("Jets_bJetTagDeepCSVprobb"));
+    //AK4Inputs_->addSupplamentalVector("DeepCSVc",                            tr_.getVec<double>("Jets_bJetTagDeepCSVprobc"));
+    //AK4Inputs_->addSupplamentalVector("DeepCSVl",                            tr_.getVec<double>("Jets_bJetTagDeepCSVprobudsg"));
+    //AK4Inputs_->addSupplamentalVector("DeepCSVbb",                           tr_.getVec<double>("Jets_bJetTagDeepCSVprobbb"));
+    //AK4Inputs_->addSupplamentalVector("DeepCSVcc",                           std::vector<double>(tr_.getVec<double>("Jets_bJetTagDeepCSVprobbb").size(), 0.0));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavorb",                         tr_.getVec<double>("Jets_bJetTagDeepFlavourprobb"));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavorbb",                        tr_.getVec<double>("Jets_bJetTagDeepFlavourprobbb"));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavorlepb",                      tr_.getVec<double>("Jets_bJetTagDeepFlavourproblepb"));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavorc",                         tr_.getVec<double>("Jets_bJetTagDeepFlavourprobc"));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavoruds",                       tr_.getVec<double>("Jets_bJetTagDeepFlavourprobuds"));
+    //AK4Inputs_->addSupplamentalVector("DeepFlavorg",                         tr_.getVec<double>("Jets_bJetTagDeepFlavourprobg"));
+    //AK4Inputs_->addSupplamentalVector("CvsL",                                tr_.getVec<double>("Jets_bJetTagDeepCSVCvsL"));
+    //AK4Inputs_->addSupplamentalVector("CvsB",                                tr_.getVec<double>("Jets_bJetTagDeepCSVCvsB"));
     AK4Inputs_->addSupplamentalVector("qgMult",  *intVecTodoubleVec(tr_,"Jets_multiplicity"));
 }
 

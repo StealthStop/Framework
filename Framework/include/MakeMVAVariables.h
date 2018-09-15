@@ -105,7 +105,8 @@ private:
         TVector3 rec_boost_beta_vec( 0.0, 0.0, -reco_jets_beta );
         auto* cm_jets = new std::vector<math::RThetaPhiVector>();
         auto* Jets_cm = new std::vector<TLorentzVector>();
- 
+
+        //--- Boost the Jets, leptons, and MET in the event 
         for(auto jlvcm : Jets)
         {
             jlvcm.Boost( rec_boost_beta_vec );
@@ -114,8 +115,16 @@ private:
             math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() );
             cm_jets->push_back( cmvec );
         }
+        auto* GoodLeptons_cm = new std::vector<TLorentzVector>();
+        for(auto pair : GoodLeptons)
+        {
+            pair.second.Boost( rec_boost_beta_vec );
+            GoodLeptons_cm->push_back( pair.second );
+        }
+        TLorentzVector lvMET_cm = lvMET;
+        lvMET_cm.Boost( rec_boost_beta_vec );            
 
-        //--- Try using only the 6 highest-P jets in the CM frame in the event shape vars.
+        //--- Try using only the 7 highest-P jets in the CM frame in the event shape vars.
         //    First, need to make a new input vector of jets containing only those jets.
         auto cm_jets_psort = *cm_jets ;
         std::sort( cm_jets_psort.begin(), cm_jets_psort.end(), compare_p ) ;
@@ -124,10 +133,11 @@ private:
         auto Jets_cm_psort = *Jets_cm;
         std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.P() > v2.P();} );
         auto* Jets_cm_top6 = new std::vector<TLorentzVector>();
+        int nTopJets = 7; // Hard Coded Bad
 
         for( unsigned int ji=0; ji<cm_jets->size(); ji++ ) 
         {
-            if ( ji < 6 ) 
+            if ( ji < nTopJets ) 
             {
                 cm_jets_top6.push_back( cm_jets_psort.at(ji) ) ;
                 Jets_cm_top6->push_back( Jets_cm_psort.at(ji) ) ;
@@ -169,13 +179,24 @@ private:
 
         //--- register Variables
         //
-        for(unsigned int i = 0; i < 6; i++) //Hard code, bad
+        for(unsigned int i = 0; i < nTopJets; i++)
         {
             tr.registerDerivedVar("Jet_pt_"+std::to_string(i+1),  static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Pt()  : 0.0));
             tr.registerDerivedVar("Jet_eta_"+std::to_string(i+1), static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Eta() : 0.0));
             tr.registerDerivedVar("Jet_phi_"+std::to_string(i+1), static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Phi() : 0.0));
             tr.registerDerivedVar("Jet_m_"+std::to_string(i+1),   static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).M()   : 0.0));
         }
+        for(unsigned int i = 0; i < GoodLeptons_cm->size(); i++)
+        {
+            tr.registerDerivedVar("GoodLeptons_pt_"+std::to_string(i+1),  static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Pt()  : 0.0));
+            tr.registerDerivedVar("GoodLeptons_eta_"+std::to_string(i+1), static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Eta() : 0.0));
+            tr.registerDerivedVar("GoodLeptons_phi_"+std::to_string(i+1), static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Phi() : 0.0));
+            tr.registerDerivedVar("GoodLeptons_m_"+std::to_string(i+1),   static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).M()   : 0.0));
+        }
+        tr.registerDerivedVar("lvMET_cm_pt",  static_cast<double>( lvMET_cm.Pt() ));
+        tr.registerDerivedVar("lvMET_cm_eta", static_cast<double>( lvMET_cm.Eta()));
+        tr.registerDerivedVar("lvMET_cm_phi", static_cast<double>( lvMET_cm.Phi()));
+        tr.registerDerivedVar("lvMET_cm_m",   static_cast<double>( lvMET_cm.M()  ));
         tr.registerDerivedVec("cm_jets", cm_jets);
         tr.registerDerivedVec("Jets_cm", Jets_cm);
         tr.registerDerivedVec("Jets_cm_top6", Jets_cm_top6);
@@ -198,16 +219,6 @@ private:
         bool genMatched = false;
         if(NGoodLeptons == 1)
         {
-            //--- Boost the leptons and MET in the event 
-            //std::vector<TLorentzVector> GoodLeptons_cm;
-            //for(auto pair : GoodLeptons)
-            //{
-            //    pair.second.Boost( rec_boost_beta_vec );
-            //    GoodLeptons_cm.push_back( pair.second );
-            //}
-            //TLorentzVector lvMET_cm = lvMET;
-            //lvMET_cm.Boost( rec_boost_beta_vec );
-            
             //--- Making a vector of all Jets, leptons, and MET
             std::vector<TLorentzVector> lv_all;
             for(int j = 0; j < Jets.size(); j++)
@@ -255,6 +266,7 @@ private:
             //--- Find the best combo of lv pair, looks more like the pair production
             double massDiff = 999999999999;
             std::vector<int> BestJetCombo;
+            bool matched = false;
             for(const auto& cLV : combinedLV)
             {
                 double mD = abs( cLV.v1.M() - cLV.v2.M() );
@@ -265,15 +277,23 @@ private:
                     BestJetCombo = cLV.jetCombo;
                 }
 
-                bool matched = genMatch(tr, lv_all, cLV.jetCombo);
-                if(matched) genBestCombo = std::make_pair(cLV.v1, cLV.v2);
+                bool m = genMatch(tr, lv_all, cLV.jetCombo);
+                if(m && !matched)
+                {
+                    genBestCombo = std::make_pair(cLV.v1, cLV.v2);
+                    matched = true;
+                }
             }
             genMatched = genMatch(tr, lv_all, BestJetCombo);
+            if(!matched) genBestCombo = BestCombo;
             //std::cout<<"Best mass diff Jets: ("<<BestCombo.first.M()<<", "<<BestCombo.first.Pt()<<", "<<BestCombo.first.Eta()<<", "<<BestCombo.first.Phi()<<") ("
             //         <<BestCombo.second.M()<<", "<<BestCombo.second.Pt()<<", "<<BestCombo.second.Eta()<<", "<<BestCombo.second.Phi()<<"):"
             //         <<" GenMatched: "<<genMatched<<std::endl;
+            //std::cout<<"Best mass diff Jets: ("<<genBestCombo.first.M()<<", "<<genBestCombo.first.Pt()<<", "<<genBestCombo.first.Eta()<<", "<<genBestCombo.first.Phi()<<") ("
+            //         <<genBestCombo.second.M()<<", "<<genBestCombo.second.Pt()<<", "<<genBestCombo.second.Eta()<<", "<<genBestCombo.second.Phi()<<"):"
+            //         <<" GenMatched: "<<genMatched<<" Number of Jets: "<<NGoodJets<<std::endl;
         }
-        tr.registerDerivedVar("BestCombo", BestCombo);
+        tr.registerDerivedVar("BestCombo", BestCombo);        
         tr.registerDerivedVar("genBestCombo", genBestCombo);
         tr.registerDerivedVar("MegaJetsTopsGenMatched", genMatched);
         tr.registerDerivedVar("BestComboAvgMass", static_cast<double>(( BestCombo.first.M() + BestCombo.second.M() )/2));
