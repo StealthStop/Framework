@@ -2,7 +2,7 @@
 
 cfgDir=${CMSSW_BASE}/src/Framework/Framework/cfg
 sampleSCfgFile="sampleSets_v2.cfg"
-sampleCCfgFile="sampleCollections_v1.cfg"
+sampleCCfgFile="sampleCollections_v2.cfg"
 
 function print_help {
     echo "Usage:"
