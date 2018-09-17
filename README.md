@@ -36,10 +36,11 @@ source setup.csh
 make -j4
 ```
 
-Last step is to get the cfg file for the top tagger, and the TF output model file for the resolved part.
+Last step is to get the cfg and model files for the top tagger and deepESM.
 ```
 cmsenv
 getTaggerCfg.sh -t Tensorflow_Medium_Example_v1.0.2 -o
+getDeepESMCfg.sh -t Keras_Tensorflow_v1.0.0 -o
 ```
 
 No changes to the analysis code should be needed. 
