@@ -36,6 +36,7 @@ private:
             const auto& madHT  = tr.getVar<double>("madHT");
             // Exclude events with MadGraph HT > 100 from the DY inclusive sample
             if(filetag == "DYJetsToLL_M-50_Incl" && madHT > 100) passMadHT = false;
+            if(filetag == "WJetsToLNu_Incl" && madHT > 100) passMadHT = false;
         }
         
         // ------------------------------
@@ -273,6 +274,9 @@ private:
         tr.registerDerivedVar<bool>("passBlindLep",passBlindLep);
         tr.registerDerivedVar<bool>("passBlindHad_Good",passBlindHad_Good);
         tr.registerDerivedVar<bool>("passBlindLep_Good",passBlindLep_Good);
+        tr.registerDerivedVar<bool>("passTriggerAllHad",passTriggerAllHad);
+        tr.registerDerivedVar<bool>("passTriggerMuon",passTriggerMuon);
+        tr.registerDerivedVar<bool>("passTriggerElectron",passTriggerElectron);
         tr.registerDerivedVar<bool>("passTrigger",passTrigger);
         tr.registerDerivedVar<bool>("passMadHT",passMadHT);
     }
