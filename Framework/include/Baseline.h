@@ -36,8 +36,11 @@ private:
             const auto& madHT  = tr.getVar<double>("madHT");
             // Exclude events with MadGraph HT > 100 from the DY inclusive sample
             if(filetag == "DYJetsToLL_M-50_Incl" && madHT > 100) passMadHT = false;
+
+            //Needed for skim trees -> if event fails the MC modeling of the trigger, do not keep in the skim
+            if( !passTriggerMuon && !passTriggerElectron ) passTriggerMC = false;
         }
-        
+
         // ------------------------------
         // -- Data dependent stuff
         // ------------------------------
@@ -47,9 +50,10 @@ private:
         bool passTriggerElectron = PassTriggerElectron(TriggerNames, TriggerPass);
         bool passTriggerPhoton   = PassTriggerPhoton(TriggerNames, TriggerPass);
 
-        bool passTrigger  = true;
-        bool passBlindHad = true;
-        bool passBlindLep = true;
+        bool passTrigger   = true;
+        bool passTriggerMC = true;
+        bool passBlindHad  = true;
+        bool passBlindLep  = true;
         
         bool passBlindHad_Good = true;
         bool passBlindLep_Good = true;
@@ -69,6 +73,7 @@ private:
             if (NGoodJets_pt30 >= 9 && blind) passBlindHad_Good = false;
             if (NGoodJets_pt30 >= 7 && blind) passBlindLep_Good = false;
         }
+
         
         // -------------------------------
         // -- Define 0 Lepton Baseline
@@ -274,6 +279,7 @@ private:
         tr.registerDerivedVar<bool>("passBlindHad_Good",passBlindHad_Good);
         tr.registerDerivedVar<bool>("passBlindLep_Good",passBlindLep_Good);
         tr.registerDerivedVar<bool>("passTrigger",passTrigger);
+        tr.registerDerivedVar<bool>("passTriggerMC",passTriggerMC);
         tr.registerDerivedVar<bool>("passMadHT",passMadHT);
     }
 
