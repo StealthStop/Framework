@@ -27,22 +27,6 @@ private:
         const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"); 
         const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons");
 
-        // ------------------------
-        // -- MC dependent stuff
-        // -----------------------
-        bool passMadHT = true;
-        if(runtype == "MC")
-        {
-            const auto& madHT  = tr.getVar<double>("madHT");
-            // Exclude events with MadGraph HT > 100 from the DY inclusive sample
-            if(filetag == "DYJetsToLL_M-50_Incl" && madHT > 100) passMadHT = false;
-
-            if(filetag == "WJetsToLNu_Incl" && madHT > 100) passMadHT = false;
-            
-            //Needed for skim trees -> if event fails the MC modeling of the trigger, do not keep in the skim
-            if( !passTriggerMuon && !passTriggerElectron ) passTriggerMC = false;
-        }
-
         // ------------------------------
         // -- Data dependent stuff
         // ------------------------------
@@ -75,6 +59,23 @@ private:
             if (NGoodJets_pt30 >= 9 && blind) passBlindHad_Good = false;
             if (NGoodJets_pt30 >= 7 && blind) passBlindLep_Good = false;
         }
+        
+        // ------------------------
+        // -- MC dependent stuff - moved this below Data dependent stuff in order to use the booleans for the Trigger
+        // -----------------------
+        bool passMadHT = true;
+        if(runtype == "MC")
+        {
+            const auto& madHT  = tr.getVar<double>("madHT");
+            // Exclude events with MadGraph HT > 100 from the DY inclusive sample
+            if(filetag == "DYJetsToLL_M-50_Incl" && madHT > 100) passMadHT = false;
+
+            if(filetag == "WJetsToLNu_Incl" && madHT > 100) passMadHT = false;
+            
+            //Needed for skim trees -> if event fails the MC modeling of the trigger, do not keep in the skim
+            if( !passTriggerMuon && !passTriggerElectron ) passTriggerMC = false;
+        }
+
 
         
         // -------------------------------
