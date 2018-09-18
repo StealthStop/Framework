@@ -34,9 +34,12 @@ private:
         if(runtype == "MC")
         {
             const auto& madHT  = tr.getVar<double>("madHT");
-            // Exclude events with MadGraph HT > 100 from the DY inclusive sample
+            // Exclude events with MadGraph HT > 100 from the DY & WJets inclusive samples
             if(filetag == "DYJetsToLL_M-50_Incl" && madHT > 100) passMadHT = false;
             if(filetag == "WJetsToLNu_Incl" && madHT > 100) passMadHT = false;
+            // Stitch TTbar samples together
+            if( (filetag == "TTJets_Incl" || filetag == "TTJets_SingleLeptFromT" || filetag == "TTJets_SingleLeptFromTbar" || filetag == "TTJets_DiLept") 
+                && madHT > 600) passMadHT = false;
         }
         
         // ------------------------------
