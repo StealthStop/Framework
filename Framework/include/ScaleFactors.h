@@ -6,7 +6,11 @@ class ScaleFactors
 {
 private:
 
-    std::string SFRootFileName_;
+    TH2F *eleSFHistoTight_;        
+    TH2F *eleSFHistoIso_;
+    TH2F *eleSFHistoReco_;
+    TH2F *muSFHisto_;
+    TGraph *muSFHistoReco_;
 
     void scaleFactors(NTupleReader& tr)
     {
@@ -92,9 +96,8 @@ private:
         
         //Adding code for implementing electron scale factors
 
-        TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
 
-        TFile SFRootFile( SFRootFileName_.c_str() );
+//        TFile SFRootFile( SFRootFileName_.c_str() );
 
         const auto& electrons           = tr.getVec<TLorentzVector>("Electrons");
         const auto& goodElectrons       = tr.getVec<bool>("GoodElectrons");
@@ -105,10 +108,6 @@ private:
         double totGoodElectronSF_Up     = 1.0;
         double totGoodElectronSF_Down   = 1.0;
         
-        TH2F *eleSFHistoTight = (TH2F*)SFRootFile.Get("GsfElectronToCutBasedSpring15T");
-        TH2F *eleSFHistoIso   = (TH2F*)SFRootFile.Get("MVAVLooseElectronToMini");
-        TH2F *eleSFHistoReco  = (TH2F*)SFRootFile.Get("EGamma_SF2D");
-
         //Loop through the electrons
         for( unsigned int iel = 0; iel < electrons.size(); iel++ ) {
 
@@ -121,56 +120,56 @@ private:
                 double eleta    = electrons.at(iel).Eta();
                 int xbin = 0, ybin = 0, ptbin = 0, etabin = 0;
 
-                for( unsigned int ixbin = 0; ixbin < eleSFHistoTight->GetNbinsX()+1; ixbin++ ) {
-                    double tempxBinEdgeMax = (double) eleSFHistoTight->GetXaxis()->GetBinUpEdge(ixbin);
+                for( unsigned int ixbin = 0; ixbin < eleSFHistoTight_->GetNbinsX()+1; ixbin++ ) {
+                    double tempxBinEdgeMax = (double) eleSFHistoTight_->GetXaxis()->GetBinUpEdge(ixbin);
                     if( elpt < tempxBinEdgeMax )  {
                         xbin = ixbin; 
                         break;
                     }
                 }
 
-                for( unsigned int iybin = 0; iybin < eleSFHistoTight->GetNbinsY()+1; iybin++ ) {
-                    double tempyBinEdgeMax = (double)eleSFHistoTight->GetYaxis()->GetBinUpEdge(iybin);
+                for( unsigned int iybin = 0; iybin < eleSFHistoTight_->GetNbinsY()+1; iybin++ ) {
+                    double tempyBinEdgeMax = (double)eleSFHistoTight_->GetYaxis()->GetBinUpEdge(iybin);
                     if( std::fabs(eleta) < tempyBinEdgeMax ) {
                         ybin = iybin;
                         break;
                     }
                 }
                 
-                if( xbin == 0 && elpt > 200.0) xbin = eleSFHistoTight->GetNbinsX(); //std::cout<<elpt<<std::endl;
+                if( xbin == 0 && elpt > 200.0) xbin = eleSFHistoTight_->GetNbinsX(); //std::cout<<elpt<<std::endl;
                 if( ybin == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
 
-                for( unsigned int iptbin = 0; iptbin < eleSFHistoReco->GetNbinsY()+1; iptbin++ ) {
-                    double tempPtBinEdgeMax = (double) eleSFHistoReco->GetYaxis()->GetBinUpEdge(iptbin);
+                for( unsigned int iptbin = 0; iptbin < eleSFHistoReco_->GetNbinsY()+1; iptbin++ ) {
+                    double tempPtBinEdgeMax = (double) eleSFHistoReco_->GetYaxis()->GetBinUpEdge(iptbin);
                     if( elpt < tempPtBinEdgeMax ) {
                         ptbin = iptbin;
                         break;
                     }
                 }
 
-                for( unsigned int ietabin = 0; ietabin < eleSFHistoReco->GetNbinsX()+1; ietabin++ ) {
-                    double tempEtaBinEdgeMax = (double) eleSFHistoReco->GetXaxis()->GetBinUpEdge(ietabin);
+                for( unsigned int ietabin = 0; ietabin < eleSFHistoReco_->GetNbinsX()+1; ietabin++ ) {
+                    double tempEtaBinEdgeMax = (double) eleSFHistoReco_->GetXaxis()->GetBinUpEdge(ietabin);
                     if( eleta < tempEtaBinEdgeMax ) {
                         etabin = ietabin;
                         break;
                     }
                 }
                 
-                if( ptbin == 0 && elpt > 500.0) ptbin = eleSFHistoReco->GetNbinsY(); //std::cout<<elpt<<std::endl;
+                if( ptbin == 0 && elpt > 500.0) ptbin = eleSFHistoReco_->GetNbinsY(); //std::cout<<elpt<<std::endl;
                 if( etabin == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
 
 
                 if( xbin != 0 && ybin != 0 && ptbin != 0 && etabin != 0 ) {
-                    double eleTightSF       = eleSFHistoTight->GetBinContent( xbin, ybin );
-                    double eleTightSFErr    = eleSFHistoTight->GetBinError( xbin, ybin );
+                    double eleTightSF       = eleSFHistoTight_->GetBinContent( xbin, ybin );
+                    double eleTightSFErr    = eleSFHistoTight_->GetBinError( xbin, ybin );
                     double eleTightPErr     = eleTightSFErr/eleTightSF;
 
-                    double eleIsoSF         = eleSFHistoIso->GetBinContent( xbin, ybin );
-                    double eleIsoSFErr      = eleSFHistoIso->GetBinError( xbin, ybin );
+                    double eleIsoSF         = eleSFHistoIso_->GetBinContent( xbin, ybin );
+                    double eleIsoSFErr      = eleSFHistoIso_->GetBinError( xbin, ybin );
                     double eleIsoPErr       = eleIsoSFErr/eleIsoSF;
 
-                    double eleRecoSF        = eleSFHistoReco->GetBinContent( etabin, ptbin );
-                    double eleRecoSFErr     = eleSFHistoReco->GetBinError( etabin, ptbin );
+                    double eleRecoSF        = eleSFHistoReco_->GetBinContent( etabin, ptbin );
+                    double eleRecoSFErr     = eleSFHistoReco_->GetBinError( etabin, ptbin );
                     double eleRecoPErr      = eleRecoSFErr/eleRecoSF;
 
                     //The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
@@ -199,9 +198,6 @@ private:
 
         //Adding code for implementing muon scale factors
 
-        TH2F *muSFHisto             = (TH2F*)SFRootFile.Get("sf_mu_mediumID_mini02");
-        TGraph *muSFHistoReco       = (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr");
-
         const auto& muons           = tr.getVec<TLorentzVector>("Muons");
         const auto& goodMuons       = tr.getVec<bool>("GoodMuons");
 
@@ -224,23 +220,23 @@ private:
                 
                 int xbin = 0, ybin = 0, etabin = 0;
 
-                for( unsigned int ixbin = 0; ixbin < muSFHisto->GetNbinsX()+1; ixbin++ ) {
-                    double tempxBinEdgeMax = muSFHisto->GetXaxis()->GetBinUpEdge(ixbin);
+                for( unsigned int ixbin = 0; ixbin < muSFHisto_->GetNbinsX()+1; ixbin++ ) {
+                    double tempxBinEdgeMax = muSFHisto_->GetXaxis()->GetBinUpEdge(ixbin);
                     if( mupt < tempxBinEdgeMax )  {
                         xbin = ixbin; 
                         break;
                     }
                 }
 
-                for( unsigned int iybin = 0; iybin < muSFHisto->GetNbinsY()+1; iybin++ ) {
-                    double tempyBinEdgeMax = muSFHisto->GetYaxis()->GetBinUpEdge(iybin);
+                for( unsigned int iybin = 0; iybin < muSFHisto_->GetNbinsY()+1; iybin++ ) {
+                    double tempyBinEdgeMax = muSFHisto_->GetYaxis()->GetBinUpEdge(iybin);
                     if( mueta < tempyBinEdgeMax ) {
                         ybin = iybin;
                         break;
                     }
                 }
                
-                if( xbin == 0 && mupt > 200.0) xbin = muSFHisto->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
+                if( xbin == 0 && mupt > 200.0) xbin = muSFHisto_->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
                 if( ybin == 0 ) std::cerr<<"Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
                 
                 //std::cout<<"MU pt: "<<mupt<<" ; eta: "<<mueta<<"; "<<xbin<<" "<<ybin<<" "<<muSFHisto->GetBinContent(xbin,ybin)<<" "<<muSFHistoReco->Eval(mueta)<<";"<<muSFHisto->GetBinContent(xbin,ybin)*muSFHistoReco->Eval(mueta)<<std::endl;
@@ -248,12 +244,12 @@ private:
                 if( xbin != 0 && ybin != 0) {
 
                     //The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg
-                    double muIDSF           = muSFHisto->GetBinContent( xbin, ybin );
+                    double muIDSF           = muSFHisto_->GetBinContent( xbin, ybin );
                     double muIDSFPErr       = .03;
                     double muIDSFErr        = muIDSF * muIDSFPErr;
                     
                     //For the general track reconstruction they claim that the systematics for the systematic still need to be finalized.
-                    double muRecoSF         = muSFHistoReco->Eval( mueta );
+                    double muRecoSF         = muSFHistoReco_->Eval( mueta );
 
                     double muTotSF          = muIDSF * muRecoSF;
                     double muTotSFPErr      = muIDSFPErr; //This is a place holder for if and when we get the reconstruction scale factor systematic
@@ -276,8 +272,28 @@ private:
 
 public:
     ScaleFactors( std::string SFRootFileName = "2016ScaleFactorHistos.root" )
-        : SFRootFileName_(SFRootFileName)
-    {}
+        : eleSFHistoTight_(nullptr)
+        , eleSFHistoIso_(nullptr)
+        , eleSFHistoReco_(nullptr)
+        , muSFHisto_(nullptr)
+        , muSFHistoReco_(nullptr)
+          
+    {
+        TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
+        TFile SFRootFile( SFRootFileName.c_str() );
+        
+        eleSFHistoTight_       = (TH2F*)SFRootFile.Get("GsfElectronToCutBasedSpring15T");
+        eleSFHistoIso_         = (TH2F*)SFRootFile.Get("MVAVLooseElectronToMini");
+        eleSFHistoReco_        = (TH2F*)SFRootFile.Get("EGamma_SF2D");
+        
+        muSFHisto_             = (TH2F*)SFRootFile.Get("sf_mu_mediumID_mini02");
+        muSFHistoReco_         = (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr");
+
+        SFRootFile.Close();
+    }
+
+    ~ScaleFactors() {
+    }
 
     void operator()(NTupleReader& tr)
     {
