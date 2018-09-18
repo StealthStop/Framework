@@ -293,11 +293,6 @@ public:
     }
 
     ~ScaleFactors() {
-        delete eleSFHistoTight_;
-        delete eleSFHistoIso_;
-        delete eleSFHistoReco_;
-        delete muSFHisto_;
-        delete muSFHistoReco_;
     }
 
     void operator()(NTupleReader& tr)
