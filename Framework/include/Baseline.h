@@ -35,9 +35,11 @@ private:
         if(runtype == "MC")
         {
             const auto& madHT  = tr.getVar<double>("madHT");
+
             // Exclude events with MadGraph HT > 100 from the DY & WJets inclusive samples
             if(filetag == "DYJetsToLL_M-50_Incl" && madHT > 100) passMadHT = false;
             if(filetag == "WJetsToLNu_Incl" && madHT > 100) passMadHT = false;
+
             // Stitch TTbar samples together
             // remove HT overlap
             if( (filetag == "TTJets_Incl" || filetag == "TTJets_SingleLeptFromT" || filetag == "TTJets_SingleLeptFromTbar" || filetag == "TTJets_DiLept") 
@@ -47,7 +49,6 @@ private:
             const auto& GenMuons            = tr.getVec<TLorentzVector>("GenMuons");
             const auto& GenTaus             = tr.getVec<TLorentzVector>("GenTaus");
             int NGenLeptons = GenElectrons.size() + GenMuons.size() + GenTaus.size();
-            //std::cout << "number of gen leptons: " << NGenLeptons << std::endl;
             if (filetag == "TTJets_Incl" && NGenLeptons > 0) passMadHT = false;
         }
         
