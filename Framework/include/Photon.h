@@ -8,7 +8,7 @@ private:
     {
         const auto& allPhotons = tr.getVec<TLorentzVector>("Photons");
         const auto& allPhotons_fullID = tr.getVec<bool>("Photons_fullID");
-        const auto& etaCut = tr.getVar<double>("etaCut");
+        const auto& etaCut = 1.4;//tr.getVar<double>("etaCut");
 
         auto* good_electrons_ = new std::vector<bool>();
         int NGoodPhotons = 0;
