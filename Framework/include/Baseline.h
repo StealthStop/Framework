@@ -26,7 +26,7 @@ private:
         const auto& NGoodBJets_pt30     = tr.getVar<int>("NGoodBJets_pt30"); 
         const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"); 
         const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons");
-
+        
         // ------------------------------
         // -- Data dependent stuff
         // ------------------------------
@@ -67,15 +67,25 @@ private:
         if(runtype == "MC")
         {
             const auto& madHT  = tr.getVar<double>("madHT");
-            // Exclude events with MadGraph HT > 100 from the DY inclusive sample
-            if(filetag == "DYJetsToLL_M-50_Incl" && madHT > 100) passMadHT = false;
 
+            // Exclude events with MadGraph HT > 100 from the DY & WJets inclusive samples
+            if(filetag == "DYJetsToLL_M-50_Incl" && madHT > 100) passMadHT = false;
             if(filetag == "WJetsToLNu_Incl" && madHT > 100) passMadHT = false;
+
+            // Stitch TTbar samples together
+            // remove HT overlap
+            if( (filetag == "TTJets_Incl" || filetag == "TTJets_SingleLeptFromT" || filetag == "TTJets_SingleLeptFromTbar" || filetag == "TTJets_DiLept") 
+                && madHT > 600) passMadHT = false;
+            // also remove lepton overlap from the inclusive sample
+            const auto& GenElectrons        = tr.getVec<TLorentzVector>("GenElectrons");
+            const auto& GenMuons            = tr.getVec<TLorentzVector>("GenMuons");
+            const auto& GenTaus             = tr.getVec<TLorentzVector>("GenTaus");
+            int NGenLeptons = GenElectrons.size() + GenMuons.size() + GenTaus.size();
+            if (filetag == "TTJets_Incl" && NGenLeptons > 0) passMadHT = false;
             
             //Needed for skim trees -> if event fails the MC modeling of the trigger, do not keep in the skim
             if( !passTriggerMuon && !passTriggerElectron ) passTriggerMC = false;
         }
-
 
         
         // -------------------------------
