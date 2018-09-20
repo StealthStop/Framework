@@ -105,10 +105,13 @@ private:
         TVector3 rec_boost_beta_vec( 0.0, 0.0, -reco_jets_beta );
         auto* cm_jets = new std::vector<math::RThetaPhiVector>();
         auto* Jets_cm = new std::vector<TLorentzVector>();
+        auto* Jets_   = new std::vector<TLorentzVector>();
 
         //--- Boost the Jets, leptons, and MET in the event 
         for(auto jlvcm : Jets)
         {
+            Jets_->push_back( jlvcm );
+
             jlvcm.Boost( rec_boost_beta_vec );
             Jets_cm->push_back( jlvcm );
 
@@ -131,8 +134,11 @@ private:
         std::vector<math::RThetaPhiVector> cm_jets_top6 ;
 
         auto Jets_cm_psort = *Jets_cm;
+        auto Jets_psort = *Jets_;
         std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.P() > v2.P();} );
+        std::sort( Jets_psort.begin(), Jets_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.P() > v2.P();} );
         auto* Jets_cm_top6 = new std::vector<TLorentzVector>();
+        auto* Jets_top6 = new std::vector<TLorentzVector>();
         int nTopJets = 7; // Hard Coded Bad
 
         for( unsigned int ji=0; ji<cm_jets->size(); ji++ ) 
@@ -141,6 +147,7 @@ private:
             {
                 cm_jets_top6.push_back( cm_jets_psort.at(ji) ) ;
                 Jets_cm_top6->push_back( Jets_cm_psort.at(ji) ) ;
+                Jets_top6->push_back( Jets_psort.at(ji) ) ;
             }
         } // ji
 
@@ -200,6 +207,7 @@ private:
         tr.registerDerivedVec("cm_jets", cm_jets);
         tr.registerDerivedVec("Jets_cm", Jets_cm);
         tr.registerDerivedVec("Jets_cm_top6", Jets_cm_top6);
+        tr.registerDerivedVec("Jets_top6", Jets_top6);
         tr.registerDerivedVar("fwm2_top6", fwm2_top6);
         tr.registerDerivedVar("fwm3_top6", fwm3_top6);
         tr.registerDerivedVar("fwm4_top6", fwm4_top6);
