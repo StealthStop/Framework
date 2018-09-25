@@ -1,12 +1,19 @@
 #!/bin/bash 
 
 cfgDir=${CMSSW_BASE}/src/Framework/Framework/cfg
+
+#Default options
 sampleSCfgFile="sampleSets_v2.cfg"
 sampleCCfgFile="sampleCollections_v2.cfg"
 
+sampleSCfgFileSkim='sampleSets_v2_skim.cfg'
+sampleCCfgFileSkim='sampleCollections_v2_skim.cfg'
+
 function print_help {
     echo "Usage:"
-    echo "getSamplesCfg.sh -s [SampleSetConfig] -c [SampleCollectionConfg]"
+    echo "getSamplesCfg.sh                                                 | Makes default softlinks"
+    echo "getSamplesCfg.sh skims                                           | Makes default skim softlinks"
+    echo "getSamplesCfg.sh -s [SampleSetConfig] -c [SampleCollectionConfg] | Makes softlinks to given SampleSet and SampleCollection (path already included)"
     echo ""
 }
 
@@ -23,8 +30,19 @@ while getopts "h?s:c:" opt; do
     esac
 done
 
-ln -s $cfgDir/$sampleSCfgFile sampleSets.cfg
-ln -s $cfgDir/$sampleCCfgFile sampleCollections.cfg
+subcommand=$1
+case "$subcommand" in
+    skims)
+        sampleSCfgFile=$sampleSCfgFileSkim
+        sampleCCfgFile=$sampleCCfgFileSkim
+esac
 
-echo "Made soft link: "$sampleSCfgFile
-echo "Made soft link: "$sampleCCfgFile
+if [ ! -f sampleSets.cfg ] && [ ! -f sampleCollections.cfg ] 
+then
+    ln -s $cfgDir/$sampleSCfgFile sampleSets.cfg
+    ln -s $cfgDir/$sampleCCfgFile sampleCollections.cfg
+    echo "Made soft link: "$sampleSCfgFile
+    echo "Made soft link: "$sampleCCfgFile
+else
+    echo "Remove soft links for sampleSets.cfg and sampleCollections.cfg and try again"
+fi
