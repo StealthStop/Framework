@@ -265,6 +265,7 @@ public:
         , singlets_          (nullptr)
         , hadtops_idx_       (nullptr)
     {                
+        std::cout<<"Setting up RunTopTagger"<<std::endl;
         tt_->setCfgFile(taggerCfg_);
         std::cout<<"Using "+taggerCfg+" as the TopTagger config file"<<std::endl;
     }

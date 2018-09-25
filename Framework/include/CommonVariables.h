@@ -150,7 +150,9 @@ private:
 
 public:
     CommonVariables()
-    {}
+    {
+        std::cout<<"Setting up CommonVariables"<<std::endl;
+    }
 
     void operator()(NTupleReader& tr)
     {

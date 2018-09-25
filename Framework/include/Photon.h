@@ -35,7 +35,9 @@ private:
 
 public:
     Photon() 
-    {}
+    {
+        std::cout<<"Setting up Photon"<<std::endl;
+    }
 
     void operator()(NTupleReader& tr)
     {

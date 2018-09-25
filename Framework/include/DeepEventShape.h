@@ -317,6 +317,7 @@ private:
 public:
     DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info")
     {
+        std::cout<<"Setting up DeepEventShape"<<std::endl;
         //buffer to hold file contents 
         std::string cfgText;
 

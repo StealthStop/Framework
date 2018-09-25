@@ -316,6 +316,7 @@ private:
 public:
     Baseline() 
     {
+        std::cout<<"Setting up Baseline"<<std::endl;
     }
     
     void operator()(NTupleReader& tr)
