@@ -44,5 +44,6 @@ then
     echo "Made soft link: "$sampleSCfgFile
     echo "Made soft link: "$sampleCCfgFile
 else
+    echo "Soft links for sampleSets.cfg and sampleCollections.cfg found"
     echo "Remove soft links for sampleSets.cfg and sampleCollections.cfg and try again"
 fi
