@@ -279,6 +279,7 @@ public:
         , muSFHistoReco_(nullptr)
           
     {
+        std::cout<<"Setting up ScaleFactors"<<std::endl;
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
         TFile SFRootFile( SFRootFileName.c_str() );
         
