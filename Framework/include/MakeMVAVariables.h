@@ -134,7 +134,7 @@ private:
         std::sort( Jets_psort.begin(), Jets_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.Pt() > v2.Pt();} );
         auto* Jets_cm_top6 = new std::vector<TLorentzVector>();
         auto* Jets_top6 = new std::vector<TLorentzVector>();
-        int nTopJets = 7; // Hard Coded Bad
+        int nTopJets = 20; // Hard Coded Bad
 
         for( unsigned int ji=0; ji<cm_jets->size(); ji++ ) 
         {
@@ -188,7 +188,7 @@ private:
             tr.registerDerivedVar("Jet_phi_"+std::to_string(i+1), static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Phi() : 0.0));
             tr.registerDerivedVar("Jet_m_"+std::to_string(i+1),   static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).M()   : 0.0));
         }
-        for(unsigned int i = 0; i < GoodLeptons_cm->size(); i++)
+        for(unsigned int i = 0; i < 1; i++) //Hard coded...Bad
         {
             tr.registerDerivedVar("GoodLeptons_pt_"+std::to_string(i+1),  static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Pt()  : 0.0));
             tr.registerDerivedVar("GoodLeptons_eta_"+std::to_string(i+1), static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Eta() : 0.0));
