@@ -1,7 +1,8 @@
 #ifndef MAKEMVAVARIABLES_H
 #define MAKEMVAVARIABLES_H 
 
-#include "Framework/Framework/src/EventShapeVariables.cc"
+/////////////#include "Framework/Framework/src/EventShapeVariables.cc"
+#include "Framework/Framework/include/EventShapeVariables.h"
 #include "Framework/Framework/src/get_cmframe_jets.c"
 
 class MakeMVAVariables
@@ -17,6 +18,7 @@ private:
 
     bool verb_;
     std::string myVarSuffix_;
+    std::string derivedVarPostfix_;
 
     std::vector<int> decToBinary(int n, int max) const
     {
@@ -70,9 +72,50 @@ private:
 
     void makeMVAVariables(NTupleReader& tr)
     {
-        const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-        const auto& GoodJets = tr.getVec<bool>("GoodJets");
-        const auto& NGoodJets = tr.getVar<int>("NGoodJets");
+
+        if ( verb_ ) printf("\n\n makeMVAVariables : myVarSuffix_ = %s , derivedVarPostfix_ = %s\n", myVarSuffix_.c_str(), derivedVarPostfix_.c_str() ) ;
+
+        char dvar_name[1000] ;
+
+        sprintf( dvar_name, "Jets%s", myVarSuffix_.c_str() ) ;
+        if ( verb_ ) printf("  makeMVAVariables :  Jets collection name = %s\n", dvar_name ) ;
+        const auto& Jets = tr.getVec<TLorentzVector>(dvar_name);
+
+
+
+       //--- Owen: for now, decide whether to use non-standard versions of GoodJets and NGoodJets based
+       //          on whether a derivedVarPostfix_ has been specified.  Use myVarSuffix_ for 
+       //          Jets, GoodJets, and NGoodJets if a derivedVarPostfix_ has been specified.
+       //          Should preserve old behavior.
+       //
+        if ( derivedVarPostfix_.length() > 0 ) {
+           sprintf( dvar_name, "GoodJets%s", myVarSuffix_.c_str() ) ;
+        } else {
+           sprintf( dvar_name, "GoodJets" ) ;
+        }
+        if ( verb_ ) printf("  makeMVAVariables :  GoodJets collection name = %s\n", dvar_name ) ;
+        const auto& GoodJets = tr.getVec<bool>(dvar_name);
+
+        if ( derivedVarPostfix_.length() > 0 ) {
+           sprintf( dvar_name, "NGoodJets%s", myVarSuffix_.c_str() ) ;
+        } else {
+           sprintf( dvar_name, "NGoodJets" ) ;
+        }
+        if ( verb_ ) printf("  makeMVAVariables :  NGoodJets name = %s\n", dvar_name ) ;
+        const auto& NGoodJets = tr.getVar<int>(dvar_name);
+
+        if ( verb_ ) {
+            printf("  makeMVAVariables : input jet collection\n") ;
+            for ( int rji=0; rji<Jets.size(); rji++ ) {
+               if ( !GoodJets[rji] ) continue ;
+               printf("  %2d : Pt = %7.1f , Eta = %7.3f , Phi = %7.3f\n", rji, Jets[rji].Pt(), Jets[rji].Eta(), Jets[rji].Phi() ) ;
+            } // rji
+        }
+
+
+
+
+
         const auto& GoodLeptons = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
         const auto& NGoodLeptons = tr.getVar<int>("NGoodLeptons");
         const auto& MET = tr.getVar<double>("MET"); 
@@ -155,9 +198,9 @@ private:
                        cm_jets->at(ji).R(), cm_jets->at(ji).Theta(), cm_jets->at(ji).Phi(),
                        cm_jets_psort.at(ji).R(), cm_jets_psort.at(ji).Theta(), cm_jets_psort.at(ji).Phi() ) ;
                 
-                printf("  %2d :  (%7.1f, %7.3f, %7.3f) | (%7.1f, %7.3f, %7.3f)\n", ji,
-                       Jets_cm->at(ji).P(), Jets_cm->at(ji).Theta(), Jets_cm->at(ji).Phi(),
-                       Jets_cm_top6->at(ji).P(), Jets_cm_top6->at(ji).Theta(), Jets_cm_top6->at(ji).Phi() ) ;
+             // printf("  %2d :  (%7.1f, %7.3f, %7.3f) | (%7.1f, %7.3f, %7.3f)\n", ji,
+             //        Jets_cm->at(ji).P(), Jets_cm->at(ji).Theta(), Jets_cm->at(ji).Phi(),
+             //        Jets_cm_top6->at(ji).P(), Jets_cm_top6->at(ji).Theta(), Jets_cm_top6->at(ji).Phi() ) ;
             } // ji
             printf("\n\n") ;
         }
@@ -183,39 +226,39 @@ private:
         //
         for(unsigned int i = 0; i < nTopJets; i++)
         {
-            tr.registerDerivedVar("Jet_pt_"+std::to_string(i+1),  static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Pt()  : 0.0));
-            tr.registerDerivedVar("Jet_eta_"+std::to_string(i+1), static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Eta() : 0.0));
-            tr.registerDerivedVar("Jet_phi_"+std::to_string(i+1), static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Phi() : 0.0));
-            tr.registerDerivedVar("Jet_m_"+std::to_string(i+1),   static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).M()   : 0.0));
+            tr.registerDerivedVar("Jet_pt_"+std::to_string(i+1)+derivedVarPostfix_,  static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Pt()  : 0.0));
+            tr.registerDerivedVar("Jet_eta_"+std::to_string(i+1)+derivedVarPostfix_, static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Eta() : 0.0));
+            tr.registerDerivedVar("Jet_phi_"+std::to_string(i+1)+derivedVarPostfix_, static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Phi() : 0.0));
+            tr.registerDerivedVar("Jet_m_"+std::to_string(i+1)+derivedVarPostfix_,   static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).M()   : 0.0));
         }
         for(unsigned int i = 0; i < GoodLeptons_cm->size(); i++)
         {
-            tr.registerDerivedVar("GoodLeptons_pt_"+std::to_string(i+1),  static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Pt()  : 0.0));
-            tr.registerDerivedVar("GoodLeptons_eta_"+std::to_string(i+1), static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Eta() : 0.0));
-            tr.registerDerivedVar("GoodLeptons_phi_"+std::to_string(i+1), static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Phi() : 0.0));
-            tr.registerDerivedVar("GoodLeptons_m_"+std::to_string(i+1),   static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).M()   : 0.0));
+            tr.registerDerivedVar("GoodLeptons_pt_"+std::to_string(i+1)+derivedVarPostfix_,  static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Pt()  : 0.0));
+            tr.registerDerivedVar("GoodLeptons_eta_"+std::to_string(i+1)+derivedVarPostfix_, static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Eta() : 0.0));
+            tr.registerDerivedVar("GoodLeptons_phi_"+std::to_string(i+1)+derivedVarPostfix_, static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Phi() : 0.0));
+            tr.registerDerivedVar("GoodLeptons_m_"+std::to_string(i+1)+derivedVarPostfix_,   static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).M()   : 0.0));
         }
-        tr.registerDerivedVar("lvMET_cm_pt",  static_cast<double>( lvMET_cm.Pt() ));
-        tr.registerDerivedVar("lvMET_cm_eta", static_cast<double>( lvMET_cm.Eta()));
-        tr.registerDerivedVar("lvMET_cm_phi", static_cast<double>( lvMET_cm.Phi()));
-        tr.registerDerivedVar("lvMET_cm_m",   static_cast<double>( lvMET_cm.M()  ));
-        tr.registerDerivedVec("cm_jets", cm_jets);
-        tr.registerDerivedVec("Jets_cm", Jets_cm);
-        tr.registerDerivedVec("Jets_cm_top6", Jets_cm_top6);
-        tr.registerDerivedVec("Jets_top6", Jets_top6);
-        tr.registerDerivedVar("fwm2_top6", fwm2_top6);
-        tr.registerDerivedVar("fwm3_top6", fwm3_top6);
-        tr.registerDerivedVar("fwm4_top6", fwm4_top6);
-        tr.registerDerivedVar("fwm5_top6", fwm5_top6);
-        tr.registerDerivedVar("fwm6_top6", fwm6_top6);
-        tr.registerDerivedVar("fwm7_top6", fwm7_top6);
-        tr.registerDerivedVar("fwm8_top6", fwm8_top6);
-        tr.registerDerivedVar("fwm9_top6", fwm9_top6);
-        tr.registerDerivedVar("fwm10_top6", fwm10_top6);
-        tr.registerDerivedVar("jmt_ev0_top6", jmt_ev0_top6);
-        tr.registerDerivedVar("jmt_ev1_top6", jmt_ev1_top6);
-        tr.registerDerivedVar("jmt_ev2_top6", jmt_ev2_top6);
-        tr.registerDerivedVar("event_beta_z", event_beta_z);
+        tr.registerDerivedVar("lvMET_cm_pt"+derivedVarPostfix_,  static_cast<double>( lvMET_cm.Pt() ));
+        tr.registerDerivedVar("lvMET_cm_eta"+derivedVarPostfix_, static_cast<double>( lvMET_cm.Eta()));
+        tr.registerDerivedVar("lvMET_cm_phi"+derivedVarPostfix_, static_cast<double>( lvMET_cm.Phi()));
+        tr.registerDerivedVar("lvMET_cm_m"+derivedVarPostfix_,   static_cast<double>( lvMET_cm.M()  ));
+        tr.registerDerivedVec("cm_jets"+derivedVarPostfix_, cm_jets);
+        tr.registerDerivedVec("Jets_cm"+derivedVarPostfix_, Jets_cm);
+        tr.registerDerivedVec("Jets_cm_top6"+derivedVarPostfix_, Jets_cm_top6);
+        tr.registerDerivedVec("Jets_top6"+derivedVarPostfix_, Jets_top6);
+        tr.registerDerivedVar("fwm2_top6"+derivedVarPostfix_, fwm2_top6);
+        tr.registerDerivedVar("fwm3_top6"+derivedVarPostfix_, fwm3_top6);
+        tr.registerDerivedVar("fwm4_top6"+derivedVarPostfix_, fwm4_top6);
+        tr.registerDerivedVar("fwm5_top6"+derivedVarPostfix_, fwm5_top6);
+        tr.registerDerivedVar("fwm6_top6"+derivedVarPostfix_, fwm6_top6);
+        tr.registerDerivedVar("fwm7_top6"+derivedVarPostfix_, fwm7_top6);
+        tr.registerDerivedVar("fwm8_top6"+derivedVarPostfix_, fwm8_top6);
+        tr.registerDerivedVar("fwm9_top6"+derivedVarPostfix_, fwm9_top6);
+        tr.registerDerivedVar("fwm10_top6"+derivedVarPostfix_, fwm10_top6);
+        tr.registerDerivedVar("jmt_ev0_top6"+derivedVarPostfix_, jmt_ev0_top6);
+        tr.registerDerivedVar("jmt_ev1_top6"+derivedVarPostfix_, jmt_ev1_top6);
+        tr.registerDerivedVar("jmt_ev2_top6"+derivedVarPostfix_, jmt_ev2_top6);
+        tr.registerDerivedVar("event_beta_z"+derivedVarPostfix_, event_beta_z);
 
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
         std::pair<TLorentzVector, TLorentzVector> BestCombo, genBestCombo;
@@ -296,18 +339,21 @@ private:
             //         <<genBestCombo.second.M()<<", "<<genBestCombo.second.Pt()<<", "<<genBestCombo.second.Eta()<<", "<<genBestCombo.second.Phi()<<"):"
             //         <<" GenMatched: "<<genMatched<<" Number of Jets: "<<NGoodJets<<std::endl;
         }
-        tr.registerDerivedVar("BestCombo", BestCombo);        
-        tr.registerDerivedVar("genBestCombo", genBestCombo);
-        tr.registerDerivedVar("MegaJetsTopsGenMatched", genMatched);
-        tr.registerDerivedVar("BestComboAvgMass", static_cast<double>(( BestCombo.first.M() + BestCombo.second.M() )/2));
+        tr.registerDerivedVar("BestCombo"+derivedVarPostfix_, BestCombo);        
+        tr.registerDerivedVar("genBestCombo"+derivedVarPostfix_, genBestCombo);
+        tr.registerDerivedVar("MegaJetsTopsGenMatched"+derivedVarPostfix_, genMatched);
+        tr.registerDerivedVar("BestComboAvgMass"+derivedVarPostfix_, static_cast<double>(( BestCombo.first.M() + BestCombo.second.M() )/2));
     }
     
 public:
-    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "")
+    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", std::string derivedVarPostfix = "")
         : verb_(verb)
         , myVarSuffix_(myVarSuffix)
+        , derivedVarPostfix_(derivedVarPostfix)
     {
         std::cout<<"Setting up MakeMVAVariables"<<std::endl;
+        if ( myVarSuffix_.length()       > 0 ) printf("   MakeMVAVariables : suffix for jet collection     : %s\n", myVarSuffix_.c_str() ) ;
+        if ( derivedVarPostfix_.length() > 0 ) printf("   MakeMVAVariables : postfix for derived variables : %s\n", derivedVarPostfix_.c_str() ) ;
     }
 
     void operator()(NTupleReader& tr)
