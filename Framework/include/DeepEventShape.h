@@ -20,15 +20,17 @@ private:
     int Jet_pt_1_, Jet_pt_2_, Jet_pt_3_, Jet_pt_4_, Jet_pt_5_, Jet_pt_6_, Jet_pt_7_, Jet_eta_1_, Jet_eta_2_, Jet_eta_3_, Jet_eta_4_, Jet_eta_5_, Jet_eta_6_, Jet_eta_7_;
     int Jet_phi_1_, Jet_phi_2_, Jet_phi_3_, Jet_phi_4_, Jet_phi_5_, Jet_phi_6_, Jet_phi_7_, Jet_m_1_, Jet_m_2_, Jet_m_3_, Jet_m_4_, Jet_m_5_, Jet_m_6_, Jet_m_7_; 
     int BestComboAvgMass_;
+    std::string derivedVarSuffix_ ;
 
 public:
-    EventShapeCalculator()
+    EventShapeCalculator( std::string derivedVarSuffix = "" )
     {
         fwm2_top6_ = fwm3_top6_ = fwm4_top6_ = fwm5_top6_ = fwm6_top6_ = fwm7_top6_ = fwm8_top6_ = fwm9_top6_ = fwm10_top6_ = jmt_ev0_top6_ = jmt_ev1_top6_ = jmt_ev2_top6_ = -1; 
         NGoodJets_double_ = -1;
         Jet_pt_1_ = Jet_pt_2_ = Jet_pt_3_ = Jet_pt_4_ = Jet_pt_5_ = Jet_pt_6_ = Jet_pt_7_ = Jet_eta_1_ = Jet_eta_2_ = Jet_eta_3_ = Jet_eta_4_ = Jet_eta_5_ = Jet_eta_6_ = Jet_eta_7_= -1;
         Jet_phi_1_ = Jet_phi_2_ = Jet_phi_3_ = Jet_phi_4_ = Jet_phi_5_ = Jet_phi_6_ = Jet_phi_7_= Jet_m_1_ = Jet_m_2_ = Jet_m_3_ = Jet_m_4_ = Jet_m_5_ = Jet_m_6_ = Jet_m_7_ = -1; 
         BestComboAvgMass_ = -1;
+        derivedVarSuffix_ = derivedVarSuffix ;
     }
 
     /**
@@ -40,48 +42,53 @@ public:
 
         for(unsigned int i = 0; i < vars.size(); ++i)
         {
-            if(     vars[i].compare("fwm2_top6") == 0)  fwm2_top6_ = i;
-            else if(vars[i].compare("fwm3_top6") == 0)  fwm3_top6_ = i;
-            else if(vars[i].compare("fwm4_top6") == 0)  fwm4_top6_ = i;
-            else if(vars[i].compare("fwm5_top6") == 0)  fwm5_top6_ = i;
-            else if(vars[i].compare("fwm6_top6") == 0)  fwm6_top6_ = i;
-            else if(vars[i].compare("fwm7_top6") == 0)  fwm7_top6_ = i;
-            else if(vars[i].compare("fwm8_top6") == 0)  fwm8_top6_ = i;
-            else if(vars[i].compare("fwm9_top6") == 0)  fwm9_top6_ = i;
-            else if(vars[i].compare("fwm10_top6") == 0) fwm10_top6_ = i;
-            else if(vars[i].compare("jmt_ev0_top6") == 0) jmt_ev0_top6_ = i;
-            else if(vars[i].compare("jmt_ev1_top6") == 0) jmt_ev1_top6_ = i;
-            else if(vars[i].compare("jmt_ev2_top6") == 0) jmt_ev2_top6_ = i;
-            else if(vars[i].compare("NGoodJets_double") == 0) NGoodJets_double_ = i;
-            else if(vars[i].compare("Jet_pt_1") == 0) Jet_pt_1_ = i;
-            else if(vars[i].compare("Jet_pt_2") == 0) Jet_pt_2_ = i;
-            else if(vars[i].compare("Jet_pt_3") == 0) Jet_pt_3_ = i;
-            else if(vars[i].compare("Jet_pt_4") == 0) Jet_pt_4_ = i;
-            else if(vars[i].compare("Jet_pt_5") == 0) Jet_pt_5_ = i;
-            else if(vars[i].compare("Jet_pt_6") == 0) Jet_pt_6_ = i;
-            else if(vars[i].compare("Jet_pt_7") == 0) Jet_pt_7_ = i;
-            else if(vars[i].compare("Jet_eta_1") == 0) Jet_eta_1_ = i;
-            else if(vars[i].compare("Jet_eta_2") == 0) Jet_eta_2_ = i;
-            else if(vars[i].compare("Jet_eta_3") == 0) Jet_eta_3_ = i;
-            else if(vars[i].compare("Jet_eta_4") == 0) Jet_eta_4_ = i;
-            else if(vars[i].compare("Jet_eta_5") == 0) Jet_eta_5_ = i;
-            else if(vars[i].compare("Jet_eta_6") == 0) Jet_eta_6_ = i;
-            else if(vars[i].compare("Jet_eta_7") == 0) Jet_eta_7_ = i;
-            else if(vars[i].compare("Jet_phi_1") == 0) Jet_phi_1_ = i;
-            else if(vars[i].compare("Jet_phi_2") == 0) Jet_phi_2_ = i;
-            else if(vars[i].compare("Jet_phi_3") == 0) Jet_phi_3_ = i;
-            else if(vars[i].compare("Jet_phi_4") == 0) Jet_phi_4_ = i;
-            else if(vars[i].compare("Jet_phi_5") == 0) Jet_phi_5_ = i;
-            else if(vars[i].compare("Jet_phi_6") == 0) Jet_phi_6_ = i;
-            else if(vars[i].compare("Jet_phi_7") == 0) Jet_phi_7_ = i;
-            else if(vars[i].compare("Jet_m_1") == 0) Jet_m_1_ = i;
-            else if(vars[i].compare("Jet_m_2") == 0) Jet_m_2_ = i;
-            else if(vars[i].compare("Jet_m_3") == 0) Jet_m_3_ = i;
-            else if(vars[i].compare("Jet_m_4") == 0) Jet_m_4_ = i;
-            else if(vars[i].compare("Jet_m_5") == 0) Jet_m_5_ = i;
-            else if(vars[i].compare("Jet_m_6") == 0) Jet_m_6_ = i;
-            else if(vars[i].compare("Jet_m_7") == 0) Jet_m_7_ = i;
-            else if(vars[i].compare("BestComboAvgMass") == 0) BestComboAvgMass_ = i;
+            bool foundit(false) ;
+            if(     vars[i].compare("fwm2_top6") == 0)  { fwm2_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("fwm3_top6") == 0)  { fwm3_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("fwm4_top6") == 0)  { fwm4_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("fwm5_top6") == 0)  { fwm5_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("fwm6_top6") == 0)  { fwm6_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("fwm7_top6") == 0)  { fwm7_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("fwm8_top6") == 0)  { fwm8_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("fwm9_top6") == 0)  { fwm9_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("fwm10_top6") == 0) { fwm10_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("jmt_ev0_top6") == 0) { jmt_ev0_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("jmt_ev1_top6") == 0) { jmt_ev1_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("jmt_ev2_top6") == 0) { jmt_ev2_top6_ = i; foundit = true ; }
+            else if(vars[i].compare("NGoodJets_double") == 0) { NGoodJets_double_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_pt_1"+derivedVarSuffix_) == 0) { Jet_pt_1_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_pt_2"+derivedVarSuffix_) == 0) { Jet_pt_2_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_pt_3"+derivedVarSuffix_) == 0) { Jet_pt_3_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_pt_4"+derivedVarSuffix_) == 0) { Jet_pt_4_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_pt_5"+derivedVarSuffix_) == 0) { Jet_pt_5_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_pt_6"+derivedVarSuffix_) == 0) { Jet_pt_6_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_pt_7"+derivedVarSuffix_) == 0) { Jet_pt_7_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_eta_1"+derivedVarSuffix_) == 0) { Jet_eta_1_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_eta_2"+derivedVarSuffix_) == 0) { Jet_eta_2_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_eta_3"+derivedVarSuffix_) == 0) { Jet_eta_3_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_eta_4"+derivedVarSuffix_) == 0) { Jet_eta_4_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_eta_5"+derivedVarSuffix_) == 0) { Jet_eta_5_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_eta_6"+derivedVarSuffix_) == 0) { Jet_eta_6_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_eta_7"+derivedVarSuffix_) == 0) { Jet_eta_7_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_phi_1"+derivedVarSuffix_) == 0) { Jet_phi_1_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_phi_2"+derivedVarSuffix_) == 0) { Jet_phi_2_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_phi_3"+derivedVarSuffix_) == 0) { Jet_phi_3_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_phi_4"+derivedVarSuffix_) == 0) { Jet_phi_4_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_phi_5"+derivedVarSuffix_) == 0) { Jet_phi_5_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_phi_6"+derivedVarSuffix_) == 0) { Jet_phi_6_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_phi_7"+derivedVarSuffix_) == 0) { Jet_phi_7_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_m_1"+derivedVarSuffix_) == 0) { Jet_m_1_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_m_2"+derivedVarSuffix_) == 0) { Jet_m_2_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_m_3"+derivedVarSuffix_) == 0) { Jet_m_3_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_m_4"+derivedVarSuffix_) == 0) { Jet_m_4_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_m_5"+derivedVarSuffix_) == 0) { Jet_m_5_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_m_6"+derivedVarSuffix_) == 0) { Jet_m_6_ = i; foundit = true ; }
+            else if(vars[i].compare("Jet_m_7"+derivedVarSuffix_) == 0) { Jet_m_7_ = i; foundit = true ; }
+            else if(vars[i].compare("BestComboAvgMass") == 0) { BestComboAvgMass_ = i; foundit = true ; }
+            if ( !foundit ) {
+               printf("\n\n *** mapVars : Did not find input var %s in list of known variables.\n\n", vars[i].c_str() ) ;
+               throw "\n\n\n *** mapVars : I can't continue.\n\n" ;
+            }
         }
     }
     /**
@@ -106,34 +113,34 @@ public:
         if(jmt_ev1_top6_ >= 0) *(basePtr_ + jmt_ev1_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev1_top6");
         if(jmt_ev2_top6_ >= 0) *(basePtr_ + jmt_ev2_top6_ + len_*iCand) =  tr.getVar<double>("jmt_ev2_top6");
         if(NGoodJets_double_ >= 0) *(basePtr_ + NGoodJets_double_ + len_*iCand) =  static_cast<double>(tr.getVar<unsigned long>("NGoodJets"));
-        if(Jet_pt_1_ >= 0) *(basePtr_ + Jet_pt_1_ + len_*iCand) = tr.getVar<double>("Jet_pt_1");
-        if(Jet_pt_2_ >= 0) *(basePtr_ + Jet_pt_2_ + len_*iCand) = tr.getVar<double>("Jet_pt_2");
-        if(Jet_pt_3_ >= 0) *(basePtr_ + Jet_pt_3_ + len_*iCand) = tr.getVar<double>("Jet_pt_3");
-        if(Jet_pt_4_ >= 0) *(basePtr_ + Jet_pt_4_ + len_*iCand) = tr.getVar<double>("Jet_pt_4");
-        if(Jet_pt_5_ >= 0) *(basePtr_ + Jet_pt_5_ + len_*iCand) = tr.getVar<double>("Jet_pt_5");
-        if(Jet_pt_6_ >= 0) *(basePtr_ + Jet_pt_6_ + len_*iCand) = tr.getVar<double>("Jet_pt_6");
-        if(Jet_pt_7_ >= 0) *(basePtr_ + Jet_pt_7_ + len_*iCand) = tr.getVar<double>("Jet_pt_7");
-        if(Jet_eta_1_ >= 0) *(basePtr_ + Jet_eta_1_ + len_*iCand) = tr.getVar<double>("Jet_eta_1");
-        if(Jet_eta_2_ >= 0) *(basePtr_ + Jet_eta_2_ + len_*iCand) = tr.getVar<double>("Jet_eta_2");
-        if(Jet_eta_3_ >= 0) *(basePtr_ + Jet_eta_3_ + len_*iCand) = tr.getVar<double>("Jet_eta_3");
-        if(Jet_eta_4_ >= 0) *(basePtr_ + Jet_eta_4_ + len_*iCand) = tr.getVar<double>("Jet_eta_4");
-        if(Jet_eta_5_ >= 0) *(basePtr_ + Jet_eta_5_ + len_*iCand) = tr.getVar<double>("Jet_eta_5");
-        if(Jet_eta_6_ >= 0) *(basePtr_ + Jet_eta_6_ + len_*iCand) = tr.getVar<double>("Jet_eta_6");
-        if(Jet_eta_7_ >= 0) *(basePtr_ + Jet_eta_7_ + len_*iCand) = tr.getVar<double>("Jet_eta_7");
-        if(Jet_phi_1_ >= 0) *(basePtr_ + Jet_phi_1_ + len_*iCand) = tr.getVar<double>("Jet_phi_1");
-        if(Jet_phi_2_ >= 0) *(basePtr_ + Jet_phi_2_ + len_*iCand) = tr.getVar<double>("Jet_phi_2");
-        if(Jet_phi_3_ >= 0) *(basePtr_ + Jet_phi_3_ + len_*iCand) = tr.getVar<double>("Jet_phi_3");
-        if(Jet_phi_4_ >= 0) *(basePtr_ + Jet_phi_4_ + len_*iCand) = tr.getVar<double>("Jet_phi_4");
-        if(Jet_phi_5_ >= 0) *(basePtr_ + Jet_phi_5_ + len_*iCand) = tr.getVar<double>("Jet_phi_5");
-        if(Jet_phi_6_ >= 0) *(basePtr_ + Jet_phi_6_ + len_*iCand) = tr.getVar<double>("Jet_phi_6");
-        if(Jet_phi_7_ >= 0) *(basePtr_ + Jet_phi_7_ + len_*iCand) = tr.getVar<double>("Jet_phi_7");
-        if(Jet_m_1_ >= 0) *(basePtr_ + Jet_m_1_ + len_*iCand) = tr.getVar<double>("Jet_m_1");
-        if(Jet_m_2_ >= 0) *(basePtr_ + Jet_m_2_ + len_*iCand) = tr.getVar<double>("Jet_m_2");
-        if(Jet_m_3_ >= 0) *(basePtr_ + Jet_m_3_ + len_*iCand) = tr.getVar<double>("Jet_m_3");
-        if(Jet_m_4_ >= 0) *(basePtr_ + Jet_m_4_ + len_*iCand) = tr.getVar<double>("Jet_m_4");
-        if(Jet_m_5_ >= 0) *(basePtr_ + Jet_m_5_ + len_*iCand) = tr.getVar<double>("Jet_m_5");
-        if(Jet_m_6_ >= 0) *(basePtr_ + Jet_m_6_ + len_*iCand) = tr.getVar<double>("Jet_m_6");
-        if(Jet_m_7_ >= 0) *(basePtr_ + Jet_m_7_ + len_*iCand) = tr.getVar<double>("Jet_m_7");
+        if(Jet_pt_1_ >= 0) *(basePtr_ + Jet_pt_1_ + len_*iCand) = tr.getVar<double>("Jet_pt_1"+derivedVarSuffix_);
+        if(Jet_pt_2_ >= 0) *(basePtr_ + Jet_pt_2_ + len_*iCand) = tr.getVar<double>("Jet_pt_2"+derivedVarSuffix_);
+        if(Jet_pt_3_ >= 0) *(basePtr_ + Jet_pt_3_ + len_*iCand) = tr.getVar<double>("Jet_pt_3"+derivedVarSuffix_);
+        if(Jet_pt_4_ >= 0) *(basePtr_ + Jet_pt_4_ + len_*iCand) = tr.getVar<double>("Jet_pt_4"+derivedVarSuffix_);
+        if(Jet_pt_5_ >= 0) *(basePtr_ + Jet_pt_5_ + len_*iCand) = tr.getVar<double>("Jet_pt_5"+derivedVarSuffix_);
+        if(Jet_pt_6_ >= 0) *(basePtr_ + Jet_pt_6_ + len_*iCand) = tr.getVar<double>("Jet_pt_6"+derivedVarSuffix_);
+        if(Jet_pt_7_ >= 0) *(basePtr_ + Jet_pt_7_ + len_*iCand) = tr.getVar<double>("Jet_pt_7"+derivedVarSuffix_);
+        if(Jet_eta_1_ >= 0) *(basePtr_ + Jet_eta_1_ + len_*iCand) = tr.getVar<double>("Jet_eta_1"+derivedVarSuffix_);
+        if(Jet_eta_2_ >= 0) *(basePtr_ + Jet_eta_2_ + len_*iCand) = tr.getVar<double>("Jet_eta_2"+derivedVarSuffix_);
+        if(Jet_eta_3_ >= 0) *(basePtr_ + Jet_eta_3_ + len_*iCand) = tr.getVar<double>("Jet_eta_3"+derivedVarSuffix_);
+        if(Jet_eta_4_ >= 0) *(basePtr_ + Jet_eta_4_ + len_*iCand) = tr.getVar<double>("Jet_eta_4"+derivedVarSuffix_);
+        if(Jet_eta_5_ >= 0) *(basePtr_ + Jet_eta_5_ + len_*iCand) = tr.getVar<double>("Jet_eta_5"+derivedVarSuffix_);
+        if(Jet_eta_6_ >= 0) *(basePtr_ + Jet_eta_6_ + len_*iCand) = tr.getVar<double>("Jet_eta_6"+derivedVarSuffix_);
+        if(Jet_eta_7_ >= 0) *(basePtr_ + Jet_eta_7_ + len_*iCand) = tr.getVar<double>("Jet_eta_7"+derivedVarSuffix_);
+        if(Jet_phi_1_ >= 0) *(basePtr_ + Jet_phi_1_ + len_*iCand) = tr.getVar<double>("Jet_phi_1"+derivedVarSuffix_);
+        if(Jet_phi_2_ >= 0) *(basePtr_ + Jet_phi_2_ + len_*iCand) = tr.getVar<double>("Jet_phi_2"+derivedVarSuffix_);
+        if(Jet_phi_3_ >= 0) *(basePtr_ + Jet_phi_3_ + len_*iCand) = tr.getVar<double>("Jet_phi_3"+derivedVarSuffix_);
+        if(Jet_phi_4_ >= 0) *(basePtr_ + Jet_phi_4_ + len_*iCand) = tr.getVar<double>("Jet_phi_4"+derivedVarSuffix_);
+        if(Jet_phi_5_ >= 0) *(basePtr_ + Jet_phi_5_ + len_*iCand) = tr.getVar<double>("Jet_phi_5"+derivedVarSuffix_);
+        if(Jet_phi_6_ >= 0) *(basePtr_ + Jet_phi_6_ + len_*iCand) = tr.getVar<double>("Jet_phi_6"+derivedVarSuffix_);
+        if(Jet_phi_7_ >= 0) *(basePtr_ + Jet_phi_7_ + len_*iCand) = tr.getVar<double>("Jet_phi_7"+derivedVarSuffix_);
+        if(Jet_m_1_ >= 0) *(basePtr_ + Jet_m_1_ + len_*iCand) = tr.getVar<double>("Jet_m_1"+derivedVarSuffix_);
+        if(Jet_m_2_ >= 0) *(basePtr_ + Jet_m_2_ + len_*iCand) = tr.getVar<double>("Jet_m_2"+derivedVarSuffix_);
+        if(Jet_m_3_ >= 0) *(basePtr_ + Jet_m_3_ + len_*iCand) = tr.getVar<double>("Jet_m_3"+derivedVarSuffix_);
+        if(Jet_m_4_ >= 0) *(basePtr_ + Jet_m_4_ + len_*iCand) = tr.getVar<double>("Jet_m_4"+derivedVarSuffix_);
+        if(Jet_m_5_ >= 0) *(basePtr_ + Jet_m_5_ + len_*iCand) = tr.getVar<double>("Jet_m_5"+derivedVarSuffix_);
+        if(Jet_m_6_ >= 0) *(basePtr_ + Jet_m_6_ + len_*iCand) = tr.getVar<double>("Jet_m_6"+derivedVarSuffix_);
+        if(Jet_m_7_ >= 0) *(basePtr_ + Jet_m_7_ + len_*iCand) = tr.getVar<double>("Jet_m_7"+derivedVarSuffix_);
         if(BestComboAvgMass_ >= 0) *(basePtr_ + BestComboAvgMass_ + len_*iCand) = tr.getVar<double>("BestComboAvgMass");
     }
 };
@@ -143,6 +150,7 @@ class DeepEventShape
 private:
     double discriminator_;
     std::string modelFile_, inputOp_, outputOp_;
+    std::string derivedVarSuffix_ ;
 
     //Tensoflow session pointer
     TF_Session* session_;
@@ -228,7 +236,7 @@ private:
         TF_DeleteStatus(status);
 
         //map variables
-        varCalculator_.reset(new EventShapeCalculator());
+        varCalculator_.reset(new EventShapeCalculator( derivedVarSuffix_ ));
         varCalculator_->mapVars(vars_);
     }
 
@@ -281,12 +289,12 @@ private:
         TF_DeleteStatus(status);
 
         // Register Variables
-        tr.registerDerivedVar("deepESM_val", discriminator);
+        tr.registerDerivedVar("deepESM_val"+derivedVarSuffix_, discriminator);
         // Define and register deepESM bins
         for(int i = 1; i < binEdges_.size(); i++)
         {
             bool passDeepESMBin = discriminator > binEdges_[i-1] && discriminator <= binEdges_[i];
-            tr.registerDerivedVar("deepESM_bin"+std::to_string(i), passDeepESMBin);
+            tr.registerDerivedVar("deepESM_bin"+std::to_string(i)+derivedVarSuffix_, passDeepESMBin);
         }
     }
 
@@ -315,11 +323,14 @@ private:
     }
 
 public:
-    DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info")
+    DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info", std::string derivedVarSuffix = "")
     {
         std::cout<<"Setting up DeepEventShape"<<std::endl;
         //buffer to hold file contents 
         std::string cfgText;
+        derivedVarSuffix_ = derivedVarSuffix ;
+        if ( derivedVarSuffix_.length() > 0 ) { printf(" DeepEventShape :   Will used suffix %s for derived vars.\n", derivedVarSuffix_.c_str() ) ; }
+
 
         FILE *f = fopen(cfgFileName.c_str(), "r");
         char buff[1024];
