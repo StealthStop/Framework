@@ -1,7 +1,7 @@
 #ifndef MAKEMVAVARIABLES_H
 #define MAKEMVAVARIABLES_H 
 
-#include "Framework/Framework/src/EventShapeVariables.cc"
+#include "Framework/Framework/include/EventShapeVariables.h"
 #include "Framework/Framework/src/get_cmframe_jets.c"
 
 class MakeMVAVariables
@@ -17,6 +17,7 @@ private:
 
     bool verb_;
     std::string myVarSuffix_;
+    bool doGenMatch_;
 
     std::vector<int> decToBinary(int n, int max) const
     {
@@ -217,10 +218,11 @@ private:
         tr.registerDerivedVar("jmt_ev2_top6", jmt_ev2_top6);
         tr.registerDerivedVar("event_beta_z", event_beta_z);
 
+
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
         std::pair<TLorentzVector, TLorentzVector> BestCombo, genBestCombo;
         bool genMatched = false;
-        if(NGoodLeptons == 1)
+        if(NGoodLeptons == 1 && doGenMatch_)
         {
             //--- Making a vector of all Jets, leptons, and MET
             std::vector<TLorentzVector> lv_all;
@@ -303,9 +305,10 @@ private:
     }
     
 public:
-    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "")
+    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", bool doGenMatch = false)
         : verb_(verb)
         , myVarSuffix_(myVarSuffix)
+        , doGenMatch_(doGenMatch)
     {
         std::cout<<"Setting up MakeMVAVariables"<<std::endl;
     }
