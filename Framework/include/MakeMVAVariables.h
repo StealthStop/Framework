@@ -1,7 +1,7 @@
 #ifndef MAKEMVAVARIABLES_H
 #define MAKEMVAVARIABLES_H 
 
-#include "Framework/Framework/src/EventShapeVariables.cc"
+#include "Framework/Framework/include/EventShapeVariables.h"
 #include "Framework/Framework/src/get_cmframe_jets.c"
 
 class MakeMVAVariables
@@ -17,6 +17,7 @@ private:
 
     bool verb_;
     std::string myVarSuffix_;
+    bool doGenMatch_;
 
     std::vector<int> decToBinary(int n, int max) const
     {
@@ -82,16 +83,9 @@ private:
         TLorentzVector lvMET;
         lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
 
-        //--- Sum all jets, leptons, and MET together
+        //--- Sum all jets
         TLorentzVector rlv_all;
-        for(int j = 0; j < Jets.size(); j++)
-        {
-            if(!GoodJets[j]) continue;
-            TLorentzVector jlv = Jets.at(j);
-            rlv_all += jlv;
-        }
-        for(auto pair : GoodLeptons) rlv_all += pair.second;
-        rlv_all += lvMET;
+        for(auto jlv : Jets) rlv_all += jlv;
 
         //--- Fill vector of jet momenta in CM frame.
         //    Boost to the CM frame
@@ -107,11 +101,13 @@ private:
         auto* Jets_cm = new std::vector<TLorentzVector>();
         auto* Jets_   = new std::vector<TLorentzVector>();
 
-        //--- Boost the Jets, leptons, and MET in the event 
-        for(auto jlvcm : Jets)
+        //--- Boost the GoodJets, Goodleptons, and the MET in the event 
+        for(int j = 0; j < Jets.size(); j++)
         {
+            if(!GoodJets[j]) continue;
+            TLorentzVector jlvcm = Jets.at(j);            
             Jets_->push_back( jlvcm );
-
+            
             jlvcm.Boost( rec_boost_beta_vec );
             Jets_cm->push_back( jlvcm );
 
@@ -136,7 +132,7 @@ private:
         auto Jets_cm_psort = *Jets_cm;
         auto Jets_psort = *Jets_;
         std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.P() > v2.P();} );
-        std::sort( Jets_psort.begin(), Jets_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.P() > v2.P();} );
+        std::sort( Jets_psort.begin(), Jets_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.Pt() > v2.Pt();} );
         auto* Jets_cm_top6 = new std::vector<TLorentzVector>();
         auto* Jets_top6 = new std::vector<TLorentzVector>();
         int nTopJets = 7; // Hard Coded Bad
@@ -222,10 +218,11 @@ private:
         tr.registerDerivedVar("jmt_ev2_top6", jmt_ev2_top6);
         tr.registerDerivedVar("event_beta_z", event_beta_z);
 
+
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
         std::pair<TLorentzVector, TLorentzVector> BestCombo, genBestCombo;
         bool genMatched = false;
-        if(NGoodLeptons == 1)
+        if(NGoodLeptons == 1 && doGenMatch_)
         {
             //--- Making a vector of all Jets, leptons, and MET
             std::vector<TLorentzVector> lv_all;
@@ -308,10 +305,12 @@ private:
     }
     
 public:
-    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "")
+    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", bool doGenMatch = false)
         : verb_(verb)
         , myVarSuffix_(myVarSuffix)
+        , doGenMatch_(doGenMatch)
     {
+        std::cout<<"Setting up MakeMVAVariables"<<std::endl;
     }
 
     void operator()(NTupleReader& tr)

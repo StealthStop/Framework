@@ -47,7 +47,9 @@ private:
 
 public:
     Electron() 
-    {}
+    {
+        std::cout<<"Setting up Electron"<<std::endl;   
+    }
 
     void operator()(NTupleReader& tr)
     {

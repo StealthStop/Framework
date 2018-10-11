@@ -45,7 +45,9 @@ private:
 
 public:
     Muon() 
-    {}
+    {
+        std::cout<<"Setting up Muon"<<std::endl;   
+    }
 
     void operator()(NTupleReader& tr)
     {

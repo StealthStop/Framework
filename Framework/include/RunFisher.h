@@ -202,6 +202,7 @@ public:
         , read_fisher_0lepton_v1_(nullptr)
         //, read_fisher_test_(nullptr)
     {
+        std::cout<<"Setting up RunFisher"<<std::endl;
         setUpFWM();
         eventshapeBDT_                                  = std::make_shared<ReadBDT_350to650_fwm10_jmtev_top6>( inputVarNames_top6_fwm10_ );
         read_fisher_350to650_fwm10_jmtev_top6_          = std::make_shared<ReadFisher_350to650_fwm10_jmtev_top6>( inputVarNames_top6_fwm10_ );

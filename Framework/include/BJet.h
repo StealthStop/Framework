@@ -137,7 +137,9 @@ private:
 public:
     BJet( std::string myVarSuffix = "" ) 
         : myVarSuffix_(myVarSuffix)
-    {}
+    {
+        std::cout<<"Setting up BJet"<<std::endl;
+    }
 
     void operator()(NTupleReader& tr)
     {

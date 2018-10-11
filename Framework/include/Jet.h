@@ -138,6 +138,7 @@ public:
     Jet(std::string myVarSuffix = "") 
         : myVarSuffix_(myVarSuffix)
     {
+        std::cout<<"Setting up Jet"<<std::endl;
     }
 
     void operator()(NTupleReader& tr)
