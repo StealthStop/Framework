@@ -154,7 +154,7 @@ private:
         bool passBaseline1l = passBaseline1mu || passBaseline1el;
         
         bool passBaseline1mu_Good = JetID          &&
-                               passMadHT           &&
+                              // passMadHT           &&
                                passTrigger         &&
                                (runtype != "Data" || filetag == "Data_SingleMuon") &&
                                passBlindLep_Good   &&
@@ -164,7 +164,7 @@ private:
                                NGoodBJets_pt30 >= 1;
 
         bool passBaseline1el_Good = JetID          &&
-                               passMadHT           &&
+                             //  passMadHT           &&
                                passTrigger         &&
                                (runtype != "Data" || filetag == "Data_SingleElectron") &&
                                passBlindLep_Good   &&
