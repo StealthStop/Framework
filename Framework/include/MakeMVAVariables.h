@@ -305,7 +305,7 @@ private:
     }
     
 public:
-    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", bool doGenMatch = false, int nTopJets = 20, int nLeptons = 1)
+    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", bool doGenMatch = false, int nTopJets = 7, int nLeptons = 1)
         : verb_(verb)
         , myVarSuffix_(myVarSuffix)
         , doGenMatch_(doGenMatch)
