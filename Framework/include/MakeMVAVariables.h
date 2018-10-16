@@ -305,12 +305,12 @@ private:
     }
     
 public:
-    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", bool doGenMatch = false)
+    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", bool doGenMatch = false, bool printStatus = true)
         : verb_(verb)
         , myVarSuffix_(myVarSuffix)
         , doGenMatch_(doGenMatch)
     {
-        std::cout<<"Setting up MakeMVAVariables"<<std::endl;
+        if(printStatus) std::cout<<"Setting up MakeMVAVariables"<<std::endl;
     }
 
     void operator()(NTupleReader& tr)

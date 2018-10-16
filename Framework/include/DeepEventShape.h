@@ -315,9 +315,9 @@ private:
     }
 
 public:
-    DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info")
+    DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info", bool printStatus = true)
     {
-        std::cout<<"Setting up DeepEventShape"<<std::endl;
+        if(printStatus) std::cout<<"Setting up DeepEventShape"<<std::endl;
         //buffer to hold file contents 
         std::string cfgText;
 
@@ -334,7 +334,7 @@ public:
         std::unique_ptr<cfg::CfgDocument> cfgDoc = cfg::CfgDocument::parseDocument(cfgText);
         getParameters(cfgDoc, localContextName);
 
-        std::cout<<"Using "+cfgFileName+" as the DeepEventShape config file"<<std::endl;
+        if(printStatus) std::cout<<"Using "+cfgFileName+" as the DeepEventShape config file"<<std::endl;
     }
 
     ~DeepEventShape()
