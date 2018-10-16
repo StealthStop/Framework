@@ -154,7 +154,7 @@ class DeepEventShape
 {
 private:
     double discriminator_;
-    std::string modelFile_, inputOp_, outputOp_, nJetMask_, funName_;
+    std::string modelFile_, inputOp_, outputOp_, nJetMask_;
 
     //Tensoflow session pointer
     TF_Session* session_;
@@ -332,7 +332,6 @@ public:
         , modelFile_(husk.modelFile_)
         , inputOp_(husk.inputOp_)
         , outputOp_(husk.outputOp_)
-        , funName_(husk.funName_)
         , session_(husk.session_)
         , vars_(husk.vars_)
         , binEdges_(husk.binEdges_)
@@ -344,7 +343,7 @@ public:
         husk.session_ = nullptr;
     }
     
-    DeepEventShape(const std::string funName = "Fred", const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info", bool printStatus = true) : funName_(funName)
+    DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info", bool printStatus = true)
     {
         if(printStatus) std::cout<<"Setting up DeepEventShape"<<std::endl;
         
@@ -364,13 +363,11 @@ public:
         std::unique_ptr<cfg::CfgDocument> cfgDoc = cfg::CfgDocument::parseDocument(cfgText);
         getParameters(cfgDoc, localContextName);
 
-        std::cout<<"My name is "<<funName_<<" "<<session_<<std::endl;
         if(printStatus) std::cout<<"Using "+cfgFileName+" as the DeepEventShape config file"<<std::endl;
     }
 
     ~DeepEventShape()
     {
-        //tensorflow status variable
         if(session_)
         {
             TF_Status* status = TF_NewStatus();
@@ -378,7 +375,6 @@ public:
             TF_DeleteSession(session_, status);
             TF_DeleteStatus(status);
         }
-        std::cout<<"My name was "<<funName_<<" "<<session_<<std::endl;
     }
     
     void operator()(NTupleReader& tr)
