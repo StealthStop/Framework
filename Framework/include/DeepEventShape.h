@@ -287,8 +287,8 @@ private:
         //discriminators is a 2D array, we only want the first entry of every array
         double discriminator = static_cast<double>(discriminators[0]);
 
-        for(auto tensor : input_values)  TF_DeleteTensor(tensor);
-        for(auto tensor : output_values) TF_DeleteTensor(tensor);
+        for(auto* tensor : input_values)  TF_DeleteTensor(tensor);
+        for(auto* tensor : output_values) TF_DeleteTensor(tensor);
         
         TF_DeleteStatus(status);
 
@@ -327,9 +327,26 @@ private:
     }
 
 public:
+    DeepEventShape(DeepEventShape&& husk) 
+        : discriminator_(husk.discriminator_)
+        , modelFile_(husk.modelFile_)
+        , inputOp_(husk.inputOp_)
+        , outputOp_(husk.outputOp_)
+        , session_(husk.session_)
+        , vars_(husk.vars_)
+        , binEdges_(husk.binEdges_)
+        , inputs_(husk.inputs_)
+        , outputs_(husk.outputs_)
+        , targets_(husk.targets_)
+        , varCalculator_(husk.varCalculator_)
+    {
+        husk.session_ = nullptr;
+    }
+    
     DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info", bool printStatus = true)
     {
         if(printStatus) std::cout<<"Setting up DeepEventShape"<<std::endl;
+        
         //buffer to hold file contents 
         std::string cfgText;
 
@@ -351,10 +368,13 @@ public:
 
     ~DeepEventShape()
     {
-        //tensorflow status variable
-        //TF_Status* status = TF_NewStatus();
-        //TF_DeleteSession(session_, status);
-        //TF_DeleteStatus(status);
+        if(session_)
+        {
+            TF_Status* status = TF_NewStatus();
+            TF_CloseSession(session_, status);
+            TF_DeleteSession(session_, status);
+            TF_DeleteStatus(status);
+        }
     }
     
     void operator()(NTupleReader& tr)
