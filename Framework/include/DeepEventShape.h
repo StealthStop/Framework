@@ -142,7 +142,7 @@ class DeepEventShape
 {
 private:
     double discriminator_;
-    std::string modelFile_, inputOp_, outputOp_;
+    std::string modelFile_, inputOp_, outputOp_, funName_;
 
     //Tensoflow session pointer
     TF_Session* session_;
@@ -275,8 +275,8 @@ private:
         //discriminators is a 2D array, we only want the first entry of every array
         double discriminator = static_cast<double>(discriminators[iCand*TF_Dim(output_values[0], 1)]);
 
-        for(auto tensor : input_values)  TF_DeleteTensor(tensor);
-        for(auto tensor : output_values) TF_DeleteTensor(tensor);
+        for(auto* tensor : input_values)  TF_DeleteTensor(tensor);
+        for(auto* tensor : output_values) TF_DeleteTensor(tensor);
         
         TF_DeleteStatus(status);
 
@@ -315,9 +315,34 @@ private:
     }
 
 public:
-    DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info")
+    DeepEventShape(DeepEventShape&& husk) 
+        : discriminator_(husk.discriminator_)
+        , modelFile_(husk.modelFile_)
+        , inputOp_(husk.inputOp_)
+        , outputOp_(husk.outputOp_)
+        , funName_(husk.funName_)
+        , session_(husk.session_)
+        , vars_(husk.vars_)
+        , binEdges_(husk.binEdges_)
+        , inputs_(husk.inputs_)
+        , outputs_(husk.outputs_)
+        , targets_(husk.targets_)
+        , varCalculator_(husk.varCalculator_)
     {
-        std::cout<<"Setting up DeepEventShape"<<std::endl;
+        //husk.discriminator_ = nullptr;
+        //husk.modelFile_ = inputOp_ = outputOp_ = funName_ = nullptr;
+        husk.session_ = nullptr;
+        //husk.vars_ = nullptr;
+        //husk.binEdges_ = nullptr;
+        //husk.inputs_ = nullptr;
+        //husk.outputs_ = nullptr;
+        //husk.targets_ = nullptr;
+        //husk.varCalculator_ = nullptr;    
+    }
+
+    DeepEventShape(const std::string funName = "Fred", const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info") : funName_(funName)
+    {
+        std::cout<<"My name is "<<funName_<<std::endl;
         //buffer to hold file contents 
         std::string cfgText;
 
@@ -340,9 +365,14 @@ public:
     ~DeepEventShape()
     {
         //tensorflow status variable
-        //TF_Status* status = TF_NewStatus();
-        //TF_DeleteSession(session_, status);
-        //TF_DeleteStatus(status);
+        std::cout<<"My name was "<<funName_<<" "<<session_<<std::endl;
+        if(session_ != nullptr)
+        {
+            TF_Status* status = TF_NewStatus();
+            TF_CloseSession(session_, status);
+            TF_DeleteSession(session_, status);
+            TF_DeleteStatus(status);
+        }
     }
     
     void operator()(NTupleReader& tr)
