@@ -310,7 +310,7 @@ public:
         , myVarSuffix_(myVarSuffix)
         , doGenMatch_(doGenMatch)
     {
-        std::cout<<"Setting up MakeMVAVariables"<<std::endl;
+        //////// std::cout<<"Setting up MakeMVAVariables"<<std::endl; //--- prints 1000s of times for Njets control sample.
     }
 
     void operator()(NTupleReader& tr)

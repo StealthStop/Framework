@@ -317,7 +317,7 @@ private:
 public:
     DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info")
     {
-        std::cout<<"Setting up DeepEventShape"<<std::endl;
+        //////////std::cout<<"Setting up DeepEventShape"<<std::endl;  //-- Prints 1000s of times for Njets control sample 
         //buffer to hold file contents 
         std::string cfgText;
 
@@ -334,7 +334,7 @@ public:
         std::unique_ptr<cfg::CfgDocument> cfgDoc = cfg::CfgDocument::parseDocument(cfgText);
         getParameters(cfgDoc, localContextName);
 
-        std::cout<<"Using "+cfgFileName+" as the DeepEventShape config file"<<std::endl;
+        ////////////std::cout<<"Using "+cfgFileName+" as the DeepEventShape config file"<<std::endl;  //-- Prints 1000s of times for Njets control sample
     }
 
     ~DeepEventShape()
