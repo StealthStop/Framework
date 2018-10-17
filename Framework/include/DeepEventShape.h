@@ -113,7 +113,7 @@ public:
         if(jmt_ev0_top6_ >= 0) *(basePtr_ + jmt_ev0_top6_) =  tr.getVar<double>("jmt_ev0_top6");
         if(jmt_ev1_top6_ >= 0) *(basePtr_ + jmt_ev1_top6_) =  tr.getVar<double>("jmt_ev1_top6");
         if(jmt_ev2_top6_ >= 0) *(basePtr_ + jmt_ev2_top6_) =  tr.getVar<double>("jmt_ev2_top6");
-        if(NGoodJets_double_ >= 0) *(basePtr_ + NGoodJets_double_) =  static_cast<double>(tr.getVar<unsigned long>("NGoodJets"));
+        if(NGoodJets_double_ >= 0) *(basePtr_ + NGoodJets_double_) =  static_cast<double>(tr.getVar<int>("NGoodJets_pt30"));
         if(Jet_pt_1_  >= 0) *(basePtr_ + Jet_pt_1_ ) = tr.getVar<double>("Jet_pt_1");
         if(Jet_pt_2_  >= 0) *(basePtr_ + Jet_pt_2_ ) = tr.getVar<double>("Jet_pt_2");
         if(Jet_pt_3_  >= 0) *(basePtr_ + Jet_pt_3_ ) = tr.getVar<double>("Jet_pt_3");
@@ -154,7 +154,8 @@ class DeepEventShape
 {
 private:
     double discriminator_;
-    std::string modelFile_, inputOp_, outputOp_, nJetMask_;
+    std::string modelFile_, inputOp_, outputOp_;
+    int minNJet_, maxNJet_;
 
     //Tensoflow session pointer
     TF_Session* session_;
@@ -201,12 +202,13 @@ private:
         //Construct contexts
         cfg::Context localCxt(localContextName);
 
-        modelFile_     = cfgDoc->get("modelFile", localCxt, "");
-        inputOp_       = cfgDoc->get("inputOp",   localCxt, "x");
-        outputOp_      = cfgDoc->get("outputOp",  localCxt, "y");
-        nJetMask_      = cfgDoc->get("nJetMask",  localCxt, "");
-        vars_          = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
-        binEdges_      = getVecFromCfg<double>(cfgDoc, "binEdges", localCxt, -1);
+        modelFile_   = cfgDoc->get("modelFile", localCxt, "");
+        inputOp_     = cfgDoc->get("inputOp",   localCxt, "main_input");
+        outputOp_    = cfgDoc->get("outputOp",  localCxt, "first_output/Softmax");
+        minNJet_     = cfgDoc->get("minNJet",   localCxt, 7);
+        maxNJet_     = cfgDoc->get("maxNJet",   localCxt, 7);
+        vars_        = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
+        binEdges_    = getVecFromCfg<double>(cfgDoc, "binEdges", localCxt, -1);
         
         //Variable to hold tensorflow status
         TF_Status* status = TF_NewStatus();
@@ -293,12 +295,23 @@ private:
         TF_DeleteStatus(status);
 
         // Register Variables
-        tr.registerDerivedVar("deepESM"+nJetMask_+"_val", discriminator);
+        tr.registerDerivedVar("deepESM_val", discriminator);
+
         // Define and register deepESM bins
-        for(int i = 1; i < binEdges_.size(); i++)
+        const auto& NGoodJets_pt30 = tr.getVar<int>("NGoodJets_pt30");
+        int nMVABin = (binEdges_.size() / (maxNJet_ - minNJet_ + 1)) - 1;
+        int nJetBinning;
+        if(NGoodJets_pt30 < minNJet_) nJetBinning = 0;
+        else if(minNJet_ <= NGoodJets_pt30 && NGoodJets_pt30 <= maxNJet_) nJetBinning = NGoodJets_pt30-minNJet_;
+        else if(maxNJet_ < NGoodJets_pt30) nJetBinning = maxNJet_-minNJet_;
+
+        for(int i = (nMVABin+1)*nJetBinning + 1; i < (nMVABin+1)*(nJetBinning+1); i++)
         {
             bool passDeepESMBin = discriminator > binEdges_[i-1] && discriminator <= binEdges_[i];
-            tr.registerDerivedVar("deepESM"+nJetMask_+"_bin"+std::to_string(i), passDeepESMBin);
+            int bin = i - (nMVABin+1)*nJetBinning;
+            tr.registerDerivedVar("deepESM_bin"+std::to_string(bin), passDeepESMBin);
+            //std::cout<<"nMVABin: "<<nMVABin<<" NJets: "<<NGoodJets_pt30<<" nJetBinning: "<<nJetBinning
+            //         <<" i: "<<i<<" lowBinEdge: "<<binEdges_[i-1]<<" highBinEdge: "<<binEdges_[i]<<" MVABinNumber: "<<bin<<std::endl;
         }
     }
 
@@ -332,6 +345,8 @@ public:
         , modelFile_(husk.modelFile_)
         , inputOp_(husk.inputOp_)
         , outputOp_(husk.outputOp_)
+        , minNJet_(husk.minNJet_)
+        , maxNJet_(husk.maxNJet_)
         , session_(husk.session_)
         , vars_(husk.vars_)
         , binEdges_(husk.binEdges_)
