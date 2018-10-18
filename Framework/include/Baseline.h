@@ -240,6 +240,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline1l",passBaseline1l);
         tr.registerDerivedVar<bool>("passBaseline1l_Good",passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1mu",passBaseline1mu);
+        tr.registerDerivedVar<bool>("passBaseline1mu_Good",passBaseline1mu_Good);
         tr.registerDerivedVar<bool>("passBaseline1el",passBaseline1el);
         tr.registerDerivedVar<bool>("passBaseline2lonZ",passBaseline2lonZ);
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good",passBaseline2lonZ_Good);
