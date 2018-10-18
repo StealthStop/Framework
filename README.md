@@ -29,7 +29,7 @@ Now also check out our repository if not done already:
 cd $CMSSW_BASE/src
 git clone git@github.com:StealthStop/Framework.git
 git clone git@github.com:susy2015/TopTaggerTools.git
-git clone -b TopTaggingLPC git@github.com:susy2015/SusyAnaTools.git
+git clone git@github.com:susy2015/SusyAnaTools.git
 git clone git@github.com:StealthStop/Analyzer.git
 cd Analyzer/Analyzer/test
 source setup.csh
@@ -40,7 +40,7 @@ Last step is to get the cfg and model files for the top tagger and deepESM.
 ```
 cmsenv
 getTaggerCfg.sh -t Tensorflow_Medium_Example_v1.0.2 -o
-getDeepESMCfg.sh -t Keras_Tensorflow_v1.0.0 -o
+getDeepESMCfg.sh -t Keras_Tensorflow_v2.0.0 -o
 ```
 
 No changes to the analysis code should be needed. 

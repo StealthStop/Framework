@@ -18,6 +18,7 @@ private:
     bool verb_;
     std::string myVarSuffix_;
     bool doGenMatch_;
+    int nTopJets_, nLeptons_;
 
     std::vector<int> decToBinary(int n, int max) const
     {
@@ -135,11 +136,10 @@ private:
         std::sort( Jets_psort.begin(), Jets_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.Pt() > v2.Pt();} );
         auto* Jets_cm_top6 = new std::vector<TLorentzVector>();
         auto* Jets_top6 = new std::vector<TLorentzVector>();
-        int nTopJets = 7; // Hard Coded Bad
 
         for( unsigned int ji=0; ji<cm_jets->size(); ji++ ) 
         {
-            if ( ji < nTopJets ) 
+            if ( ji < nTopJets_ ) 
             {
                 cm_jets_top6.push_back( cm_jets_psort.at(ji) ) ;
                 Jets_cm_top6->push_back( Jets_cm_psort.at(ji) ) ;
@@ -182,14 +182,14 @@ private:
 
         //--- register Variables
         //
-        for(unsigned int i = 0; i < nTopJets; i++)
+        for(unsigned int i = 0; i < nTopJets_; i++)
         {
             tr.registerDerivedVar("Jet_pt_"+std::to_string(i+1),  static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Pt()  : 0.0));
             tr.registerDerivedVar("Jet_eta_"+std::to_string(i+1), static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Eta() : 0.0));
             tr.registerDerivedVar("Jet_phi_"+std::to_string(i+1), static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Phi() : 0.0));
             tr.registerDerivedVar("Jet_m_"+std::to_string(i+1),   static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).M()   : 0.0));
         }
-        for(unsigned int i = 0; i < GoodLeptons_cm->size(); i++)
+        for(unsigned int i = 0; i < nLeptons_; i++)
         {
             tr.registerDerivedVar("GoodLeptons_pt_"+std::to_string(i+1),  static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Pt()  : 0.0));
             tr.registerDerivedVar("GoodLeptons_eta_"+std::to_string(i+1), static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Eta() : 0.0));
@@ -305,12 +305,14 @@ private:
     }
     
 public:
-    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", bool doGenMatch = false)
+    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", bool doGenMatch = false, bool printStatus = true, int nTopJets = 7, int nLeptons = 1)
         : verb_(verb)
         , myVarSuffix_(myVarSuffix)
         , doGenMatch_(doGenMatch)
+        , nTopJets_(nTopJets)
+        , nLeptons_(nLeptons)
     {
-        std::cout<<"Setting up MakeMVAVariables"<<std::endl;
+        if(printStatus) std::cout<<"Setting up MakeMVAVariables"<<std::endl;
     }
 
     void operator()(NTupleReader& tr)
