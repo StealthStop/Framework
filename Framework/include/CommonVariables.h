@@ -4,6 +4,8 @@
 class CommonVariables
 {
 private:
+    std::string myVarSuffix_;
+
     void genMatch(NTupleReader& tr) const
     {
         const auto& runtype = tr.getVar<std::string>("runtype");
@@ -13,7 +15,7 @@ private:
         {
             const auto& GenParticles = tr.getVec<TLorentzVector>("GenParticles");
             const auto& Mbl_Index    = tr.getVar<int>("used_bjet_for_mbl");
-            const auto& Jets         = tr.getVec<TLorentzVector>("Jets");
+            const auto& Jets         = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++ ) 
             {
@@ -28,7 +30,7 @@ private:
     void commonVariables(NTupleReader& tr)
     {
         // Get needed branches
-        const auto& Jets = tr.getVec<TLorentzVector>("Jets");
+        const auto& Jets = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
         const auto& GoodJets = tr.getVec<bool>("GoodJets");
         const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30");
 
@@ -149,7 +151,8 @@ private:
     }
 
 public:
-    CommonVariables()
+    CommonVariables(std::string myVarSuffix = "")
+        : myVarSuffix_(myVarSuffix)
     {
         std::cout<<"Setting up CommonVariables"<<std::endl;
     }
