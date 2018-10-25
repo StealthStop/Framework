@@ -25,7 +25,7 @@ private:
         const auto& Jets_bDiscriminatorCSV = tr.getVec<double>("Jets"+myVarSuffix_+"_bDiscriminatorCSV");
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
-        const auto& GoodJets = tr.getVec<bool>("GoodJets");
+        const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
 
         auto* bjets_loose_ = new std::vector<bool>();
         auto* bjets_pt30_loose_ = new std::vector<bool>();
@@ -91,47 +91,47 @@ private:
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > tight && lv.Pt() > 45 && GoodJets.at(ijet), goodbjets_pt45_tight_, NGoodBJets_pt45_tight);            
         }
 
-        tr.registerDerivedVec("BJets_loose",        bjets_loose_);
-        tr.registerDerivedVar("NBJets_loose",       NBJets_loose);
-        tr.registerDerivedVec("BJets_pt30_loose",   bjets_pt30_loose_);
-        tr.registerDerivedVar("NBJets_pt30_loose",  NBJets_pt30_loose);
+        tr.registerDerivedVec("BJets_loose"+myVarSuffix_,        bjets_loose_);
+        tr.registerDerivedVar("NBJets_loose"+myVarSuffix_,       NBJets_loose);
+        tr.registerDerivedVec("BJets_pt30_loose"+myVarSuffix_,   bjets_pt30_loose_);
+        tr.registerDerivedVar("NBJets_pt30_loose"+myVarSuffix_,  NBJets_pt30_loose);
 
-        tr.registerDerivedVec("BJets",        bjets_);
-        tr.registerDerivedVar("NBJets",       NBJets);
-        tr.registerDerivedVec("BJets_pt30",   bjets_pt30_);
-        tr.registerDerivedVar("NBJets_pt30",  NBJets_pt30);
-        tr.registerDerivedVec("BJets_pt40",   bjets_pt40_);
-        tr.registerDerivedVar("NBJets_pt40",  NBJets_pt40);
-        tr.registerDerivedVec("BJets_pt45",   bjets_pt45_);
-        tr.registerDerivedVar("NBJets_pt45",  NBJets_pt45);
+        tr.registerDerivedVec("BJets"+myVarSuffix_,        bjets_);
+        tr.registerDerivedVar("NBJets"+myVarSuffix_,       NBJets);
+        tr.registerDerivedVec("BJets_pt30"+myVarSuffix_,   bjets_pt30_);
+        tr.registerDerivedVar("NBJets_pt30"+myVarSuffix_,  NBJets_pt30);
+        tr.registerDerivedVec("BJets_pt40"+myVarSuffix_,   bjets_pt40_);
+        tr.registerDerivedVar("NBJets_pt40"+myVarSuffix_,  NBJets_pt40);
+        tr.registerDerivedVec("BJets_pt45"+myVarSuffix_,   bjets_pt45_);
+        tr.registerDerivedVar("NBJets_pt45"+myVarSuffix_,  NBJets_pt45);
 
-        tr.registerDerivedVec("BJets_tight",        bjets_tight_);
-        tr.registerDerivedVar("NBJets_tight",       NBJets_tight);
-        tr.registerDerivedVec("BJets_pt30_tight",   bjets_pt30_tight_);
-        tr.registerDerivedVar("NBJets_pt30_tight",  NBJets_pt30_tight);
-        tr.registerDerivedVec("BJets_pt45_tight",   bjets_pt45_tight_);
-        tr.registerDerivedVar("NBJets_pt45_tight",  NBJets_pt45_tight);
+        tr.registerDerivedVec("BJets_tight"+myVarSuffix_,        bjets_tight_);
+        tr.registerDerivedVar("NBJets_tight"+myVarSuffix_,       NBJets_tight);
+        tr.registerDerivedVec("BJets_pt30_tight"+myVarSuffix_,   bjets_pt30_tight_);
+        tr.registerDerivedVar("NBJets_pt30_tight"+myVarSuffix_,  NBJets_pt30_tight);
+        tr.registerDerivedVec("BJets_pt45_tight"+myVarSuffix_,   bjets_pt45_tight_);
+        tr.registerDerivedVar("NBJets_pt45_tight"+myVarSuffix_,  NBJets_pt45_tight);
 
-        tr.registerDerivedVec("GoodBJets_loose",        goodbjets_loose_);
-        tr.registerDerivedVar("NGoodBJets_loose",       NGoodBJets_loose);
-        tr.registerDerivedVec("GoodBJets_pt30_loose",   goodbjets_pt30_loose_);
-        tr.registerDerivedVar("NGoodBJets_pt30_loose",  NGoodBJets_pt30_loose);
+        tr.registerDerivedVec("GoodBJets_loose"+myVarSuffix_,        goodbjets_loose_);
+        tr.registerDerivedVar("NGoodBJets_loose"+myVarSuffix_,       NGoodBJets_loose);
+        tr.registerDerivedVec("GoodBJets_pt30_loose"+myVarSuffix_,   goodbjets_pt30_loose_);
+        tr.registerDerivedVar("NGoodBJets_pt30_loose"+myVarSuffix_,  NGoodBJets_pt30_loose);
 
-        tr.registerDerivedVec("GoodBJets",        goodbjets_);
-        tr.registerDerivedVar("NGoodBJets",       NGoodBJets);
-        tr.registerDerivedVec("GoodBJets_pt30",   goodbjets_pt30_);
-        tr.registerDerivedVar("NGoodBJets_pt30",  NGoodBJets_pt30);
-        tr.registerDerivedVec("GoodBJets_pt40",   goodbjets_pt40_);
-        tr.registerDerivedVar("NGoodBJets_pt40",  NGoodBJets_pt40);
-        tr.registerDerivedVec("GoodBJets_pt45",   goodbjets_pt45_);
-        tr.registerDerivedVar("NGoodBJets_pt45",  NGoodBJets_pt45);
+        tr.registerDerivedVec("GoodBJets"+myVarSuffix_,        goodbjets_);
+        tr.registerDerivedVar("NGoodBJets"+myVarSuffix_,       NGoodBJets);
+        tr.registerDerivedVec("GoodBJets_pt30"+myVarSuffix_,   goodbjets_pt30_);
+        tr.registerDerivedVar("NGoodBJets_pt30"+myVarSuffix_,  NGoodBJets_pt30);
+        tr.registerDerivedVec("GoodBJets_pt40"+myVarSuffix_,   goodbjets_pt40_);
+        tr.registerDerivedVar("NGoodBJets_pt40"+myVarSuffix_,  NGoodBJets_pt40);
+        tr.registerDerivedVec("GoodBJets_pt45"+myVarSuffix_,   goodbjets_pt45_);
+        tr.registerDerivedVar("NGoodBJets_pt45"+myVarSuffix_,  NGoodBJets_pt45);
         
-        tr.registerDerivedVec("GoodBJets_tight",        goodbjets_tight_);
-        tr.registerDerivedVar("NGoodBJets_tight",       NGoodBJets_tight);
-        tr.registerDerivedVec("GoodBJets_pt30_tight",   goodbjets_pt30_tight_);
-        tr.registerDerivedVar("NGoodBJets_pt30_tight",  NGoodBJets_pt30_tight);
-        tr.registerDerivedVec("GoodBJets_pt45_tight",   goodbjets_pt45_tight_);
-        tr.registerDerivedVar("NGoodBJets_pt45_tight",  NGoodBJets_pt45_tight);
+        tr.registerDerivedVec("GoodBJets_tight"+myVarSuffix_,        goodbjets_tight_);
+        tr.registerDerivedVar("NGoodBJets_tight"+myVarSuffix_,       NGoodBJets_tight);
+        tr.registerDerivedVec("GoodBJets_pt30_tight"+myVarSuffix_,   goodbjets_pt30_tight_);
+        tr.registerDerivedVar("NGoodBJets_pt30_tight"+myVarSuffix_,  NGoodBJets_pt30_tight);
+        tr.registerDerivedVec("GoodBJets_pt45_tight"+myVarSuffix_,   goodbjets_pt45_tight_);
+        tr.registerDerivedVar("NGoodBJets_pt45_tight"+myVarSuffix_,  NGoodBJets_pt45_tight);
     }
 
 public:
