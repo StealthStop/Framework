@@ -14,7 +14,7 @@ private:
         if(runtype != "Data")
         {
             const auto& GenParticles = tr.getVec<TLorentzVector>("GenParticles");
-            const auto& Mbl_Index    = tr.getVar<int>("used_bjet_for_mbl");
+            const auto& Mbl_Index    = tr.getVar<int>("used_bjet_for_mbl"+myVarSuffix_);
             const auto& Jets         = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++ ) 
@@ -24,15 +24,15 @@ private:
                 if(deltaR < 0.4) used_gen_bjet_for_mbl = gpi;
             }            
         }
-        tr.registerDerivedVar("used_gen_bjet_for_mbl", used_gen_bjet_for_mbl);
+        tr.registerDerivedVar("used_gen_bjet_for_mbl"+myVarSuffix_, used_gen_bjet_for_mbl);
     }
 
     void commonVariables(NTupleReader& tr)
     {
         // Get needed branches
         const auto& Jets = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
-        const auto& GoodJets = tr.getVec<bool>("GoodJets");
-        const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30");
+        const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
+        const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
 
         const auto& Muons = tr.getVec<TLorentzVector>("Muons");
         const auto& MuonsCharge = tr.getVec<int>("Muons_charge");
@@ -58,7 +58,7 @@ private:
             if(jet.Pt() > 40 && abs(jet.Eta()) < etaCut)
                 ht += jet.Pt();
         }
-        tr.registerDerivedVar("HT_trigger", ht);
+        tr.registerDerivedVar("HT_trigger"+myVarSuffix_, ht);
 
         // Put leptons together
         auto* GoodLeptons = new std::vector<std::pair<std::string, TLorentzVector>>();
@@ -81,9 +81,9 @@ private:
             NGoodLeptons++;
         }
 
-        tr.registerDerivedVec("GoodLeptons", GoodLeptons);
-        tr.registerDerivedVar("NGoodLeptons", NGoodLeptons);
-        tr.registerDerivedVec("GoodLeptonsCharge", GoodLeptonsCharge);
+        tr.registerDerivedVec("GoodLeptons"+myVarSuffix_, GoodLeptons);
+        tr.registerDerivedVar("NGoodLeptons"+myVarSuffix_, NGoodLeptons);
+        tr.registerDerivedVec("GoodLeptonsCharge"+myVarSuffix_, GoodLeptonsCharge);
         
         // M(l,b); closest to 105 GeV if multiple combinations (halfway between 30 and 180 GeV)
         double Mbl = 0;
@@ -105,8 +105,8 @@ private:
                 }
             }
         }
-        tr.registerDerivedVar("Mbl",Mbl);
-        tr.registerDerivedVar("used_bjet_for_mbl",used_bjet_for_mbl);
+        tr.registerDerivedVar("Mbl"+myVarSuffix_,Mbl);
+        tr.registerDerivedVar("used_bjet_for_mbl"+myVarSuffix_,used_bjet_for_mbl);
         genMatch(tr);
         
         //Find single lepton for HistoContainer
@@ -132,7 +132,7 @@ private:
                 break;
             }
         }
-        tr.registerDerivedVar("singleLepton", singleLepton);            
+        tr.registerDerivedVar("singleLepton"+myVarSuffix_, singleLepton);            
 
         // 2 lepton onZ selection variables
         bool onZ = false;
@@ -146,8 +146,8 @@ private:
                     onZ = true; 
             }
         }
-        tr.registerDerivedVar("onZ", onZ);
-        tr.registerDerivedVar("mll", mll);        
+        tr.registerDerivedVar("onZ"+myVarSuffix_, onZ);
+        tr.registerDerivedVar("mll"+myVarSuffix_, mll);        
     }
 
 public:

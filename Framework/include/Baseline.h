@@ -4,6 +4,8 @@
 class Baseline
 {
 private:
+    std::string myVarSuffix_;
+
     void baseline(NTupleReader& tr)
     {
         const auto& runtype             = tr.getVar<std::string>("runtype");     
@@ -11,20 +13,20 @@ private:
         const auto& blind               = tr.getVar<bool>("blind");
         const auto& TriggerNames        = tr.getVec<std::string>("TriggerNames");
         const auto& TriggerPass         = tr.getVec<int>("TriggerPass");
-        const auto& NGoodLeptons        = tr.getVar<int>("NGoodLeptons");
+        const auto& NGoodLeptons        = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
         const auto& NGoodMuons          = tr.getVar<int>("NGoodMuons");
         const auto& NGoodElectrons      = tr.getVar<int>("NGoodElectrons");
-        const auto& NJets_pt45          = tr.getVar<int>("NJets_pt45");
-        const auto& HT_trigger          = tr.getVar<double>("HT_trigger");
-        const auto& NBJets_pt45         = tr.getVar<int>("NBJets_pt45");
-        const auto& NBJets_pt30         = tr.getVar<int>("NBJets_pt30"); 
-        const auto& NJets_pt30          = tr.getVar<int>("NJets_pt30"); 
-        const auto& onZ                 = tr.getVar<bool>("onZ"); 
-        const auto& JetID               = tr.getVar<bool>("JetID"); 
-        const auto& NGoodJets_pt45      = tr.getVar<int>("NGoodJets_pt45");
-        const auto& NGoodBJets_pt45     = tr.getVar<int>("NGoodBJets_pt45");
-        const auto& NGoodBJets_pt30     = tr.getVar<int>("NGoodBJets_pt30"); 
-        const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"); 
+        const auto& NJets_pt45          = tr.getVar<int>("NJets_pt45"+myVarSuffix_);
+        const auto& HT_trigger          = tr.getVar<double>("HT_trigger"+myVarSuffix_);
+        const auto& NBJets_pt45         = tr.getVar<int>("NBJets_pt45"+myVarSuffix_);
+        const auto& NBJets_pt30         = tr.getVar<int>("NBJets_pt30"+myVarSuffix_); 
+        const auto& NJets_pt30          = tr.getVar<int>("NJets_pt30"+myVarSuffix_); 
+        const auto& onZ                 = tr.getVar<bool>("onZ"+myVarSuffix_); 
+        const auto& JetID               = tr.getVar<bool>("JetID"+myVarSuffix_); 
+        const auto& NGoodJets_pt45      = tr.getVar<int>("NGoodJets_pt45"+myVarSuffix_);
+        const auto& NGoodBJets_pt45     = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
+        const auto& NGoodBJets_pt30     = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_); 
+        const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_); 
         const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons");
         
         // ------------------------------
@@ -233,29 +235,29 @@ private:
                                         NGoodLeptons == 0   && 
                                         NGoodJets_pt30 >= 7; 
         
-        tr.registerDerivedVar<bool>("passBaseline0l",passBaseline0l);
-        tr.registerDerivedVar<bool>("passBaseline0l_Good",passBaseline0l_Good);
-        tr.registerDerivedVar<bool>("passBaseline0l_hadTrig", passBaseline0l_hadTrig);
-        tr.registerDerivedVar<bool>("passBaseline0l_hadTrig_Good", passBaseline0l_hadTrig_Good);
-        tr.registerDerivedVar<bool>("passBaseline1l",passBaseline1l);
-        tr.registerDerivedVar<bool>("passBaseline1l_Good",passBaseline1l_Good);
-        tr.registerDerivedVar<bool>("passBaseline1mu",passBaseline1mu);
-        tr.registerDerivedVar<bool>("passBaseline1el",passBaseline1el);
-        tr.registerDerivedVar<bool>("passBaseline2lonZ",passBaseline2lonZ);
-        tr.registerDerivedVar<bool>("passBaseline2lonZ_Good",passBaseline2lonZ_Good);
-        tr.registerDerivedVar<bool>("passBaseline2l",passBaseline2l);
-        tr.registerDerivedVar<bool>("passBaseline2l_Good",passBaseline2l_Good);
-        tr.registerDerivedVar<bool>("passBaseline1photon_Good",passBaseline1photon_Good);
-        tr.registerDerivedVar<bool>("passBlindHad",passBlindHad);
-        tr.registerDerivedVar<bool>("passBlindLep",passBlindLep);
-        tr.registerDerivedVar<bool>("passBlindHad_Good",passBlindHad_Good);
-        tr.registerDerivedVar<bool>("passBlindLep_Good",passBlindLep_Good);
-        tr.registerDerivedVar<bool>("passTriggerAllHad",passTriggerAllHad);
-        tr.registerDerivedVar<bool>("passTriggerMuon",passTriggerMuon);
-        tr.registerDerivedVar<bool>("passTriggerElectron",passTriggerElectron);
-        tr.registerDerivedVar<bool>("passTrigger",passTrigger);
-        tr.registerDerivedVar<bool>("passTriggerMC",passTriggerMC);
-        tr.registerDerivedVar<bool>("passMadHT",passMadHT);
+        tr.registerDerivedVar<bool>("passBaseline0l"+myVarSuffix_,              passBaseline0l);
+        tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,         passBaseline0l_Good);
+        tr.registerDerivedVar<bool>("passBaseline0l_hadTrig"+myVarSuffix_,      passBaseline0l_hadTrig);
+        tr.registerDerivedVar<bool>("passBaseline0l_hadTrig_Good"+myVarSuffix_, passBaseline0l_hadTrig_Good);
+        tr.registerDerivedVar<bool>("passBaseline1l"+myVarSuffix_,              passBaseline1l);
+        tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,         passBaseline1l_Good);
+        tr.registerDerivedVar<bool>("passBaseline1mu"+myVarSuffix_,             passBaseline1mu);
+        tr.registerDerivedVar<bool>("passBaseline1el"+myVarSuffix_,             passBaseline1el);
+        tr.registerDerivedVar<bool>("passBaseline2lonZ"+myVarSuffix_,           passBaseline2lonZ);
+        tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"+myVarSuffix_,      passBaseline2lonZ_Good);
+        tr.registerDerivedVar<bool>("passBaseline2l"+myVarSuffix_,              passBaseline2l);
+        tr.registerDerivedVar<bool>("passBaseline2l_Good"+myVarSuffix_,         passBaseline2l_Good);
+        tr.registerDerivedVar<bool>("passBaseline1photon_Good"+myVarSuffix_,    passBaseline1photon_Good);
+        tr.registerDerivedVar<bool>("passBlindHad"+myVarSuffix_,                passBlindHad);
+        tr.registerDerivedVar<bool>("passBlindLep"+myVarSuffix_,                passBlindLep);
+        tr.registerDerivedVar<bool>("passBlindHad_Good"+myVarSuffix_,           passBlindHad_Good);
+        tr.registerDerivedVar<bool>("passBlindLep_Good"+myVarSuffix_,           passBlindLep_Good);
+        tr.registerDerivedVar<bool>("passTriggerAllHad"+myVarSuffix_,           passTriggerAllHad);
+        tr.registerDerivedVar<bool>("passTriggerMuon"+myVarSuffix_,             passTriggerMuon);
+        tr.registerDerivedVar<bool>("passTriggerElectron"+myVarSuffix_,         passTriggerElectron);
+        tr.registerDerivedVar<bool>("passTrigger"+myVarSuffix_,                 passTrigger);
+        tr.registerDerivedVar<bool>("passTriggerMC"+myVarSuffix_,               passTriggerMC);
+        tr.registerDerivedVar<bool>("passMadHT"+myVarSuffix_,                   passMadHT);
     }
 
     bool PassTriggerGeneral(std::vector<std::string>& mytriggers, const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
@@ -314,7 +316,8 @@ private:
     }
 
 public:
-    Baseline() 
+    Baseline(std::string myVarSuffix = "")
+        : myVarSuffix_(myVarSuffix)
     {
         std::cout<<"Setting up Baseline"<<std::endl;
     }
