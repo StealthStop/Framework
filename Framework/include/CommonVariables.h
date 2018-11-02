@@ -139,7 +139,7 @@ private:
         double mll = 0;
         if ( GoodLeptons->size() == 2 )
         {
-            if( (NGoodMuons == 2 || NGoodElectrons == 2) && (GoodLeptonsCharge[0] != GoodLeptonsCharge[1]) )
+            if( (NGoodMuons == 2 || NGoodElectrons == 2) && (GoodLeptonsCharge->at(0) != GoodLeptonsCharge->at(1)) )
             {
                 mll = ( GoodLeptons->at(0).second + GoodLeptons->at(1).second ).M();
                 if( mll > 81 && mll < 101)
