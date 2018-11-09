@@ -63,7 +63,7 @@ private:
         }
         
         // ------------------------
-        // -- MC dependent stuff - moved this below Data dependent stuff in order to use the booleans for the Trigger
+        // -- MC dependent stuff - 
         // -----------------------
         bool passMadHT = true;
         if(runtype == "MC")
@@ -85,7 +85,7 @@ private:
             int NGenLeptons = GenElectrons.size() + GenMuons.size() + GenTaus.size();
             if (filetag == "TTJets_Incl" && NGenLeptons > 0) passMadHT = false;
             
-            //Needed for skim trees -> if event fails the MC modeling of the trigger, do not keep in the skim
+            // MC modeling of the trigger
             if( !passTriggerMuon && !passTriggerElectron ) passTriggerMC = false;
         }
 
@@ -97,6 +97,7 @@ private:
         bool passBaseline0l = JetID              &&
                               passMadHT          &&
                               passTrigger        &&
+                              passTriggerMC      &&
                               passBlindHad       &&
                               NGoodLeptons == 0  && 
                               NJets_pt45 >= 7    && 
@@ -106,6 +107,7 @@ private:
         bool passBaseline0l_Good = JetID          &&
                               passMadHT           &&
                               passTrigger         &&
+                              passTriggerMC       &&
                               passBlindHad_Good   &&
                               NGoodLeptons == 0   && 
                               NGoodJets_pt45 >= 7 && 
@@ -115,6 +117,7 @@ private:
         bool passBaseline0l_hadTrig = JetID      &&
                               passMadHT          &&
                               passTrigger        &&
+                              passTriggerMC      &&
                               passBlindHad       &&
                               NJets_pt45 >= 7    && 
                               HT_trigger > 500   && 
@@ -123,6 +126,7 @@ private:
         bool passBaseline0l_hadTrig_Good = JetID  &&
                               passMadHT           &&
                               passTrigger         &&
+                              passTriggerMC       &&
                               passBlindHad_Good   &&
                               NGoodJets_pt45 >= 7 && 
                               HT_trigger > 500    && 
@@ -136,6 +140,7 @@ private:
         bool passBaseline1mu = JetID               &&
                                passMadHT           &&
                                passTrigger         &&
+                               passTriggerMC       &&            
                                (runtype != "Data" || filetag == "Data_SingleMuon") &&
                                passBlindLep        &&
                                NGoodMuons == 1     && 
@@ -146,6 +151,7 @@ private:
         bool passBaseline1el = JetID               &&
                                passMadHT           &&
                                passTrigger         &&
+                               passTriggerMC       &&
                                (runtype != "Data" || filetag == "Data_SingleElectron") &&
                                passBlindLep        &&
                                NGoodElectrons == 1 &&
@@ -158,6 +164,7 @@ private:
         bool passBaseline1mu_Good = JetID          &&
                                passMadHT           &&
                                passTrigger         &&
+                               passTriggerMC       &&
                                (runtype != "Data" || filetag == "Data_SingleMuon") &&
                                passBlindLep_Good   &&
                                NGoodMuons == 1     && 
@@ -168,6 +175,7 @@ private:
         bool passBaseline1el_Good = JetID          &&
                                passMadHT           &&
                                passTrigger         &&
+                               passTriggerMC       &&
                                (runtype != "Data" || filetag == "Data_SingleElectron") &&
                                passBlindLep_Good   &&
                                NGoodElectrons == 1 &&
@@ -184,6 +192,7 @@ private:
         bool passBaseline2lonZ = JetID              &&
                                  passMadHT          &&
                                  passTrigger        &&
+                                 passTriggerMC      &&
                                  NGoodLeptons == 2  && 
                                  onZ                &&
                                  (runtype != "Data" || (NGoodMuons == 2 && filetag == "Data_SingleMuon" ) 
@@ -193,6 +202,7 @@ private:
         bool passBaseline2lonZ_Good = JetID         &&
                                  passMadHT          &&
                                  passTrigger        &&
+                                 passTriggerMC      &&
                                  NGoodLeptons == 2  && 
                                  onZ                &&
                                  (runtype != "Data" || (NGoodMuons == 2 && filetag == "Data_SingleMuon" ) 
@@ -206,6 +216,7 @@ private:
         bool passBaseline2l = JetID              &&
                               passMadHT          &&
                               passTrigger        &&
+                              passTriggerMC      &&
                               passBlindLep       &&
                               NGoodLeptons == 2  && 
                               !onZ               &&
@@ -217,6 +228,7 @@ private:
         bool passBaseline2l_Good = JetID          &&
                               passMadHT           &&
                               passTrigger         &&
+                              passTriggerMC       &&
                               passBlindLep_Good   &&
                               NGoodLeptons == 2   && 
                               !onZ                &&
@@ -231,6 +243,7 @@ private:
 
         bool passBaseline1photon_Good = passMadHT           &&
                                         passTrigger         &&
+                                        passTriggerMC       &&
                                         NGoodPhotons == 1   &&
                                         NGoodLeptons == 0   && 
                                         NGoodJets_pt30 >= 7; 
