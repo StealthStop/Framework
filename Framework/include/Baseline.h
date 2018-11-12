@@ -29,6 +29,7 @@ private:
         const auto& NGoodBJets_pt30     = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_); 
         const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_); 
         const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons");
+        const auto& Mbl                 = tr.getVar<double>("Mbl");
         
         // ------------------------------
         // -- Data dependent stuff
@@ -148,7 +149,8 @@ private:
                                NGoodMuons == 1       && 
                                NGoodElectrons == 0   &&
                                NJets_pt30 >= 7       && 
-                               NBJets_pt30 >= 1;
+                               NBJets_pt30 >= 1      &&
+                               (50 < Mbl && Mbl < 250);
 
         bool passBaseline1el = JetID                 &&
                                HT_trigger_pt30 > 300 &&
@@ -160,7 +162,8 @@ private:
                                NGoodElectrons == 1   &&
                                NGoodMuons == 0       &&
                                NJets_pt30 >= 7       && 
-                               NBJets_pt30 >= 1;
+                               NBJets_pt30 >= 1      &&
+                               (50 < Mbl && Mbl < 250);
 
         bool passBaseline1l = passBaseline1mu || passBaseline1el;
         
@@ -174,7 +177,8 @@ private:
                                NGoodMuons == 1       && 
                                NGoodElectrons == 0   &&
                                NGoodJets_pt30 >= 7   && 
-                               NGoodBJets_pt30 >= 1;
+                               NGoodBJets_pt30 >= 1  &&
+                               (50 < Mbl && Mbl < 250);
 
         bool passBaseline1el_Good = JetID            &&
                                HT_trigger_pt30 > 300 &&
@@ -186,7 +190,8 @@ private:
                                NGoodElectrons == 1   &&
                                NGoodMuons == 0       &&
                                NGoodJets_pt30 >= 7   && 
-                               NGoodBJets_pt30 >= 1;
+                               NGoodBJets_pt30 >= 1  &&
+                               (50 < Mbl && Mbl < 250);
 
         bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
 
