@@ -268,6 +268,17 @@ private:
         tr.registerDerivedVar( "totGoodMuonSFErr",      totGoodMuonSFErr );
         tr.registerDerivedVar( "totGoodMuonSF_Up",      totGoodMuonSF_Up );
         tr.registerDerivedVar( "totGoodMuonSF_Down",    totGoodMuonSF_Down );
+
+        // Adding a scale factor the corrects the disagreement between data and MC
+        const auto& NGoodJets_pt30       = tr.getVar<int>("NGoodJets_pt30");
+        const auto& HT_trigger_pt30      = tr.getVar<double>("HT_trigger_pt30");
+
+        double slope = -0.0000556446*NGoodJets_pt30 + 0.000101976;
+        double yInt  =  0.0321322*NGoodJets_pt30 + 0.93345;
+        double htDerivedweight = slope*HT_trigger_pt30 + yInt;
+
+        tr.registerDerivedVar( "htDerivedweight", htDerivedweight);
+
     }
 
 public:
