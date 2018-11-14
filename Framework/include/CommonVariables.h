@@ -50,15 +50,20 @@ private:
 
         // HT of jets with pT>40
         double ht = 0;
+        double ht_pt30 = 0.0;
         for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {            
             if(!GoodJets[ijet]) continue;
             TLorentzVector jet = Jets.at(ijet);
 
+            if(jet.Pt() > 30 && abs(jet.Eta()) < etaCut)
+                ht_pt30 += jet.Pt();
+
             if(jet.Pt() > 40 && abs(jet.Eta()) < etaCut)
                 ht += jet.Pt();
         }
         tr.registerDerivedVar("HT_trigger"+myVarSuffix_, ht);
+        tr.registerDerivedVar("HT_trigger_pt30"+myVarSuffix_, ht_pt30);
 
         // Put leptons together
         auto* GoodLeptons = new std::vector<std::pair<std::string, TLorentzVector>>();
@@ -87,6 +92,7 @@ private:
         
         // M(l,b); closest to 105 GeV if multiple combinations (halfway between 30 and 180 GeV)
         double Mbl = 0;
+        auto*  MblVec = new std::vector<double>();
         double Mbldiff = 999.;
         int used_bjet_for_mbl = -1;
         for(const auto& pair : *GoodLeptons)
@@ -97,6 +103,7 @@ private:
                 if(!GoodBJets_pt30[ijet]) continue;
                 TLorentzVector bjet = Jets.at(ijet);                
                 double mbl = (lepton+bjet).M();
+                MblVec->push_back(mbl);
                 if( abs(mbl - 105) < Mbldiff)
                 {
                     Mbl = mbl;
@@ -107,6 +114,7 @@ private:
         }
         tr.registerDerivedVar("Mbl"+myVarSuffix_,Mbl);
         tr.registerDerivedVar("used_bjet_for_mbl"+myVarSuffix_,used_bjet_for_mbl);
+        tr.registerDerivedVec("MblVec"+myVarSuffix_,MblVec);
         genMatch(tr);
         
         //Find single lepton for HistoContainer

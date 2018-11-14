@@ -18,6 +18,7 @@ private:
         const auto& NGoodElectrons      = tr.getVar<int>("NGoodElectrons");
         const auto& NJets_pt45          = tr.getVar<int>("NJets_pt45"+myVarSuffix_);
         const auto& HT_trigger          = tr.getVar<double>("HT_trigger"+myVarSuffix_);
+        const auto& HT_trigger_pt30     = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& NBJets_pt45         = tr.getVar<int>("NBJets_pt45"+myVarSuffix_);
         const auto& NBJets_pt30         = tr.getVar<int>("NBJets_pt30"+myVarSuffix_); 
         const auto& NJets_pt30          = tr.getVar<int>("NJets_pt30"+myVarSuffix_); 
@@ -28,6 +29,7 @@ private:
         const auto& NGoodBJets_pt30     = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_); 
         const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_); 
         const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons");
+        const auto& Mbl                 = tr.getVar<double>("Mbl");
         
         // ------------------------------
         // -- Data dependent stuff
@@ -137,51 +139,59 @@ private:
         // -- Define 1 Lepton Baseline
         // -------------------------------
         
-        bool passBaseline1mu = JetID               &&
-                               passMadHT           &&
-                               passTrigger         &&
-                               passTriggerMC       &&            
+        bool passBaseline1mu = JetID                 &&
+                               HT_trigger_pt30 > 300 &&
+                               passMadHT             &&
+                               passTrigger           &&
+                               passTriggerMC         &&            
                                (runtype != "Data" || filetag == "Data_SingleMuon") &&
-                               passBlindLep        &&
-                               NGoodMuons == 1     && 
-                               NGoodElectrons == 0 &&
-                               NJets_pt30 >= 7     && 
-                               NBJets_pt30 >= 1;
+                               passBlindLep          &&
+                               NGoodMuons == 1       && 
+                               NGoodElectrons == 0   &&
+                               NJets_pt30 >= 7       && 
+                               NBJets_pt30 >= 1      &&
+                               (50 < Mbl && Mbl < 250);
 
-        bool passBaseline1el = JetID               &&
-                               passMadHT           &&
-                               passTrigger         &&
-                               passTriggerMC       &&
+        bool passBaseline1el = JetID                 &&
+                               HT_trigger_pt30 > 300 &&
+                               passMadHT             &&
+                               passTrigger           &&
+                               passTriggerMC         &&
                                (runtype != "Data" || filetag == "Data_SingleElectron") &&
-                               passBlindLep        &&
-                               NGoodElectrons == 1 &&
-                               NGoodMuons == 0     &&
-                               NJets_pt30 >= 7     && 
-                               NBJets_pt30 >= 1;
+                               passBlindLep          &&
+                               NGoodElectrons == 1   &&
+                               NGoodMuons == 0       &&
+                               NJets_pt30 >= 7       && 
+                               NBJets_pt30 >= 1      &&
+                               (50 < Mbl && Mbl < 250);
 
         bool passBaseline1l = passBaseline1mu || passBaseline1el;
         
-        bool passBaseline1mu_Good = JetID          &&
-                               passMadHT           &&
-                               passTrigger         &&
-                               passTriggerMC       &&
+        bool passBaseline1mu_Good = JetID            &&
+                               HT_trigger_pt30 > 300 &&
+                               passMadHT             &&
+                               passTrigger           &&
+                               passTriggerMC         &&
                                (runtype != "Data" || filetag == "Data_SingleMuon") &&
-                               passBlindLep_Good   &&
-                               NGoodMuons == 1     && 
-                               NGoodElectrons == 0 &&
-                               NGoodJets_pt30 >= 7 && 
-                               NGoodBJets_pt30 >= 1;
+                               passBlindLep_Good     &&
+                               NGoodMuons == 1       && 
+                               NGoodElectrons == 0   &&
+                               NGoodJets_pt30 >= 7   && 
+                               NGoodBJets_pt30 >= 1  &&
+                               (50 < Mbl && Mbl < 250);
 
-        bool passBaseline1el_Good = JetID          &&
-                               passMadHT           &&
-                               passTrigger         &&
-                               passTriggerMC       &&
+        bool passBaseline1el_Good = JetID            &&
+                               HT_trigger_pt30 > 300 &&
+                               passMadHT             &&
+                               passTrigger           &&
+                               passTriggerMC         &&
                                (runtype != "Data" || filetag == "Data_SingleElectron") &&
-                               passBlindLep_Good   &&
-                               NGoodElectrons == 1 &&
-                               NGoodMuons == 0     &&
-                               NGoodJets_pt30 >= 7 && 
-                               NGoodBJets_pt30 >= 1;
+                               passBlindLep_Good     &&
+                               NGoodElectrons == 1   &&
+                               NGoodMuons == 0       &&
+                               NGoodJets_pt30 >= 7   && 
+                               NGoodBJets_pt30 >= 1  &&
+                               (50 < Mbl && Mbl < 250);
 
         bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
 
