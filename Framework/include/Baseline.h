@@ -15,7 +15,11 @@ private:
         const auto& TriggerPass         = tr.getVec<int>("TriggerPass");
         const auto& NGoodLeptons        = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
         const auto& NGoodMuons          = tr.getVar<int>("NGoodMuons");
+        const auto& NGoodPlusMuons      = tr.getVar<int>("NGoodPlusMuons");
+        const auto& NGoodMinusMuons     = tr.getVar<int>("NGoodMinusMuons");
         const auto& NGoodElectrons      = tr.getVar<int>("NGoodElectrons");
+        const auto& NGoodPlusElectrons  = tr.getVar<int>("NGoodPlusElectrons");
+        const auto& NGoodMinusElectrons = tr.getVar<int>("NGoodMinusElectrons");
         const auto& NJets_pt45          = tr.getVar<int>("NJets_pt45"+myVarSuffix_);
         const auto& HT_trigger          = tr.getVar<double>("HT_trigger"+myVarSuffix_);
         const auto& HT_trigger_pt30     = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
@@ -246,6 +250,22 @@ private:
                                                   || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
                               NGoodJets_pt30 >= 7 && 
                               NGoodBJets_pt30 >= 1;
+
+        // -----------------------------------
+        // -- Define 1 e and 1 m Baseline
+        // -----------------------------------
+        
+        bool passBaseline1e1m_Good = JetID                 &&
+                                     HT_trigger_pt30 > 300 &&
+                                     passMadHT             &&
+                                     passTriggerMuon       &&
+                                     NGoodMuons == 1       &&
+                                     NGoodElectrons == 1   &&
+                                     (runtype != "Data" || filetag == "Data_SingleMuon") &&
+                                     (NGoodPlusMuons + NGoodPlusElectrons == 1)          &&
+                                     (NGoodMinusMuons + NGoodMinusElectrons == 1)        &&
+                                     NGoodJets_pt30 <= 5   && 
+                                     NGoodBJets_pt30 >= 2;
         
         // -----------------------------------
         // -- Define 1 Photon Baseline
@@ -271,6 +291,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline2l"+myVarSuffix_,              passBaseline2l);
         tr.registerDerivedVar<bool>("passBaseline2l_Good"+myVarSuffix_,         passBaseline2l_Good);
         tr.registerDerivedVar<bool>("passBaseline1photon_Good"+myVarSuffix_,    passBaseline1photon_Good);
+        tr.registerDerivedVar<bool>("passBaseline1e1m_Good"+myVarSuffix_,       passBaseline1e1m_Good);
         tr.registerDerivedVar<bool>("passBlindHad"+myVarSuffix_,                passBlindHad);
         tr.registerDerivedVar<bool>("passBlindLep"+myVarSuffix_,                passBlindLep);
         tr.registerDerivedVar<bool>("passBlindHad_Good"+myVarSuffix_,           passBlindHad_Good);
