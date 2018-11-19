@@ -20,6 +20,8 @@ private:
         auto* good_electrons_ = new std::vector<bool>();
         auto* electrons_mtw_ = new std::vector<double>();
         int NGoodElectrons = 0;
+        int NGoodPlusElectrons = 0;
+        int NGoodMinusElectrons = 0;
         for(unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
             TLorentzVector lvel = allElectrons.at(iel);
@@ -33,6 +35,9 @@ private:
             {
                 good_electrons_->push_back(true);
                 NGoodElectrons++;
+                if( allElectrons_charge.at(iel) ==  1 ) NGoodPlusElectrons++;
+                else if( allElectrons_charge.at(iel) == -1 ) NGoodMinusElectrons++;
+                else std::cout<<"Charge values in nTuples are different"<<std::endl;
             }
             else
             {
@@ -42,6 +47,8 @@ private:
 
         tr.registerDerivedVec("GoodElectrons", good_electrons_);
         tr.registerDerivedVar("NGoodElectrons", NGoodElectrons);
+        tr.registerDerivedVar("NGoodPlusElectrons", NGoodPlusElectrons);
+        tr.registerDerivedVar("NGoodMinusElectrons", NGoodMinusElectrons);
         tr.registerDerivedVec("ElectronsMTW", electrons_mtw_);
     }
 
