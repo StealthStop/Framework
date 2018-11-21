@@ -13,6 +13,8 @@ class SetUpTopTagger
 {
 private:
     NTupleReader& tr_;
+    std::string myVarSuffix_;
+
     const std::vector<TLorentzVector>& Jets_;                      
     const std::vector<double>& Jets_bDiscriminatorCSV_;    
     const std::vector<double>& Jets_qgLikelihood_;         
@@ -51,7 +53,7 @@ private:
     void addVariables();
     
 public:  
-    SetUpTopTagger(NTupleReader& tr, const std::vector<TLorentzVector>& hadtops, const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters);
+    SetUpTopTagger(NTupleReader& tr, const std::vector<TLorentzVector>& hadtops, const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters, const std::string& myVarSuffix);
     ~SetUpTopTagger();
     std::vector<Constituent> getConstituents() const;
 };

@@ -6,6 +6,8 @@
 class RunTopTagger
 {
 private:
+    std::string myVarSuffix_;
+
     std::shared_ptr<TopTagger> tt_;
     std::vector<TLorentzVector>* hadtops_;
     std::vector<std::vector<const TLorentzVector*>>* hadtopdaughters_;
@@ -157,7 +159,7 @@ private:
         genMatch(tr);
 
         // Setup variables needed for top tagger
-        SetUpTopTagger st( tr, (*hadtops_), (*hadtopdaughters_) );
+        SetUpTopTagger st( tr, (*hadtops_), (*hadtopdaughters_), myVarSuffix_ );
         const std::vector<Constituent>& constituents = st.getConstituents();
 
         // Run the top tagger             
@@ -230,31 +232,32 @@ private:
         //printf("=========================================================================================\n");
 
         // Register Variables
-        tr.registerDerivedVar("ttr", &ttr);
-        tr.registerDerivedVar("ntops", ntops_);
-        tr.registerDerivedVar("ntops_3jet", ntops_3jet_);
-        tr.registerDerivedVar("ntops_2jet", ntops_2jet_);
-        tr.registerDerivedVar("ntops_1jet", ntops_1jet_);
-        //tr.registerDerivedVar("nhadWs", nhadWs_);
-        tr.registerDerivedVec("hadtops", hadtops_);
-        tr.registerDerivedVec("hadtopdaughters", hadtopdaughters_);
-        tr.registerDerivedVec("hadtopdaughters_id", hadtopdaughters_id_);
-        //tr.registerDerivedVec("hadWs", hadWs_);
-        tr.registerDerivedVec("neutralinos", neutralinos_);
-        tr.registerDerivedVec("singlinos", singlinos_);
-        tr.registerDerivedVec("singlets", singlets_);
-        tr.registerDerivedVec("hadtops_idx", hadtops_idx_);
-        tr.registerDerivedVar("bestTopMassLV", bestTopMassLV?(bestTopMassLV->p()):(TLorentzVector()));
-        tr.registerDerivedVar("bestTopMass", bestTopMass);
-        tr.registerDerivedVar("bestTopMassTopTag", bestTopMassTopTag);
-        tr.registerDerivedVar("bestTopMassGenMatch", bestTopMassGenMatch);
-        tr.registerDerivedVar("bestTopEta", bestTopEta);
-        tr.registerDerivedVec("tightPhotons",tightPhotons);
+        tr.registerDerivedVar("ttr"+myVarSuffix_, &ttr);
+        tr.registerDerivedVar("ntops"+myVarSuffix_, ntops_);
+        tr.registerDerivedVar("ntops_3jet"+myVarSuffix_, ntops_3jet_);
+        tr.registerDerivedVar("ntops_2jet"+myVarSuffix_, ntops_2jet_);
+        tr.registerDerivedVar("ntops_1jet"+myVarSuffix_, ntops_1jet_);
+        //tr.registerDerivedVar("nhadWs"+myVarSuffix_, nhadWs_);
+        tr.registerDerivedVec("hadtops"+myVarSuffix_, hadtops_);
+        tr.registerDerivedVec("hadtopdaughters"+myVarSuffix_, hadtopdaughters_);
+        tr.registerDerivedVec("hadtopdaughters_id"+myVarSuffix_, hadtopdaughters_id_);
+        //tr.registerDerivedVec("hadWs"+myVarSuffix_, hadWs_);
+        tr.registerDerivedVec("neutralinos"+myVarSuffix_, neutralinos_);
+        tr.registerDerivedVec("singlinos"+myVarSuffix_, singlinos_);
+        tr.registerDerivedVec("singlets"+myVarSuffix_, singlets_);
+        tr.registerDerivedVec("hadtops_idx"+myVarSuffix_, hadtops_idx_);
+        tr.registerDerivedVar("bestTopMassLV"+myVarSuffix_, bestTopMassLV?(bestTopMassLV->p()):(TLorentzVector()));
+        tr.registerDerivedVar("bestTopMass"+myVarSuffix_, bestTopMass);
+        tr.registerDerivedVar("bestTopMassTopTag"+myVarSuffix_, bestTopMassTopTag);
+        tr.registerDerivedVar("bestTopMassGenMatch"+myVarSuffix_, bestTopMassGenMatch);
+        tr.registerDerivedVar("bestTopEta"+myVarSuffix_, bestTopEta);
+        tr.registerDerivedVec("tightPhotons"+myVarSuffix_,tightPhotons);
     }
 
 public:
-    RunTopTagger(std::string taggerCfg = "TopTagger.cfg") 
+    RunTopTagger(std::string taggerCfg = "TopTagger.cfg", std::string myVarSuffix = "") 
         : taggerCfg_         (taggerCfg)
+        , myVarSuffix_       (myVarSuffix)
         , tt_                (new TopTagger())
         , hadtops_           (nullptr)
         , hadtopdaughters_   (nullptr)

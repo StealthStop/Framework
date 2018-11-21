@@ -4,6 +4,8 @@
 class Electron
 {
 private:
+    std::string myVarSuffix_;
+
     void electron(NTupleReader& tr)
     {
         const auto& allElectrons = tr.getVec<TLorentzVector>("Electrons");
@@ -45,15 +47,16 @@ private:
             }
         }
 
-        tr.registerDerivedVec("GoodElectrons", good_electrons_);
-        tr.registerDerivedVar("NGoodElectrons", NGoodElectrons);
-        tr.registerDerivedVar("NGoodPlusElectrons", NGoodPlusElectrons);
-        tr.registerDerivedVar("NGoodMinusElectrons", NGoodMinusElectrons);
-        tr.registerDerivedVec("ElectronsMTW", electrons_mtw_);
+        tr.registerDerivedVec("GoodElectrons"+myVarSuffix_, good_electrons_);
+        tr.registerDerivedVar("NGoodElectrons"+myVarSuffix_, NGoodElectrons);
+        tr.registerDerivedVar("NGoodPlusElectrons"+myVarSuffix_, NGoodPlusElectrons);
+        tr.registerDerivedVar("NGoodMinusElectrons"+myVarSuffix_, NGoodMinusElectrons);
+        tr.registerDerivedVec("ElectronsMTW"+myVarSuffix_, electrons_mtw_);
     }
 
 public:
-    Electron() 
+    Electron(std::string myVarSuffix = "") 
+        : myVarSuffix_(myVarSuffix)
     {
         std::cout<<"Setting up Electron"<<std::endl;   
     }

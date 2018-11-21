@@ -26,11 +26,11 @@ private:
         const auto& Jets_CSV      = tr.getVec<double>("Jets"+myVarSuffix_+"_bDiscriminatorCSV");
 
         const auto& Muons         = tr.getVec<TLorentzVector>("Muons");
-        const auto& GoodMuons     = tr.getVec<bool>("GoodMuons");
-        const auto& NMuons        = tr.getVar<int>("NGoodMuons");
+        const auto& GoodMuons     = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
+        const auto& NMuons        = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& Electrons     = tr.getVec<TLorentzVector>("Electrons");
-        const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons");
-        const auto& NElectrons    = tr.getVar<int>("NGoodElectrons");
+        const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
+        const auto& NElectrons    = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
 
         //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) 
         //if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same

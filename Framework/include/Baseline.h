@@ -14,12 +14,12 @@ private:
         const auto& TriggerNames        = tr.getVec<std::string>("TriggerNames");
         const auto& TriggerPass         = tr.getVec<int>("TriggerPass");
         const auto& NGoodLeptons        = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
-        const auto& NGoodMuons          = tr.getVar<int>("NGoodMuons");
-        const auto& NGoodPlusMuons      = tr.getVar<int>("NGoodPlusMuons");
-        const auto& NGoodMinusMuons     = tr.getVar<int>("NGoodMinusMuons");
-        const auto& NGoodElectrons      = tr.getVar<int>("NGoodElectrons");
-        const auto& NGoodPlusElectrons  = tr.getVar<int>("NGoodPlusElectrons");
-        const auto& NGoodMinusElectrons = tr.getVar<int>("NGoodMinusElectrons");
+        const auto& NGoodMuons          = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
+        const auto& NGoodPlusMuons      = tr.getVar<int>("NGoodPlusMuons"+myVarSuffix_);
+        const auto& NGoodMinusMuons     = tr.getVar<int>("NGoodMinusMuons"+myVarSuffix_);
+        const auto& NGoodElectrons      = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
+        const auto& NGoodPlusElectrons  = tr.getVar<int>("NGoodPlusElectrons"+myVarSuffix_);
+        const auto& NGoodMinusElectrons = tr.getVar<int>("NGoodMinusElectrons"+myVarSuffix_);
         const auto& NJets_pt45          = tr.getVar<int>("NJets_pt45"+myVarSuffix_);
         const auto& HT_trigger          = tr.getVar<double>("HT_trigger"+myVarSuffix_);
         const auto& HT_trigger_pt30     = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
@@ -32,8 +32,8 @@ private:
         const auto& NGoodBJets_pt45     = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
         const auto& NGoodBJets_pt30     = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_); 
         const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_); 
-        const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons");
-        const auto& Mbl                 = tr.getVar<double>("Mbl");
+        const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
+        const auto& Mbl                 = tr.getVar<double>("Mbl"+myVarSuffix_);
         
         // ------------------------------
         // -- Data dependent stuff

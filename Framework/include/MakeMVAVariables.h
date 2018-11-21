@@ -39,7 +39,7 @@ private:
 
         if(runtype != "Data" && jetCombo.size() > 0)
         {
-            const auto& hadtopdaughters = tr.getVec<std::vector<const TLorentzVector*>>("hadtopdaughters");
+            const auto& hadtopdaughters = tr.getVec<std::vector<const TLorentzVector*>>("hadtopdaughters"+myVarSuffix_);
             const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
 
             bool genMatched = true;
@@ -305,7 +305,7 @@ private:
     }
     
 public:
-    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", bool doGenMatch = true, bool printStatus = true, int nTopJets = 7, int nLeptons = 1)
+    MakeMVAVariables(const bool verb = false, std::string myVarSuffix = "", bool doGenMatch = false, bool printStatus = true, int nTopJets = 7, int nLeptons = 1)
         : verb_(verb)
         , myVarSuffix_(myVarSuffix)
         , doGenMatch_(doGenMatch)

@@ -5,8 +5,10 @@
 
 SetUpTopTagger::SetUpTopTagger(NTupleReader& tr, 
 			       const std::vector<TLorentzVector>& hadtops, 
-			       const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters) : 
+			       const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters,
+                               const std::string& myVarSuffix) : 
     tr_                        (tr),
+    myVarSuffix_               (myVarSuffix),
     AK4Inputs_                 (nullptr),
     AK8Inputs_                 (nullptr),
     Jets_                      (tr.getVec<TLorentzVector>("Jets")),
