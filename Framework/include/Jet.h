@@ -132,6 +132,8 @@ private:
         tr.registerDerivedVar("NGoodJets_pt40"+myVarSuffix_, NGoodJets_pt40);
         tr.registerDerivedVec("GoodJets_pt45" +myVarSuffix_, goodjets_pt45_);
         tr.registerDerivedVar("NGoodJets_pt45"+myVarSuffix_, NGoodJets_pt45);
+
+        tr.registerDerivedVar("NGoodJets_pt30_inclusive"+myVarSuffix_, (NGoodJets_pt30 > 14 ? 14 : NGoodJets_pt30));
     }
 
 public:
