@@ -32,7 +32,7 @@ private:
         const auto& NGoodBJets_pt45     = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
         const auto& NGoodBJets_pt30     = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_); 
         const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_); 
-        const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
+        //const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
         const auto& Mbl                 = tr.getVar<double>("Mbl"+myVarSuffix_);
         
         // ------------------------------
@@ -271,12 +271,12 @@ private:
         // -- Define 1 Photon Baseline
         // -----------------------------------
 
-        bool passBaseline1photon_Good = passMadHT           &&
-                                        passTrigger         &&
-                                        passTriggerMC       &&
-                                        NGoodPhotons == 1   &&
-                                        NGoodLeptons == 0   && 
-                                        NGoodJets_pt30 >= 7; 
+        //bool passBaseline1photon_Good = passMadHT           &&
+        //                                passTrigger         &&
+        //                                passTriggerMC       &&
+        //                                NGoodPhotons == 1   &&
+        //                                NGoodLeptons == 0   && 
+        //                                NGoodJets_pt30 >= 7; 
         
         tr.registerDerivedVar<bool>("passBaseline0l"+myVarSuffix_,              passBaseline0l);
         tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,         passBaseline0l_Good);
@@ -290,7 +290,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"+myVarSuffix_,      passBaseline2lonZ_Good);
         tr.registerDerivedVar<bool>("passBaseline2l"+myVarSuffix_,              passBaseline2l);
         tr.registerDerivedVar<bool>("passBaseline2l_Good"+myVarSuffix_,         passBaseline2l_Good);
-        tr.registerDerivedVar<bool>("passBaseline1photon_Good"+myVarSuffix_,    passBaseline1photon_Good);
+        //tr.registerDerivedVar<bool>("passBaseline1photon_Good"+myVarSuffix_,    passBaseline1photon_Good);
         tr.registerDerivedVar<bool>("passBaseline1e1m_Good"+myVarSuffix_,       passBaseline1e1m_Good);
         tr.registerDerivedVar<bool>("passBlindHad"+myVarSuffix_,                passBlindHad);
         tr.registerDerivedVar<bool>("passBlindLep"+myVarSuffix_,                passBlindLep);
