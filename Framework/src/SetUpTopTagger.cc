@@ -68,7 +68,7 @@ std::vector<double>* SetUpTopTagger::intVecTodoubleVec(NTupleReader& tr, const s
     {
         (*vD)[i] = vI[i];
     }
-    tr.registerDerivedVec(name+"ConvertedToDouble", vD);
+    tr.registerDerivedVec(name+"ConvertedToDouble"+myVarSuffix_, vD);
     return vD;
 }
 
@@ -85,7 +85,7 @@ std::vector<std::vector<double>>* SetUpTopTagger::VecVecintToVecVecdouble(NTuple
         }
         vvD->push_back(vD);
     }
-    tr.registerDerivedVec(name+"ConvertedToDouble", vvD);
+    tr.registerDerivedVec(name+"ConvertedToDouble"+myVarSuffix_, vvD);
     return vvD;
 }
 

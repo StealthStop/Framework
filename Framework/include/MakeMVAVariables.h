@@ -100,7 +100,7 @@ private:
         TVector3 rec_boost_beta_vec( 0.0, 0.0, -reco_jets_beta );
         auto* cm_jets = new std::vector<math::RThetaPhiVector>();
         auto* Jets_cm = new std::vector<TLorentzVector>();
-        auto* Jets_   = new std::vector<TLorentzVector>();
+        auto Jets_   = std::make_unique<std::vector<TLorentzVector>>();
 
         //--- Boost the GoodJets, Goodleptons, and the MET in the event 
         for(int j = 0; j < Jets.size(); j++)
@@ -115,7 +115,7 @@ private:
             math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() );
             cm_jets->push_back( cmvec );
         }
-        auto* GoodLeptons_cm = new std::vector<TLorentzVector>();
+        auto GoodLeptons_cm = std::make_unique<std::vector<TLorentzVector>>();
         for(auto pair : GoodLeptons)
         {
             pair.second.Boost( rec_boost_beta_vec );

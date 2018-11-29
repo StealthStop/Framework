@@ -35,7 +35,7 @@ private:
         //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) 
         //if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same
 
-        auto* tempGoodJets = new std::vector<bool>(Jets.size(), true);
+        auto tempGoodJets = std::make_unique<std::vector<bool>>(Jets.size(), true);
 
         if( NMuons > 0 ) 
         {
@@ -116,7 +116,6 @@ private:
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 45 && goodjets_->at(i),    goodjets_pt45_, NGoodJets_pt45);
         }
 
-        tr.registerDerivedVar("NJets"     +myVarSuffix_,  static_cast<int>(Jets.size()));
         tr.registerDerivedVec("Jets_pt30" +myVarSuffix_,  jets_pt30_);
         tr.registerDerivedVar("NJets_pt30"+myVarSuffix_,  NJets_pt30);
         tr.registerDerivedVec("Jets_pt40" +myVarSuffix_,  jets_pt40_);

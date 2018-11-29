@@ -12,13 +12,11 @@ private:
     std::vector<TLorentzVector>* hadtops_;
     std::vector<std::vector<const TLorentzVector*>>* hadtopdaughters_;
     std::vector<std::vector<int>>* hadtopdaughters_id_;
-    std::vector<TLorentzVector>* hadWs_;
     std::vector<TLorentzVector>* neutralinos_;
     std::vector<TLorentzVector>* singlinos_;
     std::vector<TLorentzVector>* singlets_;
     std::vector<int>* hadtops_idx_;
     std::string taggerCfg_;
-    int nhadWs_ ;
     int ntops_;
     int ntops_3jet_;
     int ntops_2jet_;
@@ -52,12 +50,10 @@ private:
             hadtops_            = new std::vector<TLorentzVector>();
             hadtopdaughters_    = new std::vector<std::vector<const TLorentzVector*>>();
             hadtopdaughters_id_ = new std::vector<std::vector<int>>();
-            hadWs_              = new std::vector<TLorentzVector>();
             neutralinos_        = new std::vector<TLorentzVector>();
             singlinos_          = new std::vector<TLorentzVector>();
             singlets_           = new std::vector<TLorentzVector>();
             hadtops_idx_        = new std::vector<int>();
-            nhadWs_             = 0;
 
             const auto& GenParticles            = tr.getVec<TLorentzVector>("GenParticles");
             const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
@@ -237,11 +233,9 @@ private:
         tr.registerDerivedVar("ntops_3jet"+myVarSuffix_, ntops_3jet_);
         tr.registerDerivedVar("ntops_2jet"+myVarSuffix_, ntops_2jet_);
         tr.registerDerivedVar("ntops_1jet"+myVarSuffix_, ntops_1jet_);
-        //tr.registerDerivedVar("nhadWs"+myVarSuffix_, nhadWs_);
         tr.registerDerivedVec("hadtops"+myVarSuffix_, hadtops_);
         tr.registerDerivedVec("hadtopdaughters"+myVarSuffix_, hadtopdaughters_);
         tr.registerDerivedVec("hadtopdaughters_id"+myVarSuffix_, hadtopdaughters_id_);
-        //tr.registerDerivedVec("hadWs"+myVarSuffix_, hadWs_);
         tr.registerDerivedVec("neutralinos"+myVarSuffix_, neutralinos_);
         tr.registerDerivedVec("singlinos"+myVarSuffix_, singlinos_);
         tr.registerDerivedVec("singlets"+myVarSuffix_, singlets_);
@@ -252,6 +246,9 @@ private:
         tr.registerDerivedVar("bestTopMassGenMatch"+myVarSuffix_, bestTopMassGenMatch);
         tr.registerDerivedVar("bestTopEta"+myVarSuffix_, bestTopEta);
         tr.registerDerivedVec("tightPhotons"+myVarSuffix_,tightPhotons);
+
+        // Cleaning up
+        delete tops;
     }
 
 public:
@@ -262,7 +259,6 @@ public:
         , hadtops_           (nullptr)
         , hadtopdaughters_   (nullptr)
         , hadtopdaughters_id_(nullptr)
-        , hadWs_             (nullptr)
         , neutralinos_       (nullptr)
         , singlinos_         (nullptr)
         , singlets_          (nullptr)
