@@ -73,8 +73,8 @@ private:
     void runFisher(NTupleReader& tr)
     {
         const auto& Jets       = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-        const auto& NJets_pt30 = tr.getVar<int>("NJets_pt30");
-        const auto& NJets_pt45 = tr.getVar<int>("NJets_pt45");
+        const auto& NJets_pt30 = tr.getVar<int>("NJets_pt30"+myVarSuffix_);
+        const auto& NJets_pt45 = tr.getVar<int>("NJets_pt45"+myVarSuffix_);
 
         std::vector<math::RThetaPhiVector> cm_frame_jets;
         get_cmframe_jets( &Jets, cm_frame_jets, 6 );
@@ -179,16 +179,16 @@ private:
         }
 
         // Register Variables
-        tr.registerDerivedVar("eventshape_bdt_val", eventshape_bdt_val);
-        tr.registerDerivedVar("bdt_bin1", bdt_bin1);
-        tr.registerDerivedVar("bdt_bin2", bdt_bin2);
-        tr.registerDerivedVar("bdt_bin3", bdt_bin3);
-        tr.registerDerivedVar("bdt_bin4", bdt_bin4);
-        tr.registerDerivedVar("fisher_val", fisher_val);
-        tr.registerDerivedVar("fisher_bin1", fisher_bin1);
-        tr.registerDerivedVar("fisher_bin2", fisher_bin2);
-        tr.registerDerivedVar("fisher_bin3", fisher_bin3);
-        tr.registerDerivedVar("fisher_bin4", fisher_bin4);
+        tr.registerDerivedVar("eventshape_bdt_val"+myVarSuffix_, eventshape_bdt_val);
+        tr.registerDerivedVar("bdt_bin1"+myVarSuffix_, bdt_bin1);
+        tr.registerDerivedVar("bdt_bin2"+myVarSuffix_, bdt_bin2);
+        tr.registerDerivedVar("bdt_bin3"+myVarSuffix_, bdt_bin3);
+        tr.registerDerivedVar("bdt_bin4"+myVarSuffix_, bdt_bin4);
+        tr.registerDerivedVar("fisher_val"+myVarSuffix_, fisher_val);
+        tr.registerDerivedVar("fisher_bin1"+myVarSuffix_, fisher_bin1);
+        tr.registerDerivedVar("fisher_bin2"+myVarSuffix_, fisher_bin2);
+        tr.registerDerivedVar("fisher_bin3"+myVarSuffix_, fisher_bin3);
+        tr.registerDerivedVar("fisher_bin4"+myVarSuffix_, fisher_bin4);
     }
 
 public:
