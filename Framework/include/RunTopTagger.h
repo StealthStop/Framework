@@ -8,14 +8,14 @@ class RunTopTagger
 private:
     std::string myVarSuffix_;
 
-    std::shared_ptr<TopTagger> tt_;
-    std::vector<TLorentzVector>* hadtops_;
-    std::vector<std::vector<const TLorentzVector*>>* hadtopdaughters_;
-    std::vector<std::vector<int>>* hadtopdaughters_id_;
-    std::vector<TLorentzVector>* neutralinos_;
-    std::vector<TLorentzVector>* singlinos_;
-    std::vector<TLorentzVector>* singlets_;
-    std::vector<int>* hadtops_idx_;
+    std::unique_ptr<TopTagger> tt_;
+    std::vector<TLorentzVector> hadtops_;
+    std::vector<std::vector<const TLorentzVector*>> hadtopdaughters_;
+    std::vector<std::vector<int>> hadtopdaughters_id_;
+    std::vector<TLorentzVector> neutralinos_;
+    std::vector<TLorentzVector> singlinos_;
+    std::vector<TLorentzVector> singlets_;
+    std::vector<int> hadtops_idx_;
     std::string taggerCfg_;
     int ntops_;
     int ntops_3jet_;
@@ -47,13 +47,13 @@ private:
 
         if(runtype != "Data")
         {
-            hadtops_            = new std::vector<TLorentzVector>();
-            hadtopdaughters_    = new std::vector<std::vector<const TLorentzVector*>>();
-            hadtopdaughters_id_ = new std::vector<std::vector<int>>();
-            neutralinos_        = new std::vector<TLorentzVector>();
-            singlinos_          = new std::vector<TLorentzVector>();
-            singlets_           = new std::vector<TLorentzVector>();
-            hadtops_idx_        = new std::vector<int>();
+            hadtops_            = tr.createDerivedVec<TLorentzVector>("hadtops"+myVarSuffix_);
+            hadtopdaughters_    = tr.createDerivedVec<std::vector<const TLorentzVector*>>("hadtopdaughters"+myVarSuffix_);
+            hadtopdaughters_id_ = tr.createDerivedVec<std::vector<int>>("hadtopdaughters_id"+myVarSuffix_);
+            neutralinos_        = tr.createDerivedVec<TLorentzVector>("neutralinos"+myVarSuffix_);
+            singlinos_          = tr.createDerivedVec<TLorentzVector>("singlinos"+myVarSuffix_);
+            singlets_           = tr.createDerivedVec<TLorentzVector>("singlets"+myVarSuffix_);
+            hadtops_idx_        = tr.createDerivedVec<int>("hadtops_idx"+myVarSuffix_);
 
             const auto& GenParticles            = tr.getVec<TLorentzVector>("GenParticles");
             const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
@@ -80,15 +80,15 @@ private:
                 //printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i TTFlag: %6i", gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi], int(GenParticles_TTFlag[gpi]) ); fflush(stdout);
                 if(abs(pdgid) == 1000022 && (status==22 || status == 52))
                 {
-                    neutralinos_->push_back(GenParticles.at(gpi));
+                    neutralinos_.push_back(GenParticles.at(gpi));
                 }
                 if(abs(pdgid) == 5000001 && (status == 22 || status == 52))
                 {
-                    singlinos_->push_back(GenParticles.at(gpi));
+                    singlinos_.push_back(GenParticles.at(gpi));
                 }
                 if(abs(pdgid) == 5000002 && (status == 22 || status == 52))
                 {
-                    singlets_->push_back(GenParticles.at(gpi));
+                    singlets_.push_back(GenParticles.at(gpi));
                 }
                 //if( topIdx >= 0 && (abs(pdgid) != 24) && passTopStatus && passWMomStatus)
                 if( topIdx >= 0 && (abs(pdgid) != 24))
@@ -96,41 +96,41 @@ private:
                     //printf(" topIdx: %i particle: %i\n", topIdx, pdgid); fflush(stdout);
                     
                     int position = 0;
-                    for(;position < hadtops_idx_->size() && (*hadtops_idx_)[position] != topIdx; ++position);
-                    if( position < hadtops_idx_->size() )
+                    for(;position < hadtops_idx_.size() && hadtops_idx_[position] != topIdx; ++position);
+                    if( position < hadtops_idx_.size() )
                     {
-                        (*hadtopdaughters_)[position].push_back(&(GenParticles.at(gpi)));
-                        (*hadtopdaughters_id_)[position].push_back(gpi);
+                        hadtopdaughters_[position].push_back(&(GenParticles.at(gpi)));
+                        hadtopdaughters_id_[position].push_back(gpi);
                     } 
                     else
                     {
-                        hadtops_idx_->push_back(topIdx);
-                        hadtops_->push_back(GenParticles.at(topIdx));
+                        hadtops_idx_.push_back(topIdx);
+                        hadtops_.push_back(GenParticles.at(topIdx));
 
                         std::vector<const TLorentzVector*> daughters;
                         daughters.push_back(&(GenParticles.at(gpi)));
-                        hadtopdaughters_->push_back(daughters);
+                        hadtopdaughters_.push_back(daughters);
 
                         std::vector<int> daughters_id;
                         daughters_id.push_back(gpi);
-                        hadtopdaughters_id_->push_back(daughters_id);
+                        hadtopdaughters_id_.push_back(daughters_id);
                     }
                 }
-                else
-                {
-                    //printf("\n");
-                }
+                //else
+                //{
+                //    printf("\n");
+                //}
             }            
         }
     }
 
-    void countTops(std::vector<TopObject*>* tops)
+    void countTops(const std::vector<TopObject*>& tops)
     {
         ntops_ = 0;
         ntops_3jet_ = 0;
         ntops_2jet_ = 0;
         ntops_1jet_ = 0;
-        for (const TopObject* top : *tops)
+        for (const TopObject* top : tops)
         {
             ntops_++;
 
@@ -155,7 +155,7 @@ private:
         genMatch(tr);
 
         // Setup variables needed for top tagger
-        SetUpTopTagger st( tr, (*hadtops_), (*hadtopdaughters_), myVarSuffix_ );
+        SetUpTopTagger st( tr, hadtops_, hadtopdaughters_, myVarSuffix_ );
         const std::vector<Constituent>& constituents = st.getConstituents();
 
         // Run the top tagger             
@@ -165,7 +165,7 @@ private:
         const TopTaggerResults& ttr = tt_->getResults();
 
         // Get reconstructed tops and derive needed variables                            
-        std::vector<TopObject*>* tops = new std::vector<TopObject*>(ttr.getTops());
+        const std::vector<TopObject*>& tops = ttr.getTops();
         countTops(tops);
 
         const auto& candidateTops = ttr.getTopCandidates();
@@ -187,7 +187,7 @@ private:
         }
 
         bestTopMassGenMatch = (bestTopMassLV)?(bestTopMassLV->getBestGenTopMatch(0.6) != nullptr):(false);
-        for(const auto& topPtr : (*tops)) 
+        for(const auto& topPtr : tops) 
         {
             if(topPtr == bestTopMassLV) 
             {
@@ -195,18 +195,17 @@ private:
                 break;
             }
         }
-
         
         // Making tight photon lv (should live somewhere else: is needed for HistoContainer.h)
         const auto& Photons        = tr.getVec<TLorentzVector>("Photons");
         const auto& Photons_fullID = tr.getVec<bool>("Photons_fullID");
 
-        std::vector<TLorentzVector>* tightPhotons = new std::vector<TLorentzVector>();
+        auto& tightPhotons = tr.createDerivedVec<TLorentzVector>("tightPhotons"+myVarSuffix_);
         for(int i = 0; i < Photons.size(); ++i)
         {
             if(Photons_fullID[i])
             {
-                tightPhotons->push_back(Photons[i]);
+                tightPhotons.push_back(Photons[i]);
             }
         }
 
@@ -233,22 +232,11 @@ private:
         tr.registerDerivedVar("ntops_3jet"+myVarSuffix_, ntops_3jet_);
         tr.registerDerivedVar("ntops_2jet"+myVarSuffix_, ntops_2jet_);
         tr.registerDerivedVar("ntops_1jet"+myVarSuffix_, ntops_1jet_);
-        tr.registerDerivedVec("hadtops"+myVarSuffix_, hadtops_);
-        tr.registerDerivedVec("hadtopdaughters"+myVarSuffix_, hadtopdaughters_);
-        tr.registerDerivedVec("hadtopdaughters_id"+myVarSuffix_, hadtopdaughters_id_);
-        tr.registerDerivedVec("neutralinos"+myVarSuffix_, neutralinos_);
-        tr.registerDerivedVec("singlinos"+myVarSuffix_, singlinos_);
-        tr.registerDerivedVec("singlets"+myVarSuffix_, singlets_);
-        tr.registerDerivedVec("hadtops_idx"+myVarSuffix_, hadtops_idx_);
         tr.registerDerivedVar("bestTopMassLV"+myVarSuffix_, bestTopMassLV?(bestTopMassLV->p()):(TLorentzVector()));
         tr.registerDerivedVar("bestTopMass"+myVarSuffix_, bestTopMass);
         tr.registerDerivedVar("bestTopMassTopTag"+myVarSuffix_, bestTopMassTopTag);
         tr.registerDerivedVar("bestTopMassGenMatch"+myVarSuffix_, bestTopMassGenMatch);
         tr.registerDerivedVar("bestTopEta"+myVarSuffix_, bestTopEta);
-        tr.registerDerivedVec("tightPhotons"+myVarSuffix_,tightPhotons);
-
-        // Cleaning up
-        delete tops;
     }
 
 public:
@@ -256,20 +244,11 @@ public:
         : taggerCfg_         (taggerCfg)
         , myVarSuffix_       (myVarSuffix)
         , tt_                (new TopTagger())
-        , hadtops_           (nullptr)
-        , hadtopdaughters_   (nullptr)
-        , hadtopdaughters_id_(nullptr)
-        , neutralinos_       (nullptr)
-        , singlinos_         (nullptr)
-        , singlets_          (nullptr)
-        , hadtops_idx_       (nullptr)
     {                
         std::cout<<"Setting up RunTopTagger"<<std::endl;
         tt_->setCfgFile(taggerCfg_);
         std::cout<<"Using "+taggerCfg+" as the TopTagger config file"<<std::endl;
     }
-
-    ~RunTopTagger(){}
 
     void operator()(NTupleReader& tr)
     {
