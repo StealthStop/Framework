@@ -98,22 +98,22 @@ private:
         double reco_jets_beta = rlv_all.Pz() / rlv_all.E();
         event_beta_z = reco_jets_beta;
         TVector3 rec_boost_beta_vec( 0.0, 0.0, -reco_jets_beta );
-        auto* cm_jets = new std::vector<math::RThetaPhiVector>();
-        auto* Jets_cm = new std::vector<TLorentzVector>();
-        auto Jets_   = std::make_unique<std::vector<TLorentzVector>>();
+        auto& cm_jets = tr.createDerivedVec<math::RThetaPhiVector>("cm_jets"+myVarSuffix_);
+        auto& Jets_cm = tr.createDerivedVec<TLorentzVector>("Jets_cm"+myVarSuffix_);
+        std::vector<TLorentzVector> Jets_;
 
         //--- Boost the GoodJets, Goodleptons, and the MET in the event 
         for(int j = 0; j < Jets.size(); j++)
         {
             if(!GoodJets[j]) continue;
             TLorentzVector jlvcm = Jets.at(j);            
-            Jets_->push_back( jlvcm );
+            Jets_.push_back( jlvcm );
             
             jlvcm.Boost( rec_boost_beta_vec );
-            Jets_cm->push_back( jlvcm );
+            Jets_cm.push_back( jlvcm );
 
             math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() );
-            cm_jets->push_back( cmvec );
+            cm_jets.push_back( cmvec );
         }
         auto GoodLeptons_cm = std::make_unique<std::vector<TLorentzVector>>();
         for(auto pair : GoodLeptons)
@@ -126,39 +126,39 @@ private:
 
         //--- Try using only the 7 highest-P jets in the CM frame in the event shape vars.
         //    First, need to make a new input vector of jets containing only those jets.
-        auto cm_jets_psort = *cm_jets ;
+        auto cm_jets_psort = cm_jets ;
         std::sort( cm_jets_psort.begin(), cm_jets_psort.end(), compare_p ) ;
         std::vector<math::RThetaPhiVector> cm_jets_top6 ;
 
-        auto Jets_cm_psort = *Jets_cm;
-        auto Jets_psort = *Jets_;
+        auto Jets_cm_psort = Jets_cm;
+        auto Jets_psort = Jets_;
         std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.P() > v2.P();} );
         std::sort( Jets_psort.begin(), Jets_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.Pt() > v2.Pt();} );
-        auto* Jets_cm_top6 = new std::vector<TLorentzVector>();
-        auto* Jets_top6 = new std::vector<TLorentzVector>();
+        auto& Jets_cm_top6 = tr.createDerivedVec<TLorentzVector>("Jets_cm_top6"+myVarSuffix_);
+        auto& Jets_top6 = tr.createDerivedVec<TLorentzVector>("Jets_top6"+myVarSuffix_);
 
-        for( unsigned int ji=0; ji<cm_jets->size(); ji++ ) 
+        for( unsigned int ji=0; ji<cm_jets.size(); ji++ ) 
         {
             if ( ji < nTopJets_ ) 
             {
                 cm_jets_top6.push_back( cm_jets_psort.at(ji) ) ;
-                Jets_cm_top6->push_back( Jets_cm_psort.at(ji) ) ;
-                Jets_top6->push_back( Jets_psort.at(ji) ) ;
+                Jets_cm_top6.push_back( Jets_cm_psort.at(ji) ) ;
+                Jets_top6.push_back( Jets_psort.at(ji) ) ;
             }
         } // ji
 
         if ( verb_ ) 
         {
             printf("\n\n Unsorted and sorted CM jet lists.\n") ;
-            for ( unsigned int ji=0; ji<cm_jets->size(); ji++ ) 
+            for ( unsigned int ji=0; ji<cm_jets.size(); ji++ ) 
             {
                 printf("  %2d :  (%7.1f, %7.3f, %7.3f) | (%7.1f, %7.3f, %7.3f)\n", ji,
-                       cm_jets->at(ji).R(), cm_jets->at(ji).Theta(), cm_jets->at(ji).Phi(),
+                       cm_jets.at(ji).R(), cm_jets.at(ji).Theta(), cm_jets.at(ji).Phi(),
                        cm_jets_psort.at(ji).R(), cm_jets_psort.at(ji).Theta(), cm_jets_psort.at(ji).Phi() ) ;
                 
                 printf("  %2d :  (%7.1f, %7.3f, %7.3f) | (%7.1f, %7.3f, %7.3f)\n", ji,
-                       Jets_cm->at(ji).P(), Jets_cm->at(ji).Theta(), Jets_cm->at(ji).Phi(),
-                       Jets_cm_top6->at(ji).P(), Jets_cm_top6->at(ji).Theta(), Jets_cm_top6->at(ji).Phi() ) ;
+                       Jets_cm.at(ji).P(), Jets_cm.at(ji).Theta(), Jets_cm.at(ji).Phi(),
+                       Jets_cm_top6.at(ji).P(), Jets_cm_top6.at(ji).Theta(), Jets_cm_top6.at(ji).Phi() ) ;
             } // ji
             printf("\n\n") ;
         }
@@ -184,10 +184,10 @@ private:
         //
         for(unsigned int i = 0; i < nTopJets_; i++)
         {
-            tr.registerDerivedVar("Jet_pt_"+std::to_string(i+1)+myVarSuffix_,  static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Pt()  : 0.0));
-            tr.registerDerivedVar("Jet_eta_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Eta() : 0.0));
-            tr.registerDerivedVar("Jet_phi_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).Phi() : 0.0));
-            tr.registerDerivedVar("Jet_m_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6->size() >= i+1) ? Jets_cm_top6->at(i).M()   : 0.0));
+            tr.registerDerivedVar("Jet_pt_"+std::to_string(i+1)+myVarSuffix_,  static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Pt()  : 0.0));
+            tr.registerDerivedVar("Jet_eta_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Eta() : 0.0));
+            tr.registerDerivedVar("Jet_phi_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Phi() : 0.0));
+            tr.registerDerivedVar("Jet_m_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).M()   : 0.0));
         }
         for(unsigned int i = 0; i < nLeptons_; i++)
         {
@@ -200,10 +200,10 @@ private:
         tr.registerDerivedVar("lvMET_cm_eta"+myVarSuffix_, static_cast<double>( lvMET_cm.Eta()));
         tr.registerDerivedVar("lvMET_cm_phi"+myVarSuffix_, static_cast<double>( lvMET_cm.Phi()));
         tr.registerDerivedVar("lvMET_cm_m"+myVarSuffix_,   static_cast<double>( lvMET_cm.M()  ));
-        tr.registerDerivedVec("cm_jets"+myVarSuffix_, cm_jets);
-        tr.registerDerivedVec("Jets_cm"+myVarSuffix_, Jets_cm);
-        tr.registerDerivedVec("Jets_cm_top6"+myVarSuffix_, Jets_cm_top6);
-        tr.registerDerivedVec("Jets_top6"+myVarSuffix_, Jets_top6);
+        //tr.registerDerivedVec("cm_jets"+myVarSuffix_, cm_jets);
+        //tr.registerDerivedVec("Jets_cm"+myVarSuffix_, Jets_cm);
+        //tr.registerDerivedVec("Jets_cm_top6"+myVarSuffix_, Jets_cm_top6);
+        //tr.registerDerivedVec("Jets_top6"+myVarSuffix_, Jets_top6);
         tr.registerDerivedVar("fwm2_top6"+myVarSuffix_, fwm2_top6);
         tr.registerDerivedVar("fwm3_top6"+myVarSuffix_, fwm3_top6);
         tr.registerDerivedVar("fwm4_top6"+myVarSuffix_, fwm4_top6);
