@@ -278,13 +278,9 @@ private:
         // --------------------------------------------------------------------------------------
         // Adding a scale factor that corrects the disagreement between data and MC for Ht
         // --------------------------------------------------------------------------------------
-        const auto& filetag = tr.getVar<std::string>("filetag");
-        const auto& NGoodJets_pt30       = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
-        const auto& HT_trigger_pt30      = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
-
-        //const double slope = -0.0000556446*NGoodJets_pt30 + 0.000101976;
-        //const double yInt  =  0.0321322*NGoodJets_pt30 + 0.93345;
-        //const double htDerivedweight = slope*HT_trigger_pt30 + yInt;
+        const auto& filetag         = tr.getVar<std::string>("filetag");
+        const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
+        const auto& HT_trigger_pt30 = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
 
         const double norm =   0.06146*NGoodJets_pt30 + 0.7908;
         const double expo = (-0.06063*NGoodJets_pt30 + 0.1018)/1000;
