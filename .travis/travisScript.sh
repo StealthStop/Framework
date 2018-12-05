@@ -28,7 +28,8 @@ git clone https://github.com/susy2015/SusyAnaTools.git
 git clone https://github.com/StealthStop/Analyzer.git
 git clone https://github.com/susy2015/TopTagger.git
 cd TopTagger/TopTagger/test
-./configure TENSORFLOWDIR=
+#./configure TENSORFLOWDIR=
+./configure
 make -j4
 echo "============================"
 echo "Testing Analyzer"
