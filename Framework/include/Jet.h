@@ -132,7 +132,9 @@ private:
         tr.registerDerivedVec("GoodJets_pt45" +myVarSuffix_, goodjets_pt45_);
         tr.registerDerivedVar("NGoodJets_pt45"+myVarSuffix_, NGoodJets_pt45);
 
-        tr.registerDerivedVar("NGoodJets_pt30_inclusive"+myVarSuffix_, (NGoodJets_pt30 > 14 ? 14 : NGoodJets_pt30));
+        int NGoodJets_pt30_inclusive = NGoodJets_pt30 > 14 ? 14 : NGoodJets_pt30;
+        tr.registerDerivedVar("NGoodJets_pt30_inclusive"+myVarSuffix_, NGoodJets_pt30_inclusive);
+        tr.registerDerivedVar("NGoodJets_pt30_inclusive_shift"+myVarSuffix_, NGoodJets_pt30_inclusive - 7);
     }
 
 public:
