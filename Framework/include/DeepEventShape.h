@@ -312,6 +312,7 @@ private:
             bool passDeepESMBin = discriminator > binEdges_[i-1] && discriminator <= binEdges_[i];
             int bin = i - (nMVABin+1)*nJetBinning;
             tr.registerDerivedVar("deepESM_bin"+std::to_string(bin)+myVarSuffix_, passDeepESMBin);
+            if(passDeepESMBin) tr.registerDerivedVar("deepESM_binNum"+myVarSuffix_, bin);
             //std::cout<<"nMVABin: "<<nMVABin<<" NJets: "<<NGoodJets_pt30<<" nJetBinning: "<<nJetBinning
             //         <<" i: "<<i<<" lowBinEdge: "<<binEdges_[i-1]<<" highBinEdge: "<<binEdges_[i]<<" MVABinNumber: "<<bin<<std::endl;
         }
