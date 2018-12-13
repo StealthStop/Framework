@@ -39,9 +39,9 @@ private:
         // -- Data dependent stuff
         // ------------------------------
         
-        bool passTriggerAllHad   = PassTriggerAllHad2016(TriggerNames, TriggerPass) || PassTriggerAllHad2017(TriggerNames, TriggerPass);
-        bool passTriggerMuon     = PassTriggerMuon(TriggerNames, TriggerPass);
-        bool passTriggerElectron = PassTriggerElectron(TriggerNames, TriggerPass);
+        bool passTriggerAllHad   = filetag.find("2017") ? PassTriggerAllHad2017(TriggerNames, TriggerPass) : PassTriggerAllHad2016(TriggerNames, TriggerPass);
+        bool passTriggerMuon     = filetag.find("2017") ? PassTriggerMuon2017(TriggerNames, TriggerPass) : PassTriggerMuon2016(TriggerNames, TriggerPass);
+        bool passTriggerElectron = filetag.find("2017") ? PassTriggerElectron2017(TriggerNames, TriggerPass) : PassTriggerElectron2016(TriggerNames, TriggerPass);
         bool passTriggerPhoton   = PassTriggerPhoton(TriggerNames, TriggerPass);
 
         bool passTrigger   = true;
@@ -55,10 +55,10 @@ private:
         if (runtype == "Data")
         {
             // Pass the right trigger
-            if (filetag == "Data_JetHT" && !passTriggerAllHad) passTrigger = false;
-            if (filetag == "Data_SingleMuon" && !passTriggerMuon) passTrigger = false;
-            if (filetag == "Data_SingleElectron" && !passTriggerElectron) passTrigger = false;
-            if (filetag == "Data_SinglePhoton" && !passTriggerPhoton) passTrigger = false;
+            if (filetag.find("Data_JetHT") != std::string::npos      && !passTriggerAllHad) passTrigger = false;
+            if (filetag.find("Data_SingleMuon") != std::string::npos && !passTriggerMuon) passTrigger = false;
+            if (filetag.find("Data_SingleElectron") != std::string::npos && !passTriggerElectron) passTrigger = false;
+            if (filetag.find("Data_SinglePhoton") != std::string::npos   && !passTriggerPhoton) passTrigger = false;
 
             // Blinding data 
             if (NJets_pt30 >= 9 && blind) passBlindHad = false;
@@ -77,19 +77,19 @@ private:
             const auto& madHT  = tr.getVar<double>("madHT");
 
             // Exclude events with MadGraph HT > 100 from the DY & WJets inclusive samples
-            if(filetag == "DYJetsToLL_M-50_Incl" && madHT > 100) passMadHT = false;
-            if(filetag == "WJetsToLNu_Incl" && madHT > 100) passMadHT = false;
+            if(filetag.find("DYJetsToLL_M-50_Incl") != std::string::npos && madHT > 100) passMadHT = false;
+            if(filetag.find("WJetsToLNu_Incl") != std::string::npos      && madHT > 100) passMadHT = false;
 
             // Stitch TTbar samples together
             // remove HT overlap
-            if( (filetag == "TTJets_Incl" || filetag == "TTJets_SingleLeptFromT" || filetag == "TTJets_SingleLeptFromTbar" || filetag == "TTJets_DiLept") 
+            if( (filetag.find("TTJets_Incl") != std::string::npos || filetag.find("TTJets_SingleLeptFromT") != std::string::npos || filetag.find("TTJets_SingleLeptFromTbar") != std::string::npos || filetag.find("TTJets_DiLept") != std::string::npos) 
                 && madHT > 600) passMadHT = false;
             // also remove lepton overlap from the inclusive sample
             const auto& GenElectrons        = tr.getVec<TLorentzVector>("GenElectrons");
             const auto& GenMuons            = tr.getVec<TLorentzVector>("GenMuons");
             const auto& GenTaus             = tr.getVec<TLorentzVector>("GenTaus");
             int NGenLeptons = GenElectrons.size() + GenMuons.size() + GenTaus.size();
-            if (filetag == "TTJets_Incl" && NGenLeptons > 0) passMadHT = false;
+            if (filetag.find("TTJets_Incl") != std::string::npos && NGenLeptons > 0) passMadHT = false;
             
             // MC modeling of the trigger
             if( !passTriggerMuon && !passTriggerElectron ) passTriggerMC = false;
@@ -148,7 +148,7 @@ private:
                                passMadHT             &&
                                passTrigger           &&
                                passTriggerMC         &&            
-                               (runtype != "Data" || filetag == "Data_SingleMuon") &&
+                               (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
                                passBlindLep          &&
                                NGoodMuons == 1       && 
                                NGoodElectrons == 0   &&
@@ -161,7 +161,7 @@ private:
                                passMadHT             &&
                                passTrigger           &&
                                passTriggerMC         &&
-                               (runtype != "Data" || filetag == "Data_SingleElectron") &&
+                               (runtype != "Data" || filetag.find("Data_SingleElectron") != std::string::npos) &&
                                passBlindLep          &&
                                NGoodElectrons == 1   &&
                                NGoodMuons == 0       &&
@@ -176,7 +176,7 @@ private:
                                passMadHT             &&
                                passTrigger           &&
                                passTriggerMC         &&
-                               (runtype != "Data" || filetag == "Data_SingleMuon") &&
+                               (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
                                passBlindLep_Good     &&
                                NGoodMuons == 1       && 
                                NGoodElectrons == 0   &&
@@ -189,7 +189,7 @@ private:
                                passMadHT             &&
                                passTrigger           &&
                                passTriggerMC         &&
-                               (runtype != "Data" || filetag == "Data_SingleElectron") &&
+                               (runtype != "Data" || filetag.find("Data_SingleElectron") != std::string::npos) &&
                                passBlindLep_Good     &&
                                NGoodElectrons == 1   &&
                                NGoodMuons == 0       &&
@@ -209,8 +209,8 @@ private:
                                  passTriggerMC      &&
                                  NGoodLeptons == 2  && 
                                  onZ                &&
-                                 (runtype != "Data" || (NGoodMuons == 2 && filetag == "Data_SingleMuon" ) 
-                                                    || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
+                                 (runtype != "Data" || (NGoodMuons == 2 && filetag.find("Data_SingleMuon") != std::string::npos ) 
+                                                    || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
                                  NJets_pt30 >= 7; 
         
         bool passBaseline2lonZ_Good = JetID         &&
@@ -219,8 +219,8 @@ private:
                                  passTriggerMC      &&
                                  NGoodLeptons == 2  && 
                                  onZ                &&
-                                 (runtype != "Data" || (NGoodMuons == 2 && filetag == "Data_SingleMuon" ) 
-                                                    || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
+                                 (runtype != "Data" || (NGoodMuons == 2 && filetag.find("Data_SingleMuon") != std::string::npos ) 
+                                                    || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
                                  NGoodJets_pt30 >= 7; 
         
         // -----------------------------------
@@ -234,8 +234,8 @@ private:
                               passBlindLep       &&
                               NGoodLeptons == 2  && 
                               !onZ               &&
-                              (runtype != "Data" || (NGoodMuons >= 1 && filetag == "Data_SingleMuon" ) 
-                                                 || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
+                              (runtype != "Data" || (NGoodMuons >= 1 && filetag.find("Data_SingleMuon") != std::string::npos ) 
+                                                 || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
                               NJets_pt30 >= 7    && 
                               NBJets_pt30 >= 1;
         
@@ -246,8 +246,8 @@ private:
                               passBlindLep_Good   &&
                               NGoodLeptons == 2   && 
                               !onZ                &&
-                              (runtype != "Data"  || (NGoodMuons >= 1 && filetag == "Data_SingleMuon" ) 
-                                                  || (NGoodElectrons == 2 && filetag == "Data_SingleElectron") ) &&
+                              (runtype != "Data"  || (NGoodMuons >= 1 && filetag.find("Data_SingleMuon") != std::string::npos ) 
+                                                  || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
                               NGoodJets_pt30 >= 7 && 
                               NGoodBJets_pt30 >= 1;
 
@@ -261,7 +261,7 @@ private:
                                      passTriggerMuon       &&
                                      NGoodMuons == 1       &&
                                      NGoodElectrons == 1   &&
-                                     (runtype != "Data" || filetag == "Data_SingleMuon") &&
+                                     (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
                                      (NGoodPlusMuons + NGoodPlusElectrons == 1)          &&
                                      (NGoodMinusMuons + NGoodMinusElectrons == 1)        &&
                                      NGoodJets_pt30 <= 5   && 
@@ -341,15 +341,29 @@ private:
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
-    bool PassTriggerMuon(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    bool PassTriggerMuon2016(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
-        std::vector<std::string> mytriggers = {"HLT_IsoMu24","HLT_IsoTkMu24_v"};
+        std::vector<std::string> mytriggers = {"HLT_IsoMu24","HLT_IsoTkMu24","HLT_Mu50","HLT_TkMu50"};
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
-    bool PassTriggerElectron(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    bool PassTriggerMuon2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        // IsoMu24 ended up prescaled for 3.6\fb, so also include the IsoMu27 here
+        std::vector<std::string> mytriggers = {"HLT_IsoMu24","HLT_IsoMu27","HLT_Mu50"};
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+
+    bool PassTriggerElectron2016(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         std::vector<std::string> mytriggers = {"HLT_Ele27_WPTight_Gsf"};
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+
+    bool PassTriggerElectron2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        // Ele35 fine for whole year, gets complicated for the other triggers
+        std::vector<std::string> mytriggers = {"HLT_Ele35_WPTight"};
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
