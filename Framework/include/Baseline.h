@@ -39,9 +39,9 @@ private:
         // -- Data dependent stuff
         // ------------------------------
         
-        bool passTriggerAllHad   = filetag.find("2017") ? PassTriggerAllHad2017(TriggerNames, TriggerPass) : PassTriggerAllHad2016(TriggerNames, TriggerPass);
-        bool passTriggerMuon     = filetag.find("2017") ? PassTriggerMuon2017(TriggerNames, TriggerPass) : PassTriggerMuon2016(TriggerNames, TriggerPass);
-        bool passTriggerElectron = filetag.find("2017") ? PassTriggerElectron2017(TriggerNames, TriggerPass) : PassTriggerElectron2016(TriggerNames, TriggerPass);
+        bool passTriggerAllHad   = (filetag.find("2017") != std::string::npos) ? PassTriggerAllHad2017(TriggerNames, TriggerPass) : PassTriggerAllHad2016(TriggerNames, TriggerPass);
+        bool passTriggerMuon     = (filetag.find("2017") != std::string::npos) ? PassTriggerMuon2017(TriggerNames, TriggerPass) : PassTriggerMuon2016(TriggerNames, TriggerPass);
+        bool passTriggerElectron = (filetag.find("2017") != std::string::npos) ? PassTriggerElectron2017(TriggerNames, TriggerPass) : PassTriggerElectron2016(TriggerNames, TriggerPass);
         bool passTriggerPhoton   = PassTriggerPhoton(TriggerNames, TriggerPass);
 
         bool passTrigger   = true;

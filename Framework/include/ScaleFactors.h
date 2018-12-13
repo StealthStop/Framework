@@ -296,7 +296,7 @@ private:
         // --------------------------------------------------------------------------------------
         double topPtScaleFactor = 1.0;
         auto* topPtVec = new std::vector<double>();
-        if(filetag == "TT")
+        if(filetag.find("TT") != std::string::npos)
         {
             const double a=0.0615, b=-0.0005;
             auto SF = [&](const double pt){return exp(a + b*pt);};
