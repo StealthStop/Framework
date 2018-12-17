@@ -2,9 +2,9 @@
 #define SETUPTOPTAGGER_H
 
 //mandatory includes to use top tagger
-#include "TopTagger/TopTagger/include/TopTagger.h"
-#include "TopTagger/TopTagger/include/TopTaggerUtilities.h"
-#include "TopTagger/TopTagger/include/TopTaggerResults.h"
+#include "TopTagger/TopTagger/interface/TopTagger.h"
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
+#include "TopTagger/TopTagger/interface/TopTaggerResults.h"
 #include <vector>
 
 #include "SusyAnaTools/Tools/NTupleReader.h"
