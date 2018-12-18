@@ -58,9 +58,9 @@ private:
         auto* goodbjets_pt45_tight_ = new std::vector<bool>();
         int NGoodBJets_tight = 0, NGoodBJets_pt30_tight = 0, NGoodBJets_pt45_tight = 0;
 
-        double loose = 0.5426;
-        double medium = 0.8484;
-        double tight = 0.9535;
+        double loose = (filetag.find("2017") != std::string::npos) ? 0.5803 : 0.5426;
+        double medium = (filetag.find("2017") != std::string::npos) ? 0.8838 : 0.8484;
+        double tight = (filetag.find("2017") != std::string::npos) ? 0.9693 : 0.9535;
 
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
