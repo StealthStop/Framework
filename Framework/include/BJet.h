@@ -26,6 +26,7 @@ private:
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
+        const auto& filetag = tr.getVar<std::string>("filetag");
 
         auto* bjets_loose_ = new std::vector<bool>();
         auto* bjets_pt30_loose_ = new std::vector<bool>();
