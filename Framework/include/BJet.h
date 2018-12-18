@@ -62,6 +62,11 @@ private:
         double medium = (filetag.find("2017") != std::string::npos) ? 0.8838 : 0.8484;
         double tight = (filetag.find("2017") != std::string::npos) ? 0.9693 : 0.9535;
 
+        //Adding values for 2017 DeepCSV cuts:
+        //double loose_deepCSV = 0.1522
+        //double medium_deepCSV = 0.4941
+        //double tight_deepCSV = 0.8001
+
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
             TLorentzVector lv = Jets.at(ijet);
