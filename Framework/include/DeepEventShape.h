@@ -13,6 +13,7 @@ class EventShapeCalculator
 {
 private:
     float* basePtr_;
+    std::string myVarSuffix_;
     int len_;
 
     int fwm2_top6_, fwm3_top6_, fwm4_top6_, fwm5_top6_, fwm6_top6_, fwm7_top6_, fwm8_top6_, fwm9_top6_, fwm10_top6_, jmt_ev0_top6_, jmt_ev1_top6_, jmt_ev2_top6_;
@@ -25,7 +26,8 @@ private:
     int BestComboAvgMass_;
 
 public:
-    EventShapeCalculator()
+    EventShapeCalculator(std::string myVarSuffix = "")
+        : myVarSuffix_(myVarSuffix)
     {
         fwm2_top6_ = fwm3_top6_ = fwm4_top6_ = fwm5_top6_ = fwm6_top6_ = fwm7_top6_ = fwm8_top6_ = fwm9_top6_ = fwm10_top6_ = jmt_ev0_top6_ = jmt_ev1_top6_ = jmt_ev2_top6_ = -1; 
         NGoodJets_double_ = -1;
@@ -101,52 +103,52 @@ public:
      */
     void calculateVars(const NTupleReader& tr)
     {
-        if(fwm2_top6_ >= 0)  *(basePtr_ + fwm2_top6_) =  tr.getVar<double>("fwm2_top6");
-        if(fwm3_top6_ >= 0)  *(basePtr_ + fwm3_top6_) =  tr.getVar<double>("fwm3_top6");
-        if(fwm4_top6_ >= 0)  *(basePtr_ + fwm4_top6_) =  tr.getVar<double>("fwm4_top6");
-        if(fwm5_top6_ >= 0)  *(basePtr_ + fwm5_top6_) =  tr.getVar<double>("fwm5_top6");
-        if(fwm6_top6_ >= 0)  *(basePtr_ + fwm6_top6_) =  tr.getVar<double>("fwm6_top6");
-        if(fwm7_top6_ >= 0)  *(basePtr_ + fwm7_top6_) =  tr.getVar<double>("fwm7_top6");
-        if(fwm8_top6_ >= 0)  *(basePtr_ + fwm8_top6_) =  tr.getVar<double>("fwm8_top6");
-        if(fwm9_top6_ >= 0)  *(basePtr_ + fwm9_top6_) =  tr.getVar<double>("fwm9_top6");
-        if(fwm10_top6_ >= 0) *(basePtr_ + fwm10_top6_) =  tr.getVar<double>("fwm10_top6");
-        if(jmt_ev0_top6_ >= 0) *(basePtr_ + jmt_ev0_top6_) =  tr.getVar<double>("jmt_ev0_top6");
-        if(jmt_ev1_top6_ >= 0) *(basePtr_ + jmt_ev1_top6_) =  tr.getVar<double>("jmt_ev1_top6");
-        if(jmt_ev2_top6_ >= 0) *(basePtr_ + jmt_ev2_top6_) =  tr.getVar<double>("jmt_ev2_top6");
-        if(NGoodJets_double_ >= 0) *(basePtr_ + NGoodJets_double_) =  static_cast<double>(tr.getVar<int>("NGoodJets_pt30"));
-        if(Jet_pt_1_  >= 0) *(basePtr_ + Jet_pt_1_ ) = tr.getVar<double>("Jet_pt_1");
-        if(Jet_pt_2_  >= 0) *(basePtr_ + Jet_pt_2_ ) = tr.getVar<double>("Jet_pt_2");
-        if(Jet_pt_3_  >= 0) *(basePtr_ + Jet_pt_3_ ) = tr.getVar<double>("Jet_pt_3");
-        if(Jet_pt_4_  >= 0) *(basePtr_ + Jet_pt_4_ ) = tr.getVar<double>("Jet_pt_4");
-        if(Jet_pt_5_  >= 0) *(basePtr_ + Jet_pt_5_ ) = tr.getVar<double>("Jet_pt_5");
-        if(Jet_pt_6_  >= 0) *(basePtr_ + Jet_pt_6_ ) = tr.getVar<double>("Jet_pt_6");
-        if(Jet_pt_7_  >= 0) *(basePtr_ + Jet_pt_7_ ) = tr.getVar<double>("Jet_pt_7");
-        if(Jet_eta_1_  >= 0) *(basePtr_ + Jet_eta_1_ ) = tr.getVar<double>("Jet_eta_1");
-        if(Jet_eta_2_  >= 0) *(basePtr_ + Jet_eta_2_ ) = tr.getVar<double>("Jet_eta_2");
-        if(Jet_eta_3_  >= 0) *(basePtr_ + Jet_eta_3_ ) = tr.getVar<double>("Jet_eta_3");
-        if(Jet_eta_4_  >= 0) *(basePtr_ + Jet_eta_4_ ) = tr.getVar<double>("Jet_eta_4");
-        if(Jet_eta_5_  >= 0) *(basePtr_ + Jet_eta_5_ ) = tr.getVar<double>("Jet_eta_5");
-        if(Jet_eta_6_  >= 0) *(basePtr_ + Jet_eta_6_ ) = tr.getVar<double>("Jet_eta_6");
-        if(Jet_eta_7_  >= 0) *(basePtr_ + Jet_eta_7_ ) = tr.getVar<double>("Jet_eta_7");
-        if(Jet_phi_1_  >= 0) *(basePtr_ + Jet_phi_1_ ) = tr.getVar<double>("Jet_phi_1");
-        if(Jet_phi_2_  >= 0) *(basePtr_ + Jet_phi_2_ ) = tr.getVar<double>("Jet_phi_2");
-        if(Jet_phi_3_  >= 0) *(basePtr_ + Jet_phi_3_ ) = tr.getVar<double>("Jet_phi_3");
-        if(Jet_phi_4_  >= 0) *(basePtr_ + Jet_phi_4_ ) = tr.getVar<double>("Jet_phi_4");
-        if(Jet_phi_5_  >= 0) *(basePtr_ + Jet_phi_5_ ) = tr.getVar<double>("Jet_phi_5");
-        if(Jet_phi_6_  >= 0) *(basePtr_ + Jet_phi_6_ ) = tr.getVar<double>("Jet_phi_6");
-        if(Jet_phi_7_  >= 0) *(basePtr_ + Jet_phi_7_ ) = tr.getVar<double>("Jet_phi_7");
-        if(Jet_m_1_  >= 0) *(basePtr_ + Jet_m_1_ ) = tr.getVar<double>("Jet_m_1");
-        if(Jet_m_2_  >= 0) *(basePtr_ + Jet_m_2_ ) = tr.getVar<double>("Jet_m_2");
-        if(Jet_m_3_  >= 0) *(basePtr_ + Jet_m_3_ ) = tr.getVar<double>("Jet_m_3");
-        if(Jet_m_4_  >= 0) *(basePtr_ + Jet_m_4_ ) = tr.getVar<double>("Jet_m_4");
-        if(Jet_m_5_  >= 0) *(basePtr_ + Jet_m_5_ ) = tr.getVar<double>("Jet_m_5");
-        if(Jet_m_6_  >= 0) *(basePtr_ + Jet_m_6_ ) = tr.getVar<double>("Jet_m_6");
-        if(Jet_m_7_  >= 0) *(basePtr_ + Jet_m_7_ ) = tr.getVar<double>("Jet_m_7");
-        if(GoodLeptons_pt_1_  >= 0) *(basePtr_ + GoodLeptons_pt_1_ ) = tr.getVar<double>("GoodLeptons_pt_1");
-        if(GoodLeptons_eta_1_ >= 0) *(basePtr_ + GoodLeptons_eta_1_) = tr.getVar<double>("GoodLeptons_eta_1");
-        if(GoodLeptons_phi_1_ >= 0) *(basePtr_ + GoodLeptons_phi_1_) = tr.getVar<double>("GoodLeptons_phi_1");
-        if(GoodLeptons_m_1_   >= 0) *(basePtr_ + GoodLeptons_m_1_  ) = tr.getVar<double>("GoodLeptons_m_1");
-        if(BestComboAvgMass_ >= 0) *(basePtr_ + BestComboAvgMass_) = tr.getVar<double>("BestComboAvgMass");
+        if(fwm2_top6_ >= 0)  *(basePtr_ + fwm2_top6_) =  tr.getVar<double>("fwm2_top6"+myVarSuffix_);
+        if(fwm3_top6_ >= 0)  *(basePtr_ + fwm3_top6_) =  tr.getVar<double>("fwm3_top6"+myVarSuffix_);
+        if(fwm4_top6_ >= 0)  *(basePtr_ + fwm4_top6_) =  tr.getVar<double>("fwm4_top6"+myVarSuffix_);
+        if(fwm5_top6_ >= 0)  *(basePtr_ + fwm5_top6_) =  tr.getVar<double>("fwm5_top6"+myVarSuffix_);
+        if(fwm6_top6_ >= 0)  *(basePtr_ + fwm6_top6_) =  tr.getVar<double>("fwm6_top6"+myVarSuffix_);
+        if(fwm7_top6_ >= 0)  *(basePtr_ + fwm7_top6_) =  tr.getVar<double>("fwm7_top6"+myVarSuffix_);
+        if(fwm8_top6_ >= 0)  *(basePtr_ + fwm8_top6_) =  tr.getVar<double>("fwm8_top6"+myVarSuffix_);
+        if(fwm9_top6_ >= 0)  *(basePtr_ + fwm9_top6_) =  tr.getVar<double>("fwm9_top6"+myVarSuffix_);
+        if(fwm10_top6_ >= 0) *(basePtr_ + fwm10_top6_) =  tr.getVar<double>("fwm10_top6"+myVarSuffix_);
+        if(jmt_ev0_top6_ >= 0) *(basePtr_ + jmt_ev0_top6_) =  tr.getVar<double>("jmt_ev0_top6"+myVarSuffix_);
+        if(jmt_ev1_top6_ >= 0) *(basePtr_ + jmt_ev1_top6_) =  tr.getVar<double>("jmt_ev1_top6"+myVarSuffix_);
+        if(jmt_ev2_top6_ >= 0) *(basePtr_ + jmt_ev2_top6_) =  tr.getVar<double>("jmt_ev2_top6"+myVarSuffix_);
+        if(NGoodJets_double_ >= 0) *(basePtr_ + NGoodJets_double_) =  static_cast<double>(tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_));
+        if(Jet_pt_1_  >= 0) *(basePtr_ + Jet_pt_1_ ) = tr.getVar<double>("Jet_pt_1"+myVarSuffix_);
+        if(Jet_pt_2_  >= 0) *(basePtr_ + Jet_pt_2_ ) = tr.getVar<double>("Jet_pt_2"+myVarSuffix_);
+        if(Jet_pt_3_  >= 0) *(basePtr_ + Jet_pt_3_ ) = tr.getVar<double>("Jet_pt_3"+myVarSuffix_);
+        if(Jet_pt_4_  >= 0) *(basePtr_ + Jet_pt_4_ ) = tr.getVar<double>("Jet_pt_4"+myVarSuffix_);
+        if(Jet_pt_5_  >= 0) *(basePtr_ + Jet_pt_5_ ) = tr.getVar<double>("Jet_pt_5"+myVarSuffix_);
+        if(Jet_pt_6_  >= 0) *(basePtr_ + Jet_pt_6_ ) = tr.getVar<double>("Jet_pt_6"+myVarSuffix_);
+        if(Jet_pt_7_  >= 0) *(basePtr_ + Jet_pt_7_ ) = tr.getVar<double>("Jet_pt_7"+myVarSuffix_);
+        if(Jet_eta_1_  >= 0) *(basePtr_ + Jet_eta_1_ ) = tr.getVar<double>("Jet_eta_1"+myVarSuffix_);
+        if(Jet_eta_2_  >= 0) *(basePtr_ + Jet_eta_2_ ) = tr.getVar<double>("Jet_eta_2"+myVarSuffix_);
+        if(Jet_eta_3_  >= 0) *(basePtr_ + Jet_eta_3_ ) = tr.getVar<double>("Jet_eta_3"+myVarSuffix_);
+        if(Jet_eta_4_  >= 0) *(basePtr_ + Jet_eta_4_ ) = tr.getVar<double>("Jet_eta_4"+myVarSuffix_);
+        if(Jet_eta_5_  >= 0) *(basePtr_ + Jet_eta_5_ ) = tr.getVar<double>("Jet_eta_5"+myVarSuffix_);
+        if(Jet_eta_6_  >= 0) *(basePtr_ + Jet_eta_6_ ) = tr.getVar<double>("Jet_eta_6"+myVarSuffix_);
+        if(Jet_eta_7_  >= 0) *(basePtr_ + Jet_eta_7_ ) = tr.getVar<double>("Jet_eta_7"+myVarSuffix_);
+        if(Jet_phi_1_  >= 0) *(basePtr_ + Jet_phi_1_ ) = tr.getVar<double>("Jet_phi_1"+myVarSuffix_);
+        if(Jet_phi_2_  >= 0) *(basePtr_ + Jet_phi_2_ ) = tr.getVar<double>("Jet_phi_2"+myVarSuffix_);
+        if(Jet_phi_3_  >= 0) *(basePtr_ + Jet_phi_3_ ) = tr.getVar<double>("Jet_phi_3"+myVarSuffix_);
+        if(Jet_phi_4_  >= 0) *(basePtr_ + Jet_phi_4_ ) = tr.getVar<double>("Jet_phi_4"+myVarSuffix_);
+        if(Jet_phi_5_  >= 0) *(basePtr_ + Jet_phi_5_ ) = tr.getVar<double>("Jet_phi_5"+myVarSuffix_);
+        if(Jet_phi_6_  >= 0) *(basePtr_ + Jet_phi_6_ ) = tr.getVar<double>("Jet_phi_6"+myVarSuffix_);
+        if(Jet_phi_7_  >= 0) *(basePtr_ + Jet_phi_7_ ) = tr.getVar<double>("Jet_phi_7"+myVarSuffix_);
+        if(Jet_m_1_  >= 0) *(basePtr_ + Jet_m_1_ ) = tr.getVar<double>("Jet_m_1"+myVarSuffix_);
+        if(Jet_m_2_  >= 0) *(basePtr_ + Jet_m_2_ ) = tr.getVar<double>("Jet_m_2"+myVarSuffix_);
+        if(Jet_m_3_  >= 0) *(basePtr_ + Jet_m_3_ ) = tr.getVar<double>("Jet_m_3"+myVarSuffix_);
+        if(Jet_m_4_  >= 0) *(basePtr_ + Jet_m_4_ ) = tr.getVar<double>("Jet_m_4"+myVarSuffix_);
+        if(Jet_m_5_  >= 0) *(basePtr_ + Jet_m_5_ ) = tr.getVar<double>("Jet_m_5"+myVarSuffix_);
+        if(Jet_m_6_  >= 0) *(basePtr_ + Jet_m_6_ ) = tr.getVar<double>("Jet_m_6"+myVarSuffix_);
+        if(Jet_m_7_  >= 0) *(basePtr_ + Jet_m_7_ ) = tr.getVar<double>("Jet_m_7"+myVarSuffix_);
+        if(GoodLeptons_pt_1_  >= 0) *(basePtr_ + GoodLeptons_pt_1_ ) = tr.getVar<double>("GoodLeptons_pt_1"+myVarSuffix_);
+        if(GoodLeptons_eta_1_ >= 0) *(basePtr_ + GoodLeptons_eta_1_) = tr.getVar<double>("GoodLeptons_eta_1"+myVarSuffix_);
+        if(GoodLeptons_phi_1_ >= 0) *(basePtr_ + GoodLeptons_phi_1_) = tr.getVar<double>("GoodLeptons_phi_1"+myVarSuffix_);
+        if(GoodLeptons_m_1_   >= 0) *(basePtr_ + GoodLeptons_m_1_  ) = tr.getVar<double>("GoodLeptons_m_1"+myVarSuffix_);
+        if(BestComboAvgMass_ >= 0) *(basePtr_ + BestComboAvgMass_) = tr.getVar<double>("BestComboAvgMass"+myVarSuffix_);
     }
 };
 
@@ -154,7 +156,7 @@ class DeepEventShape
 {
 private:
     double discriminator_;
-    std::string modelFile_, inputOp_, outputOp_;
+    std::string modelFile_, inputOp_, outputOp_, myVarSuffix_;
     int minNJet_, maxNJet_;
 
     //Tensoflow session pointer
@@ -243,7 +245,7 @@ private:
         TF_DeleteStatus(status);
 
         //map variables
-        varCalculator_.reset(new EventShapeCalculator());
+        varCalculator_.reset(new EventShapeCalculator(myVarSuffix_));
         varCalculator_->mapVars(vars_);
     }
 
@@ -295,10 +297,10 @@ private:
         TF_DeleteStatus(status);
 
         // Register Variables
-        tr.registerDerivedVar("deepESM_val", discriminator);
+        tr.registerDerivedVar("deepESM_val"+myVarSuffix_, discriminator);
 
         // Define and register deepESM bins
-        const auto& NGoodJets_pt30 = tr.getVar<int>("NGoodJets_pt30");
+        const auto& NGoodJets_pt30 = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         int nMVABin = (binEdges_.size() / (maxNJet_ - minNJet_ + 1)) - 1;
         int nJetBinning;
         if(NGoodJets_pt30 < minNJet_) nJetBinning = 0;
@@ -309,7 +311,8 @@ private:
         {
             bool passDeepESMBin = discriminator > binEdges_[i-1] && discriminator <= binEdges_[i];
             int bin = i - (nMVABin+1)*nJetBinning;
-            tr.registerDerivedVar("deepESM_bin"+std::to_string(bin), passDeepESMBin);
+            tr.registerDerivedVar("deepESM_bin"+std::to_string(bin)+myVarSuffix_, passDeepESMBin);
+            if(passDeepESMBin) tr.registerDerivedVar("deepESM_binNum"+myVarSuffix_, bin);
             //std::cout<<"nMVABin: "<<nMVABin<<" NJets: "<<NGoodJets_pt30<<" nJetBinning: "<<nJetBinning
             //         <<" i: "<<i<<" lowBinEdge: "<<binEdges_[i-1]<<" highBinEdge: "<<binEdges_[i]<<" MVABinNumber: "<<bin<<std::endl;
         }
@@ -345,6 +348,7 @@ public:
         , modelFile_(husk.modelFile_)
         , inputOp_(husk.inputOp_)
         , outputOp_(husk.outputOp_)
+        , myVarSuffix_(husk.myVarSuffix_)
         , minNJet_(husk.minNJet_)
         , maxNJet_(husk.maxNJet_)
         , session_(husk.session_)
@@ -358,7 +362,8 @@ public:
         husk.session_ = nullptr;
     }
     
-    DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info", bool printStatus = true)
+    DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info", bool printStatus = true, const std::string myVarSuffix = "")
+        : myVarSuffix_(myVarSuffix)
     {
         if(printStatus) std::cout<<"Setting up DeepEventShape"<<std::endl;
         

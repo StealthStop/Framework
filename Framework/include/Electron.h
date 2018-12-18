@@ -4,6 +4,8 @@
 class Electron
 {
 private:
+    std::string myVarSuffix_;
+
     void electron(NTupleReader& tr)
     {
         const auto& allElectrons = tr.getVec<TLorentzVector>("Electrons");
@@ -20,6 +22,8 @@ private:
         auto* good_electrons_ = new std::vector<bool>();
         auto* electrons_mtw_ = new std::vector<double>();
         int NGoodElectrons = 0;
+        int NGoodPlusElectrons = 0;
+        int NGoodMinusElectrons = 0;
         for(unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
             TLorentzVector lvel = allElectrons.at(iel);
@@ -33,6 +37,9 @@ private:
             {
                 good_electrons_->push_back(true);
                 NGoodElectrons++;
+                if( allElectrons_charge.at(iel) ==  1 ) NGoodPlusElectrons++;
+                else if( allElectrons_charge.at(iel) == -1 ) NGoodMinusElectrons++;
+                else std::cout<<"Charge values in nTuples are different"<<std::endl;
             }
             else
             {
@@ -40,13 +47,16 @@ private:
             }
         }
 
-        tr.registerDerivedVec("GoodElectrons", good_electrons_);
-        tr.registerDerivedVar("NGoodElectrons", NGoodElectrons);
-        tr.registerDerivedVec("ElectronsMTW", electrons_mtw_);
+        tr.registerDerivedVec("GoodElectrons"+myVarSuffix_, good_electrons_);
+        tr.registerDerivedVar("NGoodElectrons"+myVarSuffix_, NGoodElectrons);
+        tr.registerDerivedVar("NGoodPlusElectrons"+myVarSuffix_, NGoodPlusElectrons);
+        tr.registerDerivedVar("NGoodMinusElectrons"+myVarSuffix_, NGoodMinusElectrons);
+        tr.registerDerivedVec("ElectronsMTW"+myVarSuffix_, electrons_mtw_);
     }
 
 public:
-    Electron() 
+    Electron(std::string myVarSuffix = "") 
+        : myVarSuffix_(myVarSuffix)
     {
         std::cout<<"Setting up Electron"<<std::endl;   
     }

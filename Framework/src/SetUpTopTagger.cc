@@ -5,8 +5,10 @@
 
 SetUpTopTagger::SetUpTopTagger(NTupleReader& tr, 
 			       const std::vector<TLorentzVector>& hadtops, 
-			       const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters) : 
+			       const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters,
+                               const std::string& myVarSuffix) : 
     tr_                        (tr),
+    myVarSuffix_               (myVarSuffix),
     AK4Inputs_                 (nullptr),
     AK8Inputs_                 (nullptr),
     Jets_                      (tr.getVec<TLorentzVector>("Jets")),
@@ -66,7 +68,7 @@ std::vector<double>* SetUpTopTagger::intVecTodoubleVec(NTupleReader& tr, const s
     {
         (*vD)[i] = vI[i];
     }
-    tr.registerDerivedVec(name+"ConvertedToDouble", vD);
+    tr.registerDerivedVec(name+"ConvertedToDouble"+myVarSuffix_, vD);
     return vD;
 }
 
@@ -83,7 +85,7 @@ std::vector<std::vector<double>>* SetUpTopTagger::VecVecintToVecVecdouble(NTuple
         }
         vvD->push_back(vD);
     }
-    tr.registerDerivedVec(name+"ConvertedToDouble", vvD);
+    tr.registerDerivedVec(name+"ConvertedToDouble"+myVarSuffix_, vvD);
     return vvD;
 }
 

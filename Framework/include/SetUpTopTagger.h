@@ -2,9 +2,9 @@
 #define SETUPTOPTAGGER_H
 
 //mandatory includes to use top tagger
-#include "TopTagger/TopTagger/include/TopTagger.h"
-#include "TopTagger/TopTagger/include/TopTaggerUtilities.h"
-#include "TopTagger/TopTagger/include/TopTaggerResults.h"
+#include "TopTagger/TopTagger/interface/TopTagger.h"
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
+#include "TopTagger/TopTagger/interface/TopTaggerResults.h"
 #include <vector>
 
 #include "SusyAnaTools/Tools/NTupleReader.h"
@@ -13,6 +13,8 @@ class SetUpTopTagger
 {
 private:
     NTupleReader& tr_;
+    std::string myVarSuffix_;
+
     const std::vector<TLorentzVector>& Jets_;                      
     const std::vector<double>& Jets_bDiscriminatorCSV_;    
     const std::vector<double>& Jets_qgLikelihood_;         
@@ -51,7 +53,7 @@ private:
     void addVariables();
     
 public:  
-    SetUpTopTagger(NTupleReader& tr, const std::vector<TLorentzVector>& hadtops, const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters);
+    SetUpTopTagger(NTupleReader& tr, const std::vector<TLorentzVector>& hadtops, const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters, const std::string& myVarSuffix);
     ~SetUpTopTagger();
     std::vector<Constituent> getConstituents() const;
 };

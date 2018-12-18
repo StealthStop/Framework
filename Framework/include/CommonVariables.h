@@ -4,6 +4,8 @@
 class CommonVariables
 {
 private:
+    std::string myVarSuffix_;
+
     void genMatch(NTupleReader& tr) const
     {
         const auto& runtype = tr.getVar<std::string>("runtype");
@@ -12,8 +14,8 @@ private:
         if(runtype != "Data")
         {
             const auto& GenParticles = tr.getVec<TLorentzVector>("GenParticles");
-            const auto& Mbl_Index    = tr.getVar<int>("used_bjet_for_mbl");
-            const auto& Jets         = tr.getVec<TLorentzVector>("Jets");
+            const auto& Mbl_Index    = tr.getVar<int>("used_bjet_for_mbl"+myVarSuffix_);
+            const auto& Jets         = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++ ) 
             {
@@ -22,41 +24,46 @@ private:
                 if(deltaR < 0.4) used_gen_bjet_for_mbl = gpi;
             }            
         }
-        tr.registerDerivedVar("used_gen_bjet_for_mbl", used_gen_bjet_for_mbl);
+        tr.registerDerivedVar("used_gen_bjet_for_mbl"+myVarSuffix_, used_gen_bjet_for_mbl);
     }
 
     void commonVariables(NTupleReader& tr)
     {
         // Get needed branches
-        const auto& Jets = tr.getVec<TLorentzVector>("Jets");
-        const auto& GoodJets = tr.getVec<bool>("GoodJets");
-        const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30");
+        const auto& Jets = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
+        const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
+        const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
 
         const auto& Muons = tr.getVec<TLorentzVector>("Muons");
         const auto& MuonsCharge = tr.getVec<int>("Muons_charge");
-        const auto& MuonsMTW = tr.getVec<double>("MuonsMTW");
-        const auto& GoodMuons = tr.getVec<bool>("GoodMuons");
-        const auto& NGoodMuons = tr.getVar<int>("NGoodMuons");
+        const auto& MuonsMTW = tr.getVec<double>("MuonsMTW"+myVarSuffix_);
+        const auto& GoodMuons = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
+        const auto& NGoodMuons = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
 
         const auto& Electrons = tr.getVec<TLorentzVector>("Electrons");
         const auto& ElectronsCharge = tr.getVec<int>("Electrons_charge");
-        const auto& ElectronsMTW = tr.getVec<double>("ElectronsMTW");
-        const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons");
-        const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons");
+        const auto& ElectronsMTW = tr.getVec<double>("ElectronsMTW"+myVarSuffix_);
+        const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
+        const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
 
         const auto& etaCut = tr.getVar<double>("etaCut");
 
         // HT of jets with pT>40
         double ht = 0;
+        double ht_pt30 = 0.0;
         for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {            
             if(!GoodJets[ijet]) continue;
             TLorentzVector jet = Jets.at(ijet);
 
+            if(jet.Pt() > 30 && abs(jet.Eta()) < etaCut)
+                ht_pt30 += jet.Pt();
+
             if(jet.Pt() > 40 && abs(jet.Eta()) < etaCut)
                 ht += jet.Pt();
         }
-        tr.registerDerivedVar("HT_trigger", ht);
+        tr.registerDerivedVar("HT_trigger"+myVarSuffix_, ht);
+        tr.registerDerivedVar("HT_trigger_pt30"+myVarSuffix_, ht_pt30);
 
         // Put leptons together
         auto* GoodLeptons = new std::vector<std::pair<std::string, TLorentzVector>>();
@@ -79,12 +86,13 @@ private:
             NGoodLeptons++;
         }
 
-        tr.registerDerivedVec("GoodLeptons", GoodLeptons);
-        tr.registerDerivedVar("NGoodLeptons", NGoodLeptons);
-        tr.registerDerivedVec("GoodLeptonsCharge", GoodLeptonsCharge);
+        tr.registerDerivedVec("GoodLeptons"+myVarSuffix_, GoodLeptons);
+        tr.registerDerivedVar("NGoodLeptons"+myVarSuffix_, NGoodLeptons);
+        tr.registerDerivedVec("GoodLeptonsCharge"+myVarSuffix_, GoodLeptonsCharge);
         
         // M(l,b); closest to 105 GeV if multiple combinations (halfway between 30 and 180 GeV)
         double Mbl = 0;
+        auto*  MblVec = new std::vector<double>();
         double Mbldiff = 999.;
         int used_bjet_for_mbl = -1;
         for(const auto& pair : *GoodLeptons)
@@ -95,6 +103,7 @@ private:
                 if(!GoodBJets_pt30[ijet]) continue;
                 TLorentzVector bjet = Jets.at(ijet);                
                 double mbl = (lepton+bjet).M();
+                MblVec->push_back(mbl);
                 if( abs(mbl - 105) < Mbldiff)
                 {
                     Mbl = mbl;
@@ -103,8 +112,9 @@ private:
                 }
             }
         }
-        tr.registerDerivedVar("Mbl",Mbl);
-        tr.registerDerivedVar("used_bjet_for_mbl",used_bjet_for_mbl);
+        tr.registerDerivedVar("Mbl"+myVarSuffix_,Mbl);
+        tr.registerDerivedVar("used_bjet_for_mbl"+myVarSuffix_,used_bjet_for_mbl);
+        tr.registerDerivedVec("MblVec"+myVarSuffix_,MblVec);
         genMatch(tr);
         
         //Find single lepton for HistoContainer
@@ -130,26 +140,27 @@ private:
                 break;
             }
         }
-        tr.registerDerivedVar("singleLepton", singleLepton);            
+        tr.registerDerivedVar("singleLepton"+myVarSuffix_, singleLepton);            
 
         // 2 lepton onZ selection variables
         bool onZ = false;
         double mll = 0;
         if ( GoodLeptons->size() == 2 )
         {
-            if( (NGoodMuons == 2 || NGoodElectrons == 2) && (GoodLeptonsCharge[0] != GoodLeptonsCharge[1]) )
+            if( (NGoodMuons == 2 || NGoodElectrons == 2) && (GoodLeptonsCharge->at(0) != GoodLeptonsCharge->at(1)) )
             {
                 mll = ( GoodLeptons->at(0).second + GoodLeptons->at(1).second ).M();
                 if( mll > 81 && mll < 101)
                     onZ = true; 
             }
         }
-        tr.registerDerivedVar("onZ", onZ);
-        tr.registerDerivedVar("mll", mll);        
+        tr.registerDerivedVar("onZ"+myVarSuffix_, onZ);
+        tr.registerDerivedVar("mll"+myVarSuffix_, mll);        
     }
 
 public:
-    CommonVariables()
+    CommonVariables(std::string myVarSuffix = "")
+        : myVarSuffix_(myVarSuffix)
     {
         std::cout<<"Setting up CommonVariables"<<std::endl;
     }

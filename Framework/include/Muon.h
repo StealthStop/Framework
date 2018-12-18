@@ -4,6 +4,8 @@
 class Muon
 {
 private:
+    std::string myVarSuffix_;
+
     void muon(NTupleReader& tr)
     {
         const auto& allMuons = tr.getVec<TLorentzVector>("Muons");
@@ -19,6 +21,8 @@ private:
         auto* good_muons_ = new std::vector<bool>();
         auto* muons_mtw_ = new std::vector<double>;
         int NGoodMuons = 0;
+        int NGoodPlusMuons = 0;
+        int NGoodMinusMuons = 0;
         for(unsigned int imu = 0; imu < allMuons.size(); ++imu)
         {            
             TLorentzVector lvmu(allMuons.at(imu));
@@ -31,6 +35,9 @@ private:
             {
                 good_muons_->push_back(true);
                 NGoodMuons++;
+                if( allMuons_charge.at(imu) ==  1 ) NGoodPlusMuons++;
+                else if( allMuons_charge.at(imu) == -1 ) NGoodMinusMuons++;
+                else std::cout<<"Charge values in nTuples are different"<<std::endl;
             }
             else
             {
@@ -38,17 +45,20 @@ private:
             }
         }
         
-        tr.registerDerivedVec("GoodMuons",  good_muons_);
-        tr.registerDerivedVar("NGoodMuons", NGoodMuons );
-        tr.registerDerivedVec("MuonsMTW",   muons_mtw_ );
+        tr.registerDerivedVec("GoodMuons"+myVarSuffix_,  good_muons_);
+        tr.registerDerivedVar("NGoodMuons"+myVarSuffix_, NGoodMuons );
+        tr.registerDerivedVar("NGoodPlusMuons"+myVarSuffix_, NGoodPlusMuons );
+        tr.registerDerivedVar("NGoodMinusMuons"+myVarSuffix_, NGoodMinusMuons );
+        tr.registerDerivedVec("MuonsMTW"+myVarSuffix_,   muons_mtw_ );
     }
 
 public:
-    Muon() 
+    Muon(std::string myVarSuffix = "") 
+        : myVarSuffix_(myVarSuffix)
     {
         std::cout<<"Setting up Muon"<<std::endl;   
     }
-
+    
     void operator()(NTupleReader& tr)
     {
         muon(tr);

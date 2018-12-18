@@ -4,11 +4,13 @@
 class Photon
 {
 private:
+    std::string myVarSuffix_;
+    
     void photon(NTupleReader& tr)
     {
         const auto& allPhotons = tr.getVec<TLorentzVector>("Photons");
         const auto& allPhotons_fullID = tr.getVec<bool>("Photons_fullID");
-        const auto& etaCut = 1.4;//tr.getVar<double>("etaCut");
+        const auto& etaCut = tr.getVar<double>("etaCut");
 
         auto* good_electrons_ = new std::vector<bool>();
         int NGoodPhotons = 0;
@@ -29,12 +31,13 @@ private:
             }
         }
 
-        tr.registerDerivedVec("GoodPhotons", good_electrons_);
-        tr.registerDerivedVar("NGoodPhotons", NGoodPhotons);
+        tr.registerDerivedVec("GoodPhotons"+myVarSuffix_, good_electrons_);
+        tr.registerDerivedVar("NGoodPhotons"+myVarSuffix_, NGoodPhotons);
     }
 
 public:
-    Photon() 
+    Photon(std::string myVarSuffix = "") 
+        : myVarSuffix_(myVarSuffix)
     {
         std::cout<<"Setting up Photon"<<std::endl;
     }

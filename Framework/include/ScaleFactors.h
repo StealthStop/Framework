@@ -2,20 +2,26 @@
 #define SCALEFACTORS_H
 
 #include "TGraph.h"
+#include "TFile.h"
+#include "TKey.h"
+
 class ScaleFactors
 {
 private:
+    std::string myVarSuffix_;
 
     TH2F *eleSFHistoTight_;        
     TH2F *eleSFHistoIso_;
     TH2F *eleSFHistoReco_;
     TH2F *muSFHisto_;
     TGraph *muSFHistoReco_;
+    std::map<std::string, double> htSFMap_;
 
     void scaleFactors(NTupleReader& tr)
     {
-
-        //First for PDF Uncertainties
+        // --------------------------------------------------------------------------------------
+        // First for PDF Uncertainties
+        // --------------------------------------------------------------------------------------
         const auto& scaleWeights    = tr.getVec<double>("ScaleWeights");
         const auto& PDFweights      = tr.getVec<double>("PDFweights");
 
@@ -54,12 +60,13 @@ private:
             scaleWeightLowerBound = 1.0;
         }
 
-        tr.registerDerivedVar("scaleWeightUp",      scaleWeightUpperBound);
-        tr.registerDerivedVar("scaleWeightDown",    scaleWeightLowerBound);
-        tr.registerDerivedVar("scaleWeightNom",     scaleWeightNominal);
+        tr.registerDerivedVar("scaleWeightUp"+myVarSuffix_,      scaleWeightUpperBound);
+        tr.registerDerivedVar("scaleWeightDown"+myVarSuffix_,    scaleWeightLowerBound);
+        tr.registerDerivedVar("scaleWeightNom"+myVarSuffix_,     scaleWeightNominal);
 
-        //Now calculate the PDF scale factor and uncertainty based on the 100 different replica values stored in PDFweights using envelope method and the median
-
+        // --------------------------------------------------------------------------------------
+        // Now calculate the PDF scale factor and uncertainty based on the 100 different replica values stored in PDFweights using envelope method and the median
+        // --------------------------------------------------------------------------------------
         auto PDFWeightMax            = std::max_element( std::begin(PDFweights), std::end(PDFweights) );
         auto PDFWeightMin            = std::min_element( std::begin(PDFweights), std::end(PDFweights) );
 
@@ -90,17 +97,15 @@ private:
             central                 = 1.0;
         }
 
-        tr.registerDerivedVar( "PDFweightUp",   NNPDF_from_median_up );
-        tr.registerDerivedVar( "PDFweightDown", NNPDF_from_median_down );
-        tr.registerDerivedVar( "PDFweightNom",  central );
+        tr.registerDerivedVar( "PDFweightUp"+myVarSuffix_,   NNPDF_from_median_up );
+        tr.registerDerivedVar( "PDFweightDown"+myVarSuffix_, NNPDF_from_median_down );
+        tr.registerDerivedVar( "PDFweightNom"+myVarSuffix_,  central );
         
-        //Adding code for implementing electron scale factors
-
-
-//        TFile SFRootFile( SFRootFileName_.c_str() );
-
+        // --------------------------------------------------------------------------------------
+        // Adding code for implementing electron scale factors
+        // --------------------------------------------------------------------------------------
         const auto& electrons           = tr.getVec<TLorentzVector>("Electrons");
-        const auto& goodElectrons       = tr.getVec<bool>("GoodElectrons");
+        const auto& goodElectrons       = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         
         double totGoodElectronSF        = 1.0;
         double totGoodElectronSFPErr2   = 0.0;
@@ -191,15 +196,16 @@ private:
         totGoodElectronSF_Up    = totGoodElectronSF + totGoodElectronSFErr;
         totGoodElectronSF_Down  = totGoodElectronSF - totGoodElectronSFErr;
 
-        tr.registerDerivedVar( "totGoodElectronSF",         totGoodElectronSF );
-        tr.registerDerivedVar( "totGoodElectronSFErr",      totGoodElectronSFErr );
-        tr.registerDerivedVar( "totGoodElectronSF_Up",      totGoodElectronSF_Up );
-        tr.registerDerivedVar( "totGoodElectronSF_Down",    totGoodElectronSF_Down );
+        tr.registerDerivedVar( "totGoodElectronSF"+myVarSuffix_,         totGoodElectronSF );
+        tr.registerDerivedVar( "totGoodElectronSFErr"+myVarSuffix_,      totGoodElectronSFErr );
+        tr.registerDerivedVar( "totGoodElectronSF_Up"+myVarSuffix_,      totGoodElectronSF_Up );
+        tr.registerDerivedVar( "totGoodElectronSF_Down"+myVarSuffix_,    totGoodElectronSF_Down );
 
-        //Adding code for implementing muon scale factors
-
+        // --------------------------------------------------------------------------------------
+        // Adding code for implementing muon scale factors
+        // --------------------------------------------------------------------------------------
         const auto& muons           = tr.getVec<TLorentzVector>("Muons");
-        const auto& goodMuons       = tr.getVec<bool>("GoodMuons");
+        const auto& goodMuons       = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
 
         double totGoodMuonSF        = 1.0;
         double totGoodMuonSFPErr2   = 0.0;
@@ -264,15 +270,60 @@ private:
         totGoodMuonSF_Up    = totGoodMuonSF + totGoodMuonSFErr;
         totGoodMuonSF_Down  = totGoodMuonSF - totGoodMuonSFErr;
 
-        tr.registerDerivedVar( "totGoodMuonSF",         totGoodMuonSF );
-        tr.registerDerivedVar( "totGoodMuonSFErr",      totGoodMuonSFErr );
-        tr.registerDerivedVar( "totGoodMuonSF_Up",      totGoodMuonSF_Up );
-        tr.registerDerivedVar( "totGoodMuonSF_Down",    totGoodMuonSF_Down );
-    }
+        tr.registerDerivedVar( "totGoodMuonSF"+myVarSuffix_,         totGoodMuonSF );
+        tr.registerDerivedVar( "totGoodMuonSFErr"+myVarSuffix_,      totGoodMuonSFErr );
+        tr.registerDerivedVar( "totGoodMuonSF_Up"+myVarSuffix_,      totGoodMuonSF_Up );
+        tr.registerDerivedVar( "totGoodMuonSF_Down"+myVarSuffix_,    totGoodMuonSF_Down );
 
+        // --------------------------------------------------------------------------------------
+        // Adding a scale factor that corrects the disagreement between data and MC for Ht
+        // --------------------------------------------------------------------------------------
+        const auto& filetag         = tr.getVar<std::string>("filetag");
+        const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
+        const auto& HT_trigger_pt30 = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
+
+        const double norm =   0.06146*NGoodJets_pt30 + 0.7908;
+        const double expo = (-0.06063*NGoodJets_pt30 + 0.1018)/1000;
+        const double mean = htSFMap_[filetag];
+        const double htDerivedweight = (norm/mean)*exp( expo*HT_trigger_pt30 );
+
+        tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
+
+        // --------------------------------------------------------------------------------------
+        // Adding top pt reweighting for ttbar MC (Powheg)
+        // https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting
+        // 13 TeV all combibned
+        // --------------------------------------------------------------------------------------
+        double topPtScaleFactor = 1.0;
+        auto* topPtVec = new std::vector<double>();
+        if(filetag == "2016_TT" || filetag.find("TTTo") != std::string::npos)
+        {
+            const double a=0.0615, b=-0.0005;
+            auto SF = [&](const double pt){return exp(a + b*pt);};
+            
+            const auto& GenParticles        = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles_PdgId  = tr.getVec<int>("GenParticles_PdgId");
+            const auto& GenParticles_Status = tr.getVec<int>("GenParticles_Status"); 
+
+            for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++)
+            {
+                if( abs(GenParticles_PdgId[gpi]) == 6 )
+                {
+                    topPtScaleFactor *= SF( GenParticles[gpi].Pt() );
+                    topPtVec->push_back( GenParticles[gpi].Pt() );
+                }
+            }
+            topPtScaleFactor = sqrt(topPtScaleFactor);
+        }
+        
+        tr.registerDerivedVar( "topPtScaleFactor"+myVarSuffix_, topPtScaleFactor);
+        tr.registerDerivedVec( "topPtVec"+myVarSuffix_, topPtVec);
+    }
+    
 public:
-    ScaleFactors( std::string SFRootFileName = "2016ScaleFactorHistos.root" )
-        : eleSFHistoTight_(nullptr)
+    ScaleFactors( const std::string& SFRootFileName = "2016ScaleFactorHistos.root", const std::string& HtSFRootFileName = "allInONe_HtSFDist_2016.root", const std::string& myVarSuffix = "" )
+        : myVarSuffix_(myVarSuffix)
+        , eleSFHistoTight_(nullptr)
         , eleSFHistoIso_(nullptr)
         , eleSFHistoReco_(nullptr)
         , muSFHisto_(nullptr)
@@ -291,6 +342,17 @@ public:
         muSFHistoReco_         = (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr");
 
         SFRootFile.Close();
+
+        TFile HtSFRootFile( HtSFRootFileName.c_str() );
+        TIter next(HtSFRootFile.GetListOfKeys());
+        TKey* key;
+        while(key = (TKey*)next())
+        {
+            std::unique_ptr<TH1> h( (TH1*)key->ReadObj() );
+            std::string name( h->GetTitle() );
+            htSFMap_.insert(std::pair<std::string, double>(name, h->GetMean()));
+        }
+        HtSFRootFile.Close();
     }
 
     ~ScaleFactors() {
