@@ -137,8 +137,7 @@ private:
                             break;
                         }
                     }
-
-                    for( unsigned int iybin = 0; iybin > eleSFHistoTight_->GetNbinsY()+1; iybin++ ) {
+                    for( unsigned int iybin = 0; iybin < eleSFHistoTight_->GetNbinsY()+1; iybin++ ) {
                         double tempyBinEdgeMax = (double) eleSFHistoTight_->GetYaxis()->GetBinUpEdge ( iybin );
                         if( elpt < tempyBinEdgeMax ) {
                             ybinElTight = iybin;
@@ -148,7 +147,7 @@ private:
                     
                     if( xbinElTight == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
                     //If the pt of the lepton is larger than the maximum value of the scale factor chart, default to the scale factor in the largest bin.
-                    if( ybinElTight == 0 && elpt > 500.0) ybinElTight = eleSFHistoTight_->GetNbinsX(); //std::cout<<elpt<<std::endl;
+                    if( ybinElTight == 0 && elpt > 500.0) ybinElTight = eleSFHistoTight_->GetNbinsY(); //std::cout<<elpt<<std::endl;
 
                     //Find the bin indices (binned by x: eta and y: pt ) for the 2017 scale factor for MiniIso of 0.1  ( has 210 bins total in 2D parameter space )
                     for( unsigned int ixbin = 0; ixbin < eleSFHistoIso_->GetNbinsX()+1; ixbin++ ) {
@@ -159,7 +158,7 @@ private:
                         }
                     }
 
-                    for( unsigned int iybin = 0; iybin > eleSFHistoIso_->GetNbinsY()+1; iybin++ ) {
+                    for( unsigned int iybin = 0; iybin < eleSFHistoIso_->GetNbinsY()+1; iybin++ ) {
                         double tempyBinEdgeMax = (double) eleSFHistoIso_->GetYaxis()->GetBinUpEdge ( iybin );
                         if( elpt < tempyBinEdgeMax ) {
                             ybinElIso = iybin;
@@ -168,7 +167,7 @@ private:
                     }
                     if( xbinElIso == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
                     //If the pt of the lepton is larger than the maximum value of the scale factor chart, default to the scale factor in the largest bin.
-                    if( ybinElIso == 0 && elpt > 500.0) ybinElIso = eleSFHistoIso_->GetNbinsX(); //std::cout<<elpt<<std::endl;
+                    if( ybinElIso == 0 && elpt > 500.0) ybinElIso = eleSFHistoIso_->GetNbinsY(); //std::cout<<elpt<<std::endl;
                     
                     //Find the bin indices (binned by x: eta and y: pt ) for the 2017 scale factor for Data/MC comparison (reco eff) ( has 144 bins total in 2D parameter space )
                     for( unsigned int ixbin = 0; ixbin < eleSFHistoReco_->GetNbinsX()+1; ixbin++ ) {
@@ -179,7 +178,7 @@ private:
                         }
                     }
 
-                    for( unsigned int iybin = 0; iybin > eleSFHistoReco_->GetNbinsY()+1; iybin++ ) {
+                    for( unsigned int iybin = 0; iybin < eleSFHistoReco_->GetNbinsY()+1; iybin++ ) {
                         double tempyBinEdgeMax = (double) eleSFHistoReco_->GetYaxis()->GetBinUpEdge ( iybin );
                         if( elpt < tempyBinEdgeMax ) {
                             ybinElReco = iybin;
@@ -188,7 +187,9 @@ private:
                     }
                     if( xbinElReco == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
                     //If the pt of the lepton is larger than the maximum value of the scale factor chart, default to the scale factor in the largest bin.
-                    if( ybinElReco == 0 && elpt > 500.0) ybinElReco = eleSFHistoReco_->GetNbinsX(); //std::cout<<elpt<<std::endl;
+                    if( ybinElReco == 0 && elpt > 500.0) ybinElReco = eleSFHistoReco_->GetNbinsY(); //std::cout<<elpt<<std::endl;
+                        
+                    //std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbinElTight<<" "<<ybinElTight<<" "<<xbinElIso<<" "<<ybinElIso<<" "<<xbinElReco<<" "<<ybinElReco<<" "<<eleSFHistoTight_->GetBinContent(xbinElTight,ybinElTight)<<" "<<eleSFHistoIso_->GetBinContent(xbinElIso,ybinElIso)<<" "<<eleSFHistoReco_->GetBinContent(xbinElReco, ybinElReco)<<std::endl;
                 }//END OF 2017 Loop
 
                 else { //For 2016 electrons
@@ -259,7 +260,7 @@ private:
                     double eleTotSFErr      = eleTotPErr * eleTotSF;
 
                     //if( eleTotSF < 0.1 ) {
-                    //    std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbin<<" "<<ybin<<" "<<etabin<<" "<<ptbin<<" "<<eleSFHistoTight->GetBinContent(xbin,ybin)<<" "<<eleSFHistoIso->GetBinContent(xbin,ybin)<<" "<<eleSFHistoReco->GetBinContent(etabin, ptbin)<<std::endl;
+                        std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbinElTight<<" "<<ybinElTight<<" "<<xbinElIso<<" "<<ybinElIso<<" "<<xbinElReco<<" "<<ybinElReco<<" "<<eleSFHistoTight_->GetBinContent(xbinElTight,ybinElTight)<<" "<<eleSFHistoIso_->GetBinContent(xbinElIso,ybinElIso)<<" "<<eleSFHistoReco_->GetBinContent(xbinElReco, ybinElReco)<<std::endl;
                     //}
                     
                     totGoodElectronSF       *= eleTotSF; 
