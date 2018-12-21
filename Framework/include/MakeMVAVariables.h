@@ -73,8 +73,8 @@ private:
     void makeMVAVariables(NTupleReader& tr)
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-        const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
-        const auto& NGoodJets = tr.getVar<int>("NGoodJets"+myVarSuffix_);
+        const auto& GoodJets = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
+        const auto& NGoodJets = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         const auto& GoodLeptons = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons"+myVarSuffix_);
         const auto& NGoodLeptons = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
         const auto& MET = tr.getVar<double>("MET"); 

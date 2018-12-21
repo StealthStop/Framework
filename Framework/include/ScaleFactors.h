@@ -10,12 +10,13 @@ class ScaleFactors
 private:
     std::string myVarSuffix_;
 
-    TH2F *eleSFHistoTight_;        
-    TH2F *eleSFHistoIso_;
-    TH2F *eleSFHistoReco_;
-    TH2F *muSFHistoMedium_;
-    TH2F *muSFHistoIso_;
-    TGraph *muSFHistoReco_;
+    TH2F* eleSFHistoTight_;        
+    TH2F* eleSFHistoIso_;
+    TH2F* eleSFHistoReco_;
+    TH2F* muSFHistoMedium_;
+    TH2F* muSFHistoIso_;
+    TGraph* muSFHistoReco_;
+    std::shared_ptr<TH2F> L1Prefireing_;
     std::map<std::string, double> htSFMap_;
 
     void scaleFactors(NTupleReader& tr)
@@ -442,6 +443,27 @@ private:
         
         tr.registerDerivedVar( "topPtScaleFactor"+myVarSuffix_, topPtScaleFactor);
         tr.registerDerivedVec( "topPtVec"+myVarSuffix_, topPtVec);
+
+        // --------------------------------------------------------------------------------------
+        // Adding reweighting recipe to emulate Level 1 ECAL prefiring
+        // https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
+        // --------------------------------------------------------------------------------------
+        double prefiringScaleFactor = 1.0;
+        if(filetag.find("2017") != std::string::npos)
+        {
+            const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);            
+            const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);            
+            for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
+            {            
+                if(!GoodJets_pt30[ijet]) continue;
+                TLorentzVector jet = Jets.at(ijet);
+                const auto& eta = jet.Eta();
+                const auto& pt = jet.Pt();
+                double weight = L1Prefireing_->GetBinContent(L1Prefireing_->FindBin(eta, pt));
+                prefiringScaleFactor *= 1 - weight;
+            }
+        }
+        tr.registerDerivedVar( "prefiringScaleFactor"+myVarSuffix_, prefiringScaleFactor);                    
     }
     
 public:
@@ -481,11 +503,15 @@ public:
         TKey* key;
         while(key = (TKey*)next())
         {
-            std::unique_ptr<TH1> h( (TH1*)key->ReadObj() );
+            std::shared_ptr<TH1> h( (TH1*)key->ReadObj() );
             std::string name( h->GetTitle() );
             htSFMap_.insert(std::pair<std::string, double>(name, h->GetMean()));
         }
         HtSFRootFile.Close();
+
+        TFile L1PrefiringFile("L1prefiring_jetpt_2017BtoF.root");
+        L1Prefireing_.reset( (TH2F*)L1PrefiringFile.Get("L1prefiring_jetpt_2017BtoF") );
+        L1PrefiringFile.Close();
     }
 
     ~ScaleFactors() {
