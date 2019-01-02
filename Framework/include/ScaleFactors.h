@@ -410,7 +410,8 @@ private:
         const double norm =   0.06146*NGoodJets_pt30 + 0.7908;
         const double expo = (-0.06063*NGoodJets_pt30 + 0.1018)/1000;
         const double mean = htSFMap_[filetag];
-        const double htDerivedweight = (norm/mean)*exp( expo*HT_trigger_pt30 );
+        double htDerivedweight = (norm/mean)*exp( expo*HT_trigger_pt30 );
+        if( filetag.find("2017") != std::string::npos ) htDerivedweight = 1.0; 
 
         tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
 
@@ -421,7 +422,7 @@ private:
         // --------------------------------------------------------------------------------------
         double topPtScaleFactor = 1.0;
         auto* topPtVec = new std::vector<double>();
-        if(filetag == "2016_TT" || filetag.find("TTTo") != std::string::npos)
+        if(filetag == "TT" || filetag == "2016_TT" || filetag.find("TTTo") != std::string::npos)
         {
             const double a=0.0615, b=-0.0005;
             auto SF = [&](const double pt){return exp(a + b*pt);};
