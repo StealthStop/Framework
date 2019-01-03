@@ -409,11 +409,15 @@ private:
 
         const double norm =   0.06146*NGoodJets_pt30 + 0.7908;
         const double expo = (-0.06063*NGoodJets_pt30 + 0.1018)/1000;
-        const double mean = htSFMap_[filetag];
-        double htDerivedweight = (norm/mean)*exp( expo*HT_trigger_pt30 );
-        if( filetag.find("2017") != std::string::npos ) htDerivedweight = 1.0; 
-
+        double htDerivedweight = 1.0;
+        double htDerivedweightUncor = norm*exp( expo*HT_trigger_pt30 );
+        if( htSFMap_.find(filetag) == htSFMap_.end() ) 
+        {
+            const double mean = htSFMap_[filetag];
+            htDerivedweight = (norm/mean)*exp( expo*HT_trigger_pt30 );
+        }
         tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
+        tr.registerDerivedVar( "htDerivedweightUncor"+myVarSuffix_, htDerivedweightUncor);
 
         // --------------------------------------------------------------------------------------
         // Adding top pt reweighting for ttbar MC (Powheg)
