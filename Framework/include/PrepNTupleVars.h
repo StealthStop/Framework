@@ -73,8 +73,9 @@ private:
     void prepNTupleVars(NTupleReader& tr)
     {
         const auto& runYear = tr.getVar<std::string>("runYear");
-        
-        if(runYear == "2017")
+        const auto& runtype = tr.getVar<std::string>("runtype");
+ 
+        if(runYear == "2017" && runtype == "MC")
         {
             const auto& Jets_origIndex = tr.getVec<int>("Jets_origIndex");
             std::vector<int> newIndex(Jets_origIndex.size());
