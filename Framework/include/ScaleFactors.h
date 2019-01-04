@@ -472,7 +472,7 @@ private:
     }
     
 public:
-    ScaleFactors( const std::string& SFRootFileName = "2016ScaleFactorHistos.root", const std::string& HtSFRootFileName = "allInONe_HtSFDist_2016.root", const std::string& myVarSuffix = "" )
+    ScaleFactors( const std::string& SFRootFileName = "2016ScaleFactorHistos.root", const std::string& HtSFRootFileName = "allInOne_HtSFDist_2016.root", const std::string& myVarSuffix = "" )
         : myVarSuffix_(myVarSuffix)
         , eleSFHistoTight_(nullptr)
         , eleSFHistoIso_(nullptr)
