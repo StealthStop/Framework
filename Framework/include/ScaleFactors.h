@@ -10,12 +10,13 @@ class ScaleFactors
 private:
     std::string myVarSuffix_;
 
-    TH2F *eleSFHistoTight_;        
-    TH2F *eleSFHistoIso_;
-    TH2F *eleSFHistoReco_;
-    TH2F *muSFHistoMedium_;
-    TH2F *muSFHistoIso_;
-    TGraph *muSFHistoReco_;
+    TH2F* eleSFHistoTight_;        
+    TH2F* eleSFHistoIso_;
+    TH2F* eleSFHistoReco_;
+    TH2F* muSFHistoMedium_;
+    TH2F* muSFHistoIso_;
+    TGraph* muSFHistoReco_;
+    std::shared_ptr<TH2F> L1Prefireing_;
     std::map<std::string, double> htSFMap_;
 
     void scaleFactors(NTupleReader& tr)
@@ -418,10 +419,15 @@ private:
 
         const double norm =   0.06146*NGoodJets_pt30 + 0.7908;
         const double expo = (-0.06063*NGoodJets_pt30 + 0.1018)/1000;
-        const double mean = htSFMap_[filetag];
-        const double htDerivedweight = (norm/mean)*exp( expo*HT_trigger_pt30 );
-
+        double htDerivedweight = 1.0;
+        double htDerivedweightUncor = norm*exp( expo*HT_trigger_pt30 );
+        if( htSFMap_.find(filetag) != htSFMap_.end() ) 
+        {
+            const double mean = htSFMap_[filetag];
+            htDerivedweight = (norm/mean)*exp( expo*HT_trigger_pt30 );
+        }
         tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
+        tr.registerDerivedVar( "htDerivedweightUncor"+myVarSuffix_, htDerivedweightUncor);
 
         // --------------------------------------------------------------------------------------
         // Adding top pt reweighting for ttbar MC (Powheg)
@@ -430,7 +436,7 @@ private:
         // --------------------------------------------------------------------------------------
         double topPtScaleFactor = 1.0;
         auto* topPtVec = new std::vector<double>();
-        if(filetag == "2016_TT" || filetag.find("TTTo") != std::string::npos)
+        if(filetag == "TT" || filetag == "2016_TT" || filetag.find("TTTo") != std::string::npos)
         {
             const double a=0.0615, b=-0.0005;
             auto SF = [&](const double pt){return exp(a + b*pt);};
@@ -452,10 +458,31 @@ private:
         
         tr.registerDerivedVar( "topPtScaleFactor"+myVarSuffix_, topPtScaleFactor);
         tr.registerDerivedVec( "topPtVec"+myVarSuffix_, topPtVec);
+
+        // --------------------------------------------------------------------------------------
+        // Adding reweighting recipe to emulate Level 1 ECAL prefiring
+        // https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
+        // --------------------------------------------------------------------------------------
+        double prefiringScaleFactor = 1.0;
+        if(filetag.find("2017") != std::string::npos)
+        {
+            const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);            
+            const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);            
+            for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
+            {            
+                if(!GoodJets_pt30[ijet]) continue;
+                TLorentzVector jet = Jets.at(ijet);
+                const auto& eta = jet.Eta();
+                const auto& pt = jet.Pt();
+                double weight = L1Prefireing_->GetBinContent(L1Prefireing_->FindBin(eta, pt));
+                prefiringScaleFactor *= 1 - weight;
+            }
+        }
+        tr.registerDerivedVar( "prefiringScaleFactor"+myVarSuffix_, prefiringScaleFactor);                    
     }
     
 public:
-    ScaleFactors( const std::string& SFRootFileName = "2016ScaleFactorHistos.root", const std::string& HtSFRootFileName = "allInONe_HtSFDist_2016.root", const std::string& myVarSuffix = "" )
+    ScaleFactors( const std::string& SFRootFileName = "2016ScaleFactorHistos.root", const std::string& HtSFRootFileName = "allInOne_HtSFDist_2016.root", const std::string& myVarSuffix = "" )
         : myVarSuffix_(myVarSuffix)
         , eleSFHistoTight_(nullptr)
         , eleSFHistoIso_(nullptr)
@@ -492,11 +519,15 @@ public:
         TKey* key;
         while(key = (TKey*)next())
         {
-            std::unique_ptr<TH1> h( (TH1*)key->ReadObj() );
+            std::shared_ptr<TH1> h( (TH1*)key->ReadObj() );
             std::string name( h->GetTitle() );
             htSFMap_.insert(std::pair<std::string, double>(name, h->GetMean()));
         }
         HtSFRootFile.Close();
+
+        TFile L1PrefiringFile("L1prefiring_jetpt_2017BtoF.root");
+        L1Prefireing_.reset( (TH2F*)L1PrefiringFile.Get("L1prefiring_jetpt_2017BtoF") );
+        L1PrefiringFile.Close();
     }
 
     ~ScaleFactors() {
