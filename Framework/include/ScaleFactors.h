@@ -128,7 +128,7 @@ private:
                 int xbinElTight = 0, ybinElTight = 0, xbinElIso = 0, ybinElIso = 0, xbinElReco = 0, ybinElReco = 0;
 
                 if( filetag.find("2017") != std::string::npos ) { //If this is the year 2017
-                    
+
                     //Find the bin indices (binned by x: eta and y: pt ) for the 2017 scale factor for Tight ID ( has 180 bins total in 2D parameter space )
                     for( unsigned int ixbin = 0; ixbin < eleSFHistoTight_->GetNbinsX()+1; ixbin++ ) {
                         double tempxBinEdgeMax = (double) eleSFHistoTight_->GetXaxis()->GetBinUpEdge( ixbin );
@@ -137,6 +137,7 @@ private:
                             break;
                         }
                     }
+
                     for( unsigned int iybin = 0; iybin < eleSFHistoTight_->GetNbinsY()+1; iybin++ ) {
                         double tempyBinEdgeMax = (double) eleSFHistoTight_->GetYaxis()->GetBinUpEdge ( iybin );
                         if( elpt < tempyBinEdgeMax ) {
@@ -145,7 +146,10 @@ private:
                         }
                     }
                     
-                    if( xbinElTight == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( xbinElTight == 0 ) {
+                        //std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbinElTight<<" "<<ybinElTight<<" "<<xbinElIso<<" "<<ybinElIso<<" "<<xbinElReco<<" "<<ybinElReco<<" "<<eleSFHistoTight_->GetBinContent(xbinElTight,ybinElTight)<<" "<<eleSFHistoIso_->GetBinContent(xbinElIso,ybinElIso)<<" "<<eleSFHistoReco_->GetBinContent(xbinElReco, ybinElReco)<<std::endl;
+                        std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    }
                     //If the pt of the lepton is larger than the maximum value of the scale factor chart, default to the scale factor in the largest bin.
                     if( ybinElTight == 0 && elpt > 500.0) ybinElTight = eleSFHistoTight_->GetNbinsY(); //std::cout<<elpt<<std::endl;
 
@@ -165,7 +169,10 @@ private:
                             break;
                         }
                     }
-                    if( xbinElIso == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( xbinElIso == 0 ) {
+                        //std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbinElTight<<" "<<ybinElTight<<" "<<xbinElIso<<" "<<ybinElIso<<" "<<xbinElReco<<" "<<ybinElReco<<" "<<eleSFHistoTight_->GetBinContent(xbinElTight,ybinElTight)<<" "<<eleSFHistoIso_->GetBinContent(xbinElIso,ybinElIso)<<" "<<eleSFHistoReco_->GetBinContent(xbinElReco, ybinElReco)<<std::endl;
+                        std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    }
                     //If the pt of the lepton is larger than the maximum value of the scale factor chart, default to the scale factor in the largest bin.
                     if( ybinElIso == 0 && elpt > 500.0) ybinElIso = eleSFHistoIso_->GetNbinsY(); //std::cout<<elpt<<std::endl;
                     
@@ -185,7 +192,10 @@ private:
                             break;
                         }
                     }
-                    if( xbinElReco == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( xbinElReco == 0 ) {
+                        //std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbinElTight<<" "<<ybinElTight<<" "<<xbinElIso<<" "<<ybinElIso<<" "<<xbinElReco<<" "<<ybinElReco<<" "<<eleSFHistoTight_->GetBinContent(xbinElTight,ybinElTight)<<" "<<eleSFHistoIso_->GetBinContent(xbinElIso,ybinElIso)<<" "<<eleSFHistoReco_->GetBinContent(xbinElReco, ybinElReco)<<std::endl;
+                        std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    }
                     //If the pt of the lepton is larger than the maximum value of the scale factor chart, default to the scale factor in the largest bin.
                     if( ybinElReco == 0 && elpt > 500.0) ybinElReco = eleSFHistoReco_->GetNbinsY(); //std::cout<<elpt<<std::endl;
                         
@@ -458,6 +468,7 @@ public:
         std::cout<<"Setting up ScaleFactors"<<std::endl;
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
         TFile SFRootFile( SFRootFileName.c_str() );
+        std::cout<<SFRootFileName<<std::endl;
 
         TString eleSFHistoTightName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_CutBasedTightNoIso94X" : "GsfElectronToCutBasedSpring15T";
         TString eleSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_MVAVLooseTightIP2DMini" : "MVAVLooseElectronToMini";
