@@ -64,6 +64,35 @@ private:
         tr.registerDerivedVar("scaleWeightDown"+myVarSuffix_,    scaleWeightLowerBound);
         tr.registerDerivedVar("scaleWeightNom"+myVarSuffix_,     scaleWeightNominal);
 
+
+        // --------------------------------------------------------------------------------------
+        // Store different partonshower uncertainties in more easy to parse way
+        // Note: not all samples have these weights stored, give them default value of 1. 
+        // --------------------------------------------------------------------------------------        
+        double PSweight_ISRUp = 1.; 
+        double PSweight_ISRDown = 1.; 
+        double PSweight_FSRUp = 1.; 
+        double PSweight_FSRDown = 1.; 
+        if(tr.hasVar("PSweights")){
+            const auto& PSweights         = tr.getVec<double>("PSweights");
+            if(&PSweights != nullptr && PSweights.size() == 12)
+            {
+                // only store nominal variations at this point, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/2 and 2
+                PSweight_ISRUp = PSweights.at(4);
+                PSweight_ISRDown = PSweights.at(6);
+                PSweight_FSRUp = PSweights.at(5);
+                PSweight_FSRDown = PSweights.at(7);
+            }
+            //else
+            //{
+            //    std::cout << "PS weights not in expected format, " << PSweights.size() << " weights found (12 expected). " << std::endl;
+            //}
+        }
+        tr.registerDerivedVar("PSweight_ISRUp"+myVarSuffix_,   PSweight_ISRUp);
+        tr.registerDerivedVar("PSweight_ISRDown"+myVarSuffix_, PSweight_ISRDown);
+        tr.registerDerivedVar("PSweight_FSRUp"+myVarSuffix_,   PSweight_FSRUp);
+        tr.registerDerivedVar("PSweight_FSRDown"+myVarSuffix_, PSweight_FSRDown);
+
         // --------------------------------------------------------------------------------------
         // Now calculate the PDF scale factor and uncertainty based on the 100 different replica values stored in PDFweights using envelope method and the median
         // --------------------------------------------------------------------------------------
