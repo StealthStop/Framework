@@ -495,14 +495,14 @@ private:
         const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         const auto& HT_trigger_pt30 = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
 
-        const double norm =   0.06146*NGoodJets_pt30 + 0.7908;
-        const double expo = (-0.06063*NGoodJets_pt30 + 0.1018)/1000;
+        const double norm =   0.05669*NGoodJets_pt30 + 0.8391;
+        const double expo = (-0.04318*NGoodJets_pt30 - 0.03314)/1000;
         double htDerivedweight = 1.0;
         double htDerivedweightUncor = norm*exp( expo*HT_trigger_pt30 );
         if( htSFMap_.find(filetag) != htSFMap_.end() ) 
         {
             const double mean = htSFMap_[filetag];
-            htDerivedweight = (norm/mean)*exp( expo*HT_trigger_pt30 );
+            htDerivedweight = (1/mean)*htDerivedweightUncor;
         }
         tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
         tr.registerDerivedVar( "htDerivedweightUncor"+myVarSuffix_, htDerivedweightUncor);
