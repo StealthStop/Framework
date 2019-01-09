@@ -494,12 +494,13 @@ private:
         // Moved the filetag since I need it earlier also for the lepton scale factors
         const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         const auto& HT_trigger_pt30 = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
+        const auto& isSignal = tr.getVar<bool>("isSignal");
 
         const double norm =   0.05669*NGoodJets_pt30 + 0.8391;
         const double expo = (-0.04318*NGoodJets_pt30 - 0.03314)/1000;
         double htDerivedweight = 1.0;
         double htDerivedweightUncor = norm*exp( expo*HT_trigger_pt30 );
-        if( htSFMap_.find(filetag) != htSFMap_.end() ) 
+        if( htSFMap_.find(filetag) != htSFMap_.end() && !isSignal) 
         {
             const double mean = htSFMap_[filetag];
             htDerivedweight = (1/mean)*htDerivedweightUncor;
