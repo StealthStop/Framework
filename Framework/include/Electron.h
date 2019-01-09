@@ -15,6 +15,7 @@ private:
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& MET = tr.getVar<double>("MET"); 
         const auto& METPhi = tr.getVar<double>("METPhi");
+        const auto& runYear = tr.getVar<std::string>("runYear");
 
         TLorentzVector lvMET;
         lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
@@ -24,13 +25,14 @@ private:
         int NGoodElectrons = 0;
         int NGoodPlusElectrons = 0;
         int NGoodMinusElectrons = 0;
+        const double ptCut = (runYear == "2017") ? 37.0 : 30.0;
         for(unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
             TLorentzVector lvel = allElectrons.at(iel);
             double mtw = sqrt( 2*( lvMET.Pt()*lvel.Pt() - (lvMET.Px()*lvel.Px() + lvMET.Py()*lvel.Py()) ) );
             electrons_mtw_->push_back(mtw);
             if( abs(lvel.Eta()) < etaCut && 
-                lvel.Pt() > 30 && 
+                lvel.Pt() > ptCut && 
                 allElectrons_passIso.at(iel) &&
                 allElectrons_tightID.at(iel) 
                 )
