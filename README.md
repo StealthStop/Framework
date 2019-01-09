@@ -40,7 +40,16 @@ Last step is to get the cfg and model files for the top tagger and deepESM.
 ```
 cmsenv
 getTaggerCfg.sh -t Tensorflow_Medium_Example_v1.0.2 -o
-getDeepESMCfg.sh -t Keras_Tensorflow_v1.2.1 -o
+```
+
+For 2016 data
+```
+getDeepESMCfg.sh -t Keras_Tensorflow_v1.2.5 -o
+```
+
+For 2017 data
+```
+getDeepESMCfg.sh -t Keras_Tensorflow_v3.0.1 -o
 ```
 
 No changes to the analysis code should be needed. 
@@ -76,4 +85,5 @@ The MyAnalysis program has been updated to have these same switches.
 MyAnalysis now also uses the samples code to keep track of datasets, their cross sections, and their names. 
 To see a list of available datasets, you can call the submission script with the `-l` or `-L` options. Pass the list of datasets you want to run over to the script with the option `-d`. 
 Before submitting jobs, make sure to have called `voms-proxy-init`. 
+
 
