@@ -73,25 +73,40 @@ private:
         double PSweight_ISRDown = 1.; 
         double PSweight_FSRUp = 1.; 
         double PSweight_FSRDown = 1.; 
+        double PSweight_ISRUp_2 = 1.; 
+        double PSweight_ISRDown_2 = 1.; 
+        double PSweight_FSRUp_2 = 1.; 
+        double PSweight_FSRDown_2 = 1.; 
         if(tr.hasVar("PSweights")){
             const auto& PSweights         = tr.getVec<double>("PSweights");
-            if(&PSweights != nullptr && PSweights.size() == 12)
+            if(&PSweights != nullptr && PSweights.size() >= 12) // should have size of 14, but just put 12 or more to be able to use the sample with the bug
             {
-                // only store nominal variations at this point, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/2 and 2
-                PSweight_ISRUp = PSweights.at(4);
-                PSweight_ISRDown = PSweights.at(6);
-                PSweight_FSRUp = PSweights.at(5);
-                PSweight_FSRDown = PSweights.at(7);
+                // Get nominal one so we can normalize it
+                double MEweight = PSweights.at(0);
+                // reduced variations, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/sqrt(2) and sqrt(2)
+                PSweight_ISRUp = PSweights.at(2)/MEweight;
+                PSweight_FSRUp = PSweights.at(3)/MEweight;
+                PSweight_ISRDown = PSweights.at(4)/MEweight;
+                PSweight_FSRDown = PSweights.at(5)/MEweight;
+                // nominal variations, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/2 and 2
+                PSweight_ISRUp_2 = PSweights.at(6)/MEweight;
+                PSweight_FSRUp_2 = PSweights.at(7)/MEweight;
+                PSweight_ISRDown_2 = PSweights.at(8)/MEweight;
+                PSweight_FSRDown_2 = PSweights.at(9)/MEweight;
             }
             //else
             //{
-            //    std::cout << "PS weights not in expected format, " << PSweights.size() << " weights found (12 expected). " << std::endl;
+            //    std::cout << "PS weights not in expected format, " << PSweights.size() << " weights found (12 or 14 expected). " << std::endl;
             //}
         }
         tr.registerDerivedVar("PSweight_ISRUp"+myVarSuffix_,   PSweight_ISRUp);
         tr.registerDerivedVar("PSweight_ISRDown"+myVarSuffix_, PSweight_ISRDown);
         tr.registerDerivedVar("PSweight_FSRUp"+myVarSuffix_,   PSweight_FSRUp);
         tr.registerDerivedVar("PSweight_FSRDown"+myVarSuffix_, PSweight_FSRDown);
+        tr.registerDerivedVar("PSweight_ISRUp_2"+myVarSuffix_,   PSweight_ISRUp_2);
+        tr.registerDerivedVar("PSweight_ISRDown_2"+myVarSuffix_, PSweight_ISRDown_2);
+        tr.registerDerivedVar("PSweight_FSRUp_2"+myVarSuffix_,   PSweight_FSRUp_2);
+        tr.registerDerivedVar("PSweight_FSRDown_2"+myVarSuffix_, PSweight_FSRDown_2);
 
         // --------------------------------------------------------------------------------------
         // Now calculate the PDF scale factor and uncertainty based on the 100 different replica values stored in PDFweights using envelope method and the median
