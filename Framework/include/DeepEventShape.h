@@ -156,8 +156,9 @@ class DeepEventShape
 {
 private:
     double discriminator_;
-    std::string modelFile_, inputOp_, outputOp_, myVarSuffix_;
+    std::string modelFile_, inputOp_, outputOp_, year_, myVarSuffix_;
     int minNJet_, maxNJet_;
+    bool firstEvent_;
 
     //Tensoflow session pointer
     TF_Session* session_;
@@ -207,6 +208,7 @@ private:
         modelFile_   = cfgDoc->get("modelFile", localCxt, "");
         inputOp_     = cfgDoc->get("inputOp",   localCxt, "main_input");
         outputOp_    = cfgDoc->get("outputOp",  localCxt, "first_output/Softmax");
+        year_        = cfgDoc->get("year",      localCxt, "");
         minNJet_     = cfgDoc->get("minNJet",   localCxt, 7);
         maxNJet_     = cfgDoc->get("maxNJet",   localCxt, 7);
         vars_        = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
@@ -251,6 +253,26 @@ private:
 
     void runDeepEventShape(NTupleReader& tr)
     {
+        //Check that the year the training is for is the same as file you are running over
+        if(year_ != "" && firstEvent_)
+        {
+            const auto& runYear = tr.getVar<std::string>("runYear");
+            try
+            {                
+                if(runYear != year_)
+                {
+                    throw "\n Error: Using the wrong DeepESM config file \n";
+                }
+            }
+            catch (const char* msg) 
+            {
+                std::cerr<<msg<<std::endl;
+                throw;
+            }
+
+            firstEvent_ = false;
+        }
+
         //tensorflow status variable
         TF_Status* status = TF_NewStatus();
         
@@ -348,9 +370,11 @@ public:
         , modelFile_(husk.modelFile_)
         , inputOp_(husk.inputOp_)
         , outputOp_(husk.outputOp_)
+        , year_(husk.year_)
         , myVarSuffix_(husk.myVarSuffix_)
         , minNJet_(husk.minNJet_)
         , maxNJet_(husk.maxNJet_)
+        , firstEvent_(husk.firstEvent_)
         , session_(husk.session_)
         , vars_(husk.vars_)
         , binEdges_(husk.binEdges_)
@@ -362,8 +386,9 @@ public:
         husk.session_ = nullptr;
     }
     
-    DeepEventShape(const std::string cfgFileName = "DeepEventShape.cfg", std::string localContextName = "Info", bool printStatus = true, const std::string myVarSuffix = "")
+    DeepEventShape(const std::string& cfgFileName = "DeepEventShape.cfg", const std::string& localContextName = "Info", const bool printStatus = true, const std::string& myVarSuffix = "")
         : myVarSuffix_(myVarSuffix)
+        , firstEvent_(true)
     {
         if(printStatus) std::cout<<"Setting up DeepEventShape"<<std::endl;
         
