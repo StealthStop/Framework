@@ -356,14 +356,14 @@ private:
 
     bool PassTriggerElectron2016(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
-        std::vector<std::string> mytriggers = {"HLT_Ele27_WPTight_Gsf"};
+        std::vector<std::string> mytriggers = {"HLT_Ele27_WPTight_Gsf","HLT_Ele115_CaloIdVT_GsfTrkIdT", "HLT_Photon175"};
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
     bool PassTriggerElectron2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         // Ele35 fine for whole year, gets complicated for the other triggers
-        std::vector<std::string> mytriggers = {"HLT_Ele35_WPTight"};
+        std::vector<std::string> mytriggers = {"HLT_Ele35_WPTight","HLT_Ele115_CaloIdVT_GsfTrkIdT", "HLT_Photon200"};
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 

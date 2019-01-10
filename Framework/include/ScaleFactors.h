@@ -58,7 +58,7 @@ private:
 
         //TODO: There are some NaN/Inf values in the Diboson channel - still need to figure out why this is an issue.
         //std::cout<<scaleWeightUpperBound<<" "<<scaleWeightNominal<<" "<<scaleWeightLowerBound<<std::endl;
-        if( !std::isfinite( scaleWeightNominal ) ) {
+        if( !std::isfinite(scaleWeightNominal) || !std::isfinite(scaleWeightUpperBound) || !std::isfinite(scaleWeightLowerBound) ) {
             scaleWeightNominal = 1.0;
             scaleWeightUpperBound = 1.0;
             scaleWeightLowerBound = 1.0;
@@ -139,7 +139,7 @@ private:
         double NNPDF_from_median_down = central - errplus;
         NNPDF_from_median_down = NNPDF_from_median_down/central > 2.0 ? 1.0 : NNPDF_from_median_down/central < -2.0 ? 1.0 : NNPDF_from_median_down/central;
         
-        if( !std::isfinite(central) ) {
+        if( !std::isfinite(central) || !std::isfinite(NNPDF_from_median_up) || !std::isfinite(NNPDF_from_median_down) ) {
             NNPDF_from_median_up    = 1.0;
             NNPDF_from_median_down  = 1.0;
             central                 = 1.0;
