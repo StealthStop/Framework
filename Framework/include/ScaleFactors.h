@@ -540,17 +540,37 @@ private:
         const auto& HT_trigger_pt30 = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& isSignal = tr.getVar<bool>("isSignal");
 
-        const double norm =   0.05669*NGoodJets_pt30 + 0.8391;
-        const double expo = (-0.04318*NGoodJets_pt30 - 0.03314)/1000;
+        auto htScaleFactor = [](int nJets, double HT) 
+        { 
+            double norm = 0.05669*nJets + 0.8391;
+            double expo = (-0.04318*nJets - 0.03314)/1000;
+            return norm*exp( expo*HT ); 
+        };
+
         double htDerivedweight = 1.0;
-        double htDerivedweightUncor = norm*exp( expo*HT_trigger_pt30 );
+        double htDerivedweightUncor = htScaleFactor(NGoodJets_pt30, HT_trigger_pt30);
+        double htScaleUp = 1.0;
+        double htScaleDown = 1.0;
         if( htSFMap_.find(filetag) != htSFMap_.end() && !isSignal) 
         {
+            // Derive ht SF
             const double mean = htSFMap_[filetag];
             htDerivedweight = (1/mean)*htDerivedweightUncor;
+
+            // Derive ht up and down variation on SF
+            const double fit2NJetBin8 = 1.353*exp(-0.0003955*HT_trigger_pt30);
+            const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30);
+            const double ratioUp = fit2NJetBin8/fit2NJetBin567;
+            const double ratioDown = fit2NJetBin567/fit2NJetBin8;
+
+            htScaleUp = htDerivedweight*ratioUp;
+            htScaleDown = htDerivedweight*ratioDown;
         }
+
         tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
         tr.registerDerivedVar( "htDerivedweightUncor"+myVarSuffix_, htDerivedweightUncor);
+        tr.registerDerivedVar( "htScaleUp"+myVarSuffix_, htScaleUp);
+        tr.registerDerivedVar( "htScaleDown"+myVarSuffix_, htScaleDown);
 
         // --------------------------------------------------------------------------------------
         // Adding top pt reweighting for ttbar MC (Powheg)
