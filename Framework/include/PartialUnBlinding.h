@@ -160,10 +160,16 @@ private:
     {
         const auto& RunNum       = tr.getVar<UInt_t>("RunNum");
         const auto& LumiBlockNum = tr.getVar<UInt_t>("LumiBlockNum");
+        const auto& runYear = tr.getVar<std::string>("runYear");
+        const auto& runtype = tr.getVar<std::string>("runtype");
         
-        const bool passPartialBlindF = checkEvent(map2017F, std::to_string(RunNum), LumiBlockNum);        
-        const bool passPartialBlindBCDE = checkEvent(map2017BCDE, std::to_string(RunNum), LumiBlockNum);
-
+        bool passPartialBlindF = true;
+        bool passPartialBlindBCDE = true;
+        if(runYear == "2017" && runtype == "Data")
+        {
+            passPartialBlindF = checkEvent(map2017F, std::to_string(RunNum), LumiBlockNum);        
+            passPartialBlindBCDE = checkEvent(map2017BCDE, std::to_string(RunNum), LumiBlockNum);
+        }
         tr.registerDerivedVar("passPartialBlindF", passPartialBlindF);
         tr.registerDerivedVar("passPartialBlindBCDE", passPartialBlindBCDE);
     }
