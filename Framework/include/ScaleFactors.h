@@ -89,14 +89,14 @@ private:
                 double MEweight = PSweights.at(0);
                 // reduced variations, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/sqrt(2) and sqrt(2)
                 PSweight_ISRUp = PSweights.at(2)/MEweight;
-                PSweight_FSRUp = PSweights.at(3)/MEweight;
+                PSweight_FSRUp = (PSweights.at(3)/MEweight < 10.0) ? PSweights.at(3)/MEweight : 1.0;
                 PSweight_ISRDown = PSweights.at(4)/MEweight;
-                PSweight_FSRDown = PSweights.at(5)/MEweight;
+                PSweight_FSRDown = (PSweights.at(5)/MEweight < 10.0) ? PSweights.at(5)/MEweight : 1.0;
                 // nominal variations, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/2 and 2
                 PSweight_ISRUp_2 = PSweights.at(6)/MEweight;
-                PSweight_FSRUp_2 = PSweights.at(7)/MEweight;
+                PSweight_FSRUp_2 = (PSweights.at(7)/MEweight < 10.0) ? PSweights.at(7)/MEweight : 1.0;
                 PSweight_ISRDown_2 = PSweights.at(8)/MEweight;
-                PSweight_FSRDown_2 = PSweights.at(9)/MEweight;
+                PSweight_FSRDown_2 = (PSweights.at(9)/MEweight < 10.0) ? PSweights.at(9)/MEweight : 1.0;
             }
             //else
             //{
