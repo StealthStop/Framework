@@ -3,8 +3,8 @@
 cfgDir=${CMSSW_BASE}/src/Framework/Framework/cfg
 
 #Default options
-sampleSCfgFile="sampleSets_v2.cfg"
-sampleCCfgFile="sampleCollections_v2.cfg"
+sampleSCfgFile="sampleSets_v4.cfg"
+sampleCCfgFile="sampleCollections_v4.cfg"
 
 sampleSCfgFileSkim='sampleSets_v2_skim.cfg'
 sampleCCfgFileSkim='sampleCollections_v2_skim.cfg'
