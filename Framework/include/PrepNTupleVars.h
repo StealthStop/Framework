@@ -72,10 +72,9 @@ private:
 
     void prepNTupleVars(NTupleReader& tr)
     {
-        const auto& runYear = tr.getVar<std::string>("runYear");
         const auto& runtype = tr.getVar<std::string>("runtype");
  
-        if(runYear == "2017" && runtype == "MC")
+        if( !tr.checkBranch("JetsJECup") && runtype == "MC")
         {
             const auto& Jets_origIndex = tr.getVec<int>("Jets_origIndex");
             std::vector<int> newIndex(Jets_origIndex.size());
@@ -91,6 +90,14 @@ private:
             deriveJetCollection(tr, jc, f, newIndex, "JERup");
             deriveJetCollection(tr, jc, f, newIndex, "JERdown");
         }
+
+        int w = 1;
+        if(runtype == "MC")
+        {
+            const auto& Weight = tr.getVar<double>("Weight");
+            w = (Weight >= 0.0) ? 1 : -1;
+        }
+        tr.registerDerivedVar<int>("eventCounter",w);
     }
 public:
     PrepNTupleVars()
