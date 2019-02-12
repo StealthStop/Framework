@@ -12,6 +12,7 @@ private:
 
     TH2F* eleSFHistoTight_;        
     TH2F* eleSFHistoIso_;
+    TH2F* eleSFHistoIP2D_;
     TH2F* eleSFHistoReco_;
     TH2F* eleSFHistoTrig_;
     TH2F* muSFHistoMedium_;
@@ -262,11 +263,11 @@ private:
 
                 else { //For 2016 electrons
                 
-                    //Find the bin indices (binned by x: pt and y: eta ) for the 2016 scale factor for Tight ID ( has 30 bins total in 2D parameter space )
+                    //Find the bin indices (binned by x: eta and y: pt ) for the 2016 scale factor for Tight ID ( has 30 bins total in 2D parameter space )
                     //This is the same index as for the Iso ID
                     for( unsigned int ixbin = 0; ixbin < eleSFHistoTight_->GetNbinsX()+1; ixbin++ ) {
                         double tempxBinEdgeMax = (double) eleSFHistoTight_->GetXaxis()->GetBinUpEdge(ixbin);
-                        if( elpt < tempxBinEdgeMax )  {
+                        if( eleta < tempxBinEdgeMax )  {
                             xbinElTight = ixbin; 
                             break;
                         }
@@ -274,16 +275,15 @@ private:
     
                     for( unsigned int iybin = 0; iybin < eleSFHistoTight_->GetNbinsY()+1; iybin++ ) {
                         double tempyBinEdgeMax = (double)eleSFHistoTight_->GetYaxis()->GetBinUpEdge(iybin);
-                        if( std::fabs(eleta) < tempyBinEdgeMax ) {
+                        if( elpt < tempyBinEdgeMax ) {
                             ybinElTight = iybin;
                             break;
                         }
                     }
                     
-                    if( xbinElTight == 0 && elpt > 200.0) xbinElTight = eleSFHistoTight_->GetNbinsX(); //std::cout<<elpt<<std::endl;
-                    if( ybinElTight == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
-
-                    //Since the binning for MiniIso < 0.1 is the same as that for Tight ID, we will use the same values (values initialized for uniformity later on).
+                    if( xbinElTight == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( ybinElTight == 0 && elpt > 500.0) ybinElTight = eleSFHistoTight_->GetNbinsY(); 
+                    //Since the binning for MiniIso < 0.1 is the same as that for Tight ID, we will use the same values (values initialized for uniformity later on). Same for the IP2D (hence you do not need an extra set of variables).
                     xbinElIso = xbinElTight;
                     ybinElIso = ybinElTight;
     
@@ -351,6 +351,15 @@ private:
                     double eleTotPErr       = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr + eleTrigPErr*eleTrigPErr);
                     double eleTotSFErr      = eleTotPErr * eleTotSF;
 
+                    if( filetag.find("2016") != std::string::npos ) { //If this is the year 2016, we need to add the IP2D histogram scale factors into the Iso scale factor
+                        double eleIP2DSF    = eleSFHistoIP2D_->GetBinContent( xbinElIso, ybinElIso );
+                        double eleIP2DSFErr = eleSFHistoIP2D_->GetBinError( xbinElIso, ybinElIso );
+                        double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
+
+                        eleIsoSF            = eleIsoSF*eleIP2DSF;
+                        eleIsoPErr          = std::sqrt( eleIsoPErr*eleIsoPErr + eleIP2DPErr*eleIP2DPErr );
+                        eleIsoSFErr         = eleIsoPErr*eleIsoSF;
+                    }
                     //if( eleTotSF < 0.1 ) {
                     //    std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbinElTight<<" "<<ybinElTight<<" "<<xbinElIso<<" "<<ybinElIso<<" "<<xbinElReco<<" "<<ybinElReco<<" "<<eleSFHistoTight_->GetBinContent(xbinElTight,ybinElTight)<<" "<<eleSFHistoIso_->GetBinContent(xbinElIso,ybinElIso)<<" "<<eleSFHistoReco_->GetBinContent(xbinElReco, ybinElReco)<<std::endl;
                     //}
@@ -512,10 +521,10 @@ private:
                     double muTotSFPErr2         = 0.03*0.03 + muTrigSFPErr*muTrigSFPErr;
 
                     if( filetag.find("2017") == std::string::npos ) {
-                    //For the general track reconstruction they claim that the systematics for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
-                    //This reconstruction value only exists for 2016.
+                    //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
+                    //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
                         double muRecoSF         = muSFHistoReco_->Eval( mueta );
-                        muTotSF                 = muMediumSF * muIsoSF * muRecoSF;
+                        muTotSF                 = muMediumSF * muIsoSF * muTrigSF *muRecoSF;
                     }
                     totGoodMuonSF           *= muTotSF;
                     totGoodMuonSFPErr2      += muTotSFPErr2;
@@ -646,6 +655,7 @@ public:
         : myVarSuffix_(myVarSuffix)
         , eleSFHistoTight_(nullptr)
         , eleSFHistoIso_(nullptr)
+        , eleSFHistoIP2D_(nullptr)
         , eleSFHistoReco_(nullptr)
         , eleSFHistoTrig_(nullptr)
         , muSFHistoMedium_(nullptr)
@@ -658,8 +668,8 @@ public:
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
         TFile SFRootFile( SFRootFileName.c_str() );
 
-        TString eleSFHistoTightName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_CutBasedTightNoIso94X" : "GsfElectronToCutBasedSpring15T";
-        TString eleSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_MVAVLooseTightIP2DMini" : "MVAVLooseElectronToMini";
+        TString eleSFHistoTightName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_CutBasedTightNoIso94XV2" : "Run2016_CutBasedTightNoIso94XV2";
+        TString eleSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_MVAVLooseTightIP2DMini" : "Run2016_Mini";
         TString eleSFHistoTrigName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_isoTrig" : "TrigEff_2016_num_el_pt40_trig_5jCut_htCut_isoTrig";
         TString muSFHistoMediumName = ( SFRootFileName.find("2017") != std::string::npos ) ? "NUM_MediumID_DEN_genTracks_pt_abseta" : "sf_mu_mediumID"; 
         TString muSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta" : "sf_mu_mediumID_mini02";
@@ -675,6 +685,7 @@ public:
         muSFHistoTrig_         = (TH2F*)SFRootFile.Get(muSFHistoTrigName);
         if ( SFRootFileName.find("2017") == std::string::npos ) {
             muSFHistoReco_         = (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr"); //Only 2016 requires the track reconstruction efficiency.
+            eleSFHistoIP2D_        = (TH2F*)SFRootFile.Get("Run2016_MVAVLooseIP2D");//In 2016, the isolation SF histogram is separate from the IP2D cut scale factor histogram.
         }
 
         SFRootFile.Close();
