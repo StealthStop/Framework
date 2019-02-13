@@ -12,6 +12,7 @@ private:
 
     TH2F* eleSFHistoTight_;        
     TH2F* eleSFHistoIso_;
+    TH2F* eleSFHistoIP2D_;
     TH2F* eleSFHistoReco_;
     TH2F* eleSFHistoTrig_;
     TH2F* muSFHistoMedium_;
@@ -192,7 +193,7 @@ private:
                         }
                     }
                     
-                    if( xbinElTight == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( xbinElTight == 0 ) std::cerr<<"El Tight Histo: Invalid eta stored for a good electron!"<<std::endl;
                     //If the pt of the lepton is larger than the maximum value of the scale factor chart, default to the scale factor in the largest bin.
                     if( ybinElTight == 0 && elpt > 500.0) ybinElTight = eleSFHistoTight_->GetNbinsY(); //std::cout<<elpt<<std::endl;
 
@@ -212,7 +213,7 @@ private:
                             break;
                         }
                     }
-                    if( xbinElIso == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( xbinElIso == 0 ) std::cerr<<"El Iso Histo: Invalid eta stored for a good electron!"<<std::endl;
                     //If the pt of the lepton is larger than the maximum value of the scale factor chart, default to the scale factor in the largest bin.
                     if( ybinElIso == 0 && elpt > 500.0) ybinElIso = eleSFHistoIso_->GetNbinsY(); //std::cout<<elpt<<std::endl;
                     
@@ -232,7 +233,7 @@ private:
                             break;
                         }
                     }
-                    if( xbinElReco == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( xbinElReco == 0 ) std::cerr<<"El Reco Histo: Invalid eta stored for a good electron!"<<std::endl;
                     //If the pt of the lepton is larger than the maximum value of the scale factor chart, default to the scale factor in the largest bin.
                     if( ybinElReco == 0 && elpt > 500.0) ybinElReco = eleSFHistoReco_->GetNbinsY(); //std::cout<<elpt<<std::endl;
                     
@@ -254,7 +255,7 @@ private:
                     }
                     
                     if( xbinElTrig == 0 && elpt > 200.0) xbinElTrig = eleSFHistoTrig_->GetNbinsX(); //std::cout<<elpt<<std::endl;
-                    if( ybinElTrig == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( ybinElTrig == 0 ) std::cerr<<"El Trig Histo: Invalid eta stored for a good electron!"<<std::endl;
                     //If the pt of the lepton is larger than the maximum value of the scale factor chart, default to the scale factor in the largest bin.
                         
                     //std::cout<<"EL pt: "<<elpt<<"; eta:"<<eleta<<"; "<<xbinElTight<<" "<<ybinElTight<<" "<<xbinElIso<<" "<<ybinElIso<<" "<<xbinElReco<<" "<<ybinElReco<<" "<<eleSFHistoTight_->GetBinContent(xbinElTight,ybinElTight)<<" "<<eleSFHistoIso_->GetBinContent(xbinElIso,ybinElIso)<<" "<<eleSFHistoReco_->GetBinContent(xbinElReco, ybinElReco)<<std::endl;
@@ -262,11 +263,11 @@ private:
 
                 else { //For 2016 electrons
                 
-                    //Find the bin indices (binned by x: pt and y: eta ) for the 2016 scale factor for Tight ID ( has 30 bins total in 2D parameter space )
+                    //Find the bin indices (binned by x: eta and y: pt ) for the 2016 scale factor for Tight ID ( has 30 bins total in 2D parameter space )
                     //This is the same index as for the Iso ID
                     for( unsigned int ixbin = 0; ixbin < eleSFHistoTight_->GetNbinsX()+1; ixbin++ ) {
                         double tempxBinEdgeMax = (double) eleSFHistoTight_->GetXaxis()->GetBinUpEdge(ixbin);
-                        if( elpt < tempxBinEdgeMax )  {
+                        if( eleta < tempxBinEdgeMax )  {
                             xbinElTight = ixbin; 
                             break;
                         }
@@ -274,16 +275,15 @@ private:
     
                     for( unsigned int iybin = 0; iybin < eleSFHistoTight_->GetNbinsY()+1; iybin++ ) {
                         double tempyBinEdgeMax = (double)eleSFHistoTight_->GetYaxis()->GetBinUpEdge(iybin);
-                        if( std::fabs(eleta) < tempyBinEdgeMax ) {
+                        if( elpt < tempyBinEdgeMax ) {
                             ybinElTight = iybin;
                             break;
                         }
                     }
                     
-                    if( xbinElTight == 0 && elpt > 200.0) xbinElTight = eleSFHistoTight_->GetNbinsX(); //std::cout<<elpt<<std::endl;
-                    if( ybinElTight == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
-
-                    //Since the binning for MiniIso < 0.1 is the same as that for Tight ID, we will use the same values (values initialized for uniformity later on).
+                    if( xbinElTight == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( ybinElTight == 0 && elpt > 500.0) ybinElTight = eleSFHistoTight_->GetNbinsY(); 
+                    //Since the binning for MiniIso < 0.1 is the same as that for Tight ID, we will use the same values (values initialized for uniformity later on). Same for the IP2D (hence you do not need an extra set of variables).
                     xbinElIso = xbinElTight;
                     ybinElIso = ybinElTight;
     
@@ -304,7 +304,7 @@ private:
                         }
                     }
     
-                    if( xbinElReco == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( xbinElReco == 0 ) std::cerr<<"El Reco Histo: Invalid eta stored for a good electron!"<<std::endl;
                     if( ybinElReco == 0 && elpt > 500.0) ybinElReco = eleSFHistoReco_->GetNbinsY(); //std::cout<<elpt<<std::endl;
                     
                     //Find the bin indices (binned by x: pt and y: eta ) for the 2016 scale factor for Data/MC trig efficiency
@@ -325,7 +325,7 @@ private:
                     }
                     
                     if( xbinElTrig == 0 && elpt > 200.0) xbinElTrig = eleSFHistoTrig_->GetNbinsX(); //std::cout<<elpt<<std::endl;
-                    if( ybinElTrig == 0 ) std::cerr<<"Invalid eta stored for a good electron!"<<std::endl;
+                    if( ybinElTrig == 0 ) std::cerr<<"El Trig Histo: Invalid eta stored for a good electron!"<<std::endl;
                 } //END of 2016 Loop
 
                 if( xbinElTight != 0 && ybinElTight != 0 && xbinElIso != 0 && ybinElIso != 0 && xbinElReco != 0 && ybinElReco != 0 ) {
@@ -347,6 +347,16 @@ private:
                     double eleTrigPErr      = eleTrigSFErr/eleTrigSF;
 
                     //The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
+                    if( filetag.find("2016") != std::string::npos ) { //If this is the year 2016, we need to add the IP2D histogram scale factors into the Iso scale factor
+                        double eleIP2DSF    = eleSFHistoIP2D_->GetBinContent( xbinElIso, ybinElIso );
+                        double eleIP2DSFErr = eleSFHistoIP2D_->GetBinError( xbinElIso, ybinElIso );
+                        double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
+
+                        eleIsoSF            = eleIsoSF*eleIP2DSF;
+                        eleIsoPErr          = std::sqrt( eleIsoPErr*eleIsoPErr + eleIP2DPErr*eleIP2DPErr );
+                        eleIsoSFErr         = eleIsoPErr*eleIsoSF;
+                    }
+                    
                     double eleTotSF         = eleTightSF * eleIsoSF * eleRecoSF * eleTrigSF; 
                     double eleTotPErr       = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr + eleTrigPErr*eleTrigPErr);
                     double eleTotSFErr      = eleTotPErr * eleTotSF;
@@ -413,7 +423,7 @@ private:
                         }
                     }
                     if( xbinMuMedium == 0 && mupt > 120.0) xbinMuMedium = muSFHistoMedium_->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
-                    if( ybinMuMedium == 0 ) std::cerr<<"Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
+                    if( ybinMuMedium == 0 ) std::cerr<<"Mu ID Histo: Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
                     //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2017 scale factor for MiniIso of 0.2 (has only 20 bins)
                     for( unsigned int ixbin = 0; ixbin < muSFHistoIso_->GetNbinsX()+1; ixbin++ ) {
                         double tempxBinEdgeMax = muSFHistoIso_->GetXaxis()->GetBinUpEdge(ixbin);
@@ -431,7 +441,7 @@ private:
                         }
                     }
                     if( xbinMuIso == 0 && mupt > 120.0) xbinMuIso = muSFHistoIso_->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
-                    if( ybinMuIso == 0 ) std::cerr<<"Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
+                    if( ybinMuIso == 0 ) std::cerr<<"Mu Iso Histo: Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
                     //Find the bin indices (binned by x: pt and y: eta ) for the 2017 scale factor for Data/MC Trigger Efficiency
                     for( unsigned int ixbin = 0; ixbin < muSFHistoTrig_->GetNbinsX()+1; ixbin++ ) {
                         double tempxBinEdgeMax = muSFHistoTrig_->GetXaxis()->GetBinUpEdge(ixbin);
@@ -449,7 +459,7 @@ private:
                         }
                     }
                     if( xbinMuTrig == 0 && mupt > 200.0) xbinMuTrig = muSFHistoTrig_->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
-                    if( ybinMuTrig == 0 ) std::cerr<<"Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
+                    if( ybinMuTrig == 0 ) std::cerr<<"Mu Trig Histo: Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
                 }//END of 2017 loop
 
                 else { //If the year is 2016 loop
@@ -472,7 +482,7 @@ private:
                     }
                    
                     if( xbinMuMedium == 0 && mupt > 200.0) xbinMuMedium = muSFHistoMedium_->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
-                    if( ybinMuMedium == 0 ) std::cerr<<"Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
+                    if( ybinMuMedium == 0 ) std::cerr<<"Mu Iso Histo: Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
 
                     //For consistency with 2017, copy the values over to these variables.
                     xbinMuIso = xbinMuMedium;
@@ -495,7 +505,7 @@ private:
                         }
                     }
                     if( xbinMuTrig == 0 && mupt > 200.0) xbinMuTrig = muSFHistoTrig_->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
-                    if( ybinMuTrig == 0 ) std::cerr<<"Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
+                    if( ybinMuTrig == 0 ) std::cerr<<"Mu Trig Histo: Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
                 }//END of 2016 loop
                 //std::cout<<"MU pt: "<<mupt<<" ; eta: "<<mueta<<"; "<<xbin<<" "<<ybin<<" "<<muSFHisto->GetBinContent(xbin,ybin)<<" "<<muSFHistoReco->Eval(mueta)<<";"<<muSFHisto->GetBinContent(xbin,ybin)*muSFHistoReco->Eval(mueta)<<std::endl;
 
@@ -512,10 +522,10 @@ private:
                     double muTotSFPErr2         = 0.03*0.03 + muTrigSFPErr*muTrigSFPErr;
 
                     if( filetag.find("2017") == std::string::npos ) {
-                    //For the general track reconstruction they claim that the systematics for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
-                    //This reconstruction value only exists for 2016.
+                    //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
+                    //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
                         double muRecoSF         = muSFHistoReco_->Eval( mueta );
-                        muTotSF                 = muMediumSF * muIsoSF * muRecoSF;
+                        muTotSF                 = muTotSF * muRecoSF;
                     }
                     totGoodMuonSF           *= muTotSF;
                     totGoodMuonSFPErr2      += muTotSFPErr2;
@@ -646,6 +656,7 @@ public:
         : myVarSuffix_(myVarSuffix)
         , eleSFHistoTight_(nullptr)
         , eleSFHistoIso_(nullptr)
+        , eleSFHistoIP2D_(nullptr)
         , eleSFHistoReco_(nullptr)
         , eleSFHistoTrig_(nullptr)
         , muSFHistoMedium_(nullptr)
@@ -658,8 +669,8 @@ public:
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
         TFile SFRootFile( SFRootFileName.c_str() );
 
-        TString eleSFHistoTightName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_CutBasedTightNoIso94X" : "GsfElectronToCutBasedSpring15T";
-        TString eleSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_MVAVLooseTightIP2DMini" : "MVAVLooseElectronToMini";
+        TString eleSFHistoTightName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_CutBasedTightNoIso94XV2" : "Run2016_CutBasedTightNoIso94XV2";
+        TString eleSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_MVAVLooseTightIP2DMini" : "Run2016_Mini";
         TString eleSFHistoTrigName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_isoTrig" : "TrigEff_2016_num_el_pt40_trig_5jCut_htCut_isoTrig";
         TString muSFHistoMediumName = ( SFRootFileName.find("2017") != std::string::npos ) ? "NUM_MediumID_DEN_genTracks_pt_abseta" : "sf_mu_mediumID"; 
         TString muSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta" : "sf_mu_mediumID_mini02";
@@ -675,6 +686,7 @@ public:
         muSFHistoTrig_         = (TH2F*)SFRootFile.Get(muSFHistoTrigName);
         if ( SFRootFileName.find("2017") == std::string::npos ) {
             muSFHistoReco_         = (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr"); //Only 2016 requires the track reconstruction efficiency.
+            eleSFHistoIP2D_        = (TH2F*)SFRootFile.Get("Run2016_MVAVLooseIP2D");//In 2016, the isolation SF histogram is separate from the IP2D cut scale factor histogram.
         }
 
         SFRootFile.Close();
