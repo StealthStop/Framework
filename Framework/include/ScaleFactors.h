@@ -70,7 +70,6 @@ private:
         double scaleWeightLowerBound_corr = scaleWeightLowerBound;
         if(sfMeanMap_.find(filetag+"_sclUp") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_sclDown") != sfMeanMap_.end()) 
         {            
-            // Derive ht SF
             const double meanUp = sfMeanMap_[filetag+"_sclUp"];
             const double meanDown = sfMeanMap_[filetag+"_sclDown"];
             scaleWeightUpperBound_corr = (1/meanUp)*scaleWeightUpperBound;
@@ -164,7 +163,6 @@ private:
         double NNPDF_from_median_down_corr = NNPDF_from_median_down;
         if(sfMeanMap_.find(filetag+"_pdf_Up") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_pdf_Down") != sfMeanMap_.end()) 
         {
-            // Derive ht SF
             const double meanUp = sfMeanMap_[filetag+"_pdf_Up"];
             const double meanDown = sfMeanMap_[filetag+"_pdf_Down"];
             NNPDF_from_median_up_corr = (1/meanUp)*NNPDF_from_median_up;
