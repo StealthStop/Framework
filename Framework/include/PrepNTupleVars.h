@@ -74,7 +74,7 @@ private:
     {
         const auto& runtype = tr.getVar<std::string>("runtype");
  
-        if( !tr.checkBranch("JetsJECup") && runtype == "MC")
+        if( !tr.checkBranchInTree("JetsJECup") && runtype == "MC")
         {
             const auto& Jets_origIndex = tr.getVec<int>("Jets_origIndex");
             std::vector<int> newIndex(Jets_origIndex.size());
