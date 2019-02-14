@@ -20,7 +20,7 @@ private:
     TH2F* muSFHistoTrig_;
     TGraph* muSFHistoReco_;
     std::shared_ptr<TH2F> L1Prefireing_;
-    std::map<std::string, double> htSFMap_;
+    std::map<std::string, double> sfMeanMap_;
 
     void scaleFactors(NTupleReader& tr)
     {
@@ -29,6 +29,7 @@ private:
         // --------------------------------------------------------------------------------------
         const auto& scaleWeights    = tr.getVec<double>("ScaleWeights");
         const auto& PDFweights      = tr.getVec<double>("PDFweights");
+        const auto& filetag             = tr.getVar<std::string>("filetag");
 
         //Following the example in SusyAnaTools PDFUncertainty.h, the scale weights are calculated using the envelope method and we ignore all anti-correlated variations (5 and 7)
 
@@ -56,19 +57,30 @@ private:
         double scaleWeightLowerBound = *scaleWeightMin;
         double scaleWeightNominal    = scaleWeights.size() == 9 ?  scaleWeights.at(0) : 1.0;
 
-
         //TODO: There are some NaN/Inf values in the Diboson channel - still need to figure out why this is an issue.
         //std::cout<<scaleWeightUpperBound<<" "<<scaleWeightNominal<<" "<<scaleWeightLowerBound<<std::endl;
-        if( !std::isfinite(scaleWeightNominal) || !std::isfinite(scaleWeightUpperBound) || !std::isfinite(scaleWeightLowerBound) ) {
+        if( !std::isfinite(scaleWeightNominal) || !std::isfinite(scaleWeightUpperBound) || !std::isfinite(scaleWeightLowerBound) ) 
+        {
             scaleWeightNominal = 1.0;
             scaleWeightUpperBound = 1.0;
             scaleWeightLowerBound = 1.0;
         }
 
-        tr.registerDerivedVar("scaleWeightUp"+myVarSuffix_,      scaleWeightUpperBound);
-        tr.registerDerivedVar("scaleWeightDown"+myVarSuffix_,    scaleWeightLowerBound);
-        tr.registerDerivedVar("scaleWeightNom"+myVarSuffix_,     scaleWeightNominal);
+        double scaleWeightUpperBound_corr = scaleWeightUpperBound;
+        double scaleWeightLowerBound_corr = scaleWeightLowerBound;
+        if(sfMeanMap_.find(filetag+"_sclUp") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_sclDown") != sfMeanMap_.end()) 
+        {            
+            const double meanUp = sfMeanMap_[filetag+"_sclUp"];
+            const double meanDown = sfMeanMap_[filetag+"_sclDown"];
+            scaleWeightUpperBound_corr = (1/meanUp)*scaleWeightUpperBound;
+            scaleWeightLowerBound_corr = (1/meanDown)*scaleWeightLowerBound;
+        }
 
+        tr.registerDerivedVar("scaleWeightUp"+myVarSuffix_,   scaleWeightUpperBound_corr);
+        tr.registerDerivedVar("scaleWeightDown"+myVarSuffix_, scaleWeightLowerBound_corr);
+        tr.registerDerivedVar("scaleWeightUpUncor"+myVarSuffix_,   scaleWeightUpperBound);
+        tr.registerDerivedVar("scaleWeightDownUncor"+myVarSuffix_, scaleWeightLowerBound);
+        tr.registerDerivedVar("scaleWeightNom"+myVarSuffix_,  scaleWeightNominal);
 
         // --------------------------------------------------------------------------------------
         // Store different partonshower uncertainties in more easy to parse way
@@ -140,14 +152,27 @@ private:
         double NNPDF_from_median_down = central - errplus;
         NNPDF_from_median_down = NNPDF_from_median_down/central > 2.0 ? 1.0 : NNPDF_from_median_down/central < -2.0 ? 1.0 : NNPDF_from_median_down/central;
         
-        if( !std::isfinite(central) || !std::isfinite(NNPDF_from_median_up) || !std::isfinite(NNPDF_from_median_down) ) {
+        if( !std::isfinite(central) || !std::isfinite(NNPDF_from_median_up) || !std::isfinite(NNPDF_from_median_down) ) 
+        {
             NNPDF_from_median_up    = 1.0;
             NNPDF_from_median_down  = 1.0;
             central                 = 1.0;
         }
+        
+        double NNPDF_from_median_up_corr = NNPDF_from_median_up;
+        double NNPDF_from_median_down_corr = NNPDF_from_median_down;
+        if(sfMeanMap_.find(filetag+"_pdf_Up") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_pdf_Down") != sfMeanMap_.end()) 
+        {
+            const double meanUp = sfMeanMap_[filetag+"_pdf_Up"];
+            const double meanDown = sfMeanMap_[filetag+"_pdf_Down"];
+            NNPDF_from_median_up_corr = (1/meanUp)*NNPDF_from_median_up;
+            NNPDF_from_median_down_corr = (1/meanDown)*NNPDF_from_median_down;
+        }
 
-        tr.registerDerivedVar( "PDFweightUp"+myVarSuffix_,   NNPDF_from_median_up );
-        tr.registerDerivedVar( "PDFweightDown"+myVarSuffix_, NNPDF_from_median_down );
+        tr.registerDerivedVar( "PDFweightUp"+myVarSuffix_,   NNPDF_from_median_up_corr );
+        tr.registerDerivedVar( "PDFweightDown"+myVarSuffix_, NNPDF_from_median_down_corr );
+        tr.registerDerivedVar( "PDFweightUpUncor"+myVarSuffix_,   NNPDF_from_median_up );
+        tr.registerDerivedVar( "PDFweightDownUncor"+myVarSuffix_, NNPDF_from_median_down );
         tr.registerDerivedVar( "PDFweightNom"+myVarSuffix_,  central );
         
         // --------------------------------------------------------------------------------------
@@ -155,7 +180,6 @@ private:
         // --------------------------------------------------------------------------------------
         const auto& electrons           = tr.getVec<TLorentzVector>("Electrons");
         const auto& goodElectrons       = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
-        const auto& filetag             = tr.getVar<std::string>("filetag");
         
         double totGoodElectronSF        = 1.0;
         double totGoodElectronSFPErr2   = 0.0;
@@ -561,10 +585,10 @@ private:
         double htDerivedweightUncor = htScaleFactor(NGoodJets_pt30, HT_trigger_pt30);
         double htScaleUp = 1.0;
         double htScaleDown = 1.0;
-        if( htSFMap_.find(filetag) != htSFMap_.end() && !isSignal) 
+        if( sfMeanMap_.find(filetag+"_ht") != sfMeanMap_.end() && !isSignal) 
         {
             // Derive ht SF
-            const double mean = htSFMap_[filetag];
+            const double mean = sfMeanMap_[filetag+"_ht"];
             htDerivedweight = (1/mean)*htDerivedweightUncor;
 
             // Derive ht up and down variation on SF
@@ -652,7 +676,7 @@ private:
     }
     
 public:
-    ScaleFactors( const std::string& SFRootFileName = "2016ScaleFactorHistos.root", const std::string& HtSFRootFileName = "allInOne_HtSFDist_2016.root", const std::string& myVarSuffix = "" )
+    ScaleFactors( const std::string& SFRootFileName = "2016ScaleFactorHistos.root", const std::string& SFMeanRootFileName = "allInOne_SFMean.root", const std::string& myVarSuffix = "" )
         : myVarSuffix_(myVarSuffix)
         , eleSFHistoTight_(nullptr)
         , eleSFHistoIso_(nullptr)
@@ -691,16 +715,16 @@ public:
 
         SFRootFile.Close();
 
-        TFile HtSFRootFile( HtSFRootFileName.c_str() );
-        TIter next(HtSFRootFile.GetListOfKeys());
+        TFile SFMeanRootFile( SFMeanRootFileName.c_str() );
+        TIter next(SFMeanRootFile.GetListOfKeys());
         TKey* key;
         while(key = (TKey*)next())
         {
             std::shared_ptr<TH1> h( (TH1*)key->ReadObj() );
             std::string name( h->GetTitle() );
-            htSFMap_.insert(std::pair<std::string, double>(name, h->GetMean()));
+            sfMeanMap_.insert(std::pair<std::string, double>(name, h->GetMean()));
         }
-        HtSFRootFile.Close();
+        SFMeanRootFile.Close();
 
         TFile L1PrefiringFile("L1prefiring_jetpt_2017BtoF.root");
         L1Prefireing_.reset( (TH2F*)L1PrefiringFile.Get("L1prefiring_jetpt_2017BtoF") );
