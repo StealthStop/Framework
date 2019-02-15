@@ -205,7 +205,6 @@ private:
         //Construct contexts
         cfg::Context localCxt(localContextName);
 
-        modelFile_   = cfgDoc->get("modelFile", localCxt, "");
         inputOp_     = cfgDoc->get("inputOp",   localCxt, "main_input");
         outputOp_    = cfgDoc->get("outputOp",  localCxt, "first_output/Softmax");
         year_        = cfgDoc->get("year",      localCxt, "");
@@ -386,8 +385,10 @@ public:
         husk.session_ = nullptr;
     }
     
-    DeepEventShape(const std::string& cfgFileName = "DeepEventShape.cfg", const std::string& localContextName = "Info", const bool printStatus = true, const std::string& myVarSuffix = "")
-        : myVarSuffix_(myVarSuffix)
+    DeepEventShape(const std::string& cfgFileName = "DeepEventShape.cfg", const std::string& modelFile = "keras_frozen.pb", const std::string& localContextName = "Info", 
+                   const bool printStatus = true, const std::string& myVarSuffix = "")
+        : modelFile_(modelFile)
+        , myVarSuffix_(myVarSuffix)
         , firstEvent_(true)
     {
         if(printStatus) std::cout<<"Setting up DeepEventShape"<<std::endl;
@@ -408,7 +409,7 @@ public:
         std::unique_ptr<cfg::CfgDocument> cfgDoc = cfg::CfgDocument::parseDocument(cfgText);
         getParameters(cfgDoc, localContextName);
 
-        if(printStatus) std::cout<<"Using "+cfgFileName+" as the DeepEventShape config file"<<std::endl;
+        if(printStatus) std::cout<<"Using "+cfgFileName+" and "+modelFile+" as the DeepEventShape config file and training file"<<std::endl;
     }
 
     ~DeepEventShape()
