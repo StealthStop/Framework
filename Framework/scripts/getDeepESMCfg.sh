@@ -15,7 +15,8 @@ VERBOSE=
 # A POSIX variable
 OPTIND=1    # Reset in case getopts has been used previously in the shell.
 
-SOFTLINK_NAME=DeepEventShape.cfg
+SOFTLINK_NAME=DeepEventShape
+SOFTLINK_SUFFIX=
 
 function print_help {
     echo ""
@@ -30,6 +31,7 @@ function print_help {
     echo "    -l checkout location :   Location to check out tagger cfg files (default: .)"
     echo "    -n :                     Download files without producing softlinks"
     echo "    -v :                     increase verbosity: print more stuff... for those who like stuff"
+    echo "    -s softlink_suffix :     Can add a suffix to the softlink name"
     echo ""
     echo "Description:"
     echo "    This script automatically downloads the top tagger configuration file and MVA training files (if necessary)"
@@ -51,7 +53,7 @@ function print_ok {
 
 # Initialize our own variables:
 
-while getopts "h?d:f:t:l:nov" opt; do
+while getopts "h?d:f:t:l:s:nov" opt; do
     case "$opt" in
     h|\?)
         print_help
@@ -65,9 +67,11 @@ while getopts "h?d:f:t:l:nov" opt; do
         ;;
     l)  CHECKOUT_DIRECTORY=$OPTARG
         ;;
-    o)  OVERWRITE="-f"
+    s)  SOFTLINK_SUFFIX=$OPTARG
         ;;
     n)  NO_SOFTLINK=NO
+        ;;
+    o)  OVERWRITE="-f"
         ;;
     v)  VERBOSE=1
         ;;
@@ -82,6 +86,13 @@ if [[ -z $TAG ]]
 then
     print_help
     exit 0
+fi
+
+if [[ -z $SOFTLINK_SUFFIX ]]
+then
+    SOFTLINK_NAME="${SOFTLINK_NAME}.cfg"
+else
+    SOFTLINK_NAME="${SOFTLINK_NAME}_${SOFTLINK_SUFFIX}.cfg"
 fi
 
 echo " - Running getDeepESMCfg.sh"
@@ -254,7 +265,13 @@ then
     if [[ ! -z ${MVAFILES// } ]] 
     then
         for MVAFILE in $MVAFILES; do
-            ln $OVERWRITE -s $DOWNLOAD_DIR/$MVAFILE $CHECKOUT_DIRECTORY/$MVAFILE > /dev/null 2>&1 && echo " - Created softlinks to $REPO_NAME MVA files"
+            MVAFILE_SOFTLINK_NAME=$MVAFILE
+            if [[ ! -z $SOFTLINK_SUFFIX ]]
+            then
+                IFS='.' read -ra nameList <<< "$MVAFILE"
+                MVAFILE_SOFTLINK_NAME="${nameList[0]}_${SOFTLINK_SUFFIX}.${nameList[1]}"
+            fi
+            ln $OVERWRITE -s $DOWNLOAD_DIR/$MVAFILE $CHECKOUT_DIRECTORY/$MVAFILE_SOFTLINK_NAME > /dev/null 2>&1 && echo " - Created softlinks to $REPO_NAME MVA files"
         done
     fi
 fi
