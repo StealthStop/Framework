@@ -29,7 +29,7 @@ private:
         // --------------------------------------------------------------------------------------
         const auto& scaleWeights    = tr.getVec<double>("ScaleWeights");
         const auto& PDFweights      = tr.getVec<double>("PDFweights");
-        const auto& filetag             = tr.getVar<std::string>("filetag");
+        const auto& filetag         = tr.getVar<std::string>("filetag");
 
         //Following the example in SusyAnaTools PDFUncertainty.h, the scale weights are calculated using the envelope method and we ignore all anti-correlated variations (5 and 7)
 
@@ -128,30 +128,35 @@ private:
         // --------------------------------------------------------------------------------------
         // Now calculate the PDF scale factor and uncertainty based on the 100 different replica values stored in PDFweights using envelope method and the median
         // --------------------------------------------------------------------------------------
-        auto PDFWeightMax            = std::max_element( std::begin(PDFweights), std::end(PDFweights) );
-        auto PDFWeightMin            = std::min_element( std::begin(PDFweights), std::end(PDFweights) );
+        double central = 1.0;
+        double NNPDF_from_median_up = 1.0;
+        double NNPDF_from_median_down = 1.0;
+        if(PDFweights.size() > 0)
+        {
+            auto PDFWeightMax            = std::max_element( std::begin(PDFweights), std::end(PDFweights) );
+            auto PDFWeightMin            = std::min_element( std::begin(PDFweights), std::end(PDFweights) );
 
-        double PDFWeightUpperBound   = *PDFWeightMax;
-        double PDFWeightLowerBound   = *PDFWeightMin;
+            double PDFWeightUpperBound   = *PDFWeightMax;
+            double PDFWeightLowerBound   = *PDFWeightMin;
 
-        const double reqCL           = 0.68; //Choose a confidence level for the uncertainty
-        std::vector<double> sortedPDFWeights = PDFweights; //Cannot sort a constant
-        std::sort( sortedPDFWeights.begin() + 1, sortedPDFWeights.end() );
+            const double reqCL           = 0.68; //Choose a confidence level for the uncertainty
+            std::vector<double> sortedPDFWeights = PDFweights; //Cannot sort a constant
+            std::sort( sortedPDFWeights.begin() + 1, sortedPDFWeights.end() );
         
-        const int upper = std::round( 0.5 * (1 + reqCL) * 100.0 );
-        const int lower = 1 + std::round( 0.5 * (1 - reqCL) * 100.0 );
+            const int upper = std::round( 0.5 * (1 + reqCL) * 100.0 );
+            const int lower = 1 + std::round( 0.5 * (1 - reqCL) * 100.0 );
 
-        double central  = 0.5*( sortedPDFWeights[50] + sortedPDFWeights[51] ); //Exactly 100 entries
-        double errminus = central - sortedPDFWeights[lower];
-        double errplus  = sortedPDFWeights[upper] - central;
-        double errsymm  = 0.5*( errplus + errminus );
+            central  = 0.5*( sortedPDFWeights[50] + sortedPDFWeights[51] ); //Exactly 100 entries
+            double errminus = central - sortedPDFWeights[lower];
+            double errplus  = sortedPDFWeights[upper] - central;
+            double errsymm  = 0.5*( errplus + errminus );
 
-        double NNPDF_from_median_up = central + errplus;
-        NNPDF_from_median_up = ( ( NNPDF_from_median_up/central ) > 2.0 ) ?  1.0 : ( ( ( NNPDF_from_median_up/central ) < -2.0 ) ? 1.0 : NNPDF_from_median_up/central );
+            NNPDF_from_median_up = central + errplus;
+            NNPDF_from_median_up = ( ( NNPDF_from_median_up/central ) > 2.0 ) ?  1.0 : ( ( ( NNPDF_from_median_up/central ) < -2.0 ) ? 1.0 : NNPDF_from_median_up/central );
         
-        double NNPDF_from_median_down = central - errplus;
-        NNPDF_from_median_down = NNPDF_from_median_down/central > 2.0 ? 1.0 : NNPDF_from_median_down/central < -2.0 ? 1.0 : NNPDF_from_median_down/central;
-        
+            NNPDF_from_median_down = central - errplus;
+            NNPDF_from_median_down = NNPDF_from_median_down/central > 2.0 ? 1.0 : NNPDF_from_median_down/central < -2.0 ? 1.0 : NNPDF_from_median_down/central;
+        }
         if( !std::isfinite(central) || !std::isfinite(NNPDF_from_median_up) || !std::isfinite(NNPDF_from_median_down) ) 
         {
             NNPDF_from_median_up    = 1.0;
