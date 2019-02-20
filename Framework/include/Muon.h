@@ -11,6 +11,7 @@ private:
         const auto& allMuons = tr.getVec<TLorentzVector>("Muons");
         const auto& allMuons_passIso = tr.getVec<bool>("Muons_passIso");
         const auto& allMuons_charge = tr.getVec<int>("Muons_charge");
+        const auto& allMuons_medID = tr.getVec<bool>("Muons_mediumID");
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& MET = tr.getVar<double>("MET"); 
         const auto& METPhi = tr.getVar<double>("METPhi");
@@ -30,7 +31,8 @@ private:
             muons_mtw_->push_back(mtw);
             if( abs(lvmu.Eta()) < etaCut && 
                 lvmu.Pt() > 30 && 
-                allMuons_passIso.at(imu)
+                allMuons_passIso.at(imu) &&
+                allMuons_medID.at(imu)
                 )
             {
                 good_muons_->push_back(true);
