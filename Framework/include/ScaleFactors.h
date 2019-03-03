@@ -590,7 +590,7 @@ private:
         double htDerivedweightUncor = htScaleFactor(NGoodJets_pt30, HT_trigger_pt30);
         double htScaleUp = 1.0;
         double htScaleDown = 1.0;
-        if( sfMeanMap_.find(filetag+"_ht") != sfMeanMap_.end() && !isSignal) 
+        if( sfMeanMap_.find(filetag+"_ht") != sfMeanMap_.end() && !isSignal && filetag.find("2016") != std::string::npos) 
         {
             // Derive ht SF
             const double mean = sfMeanMap_[filetag+"_ht"];
