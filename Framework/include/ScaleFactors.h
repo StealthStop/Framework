@@ -715,7 +715,7 @@ private:
 
             // Derive ht up and down variation on SF
             if( filetag.find("2016") != std::string::npos ) {
-                const double fit2NJetBin8 = 1.311*exp(-0.0003482*HT_trigger_pt30);
+                const double fit2NJetBin8 = 1.307*exp(-0.0003416*HT_trigger_pt30);
                 const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, filetag);
                 const double ratioUp = fit2NJetBin8/fit2NJetBin567;
                 const double ratioDown = fit2NJetBin567/fit2NJetBin8;
@@ -724,7 +724,7 @@ private:
                 htScaleDown = htDerivedweight*ratioDown;
             }
             else {
-                const double fit2NJetBin8 = 1.258*exp(-0.0003083*HT_trigger_pt30);
+                const double fit2NJetBin8 = 1.215*exp(-0.0002613*HT_trigger_pt30);
                 const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, filetag);
                 const double ratioUp = fit2NJetBin8/fit2NJetBin567;
                 const double ratioDown = fit2NJetBin567/fit2NJetBin8;
