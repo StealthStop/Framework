@@ -19,6 +19,9 @@ private:
     TH2F* muSFHistoIso_;
     TH2F* muSFHistoTrig_;
     TGraph* muSFHistoReco_;
+    TH1F* puSFHisto_;
+    TH1F* puSFUpHisto_;
+    TH1F* puSFDownHisto_;
     std::shared_ptr<TH2F> L1Prefireing_;
     std::map<std::string, double> sfMeanMap_;
 
@@ -579,42 +582,269 @@ private:
         const auto& HT_trigger_pt30 = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& isSignal = tr.getVar<bool>("isSignal");
 
-        auto htScaleFactor = [](int nJets, double HT) 
+        auto htScaleFactor = [](int nJets, double HT, std::string filetag) 
         { 
-            double norm = 0.05669*nJets + 0.8391;
-            double expo = (-0.04318*nJets - 0.03314)/1000;
+            double norm     = 0.0;
+            double expo     = 0.0;
+            if( filetag.find("2016") != std::string::npos ) { //If it is for 2016 MC sample
+                //No PU version
+                //norm = 0.05669*nJets + 0.8391;
+                //expo = (-0.04318*nJets - 0.03314)/1000;
+                
+                //PU version
+                //norm = 0.03175*nJets + 0.9504;
+                //expo = (-0.02100*nJets - 0.1031 )/1000;
+                
+                //New PU version
+                norm = 0.03422*nJets + 0.9367;
+                expo = (-0.02310*nJets - 0.0940 )/1000;
+            }
+            else {
+                //No PU version
+                //norm = 0.0149284*nJets+1.00437;
+                //expo = (-0.0019273*nJets-0.134854)/1000;
+                
+                //PU version
+                //norm = 0.03897*nJets + 0.8993;
+                //expo = (-0.02851*nJets - 0.04683 )/1000;
+                
+                //New PU version
+                norm = 0.02565*nJets + 0.9635;
+                expo = (-0.01418*nJets - 0.1101 )/1000;
+            }
+            return norm*exp( expo*HT ); 
+        };
+        auto htScaleFactorFlat2000 = [](int nJets, double HT, std::string filetag)
+        {
+            double norm     = 0.0;
+            double expo     = 0.0;
+            
+            if( filetag.find("2016") != std::string::npos ) { //If it is for 2016 MC sample
+                //No PU version
+                //norm = 0.05669*nJets + 0.8391;
+                //expo = (-0.04318*nJets - 0.03314)/1000;
+                
+                //PU version
+                //norm = 0.03175*nJets + 0.9504;
+                //expo = (-0.02100*nJets - 0.1031 )/1000;
+                
+                //New PU version
+                norm = 0.03422*nJets + 0.9367;
+                expo = (-0.02310*nJets - 0.0940 )/1000;
+                
+            }
+            else {
+                //No PU version
+                //norm = 0.0149284*nJets+1.00437;
+                //expo = (-0.0019273*nJets-0.134854)/1000;
+                
+                //PU version
+                //norm = 0.03897*nJets + 0.8993;
+                //expo = (-0.02851*nJets - 0.04683 )/1000;
+                
+                //New PU version
+                norm = 0.02565*nJets + 0.9635;
+                expo = (-0.01418*nJets - 0.1101 )/1000;
+            }
+            
+            if( HT > 2000 ) {
+                return norm*exp( expo*2000.00 );
+            }
+            
+            else {
+                return norm*exp( expo*HT ); 
+            }
+        };
+        auto htScaleFactorNJet7 = [](double HT, std::string filetag)
+        {
+            double norm     = 0.0;
+            double expo     = 0.0;
+            
+            if( filetag.find("2016") != std::string::npos ) { //If it is for 2016 MC sample
+                //No PU version
+                //norm = 0.05669*7 + 0.8391;
+                //expo = (-0.04318*7 - 0.03314)/1000;
+                
+                //PU version
+                //norm = 0.03175*7 + 0.9504;
+                //expo = (-0.02100*7 - 0.1031 )/1000;
+                
+                //New PU version
+                norm = 0.03422*7 + 0.9367;
+                expo = (-0.02310*7 - 0.0940 )/1000;
+            }
+            else {
+                //No PU version
+                //norm = 0.0149284*7+1.00437;
+                //expo = (-0.0019273*7-0.134854)/1000;
+                
+                //PU version
+                //norm = 0.03897*7 + 0.8993;
+                //expo = (-0.02851*7 - 0.04683 )/1000;
+                
+                //New PU version
+                norm = 0.02565*7 + 0.9635;
+                expo = (-0.01418*7 - 0.1101 )/1000;
+            }
+            
             return norm*exp( expo*HT ); 
         };
 
         double htDerivedweight = 1.0;
-        double htDerivedweightUncor = htScaleFactor(NGoodJets_pt30, HT_trigger_pt30);
+        double htDerivedweightFlat2000 = 1.0;
+        double htDerivedweightNJet7 = 1.0;
+
+        double htDerivedweightUncor = htScaleFactor(NGoodJets_pt30, HT_trigger_pt30, filetag);
+        double htDerivedweightFlat2000Uncor = htScaleFactorFlat2000(NGoodJets_pt30, HT_trigger_pt30, filetag);
+        double htDerivedweightNJet7Uncor = htScaleFactorNJet7(HT_trigger_pt30, filetag);
+
         double htScaleUp = 1.0;
         double htScaleDown = 1.0;
-        if( sfMeanMap_.find(filetag+"_ht") != sfMeanMap_.end() && !isSignal && filetag.find("2016") != std::string::npos) 
+
+        if( sfMeanMap_.find(filetag+"_ht") != sfMeanMap_.end() && !isSignal ) 
         {
             // Derive ht SF
-            const double mean = sfMeanMap_[filetag+"_ht"];
-            htDerivedweight = (1/mean)*htDerivedweightUncor;
+            const double mean_ht = sfMeanMap_[filetag+"_ht"];
+            htDerivedweight = (1/mean_ht)*htDerivedweightUncor;
+            
+            const double mean_ht_flat2000 = sfMeanMap_[filetag+"_ht_flat2000"];
+            htDerivedweightFlat2000 = (1/mean_ht_flat2000)*htDerivedweightFlat2000Uncor;
+            
+            const double mean_ht_njet7 = sfMeanMap_[filetag+"_ht_njet7"];
+            htDerivedweightNJet7 = (1/mean_ht_njet7)*htDerivedweightNJet7Uncor;
 
             // Derive ht up and down variation on SF
-            const double fit2NJetBin8 = 1.353*exp(-0.0003955*HT_trigger_pt30);
-            const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30);
-            const double ratioUp = fit2NJetBin8/fit2NJetBin567;
-            const double ratioDown = fit2NJetBin567/fit2NJetBin8;
+            if( filetag.find("2016") != std::string::npos ) {
+                const double fit2NJetBin8 = 1.311*exp(-0.0003482*HT_trigger_pt30);
+                const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, filetag);
+                const double ratioUp = fit2NJetBin8/fit2NJetBin567;
+                const double ratioDown = fit2NJetBin567/fit2NJetBin8;
 
-            htScaleUp = htDerivedweight*ratioUp;
-            htScaleDown = htDerivedweight*ratioDown;
+                htScaleUp = htDerivedweight*ratioUp;
+                htScaleDown = htDerivedweight*ratioDown;
+            }
+            else {
+                const double fit2NJetBin8 = 1.258*exp(-0.0003083*HT_trigger_pt30);
+                const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, filetag);
+                const double ratioUp = fit2NJetBin8/fit2NJetBin567;
+                const double ratioDown = fit2NJetBin567/fit2NJetBin8;
+                
+                htScaleUp = htDerivedweight*ratioUp;
+                htScaleDown = htDerivedweight*ratioDown;
+            
+            }
         }
 
         tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
+        tr.registerDerivedVar( "htDerivedweightFlat2000"+myVarSuffix_, htDerivedweightFlat2000 );
+        tr.registerDerivedVar( "htDerivedweightNJet7"+myVarSuffix_, htDerivedweightNJet7 );
+
         tr.registerDerivedVar( "htDerivedweightUncor"+myVarSuffix_, htDerivedweightUncor);
+        tr.registerDerivedVar( "htDerivedweightFlat2000Uncor"+myVarSuffix_, htDerivedweightFlat2000Uncor);
+        tr.registerDerivedVar( "htDerivedweightNJet7Uncor"+myVarSuffix_, htDerivedweightNJet7Uncor );
+
         tr.registerDerivedVar( "htScaleUp"+myVarSuffix_, htScaleUp);
         tr.registerDerivedVar( "htScaleDown"+myVarSuffix_, htScaleDown);
 
+
+        //-----------------------------------------------------------------------------
+        //
+        // For 2016: Grab the individual pileup weight from the histogram found in PileupHistograms_0121_69p2mb_pm4p6.root
+        // For 2017: Grab the ratio from the histogram file and multiply this with the original weight 
+        //
+        // ----------------------------------------------------------------------------
+        
+        const auto puWeight         = tr.getVar<double>("puWeight");
+        const auto puSysUp          = tr.getVar<double>("puSysUp");
+        const auto puSysDown        = tr.getVar<double>("puSysDown");
+
+        const auto& tru_npv          = tr.getVar<double>("TrueNumInteractions");
+        double puWeightUnCorr        = 1.0;
+        double puSysUpUnCorr         = 1.0;
+        double puSysDownUnCorr       = 1.0;
+
+        if( filetag.find("2016") != std::string::npos ) { //If this is the year 2016
+            if( tru_npv < puSFHisto_->GetBinLowEdge( puSFHisto_->GetNbinsX()+1 ) ) {
+                puWeightUnCorr = puSFHisto_->GetBinContent( puSFHisto_->GetXaxis()->FindBin(tru_npv) );
+            }
+            else {
+                std::cerr<<"The true num of interactions is larger than the maximum number of bins in puSFHisto_"<<std::endl;
+                puWeightUnCorr = puSFHisto_->GetBinContent( puSFHisto_->GetNbinsX() );
+            }
+            
+            if( tru_npv < puSFUpHisto_->GetBinLowEdge( puSFUpHisto_->GetNbinsX()+1 ) ) {
+                puSysUpUnCorr = puSFUpHisto_->GetBinContent( puSFUpHisto_->GetXaxis()->FindBin(tru_npv) );
+            }
+            else {
+                std::cerr<<"The true num of interactions is larger than the maximum number of bins in puSFUpHisto_"<<std::endl;
+                puSysUpUnCorr = puSFUpHisto_->GetBinContent( puSFUpHisto_->GetNbinsX() );
+            }
+            
+            if( tru_npv < puSFDownHisto_->GetBinLowEdge( puSFDownHisto_->GetNbinsX()+1 ) ) {
+                puSysDownUnCorr = puSFDownHisto_->GetBinContent( puSFDownHisto_->GetXaxis()->FindBin(tru_npv) );
+            }
+            else {
+                std::cerr<<"The true num of interactions is larger than the maximum number of bins in puSFDownHisto_"<<std::endl;
+                puSysDownUnCorr = puSFDownHisto_->GetBinContent( puSFDownHisto_->GetNbinsX() );
+            }
+        }
+
+        else { //If this is the year 2017
+            if( tru_npv< puSFHisto_->GetBinLowEdge( puSFHisto_->GetNbinsX() + 1 ) ) {
+                puWeightUnCorr = puSFHisto_->GetBinContent( puSFHisto_->GetXaxis()->FindBin(tru_npv) )*puWeight; 
+            }
+            else {
+                std::cerr<<"The true num of interactions is larger than the maximum number of bins in puSFHisto_"<<std::endl;
+                puWeightUnCorr = puSFHisto_->GetBinContent( puSFHisto_->GetNbinsX() )*puWeight;
+            }
+            if( tru_npv< puSFUpHisto_->GetBinLowEdge( puSFUpHisto_->GetNbinsX() + 1 ) ) {
+                puSysUpUnCorr = puSFUpHisto_->GetBinContent( puSFUpHisto_->GetXaxis()->FindBin(tru_npv) )*puWeight; 
+            }
+            else {
+                std::cerr<<"The true num of interactions is larger than the maximum number of bins in puSFUpHisto_"<<std::endl;
+                puSysUpUnCorr = puSFUpHisto_->GetBinContent( puSFUpHisto_->GetNbinsX() )*puSysUp;
+            }
+            if( tru_npv< puSFDownHisto_->GetBinLowEdge( puSFDownHisto_->GetNbinsX() + 1 ) ) {
+                puSysDownUnCorr = puSFDownHisto_->GetBinContent( puSFDownHisto_->GetXaxis()->FindBin(tru_npv) )*puWeight; 
+            }
+            else {
+                std::cerr<<"The true num of interactions is larger than the maximum number of bins in puSFDownHisto_"<<std::endl;
+                puSysDownUnCorr = puSFDownHisto_->GetBinContent( puSFDownHisto_->GetNbinsX() )*puSysDown;
+            }
+        }
+        
+        tr.registerDerivedVar( "puWeightUnCorr"+myVarSuffix_,  puWeightUnCorr);
+        tr.registerDerivedVar( "puSysUpUnCorr"+myVarSuffix_,   puSysUpUnCorr);
+        tr.registerDerivedVar( "puSysDownUnCorr"+myVarSuffix_, puSysDownUnCorr);
+        
+        // --------------------------------------------------------------------------
+        //
+        // Adding correction to the pileup weight
+        //
+        //--------------------------------------------------------------------------
+
+        double puWeightCorr         = puWeight;
+        double puSysUpCorr          = puSysUp;
+        double puSysDownCorr        = puSysDown;
+
+        if( sfMeanMap_.find(filetag+"_pu") != sfMeanMap_.end() && !isSignal )
+        {
+            const double mean = sfMeanMap_[filetag+"_pu"];
+            puWeightCorr            = (1/mean)*puWeightUnCorr;
+            const double meanUp = sfMeanMap_[filetag+"_pu_Up"];
+            puSysUpCorr             = (1/meanUp)*puSysUpUnCorr;
+            const double meanDown = sfMeanMap_[filetag+"_pu_Down"];
+            puSysDownCorr           = (1/meanDown)*puSysDownUnCorr;
+        }
+
+        tr.registerDerivedVar( "puWeightCorr"+myVarSuffix_, puWeightCorr);
+        tr.registerDerivedVar( "puSysUpCorr"+myVarSuffix_, puSysUpCorr);
+        tr.registerDerivedVar( "puSysDownCorr"+myVarSuffix_, puSysDownCorr);
+        
         // --------------------------------------------------------------------------------------
         // Adding top pt reweighting for ttbar MC (Powheg)
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting
-        // 13 TeV all combibned
+        // 13 TeV all combined
         // --------------------------------------------------------------------------------------
         double topPtScaleFactor = 1.0;
         auto* topPtVec = new std::vector<double>();
@@ -641,22 +871,6 @@ private:
         tr.registerDerivedVar( "topPtScaleFactor"+myVarSuffix_, topPtScaleFactor);
         tr.registerDerivedVec( "topPtVec"+myVarSuffix_, topPtVec);
         
-        // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
-        const auto& Weight              = tr.getVar<double>("Weight");
-        const auto& bTagWeight          = tr.getVar<double>("bTagSF_EventWeightSimple_Central"+myVarSuffix_);
-        int    NGoodElectrons           = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
-        int    NGoodMuons               = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
-        
-        double totalEventWeight         = -1.0;
-
-        if( NGoodElectrons == 1 ) {
-            totalEventWeight = Weight*bTagWeight*totGoodElectronSF*htDerivedweight;
-        }
-        else if ( NGoodMuons == 1 ) {
-            totalEventWeight = Weight*bTagWeight*totGoodMuonSF*htDerivedweight;
-        }
-
-        tr.registerDerivedVar( "totalEventWeight"+myVarSuffix_, totalEventWeight );
 
         // --------------------------------------------------------------------------------------
         // Adding reweighting recipe to emulate Level 1 ECAL prefiring
@@ -678,10 +892,26 @@ private:
             }
         }
         tr.registerDerivedVar( "prefiringScaleFactor"+myVarSuffix_, prefiringScaleFactor);                    
+        // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
+        const auto& Weight              = tr.getVar<double>("Weight");
+        const auto& bTagWeight          = tr.getVar<double>("bTagSF_EventWeightSimple_Central"+myVarSuffix_);
+        int    NGoodElectrons           = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
+        int    NGoodMuons               = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
+        
+        double totalEventWeight         = -1.0;
+
+        if( NGoodElectrons == 1 ) {
+            totalEventWeight = Weight*bTagWeight*totGoodElectronSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
+        }
+        else if ( NGoodMuons == 1 ) {
+            totalEventWeight = Weight*bTagWeight*totGoodMuonSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
+        }
+
+        tr.registerDerivedVar( "totalEventWeight"+myVarSuffix_, totalEventWeight );
     }
     
 public:
-    ScaleFactors( const std::string& SFRootFileName = "2016ScaleFactorHistos.root", const std::string& SFMeanRootFileName = "allInOne_SFMean.root", const std::string& myVarSuffix = "" )
+    ScaleFactors( const std::string& SFRootFileName = "2016ScaleFactorHistos.root", const std::string& puRootFileName = "PileupHistograms_0121_69p2mb_pm4p6.root", const std::string& SFMeanRootFileName = "allInOne_SFMean.root", const std::string& myVarSuffix = "" )
         : myVarSuffix_(myVarSuffix)
         , eleSFHistoTight_(nullptr)
         , eleSFHistoIso_(nullptr)
@@ -692,7 +922,9 @@ public:
         , muSFHistoIso_(nullptr)
         , muSFHistoReco_(nullptr)
         , muSFHistoTrig_(nullptr)
-          
+        , puSFHisto_(nullptr)
+        , puSFUpHisto_(nullptr)
+        , puSFDownHisto_(nullptr)
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
@@ -705,14 +937,14 @@ public:
         TString muSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta" : "sf_mu_mediumID_mini02";
         TString muSFHistoTrigName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_isoTrig" : "TrigEff_2016_num_mu_pt40_trig_5jCut_htCut_isoTrig";
         
-        eleSFHistoTight_       = (TH2F*)SFRootFile.Get(eleSFHistoTightName);
-        eleSFHistoIso_         = (TH2F*)SFRootFile.Get(eleSFHistoIsoName);
-        eleSFHistoReco_        = (TH2F*)SFRootFile.Get("EGamma_SF2D"); //The name for this histogram is the same for both 2016 and 2017
-        eleSFHistoTrig_        = (TH2F*)SFRootFile.Get(eleSFHistoTrigName);
+        eleSFHistoTight_        = (TH2F*)SFRootFile.Get(eleSFHistoTightName);
+        eleSFHistoIso_          = (TH2F*)SFRootFile.Get(eleSFHistoIsoName);
+        eleSFHistoReco_         = (TH2F*)SFRootFile.Get("EGamma_SF2D"); //The name for this histogram is the same for both 2016 and 2017
+        eleSFHistoTrig_         = (TH2F*)SFRootFile.Get(eleSFHistoTrigName);
         
-        muSFHistoMedium_       = (TH2F*)SFRootFile.Get(muSFHistoMediumName);
-        muSFHistoIso_          = (TH2F*)SFRootFile.Get(muSFHistoIsoName);
-        muSFHistoTrig_         = (TH2F*)SFRootFile.Get(muSFHistoTrigName);
+        muSFHistoMedium_        = (TH2F*)SFRootFile.Get(muSFHistoMediumName);
+        muSFHistoIso_           = (TH2F*)SFRootFile.Get(muSFHistoIsoName);
+        muSFHistoTrig_          = (TH2F*)SFRootFile.Get(muSFHistoTrigName);
         if ( SFRootFileName.find("2017") == std::string::npos ) {
             muSFHistoReco_         = (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr"); //Only 2016 requires the track reconstruction efficiency.
             eleSFHistoIP2D_        = (TH2F*)SFRootFile.Get("Run2016_MVAVLooseIP2D");//In 2016, the isolation SF histogram is separate from the IP2D cut scale factor histogram.
@@ -730,6 +962,21 @@ public:
             sfMeanMap_.insert(std::pair<std::string, double>(name, h->GetMean()));
         }
         SFMeanRootFile.Close();
+
+        TFile puRootFile( puRootFileName.c_str() );
+        
+        if( puRootFileName.find("PileupHistograms_0121_69p2mb_pm4p6.root") != std::string::npos ) {
+            puSFHisto_          = (TH1F*)puRootFile.Get("pu_weights_central");
+            puSFUpHisto_        = (TH1F*)puRootFile.Get("pu_weights_up");
+            puSFDownHisto_      = (TH1F*)puRootFile.Get("pu_weights_down");
+        }
+        else {
+            puSFHisto_          = (TH1F*)puRootFile.Get("pu_ratio_central"); 
+            puSFUpHisto_        = (TH1F*)puRootFile.Get("pu_ratio_up");
+            puSFDownHisto_      = (TH1F*)puRootFile.Get("pu_ratio_down"); 
+        }
+
+        puRootFile.Close();
 
         TFile L1PrefiringFile("L1prefiring_jetpt_2017BtoF.root");
         L1Prefireing_.reset( (TH2F*)L1PrefiringFile.Get("L1prefiring_jetpt_2017BtoF") );
