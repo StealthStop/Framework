@@ -64,7 +64,7 @@ private:
                 ht += jet.Pt();
 
 	    if(jet.Pt() > 45 && abs(jet.Eta()) < etaCut) 
-                ht_45 += jet.Pt();
+                ht_pt45 += jet.Pt();
         }
         tr.registerDerivedVar("HT_trigger"+myVarSuffix_, ht);
         tr.registerDerivedVar("HT_trigger_pt30"+myVarSuffix_, ht_pt30);
