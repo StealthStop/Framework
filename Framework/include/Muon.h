@@ -24,6 +24,11 @@ private:
         int NGoodMuons = 0;
         int NGoodPlusMuons = 0;
         int NGoodMinusMuons = 0;
+        
+        auto* noniso_muons_ = new std::vector<TLorentzVector>();
+        auto* GoodNonIsoMuons = new std::vector<std::pair<std::string, TLorentzVector>>();
+        int NNonIsoMuons = 0;
+        
         for(unsigned int imu = 0; imu < allMuons.size(); ++imu)
         {            
             TLorentzVector lvmu(allMuons.at(imu));
@@ -45,6 +50,18 @@ private:
             {
                 good_muons_->push_back(false);
             }
+            
+            if( abs(lvmu.Eta()) < etaCut &&
+                lvmu.Pt() > 55.0 &&
+                !allMuons_passIso.at(imu) &&
+                allMuons_medID.at(imu)
+                )
+            {
+                TLorentzVector muon = allMuons.at(imu);
+                noniso_muons_->push_back(muon);
+                GoodNonIsoMuons->push_back( std::make_pair("n", muon) );
+                NNonIsoMuons++;
+            }
         }
         
         tr.registerDerivedVec("GoodMuons"+myVarSuffix_,  good_muons_);
@@ -52,6 +69,10 @@ private:
         tr.registerDerivedVar("NGoodPlusMuons"+myVarSuffix_, NGoodPlusMuons );
         tr.registerDerivedVar("NGoodMinusMuons"+myVarSuffix_, NGoodMinusMuons );
         tr.registerDerivedVec("MuonsMTW"+myVarSuffix_,   muons_mtw_ );
+
+        tr.registerDerivedVec("NonIsoMuons"+myVarSuffix_, noniso_muons_ );
+        tr.registerDerivedVar("NNonIsoMuons"+myVarSuffix_, NNonIsoMuons );
+        tr.registerDerivedVec("GoodNonIsoMuons"+myVarSuffix_, GoodNonIsoMuons );
     }
 
 public:
