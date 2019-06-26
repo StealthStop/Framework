@@ -25,7 +25,7 @@ private:
         int NGoodPlusMuons = 0;
         int NGoodMinusMuons = 0;
         
-        auto* noniso_muons_ = new std::vector<TLorentzVector>();
+        auto* noniso_muons_ = new std::vector<bool>();
         auto* GoodNonIsoMuons = new std::vector<std::pair<std::string, TLorentzVector>>();
         int NNonIsoMuons = 0;
         
@@ -58,9 +58,13 @@ private:
                 )
             {
                 TLorentzVector muon = allMuons.at(imu);
-                noniso_muons_->push_back(muon);
+                noniso_muons_->push_back(true);
                 GoodNonIsoMuons->push_back( std::make_pair("n", muon) );
                 NNonIsoMuons++;
+            }
+            else
+            {
+                noniso_muons_->push_back(false);
             }
         }
         
