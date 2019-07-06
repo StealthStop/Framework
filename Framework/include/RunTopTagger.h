@@ -181,23 +181,14 @@ private:
         // -- get vectors of the top mass & eta & pT in the event
         // ---------------------------------------------------------
         auto& topsMass = tr.createDerivedVec<double>("topsMass"+myVarSuffix_);
-        for(const auto* t : tops)
-        {
-            topsMass.push_back(t->p().M());
-        }
-
-	auto& topsEta = tr.createDerivedVec<double>("topsEta"+myVarSuffix_);
+        auto& topsEta  = tr.createDerivedVec<double>("topsEta"+myVarSuffix_);
+	auto& topsPt   = tr.createDerivedVec<double>("topsPt"+myVarSuffix_);
 	for(const auto* t : tops)
         {
-            topsEta.push_back(t->p().Eta());
+            topsMass.push_back(t->p().M());
+	    topsEta.push_back(t->p().Eta());
+	    topsPt.push_back(t->p().Pt());
         }
-	
-	auto& topsPt = tr.createDerivedVec<double>("topsPt"+myVarSuffix_);
-        for(const auto* t : tops)
-        {
-            topsPt.push_back(t->p().Pt());
-        }
-
 
         const auto& candidateTops = ttr.getTopCandidates();
         double bestTopMass = -9999.9;
