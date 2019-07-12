@@ -51,7 +51,7 @@ private:
         // HT of jets with pT>40
         double ht = 0;
         double ht_pt30 = 0.0;
-	double ht_pt45 = 0.0; 
+        double ht_pt45 = 0.0; 
         for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {            
             if(!GoodJets[ijet]) continue;
@@ -63,13 +63,13 @@ private:
             if(jet.Pt() > 40 && abs(jet.Eta()) < etaCut)
                 ht += jet.Pt();
 
-	    if(jet.Pt() > 45 && abs(jet.Eta()) < etaCut) 
+            if(jet.Pt() > 45 && abs(jet.Eta()) < etaCut) 
                 ht_pt45 += jet.Pt();
         }
         tr.registerDerivedVar("HT_trigger"+myVarSuffix_, ht);
         tr.registerDerivedVar("HT_trigger_pt30"+myVarSuffix_, ht_pt30);
-	tr.registerDerivedVar("HT_trigger_pt45"+myVarSuffix_, ht_pt45); 
-	
+        tr.registerDerivedVar("HT_trigger_pt45"+myVarSuffix_, ht_pt45); 
+        
 
         // Put leptons together
         auto* GoodLeptons = new std::vector<std::pair<std::string, TLorentzVector>>();
