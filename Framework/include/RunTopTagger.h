@@ -164,8 +164,20 @@ private:
         // Get the top tagger results object     
         const TopTaggerResults& ttr = tt_->getResults();
 
+        // Get tagged objects the new top tagger returns more than just tops now (MERGED_TOP, SEMIMERGEDWB_TOP, RESOLVED_TOP, MERGED_W, SEMIMERGEDQB_TOP)
+        // For now we will only use merged and resolved tops
+        const std::vector<TopObject*>& taggedObjects = ttr.getTops();
+        std::vector<TopObject*> mergedTops;
+        std::vector<TopObject*> resolvedTops;
+        for(auto* o : taggedObjects)
+        {
+            if     (o->getType()==TopObject::MERGED_TOP)   mergedTops.push_back(o);
+            else if(o->getType()==TopObject::RESOLVED_TOP) resolvedTops.push_back(o);
+        }
+
         // Get reconstructed tops and derive needed variables                            
-        const std::vector<TopObject*>& tops = ttr.getTops();
+        std::vector<TopObject*> tops(mergedTops);
+        tops.insert(tops.end(), resolvedTops.begin(), resolvedTops.end());
         countTops(tops);
         
         // -------------------------------------
@@ -192,23 +204,22 @@ private:
             topsLV.push_back(t->p());
         }
 
-        const auto& candidateTops = ttr.getTopCandidates();
         double bestTopMass = -9999.9;
         double bestTopEta = -9999.9;
         double bestTopPt = -9999.9;
         const TopObject* bestTopMassLV = nullptr;
         bool bestTopMassGenMatch = false;
         bool bestTopMassTopTag = false;
-        for(int iTop = 0; iTop < candidateTops.size(); ++iTop)
+        for(int iTop = 0; iTop < tops.size(); ++iTop)
         {
-            auto& top = candidateTops[iTop];
+            auto* top = tops[iTop];
 
-            if(fabs(top.p().M() - 173.21) < fabs(bestTopMass - 173.21))
+            if(fabs(top->p().M() - 173.21) < fabs(bestTopMass - 173.21))
             {
-                bestTopMass = top.p().M();
-                bestTopEta = top.p().Eta();
-                bestTopPt = top.p().Pt();
-                bestTopMassLV = &top;
+                bestTopMass = top->p().M();
+                bestTopEta = top->p().Eta();
+                bestTopPt = top->p().Pt();
+                bestTopMassLV = top;
             }
         }
 
