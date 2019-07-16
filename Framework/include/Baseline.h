@@ -103,12 +103,25 @@ private:
             if( !passTriggerNonIsoMuon ) passNonIsoTriggerMC = false;
         }
 
+
+        //------------------------
+        // -- MET Filter dependent stuff
+        // -----------------------
+        const auto& globalSuperTightHalo2016Filter      = tr.getVar<bool>("globalSuperTightHalo2016Filter");
+        const auto& PrimaryVertexFilter                 = tr.getVar<bool>("PrimaryVertexFilter");
+        const auto& BadPFMuonFilter                     = tr.getVar<bool>("BadFPFMuonFilter");
+        const auto& EcalDeadCellTriggerPrimitiveFilter  = tr.getVar<bool>("EcalDedCellTriggerPrimitiveFilter");
+        const auto& HBHEIsoNoiseFilter                  = tr.getVar<bool>("HBHEIsoNoiseFilter");
+        const auto& HBHENoiseFilter                     = tr.getVar<bool>("HBHENoiseFilter");
+
+        bool passMETFilters  = globalSuperTightHalo2016Filter && PrimaryVertexFilter && BadPFMuonFilter && EcalDeadCellTriggerPrimitiveFilter && HBHEIsoNoiseFilter && HBHENoiseFilter;
         
         // -------------------------------
         // -- Define 0 Lepton Baseline
         // -------------------------------
         
         bool passBaseline0l = JetID              &&
+                              passMETFilters     &&
                               passMadHT          &&
                               passTrigger        &&
                               passTriggerMC      &&
@@ -119,6 +132,7 @@ private:
                               NBJets_pt45 >= 2;
         
         bool passBaseline0l_Good = JetID          &&
+                              passMETFilters      &&
                               passMadHT           &&
                               passTrigger         &&
                               passTriggerMC       &&
@@ -129,6 +143,7 @@ private:
                               NGoodBJets_pt45 >= 2;
 
         bool passBaseline0l_hadTrig = JetID      &&
+                              passMETFilters     &&
                               passMadHT          &&
                               passTrigger        &&
                               passTriggerMC      &&
@@ -138,6 +153,7 @@ private:
                               NBJets_pt45 >= 2;
         
         bool passBaseline0l_hadTrig_Good = JetID  &&
+                              passMETFilters      &&
                               passMadHT           &&
                               passTrigger         &&
                               passTriggerMC       &&
@@ -152,6 +168,7 @@ private:
         // -------------------------------
         
         bool passBaseline1mu = JetID                 &&
+                               passMETFilters        &&
                                HT_trigger_pt30 > 300 &&
                                passMadHT             &&
                                passTrigger           &&
@@ -165,6 +182,7 @@ private:
                                (50 < Mbl && Mbl < 250);
 
         bool passBaseline1el = JetID                 &&
+                               passMETFilters        &&
                                HT_trigger_pt30 > 300 &&
                                passMadHT             &&
                                passTrigger           &&
@@ -180,6 +198,7 @@ private:
         bool passBaseline1l = passBaseline1mu || passBaseline1el;
         
         bool passBaseline1mu_Good = JetID            &&
+                               passMETFilters        &&
                                HT_trigger_pt30 > 300 &&
                                passMadHT             &&
                                passTrigger           &&
@@ -193,6 +212,7 @@ private:
                                (50 < Mbl && Mbl < 250);
 
         bool passBaseline1el_Good = JetID            &&
+                               passMETFilters        &&
                                HT_trigger_pt30 > 300 &&
                                passMadHT             &&
                                passTrigger           &&
@@ -208,11 +228,12 @@ private:
         bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
 
         bool passBaseline1l_NonIsoMuon =    HT_trigger_pt30 > 300 &&
+                                            passMETFilters        &&
                                             passMadHT             &&
                                             passNonIsoTrigger     &&
                                             passNonIsoTriggerMC   &&
                                             NNonIsoMuons == 1     &&
-                                            NGoodMuons = 0        &&
+                                            NGoodMuons == 0       &&
                                             JetID                 &&
                                             NGoodJets_pt30 >= 7;
 
@@ -221,6 +242,7 @@ private:
         // ----------------------------------
         
         bool passBaseline2lonZ = JetID              &&
+                                 passMETFilters      &&
                                  passMadHT          &&
                                  passTrigger        &&
                                  passTriggerMC      &&
@@ -231,6 +253,7 @@ private:
                                  NJets_pt30 >= 7; 
         
         bool passBaseline2lonZ_Good = JetID         &&
+                                 passMETFilters     &&
                                  passMadHT          &&
                                  passTrigger        &&
                                  passTriggerMC      &&
@@ -245,6 +268,7 @@ private:
         // -----------------------------------
         
         bool passBaseline2l = JetID              &&
+                              passMETFilters     &&
                               passMadHT          &&
                               passTrigger        &&
                               passTriggerMC      &&
@@ -257,6 +281,7 @@ private:
                               NBJets_pt30 >= 1;
         
         bool passBaseline2l_Good = JetID          &&
+                              passMETFilters      &&
                               passMadHT           &&
                               passTrigger         &&
                               passTriggerMC       &&
@@ -273,6 +298,7 @@ private:
         // -----------------------------------
         
         bool passBaseline1e1m_Good = JetID                 &&
+                                     passMETFilters        &&
                                      HT_trigger_pt30 > 300 &&
                                      passMadHT             &&
                                      passTriggerMuon       &&
@@ -289,6 +315,7 @@ private:
         // -----------------------------------
 
         bool passBaseline1photon_Good = passMadHT           &&
+                                        passMETFilters      &&
                                         passTrigger         &&
                                         passTriggerMC       &&
                                         NGoodPhotons == 1   &&
