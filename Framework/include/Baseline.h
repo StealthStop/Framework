@@ -107,12 +107,12 @@ private:
         //------------------------
         // -- MET Filter dependent stuff
         // -----------------------
-        const auto& globalSuperTightHalo2016Filter      = tr.getVar<bool>("globalSuperTightHalo2016Filter");
-        const auto& PrimaryVertexFilter                 = tr.getVar<bool>("PrimaryVertexFilter");
-        const auto& BadPFMuonFilter                     = tr.getVar<bool>("BadFPFMuonFilter");
-        const auto& EcalDeadCellTriggerPrimitiveFilter  = tr.getVar<bool>("EcalDedCellTriggerPrimitiveFilter");
-        const auto& HBHEIsoNoiseFilter                  = tr.getVar<bool>("HBHEIsoNoiseFilter");
-        const auto& HBHENoiseFilter                     = tr.getVar<bool>("HBHENoiseFilter");
+        const auto& globalSuperTightHalo2016Filter      = static_cast<bool>( tr.getVar<int>("globalSuperTightHalo2016Filter") );
+        const auto& PrimaryVertexFilter                 = static_cast<bool>( tr.getVar<int>("PrimaryVertexFilter") );
+        const auto& BadPFMuonFilter                     = static_cast<bool>( tr.getVar<bool>("BadPFMuonFilter") );
+        const auto& EcalDeadCellTriggerPrimitiveFilter  = static_cast<bool>( tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter") );
+        const auto& HBHEIsoNoiseFilter                  = static_cast<bool>( tr.getVar<int>("HBHEIsoNoiseFilter") );
+        const auto& HBHENoiseFilter                     = static_cast<bool>( tr.getVar<int>("HBHENoiseFilter") );
 
         bool passMETFilters  = globalSuperTightHalo2016Filter && PrimaryVertexFilter && BadPFMuonFilter && EcalDeadCellTriggerPrimitiveFilter && HBHEIsoNoiseFilter && HBHENoiseFilter;
         
