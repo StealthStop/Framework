@@ -25,7 +25,10 @@ private:
         int NGoodElectrons = 0;
         int NGoodPlusElectrons = 0;
         int NGoodMinusElectrons = 0;
-        const double ptCut = (runYear == "2017") ? 37.0 : 30.0;
+        double ptCut;
+        if      (runYear == "2016") ptCut = 30.0;
+        else if (runYear == "2017") ptCut = 37.0; 
+        else if (runYear == "2018") ptCut = 37.0; 
         for(unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
             TLorentzVector lvel = allElectrons.at(iel);

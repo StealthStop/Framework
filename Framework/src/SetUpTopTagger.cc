@@ -12,7 +12,7 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     AK4Inputs_                 (nullptr),
     AK8Inputs_                 (nullptr),
     Jets_                      (tr.getVec<TLorentzVector>("Jets")),
-    Jets_bDiscriminatorCSV_    (tr.getVec<double>("Jets_bDiscriminatorCSV")),
+    Jets_bJetTagDeepCSVtotb_   (tr.getVec<double>("Jets_bJetTagDeepCSVtotb")),
     Jets_qgLikelihood_         (tr.getVec<double>("Jets_qgLikelihood")),
     JetsAK8_                   (tr.getVec<TLorentzVector>("JetsAK8")),
     JetsAK8_tDiscriminatorDeep_(tr.getVec<double>("JetsAK8_tDiscriminatorDeep")),
@@ -26,7 +26,7 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     // Create AK4 inputs object
     AK4Inputs_ = new ttUtility::ConstAK4Inputs<double>(
         Jets_, 
-        Jets_bDiscriminatorCSV_,
+        Jets_bJetTagDeepCSVtotb_,
         Jets_qgLikelihood_, 
         hadtops_, 
         hadtopdaughters_);  
