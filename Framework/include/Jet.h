@@ -32,6 +32,11 @@ private:
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NElectrons    = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
 
+        const auto& NonIsoMuons   = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
+        const auto& NNonIsoMuons  = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
+
+        const auto& doQCDCR       = tr.getVar<bool>("doQCDCR");
+
         //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) 
         //if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same
 
@@ -41,7 +46,12 @@ private:
         {
             for(unsigned int imu = 0; imu < Muons.size(); ++imu)
             {            
-                if(!GoodMuons[imu]) continue;
+                if( doQCDCR ) {
+                    if( !GoodMuons[imu] && !NonIsoMuons[imu] ) continue;
+                }
+                else {
+                    if( !GoodMuons[imu] ) continue;
+                }
                 TLorentzVector myMuon = Muons.at(imu);
                 double         tempDeltaR = 10.0;
                 int            tempJetIt  = -1;                
@@ -63,7 +73,7 @@ private:
                 }
             }//END of looping through muons
         }//END of NMuons if statement
-        
+
         if( NElectrons > 0 ) 
         {
             for(unsigned int iel = 0; iel < Electrons.size(); ++iel)
@@ -132,7 +142,7 @@ private:
         tr.registerDerivedVec("GoodJets_pt45" +myVarSuffix_, goodjets_pt45_);
         tr.registerDerivedVar("NGoodJets_pt45"+myVarSuffix_, NGoodJets_pt45);
 
-        int NGoodJets_pt30_inclusive = NGoodJets_pt30 > 14 ? 14 : NGoodJets_pt30;
+        int NGoodJets_pt30_inclusive = NGoodJets_pt30 > 12 ? 12 : NGoodJets_pt30;
         tr.registerDerivedVar("NGoodJets_pt30_inclusive"+myVarSuffix_, NGoodJets_pt30_inclusive);
         tr.registerDerivedVar("NGoodJets_pt30_inclusive_shift"+myVarSuffix_, NGoodJets_pt30_inclusive - 7);
     }
