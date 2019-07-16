@@ -8,13 +8,15 @@ private:
     {
     public:
         const std::vector<TLorentzVector>& Jets;
-        const std::vector<double>& Jets_bDiscriminatorCSV;
+        const std::vector<double>& Jets_bJetTagDeepCSVprobb;
+        const std::vector<double>& Jets_bJetTagDeepCSVprobbb;
         const std::vector<bool>& Jets_ID;
         const std::vector<int>& Jets_partonFlavor;
         
         JetCollection(const NTupleReader& tr) 
             : Jets(tr.getVec<TLorentzVector>("Jets"))
-            , Jets_bDiscriminatorCSV(tr.getVec<double>("Jets_bDiscriminatorCSV"))
+            , Jets_bJetTagDeepCSVprobb(tr.getVec<double>("Jets_bJetTagDeepCSVprobb"))
+            , Jets_bJetTagDeepCSVprobbb(tr.getVec<double>("Jets_bJetTagDeepCSVprobbb"))
             , Jets_ID(tr.getVec<bool>("Jets_ID"))
             , Jets_partonFlavor(tr.getVec<int>("Jets_partonFlavor"))
         {
@@ -56,7 +58,8 @@ private:
         const auto& newJets_origIndex = tr.getVec<int>("Jets"+name+"_origIndex");
             
         auto& newJets = tr.createDerivedVec<TLorentzVector>("Jets"+name);
-        auto& newJets_bDiscriminatorCSV = tr.createDerivedVec<double>("Jets"+name+"_bDiscriminatorCSV");
+        auto& newJets_bJetTagDeepCSVprobb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobb");
+        auto& newJets_bJetTagDeepCSVprobbb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobbb");
         auto& newJets_ID = tr.createDerivedVec<bool>("Jets"+name+"_ID");
         auto& newJets_partonFlavor = tr.createDerivedVec<int>("Jets"+name+"_partonFlavor");
         for(unsigned j = 0; j < newJets_origIndex.size(); ++j)
@@ -64,7 +67,8 @@ private:
             int i = newIndex[newJets_origIndex.at(j)];
             
             newJets.emplace_back( jc.Jets.at(i)*f.factor(name,i,j) );
-            newJets_bDiscriminatorCSV.emplace_back( jc.Jets_bDiscriminatorCSV.at(i) );
+            newJets_bJetTagDeepCSVprobb.emplace_back( jc.Jets_bJetTagDeepCSVprobb.at(i) );
+            newJets_bJetTagDeepCSVprobbb.emplace_back( jc.Jets_bJetTagDeepCSVprobbb.at(i) );
             newJets_ID.emplace_back( jc.Jets_ID.at(i) );
             newJets_partonFlavor.emplace_back( jc.Jets_partonFlavor.at(i) );
         }

@@ -16,7 +16,8 @@ private:
     std::string myVarSuffix_;
 
     const std::vector<TLorentzVector>& Jets_;                      
-    const std::vector<double>& Jets_bDiscriminatorCSV_;    
+    const std::vector<double>& Jets_bJetTagDeepCSVprobb_;    
+    const std::vector<double>& Jets_bJetTagDeepCSVprobbb_;    
     const std::vector<double>& Jets_qgLikelihood_;         
     const std::vector<TLorentzVector>& JetsAK8_;                   
     const std::vector<double>& JetsAK8_NsubjettinessTau1_; 
