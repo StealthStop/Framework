@@ -13,6 +13,7 @@ private:
         const auto& blind               = tr.getVar<bool>("blind");
         const auto& TriggerNames        = tr.getVec<std::string>("TriggerNames");
         const auto& TriggerPass         = tr.getVec<int>("TriggerPass");
+        const auto& NNonIsoMuons        = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
         const auto& NGoodLeptons        = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
         const auto& NGoodMuons          = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& NGoodPlusMuons      = tr.getVar<int>("NGoodPlusMuons"+myVarSuffix_);
@@ -43,9 +44,13 @@ private:
         bool passTriggerMuon     = (filetag.find("2017") != std::string::npos) ? PassTriggerMuon2017(TriggerNames, TriggerPass) : PassTriggerMuon2016(TriggerNames, TriggerPass);
         bool passTriggerElectron = (filetag.find("2017") != std::string::npos) ? PassTriggerElectron2017(TriggerNames, TriggerPass) : PassTriggerElectron2016(TriggerNames, TriggerPass);
         bool passTriggerPhoton   = PassTriggerPhoton(TriggerNames, TriggerPass);
+        
+        bool passTriggerNonIsoMuon = (filetag.find("2017") != std::string::npos) ? PassTriggerNonIsoMuon2017(TriggerNames, TriggerPass) : PassTriggerNonIsoMuon2016(TriggerNames, TriggerPass);
 
         bool passTrigger   = true;
         bool passTriggerMC = true;
+        bool passNonIsoTrigger = true;
+        bool passNonIsoTriggerMC = true;
         bool passBlindHad  = true;
         bool passBlindLep  = true;
         
@@ -59,6 +64,8 @@ private:
             if (filetag.find("Data_SingleMuon") != std::string::npos && !passTriggerMuon) passTrigger = false;
             if (filetag.find("Data_SingleElectron") != std::string::npos && !passTriggerElectron) passTrigger = false;
             if (filetag.find("Data_SinglePhoton") != std::string::npos   && !passTriggerPhoton) passTrigger = false;
+            
+            if (filetag.find("Data_SingleMuon") != std::string::npos && !passTriggerNonIsoMuon) passNonIsoTrigger = false;
 
             // Blinding data 
             if (NJets_pt30 >= 9 && blind) passBlindHad = false;
@@ -93,14 +100,28 @@ private:
             
             // MC modeling of the trigger
             if( !passTriggerMuon && !passTriggerElectron ) passTriggerMC = false;
+            if( !passTriggerNonIsoMuon ) passNonIsoTriggerMC = false;
         }
 
+
+        //------------------------
+        // -- MET Filter dependent stuff
+        // -----------------------
+        const auto& globalSuperTightHalo2016Filter      = static_cast<bool>( tr.getVar<int>("globalSuperTightHalo2016Filter") );
+        const auto& PrimaryVertexFilter                 = static_cast<bool>( tr.getVar<int>("PrimaryVertexFilter") );
+        const auto& BadPFMuonFilter                     = static_cast<bool>( tr.getVar<bool>("BadPFMuonFilter") );
+        const auto& EcalDeadCellTriggerPrimitiveFilter  = static_cast<bool>( tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter") );
+        const auto& HBHEIsoNoiseFilter                  = static_cast<bool>( tr.getVar<int>("HBHEIsoNoiseFilter") );
+        const auto& HBHENoiseFilter                     = static_cast<bool>( tr.getVar<int>("HBHENoiseFilter") );
+
+        bool passMETFilters  = globalSuperTightHalo2016Filter && PrimaryVertexFilter && BadPFMuonFilter && EcalDeadCellTriggerPrimitiveFilter && HBHEIsoNoiseFilter && HBHENoiseFilter;
         
         // -------------------------------
         // -- Define 0 Lepton Baseline
         // -------------------------------
         
         bool passBaseline0l = JetID              &&
+                              passMETFilters     &&
                               passMadHT          &&
                               passTrigger        &&
                               passTriggerMC      &&
@@ -111,6 +132,7 @@ private:
                               NBJets_pt45 >= 2;
         
         bool passBaseline0l_Good = JetID          &&
+                              passMETFilters      &&
                               passMadHT           &&
                               passTrigger         &&
                               passTriggerMC       &&
@@ -121,6 +143,7 @@ private:
                               NGoodBJets_pt45 >= 2;
 
         bool passBaseline0l_hadTrig = JetID      &&
+                              passMETFilters     &&
                               passMadHT          &&
                               passTrigger        &&
                               passTriggerMC      &&
@@ -130,6 +153,7 @@ private:
                               NBJets_pt45 >= 2;
         
         bool passBaseline0l_hadTrig_Good = JetID  &&
+                              passMETFilters      &&
                               passMadHT           &&
                               passTrigger         &&
                               passTriggerMC       &&
@@ -144,6 +168,7 @@ private:
         // -------------------------------
         
         bool passBaseline1mu = JetID                 &&
+                               passMETFilters        &&
                                HT_trigger_pt30 > 300 &&
                                passMadHT             &&
                                passTrigger           &&
@@ -157,6 +182,7 @@ private:
                                (50 < Mbl && Mbl < 250);
 
         bool passBaseline1el = JetID                 &&
+                               passMETFilters        &&
                                HT_trigger_pt30 > 300 &&
                                passMadHT             &&
                                passTrigger           &&
@@ -172,6 +198,7 @@ private:
         bool passBaseline1l = passBaseline1mu || passBaseline1el;
         
         bool passBaseline1mu_Good = JetID            &&
+                               passMETFilters        &&
                                HT_trigger_pt30 > 300 &&
                                passMadHT             &&
                                passTrigger           &&
@@ -185,6 +212,7 @@ private:
                                (50 < Mbl && Mbl < 250);
 
         bool passBaseline1el_Good = JetID            &&
+                               passMETFilters        &&
                                HT_trigger_pt30 > 300 &&
                                passMadHT             &&
                                passTrigger           &&
@@ -199,11 +227,22 @@ private:
 
         bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
 
+        bool passBaseline1l_NonIsoMuon =    HT_trigger_pt30 > 300 &&
+                                            passMETFilters        &&
+                                            passMadHT             &&
+                                            passNonIsoTrigger     &&
+                                            passNonIsoTriggerMC   &&
+                                            NNonIsoMuons == 1     &&
+                                            NGoodMuons == 0       &&
+                                            JetID                 &&
+                                            NGoodJets_pt30 >= 7;
+
         // ----------------------------------
         // -- Define 2 Lepton onZ Baseline
         // ----------------------------------
         
         bool passBaseline2lonZ = JetID              &&
+                                 passMETFilters      &&
                                  passMadHT          &&
                                  passTrigger        &&
                                  passTriggerMC      &&
@@ -214,6 +253,7 @@ private:
                                  NJets_pt30 >= 7; 
         
         bool passBaseline2lonZ_Good = JetID         &&
+                                 passMETFilters     &&
                                  passMadHT          &&
                                  passTrigger        &&
                                  passTriggerMC      &&
@@ -228,6 +268,7 @@ private:
         // -----------------------------------
         
         bool passBaseline2l = JetID              &&
+                              passMETFilters     &&
                               passMadHT          &&
                               passTrigger        &&
                               passTriggerMC      &&
@@ -240,6 +281,7 @@ private:
                               NBJets_pt30 >= 1;
         
         bool passBaseline2l_Good = JetID          &&
+                              passMETFilters      &&
                               passMadHT           &&
                               passTrigger         &&
                               passTriggerMC       &&
@@ -256,6 +298,7 @@ private:
         // -----------------------------------
         
         bool passBaseline1e1m_Good = JetID                 &&
+                                     passMETFilters        &&
                                      HT_trigger_pt30 > 300 &&
                                      passMadHT             &&
                                      passTriggerMuon       &&
@@ -272,6 +315,7 @@ private:
         // -----------------------------------
 
         bool passBaseline1photon_Good = passMadHT           &&
+                                        passMETFilters      &&
                                         passTrigger         &&
                                         passTriggerMC       &&
                                         NGoodPhotons == 1   &&
@@ -286,6 +330,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,         passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1mu"+myVarSuffix_,             passBaseline1mu);
         tr.registerDerivedVar<bool>("passBaseline1el"+myVarSuffix_,             passBaseline1el);
+        tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_,   passBaseline1l_NonIsoMuon);
         tr.registerDerivedVar<bool>("passBaseline2lonZ"+myVarSuffix_,           passBaseline2lonZ);
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"+myVarSuffix_,      passBaseline2lonZ_Good);
         tr.registerDerivedVar<bool>("passBaseline2l"+myVarSuffix_,              passBaseline2l);
@@ -300,7 +345,9 @@ private:
         tr.registerDerivedVar<bool>("passTriggerMuon"+myVarSuffix_,             passTriggerMuon);
         tr.registerDerivedVar<bool>("passTriggerElectron"+myVarSuffix_,         passTriggerElectron);
         tr.registerDerivedVar<bool>("passTrigger"+myVarSuffix_,                 passTrigger);
+        tr.registerDerivedVar<bool>("passNonIsoTrigger"+myVarSuffix_,           passNonIsoTrigger);
         tr.registerDerivedVar<bool>("passTriggerMC"+myVarSuffix_,               passTriggerMC);
+        tr.registerDerivedVar<bool>("passNonIsoTriggerMC"+myVarSuffix_,         passNonIsoTriggerMC);
         tr.registerDerivedVar<bool>("passMadHT"+myVarSuffix_,                   passMadHT);
     }
 
@@ -370,6 +417,19 @@ private:
     bool PassTriggerPhoton(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         std::vector<std::string> mytriggers = {"HLT_Photon175_v"};
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+    
+    bool PassTriggerNonIsoMuon2016(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        std::vector<std::string> mytriggers = {"HLT_Mu50", "HLT_TkMu50"};
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+    
+    bool PassTriggerNonIsoMuon2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        //No track based muon 50 trigger in 2017 in our tuples
+        std::vector<std::string> mytriggers = {"HLT_Mu50"};
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
