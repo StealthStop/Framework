@@ -43,7 +43,6 @@ then
     ln -s $cfgDir/$sampleCCfgFile sampleCollections.cfg
     echo "Made soft link: "$sampleSCfgFile
     echo "Made soft link: "$sampleCCfgFile
-    echo "So, like, I'm editing this file, right? Please..."
 else
     echo "Soft links for sampleSets.cfg and sampleCollections.cfg found"
     echo "Remove soft links for sampleSets.cfg and sampleCollections.cfg and try again"
