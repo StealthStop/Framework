@@ -22,12 +22,11 @@ private:
     void bjet(NTupleReader& tr)
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-        const auto& Jets_bJetTagDeepCSVprobb = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVprobb");
-        const auto& Jets_bJetTagDeepCSVprobbb = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVprobbb");
+        const auto& Jets_bJetTagDeepCSVtotb = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb");
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
-        const auto& filetag = tr.getVar<std::string>("filetag");
+        const auto& runYear = tr.getVar<std::string>("runYear");
 
         auto& bjets_loose_ = tr.createDerivedVec<bool>("BJets_loose"+myVarSuffix_);
         auto& bjets_pt30_loose_ = tr.createDerivedVec<bool>("BJets_pt30_loose"+myVarSuffix_);
@@ -60,27 +59,27 @@ private:
         int NGoodBJets_tight = 0, NGoodBJets_pt30_tight = 0, NGoodBJets_pt45_tight = 0;
 
         double loose, medium, tight;
-        // DeepCSV 2016
-        if (filetag.find("2016") != std::string::npos) {
-            double loose  = 0.2217;
-            double medium = 0.6321;
-            double tight  = 0.8950;
-        } else if (filetag.find("2017") != std::string::npos) {
+        if (runYear == "2016") {
+            // DeepCSV 2016
+            loose  = 0.2217;
+            medium = 0.6321;
+            tight  = 0.8950;
+        } else if (runYear == "2017") {
             // DeepCSV 2017
-            double loose  = 0.1522;
-            double medium = 0.4941;       
-            double tight  = 0.8001;
-        } else if (filetag.find("2018") != std::string::npos) {
+            loose  = 0.1522;
+            medium = 0.4941;       
+            tight  = 0.8001;
+        } else if (runYear == "2018") {
             // DeepCSV 2018
-            double loose  = 0.1241;
-            double medium = 0.4184;       
-            double tight  = 0.7527;
+            loose  = 0.1241;
+            medium = 0.4184;       
+            tight  = 0.7527;
         }
 
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
             TLorentzVector lv = Jets.at(ijet);
-            double bdisc = Jets_bJetTagDeepCSVprobb.at(ijet) + Jets_bJetTagDeepCSVprobbb.at(ijet);
+            double bdisc = Jets_bJetTagDeepCSVtotb.at(ijet);
 
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > loose                , bjets_loose_,      NBJets_loose     );
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > loose && lv.Pt() > 30, bjets_pt30_loose_, NBJets_pt30_loose);

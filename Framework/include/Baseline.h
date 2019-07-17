@@ -10,6 +10,7 @@ private:
     {
         const auto& runtype             = tr.getVar<std::string>("runtype");     
         const auto& filetag             = tr.getVar<std::string>("filetag");
+        const auto& runYear             = tr.getVar<std::string>("runYear");
         const auto& blind               = tr.getVar<bool>("blind");
         const auto& TriggerNames        = tr.getVec<std::string>("TriggerNames");
         const auto& TriggerPass         = tr.getVec<int>("TriggerPass");
@@ -39,14 +40,30 @@ private:
         // ------------------------------
         // -- Data dependent stuff
         // ------------------------------
-        
-        bool passTriggerAllHad   = (filetag.find("2017") != std::string::npos) ? PassTriggerAllHad2017(TriggerNames, TriggerPass) : PassTriggerAllHad2016(TriggerNames, TriggerPass);
-        bool passTriggerMuon     = (filetag.find("2017") != std::string::npos) ? PassTriggerMuon2017(TriggerNames, TriggerPass) : PassTriggerMuon2016(TriggerNames, TriggerPass);
-        bool passTriggerElectron = (filetag.find("2017") != std::string::npos) ? PassTriggerElectron2017(TriggerNames, TriggerPass) : PassTriggerElectron2016(TriggerNames, TriggerPass);
         bool passTriggerPhoton   = PassTriggerPhoton(TriggerNames, TriggerPass);
+        bool passTriggerAllHad, passTriggerMuon, passTriggerElectron, passTriggerNonIsoMuon;
+        if (runYear == "2016")
+        {
+            passTriggerAllHad = PassTriggerAllHad2016(TriggerNames, TriggerPass);
+            passTriggerMuon = PassTriggerMuon2016(TriggerNames, TriggerPass);
+            passTriggerElectron = PassTriggerElectron2016(TriggerNames, TriggerPass);
+            passTriggerNonIsoMuon = PassTriggerNonIsoMuon2016(TriggerNames, TriggerPass);
+        }
+        else if (runYear == "2017")
+        {
+            passTriggerAllHad = PassTriggerAllHad2017(TriggerNames, TriggerPass);
+            passTriggerMuon = PassTriggerMuon2017(TriggerNames, TriggerPass);
+            passTriggerElectron = PassTriggerElectron2017(TriggerNames, TriggerPass);
+            passTriggerNonIsoMuon = PassTriggerNonIsoMuon2017(TriggerNames, TriggerPass);            
+        }
+        else if (runYear == "2018")
+        {
+            passTriggerAllHad = true;
+            passTriggerMuon = true;
+            passTriggerElectron = true;
+            passTriggerNonIsoMuon = true;
+        }
         
-        bool passTriggerNonIsoMuon = (filetag.find("2017") != std::string::npos) ? PassTriggerNonIsoMuon2017(TriggerNames, TriggerPass) : PassTriggerNonIsoMuon2016(TriggerNames, TriggerPass);
-
         bool passTrigger   = true;
         bool passTriggerMC = true;
         bool passNonIsoTrigger = true;
