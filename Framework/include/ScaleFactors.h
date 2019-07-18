@@ -835,9 +835,9 @@ private:
 
         tr.registerDerivedVar( "totalEventWeight"+myVarSuffix_, totalEventWeight );
     }
-    
+
 public:
-    ScaleFactors( const std::string& SFRootFileName = "2016ScaleFactorHistos.root", const std::string& puRootFileName = "PileupHistograms_0121_69p2mb_pm4p6.root", const std::string& SFMeanRootFileName = "allInOne_SFMean.root", const std::string& myVarSuffix = "" )
+    ScaleFactors( const std::string& leptonFileName, const std::string& puFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
         : myVarSuffix_(myVarSuffix)
         , eleSFHistoTight_(nullptr)
         , eleSFHistoIso_(nullptr)
@@ -854,14 +854,14 @@ public:
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
-        TFile SFRootFile( SFRootFileName.c_str() );
+        TFile SFRootFile( leptonFileName.c_str() );
 
-        TString eleSFHistoTightName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_CutBasedTightNoIso94XV2" : "Run2016_CutBasedTightNoIso94XV2";
-        TString eleSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "Run2017_MVAVLooseTightIP2DMini" : "Run2016_Mini";
-        TString eleSFHistoTrigName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_isoTrig" : "TrigEff_2016_num_el_pt40_trig_5jCut_htCut_isoTrig";
-        TString muSFHistoMediumName = ( SFRootFileName.find("2017") != std::string::npos ) ? "NUM_MediumID_DEN_genTracks_pt_abseta" : "sf_mu_mediumID"; 
-        TString muSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta" : "sf_mu_mediumID_mini02";
-        TString muSFHistoTrigName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_isoTrig" : "TrigEff_2016_num_mu_pt40_trig_5jCut_htCut_isoTrig";
+        TString eleSFHistoTightName = ( leptonFileName.find("2017") != std::string::npos ) ? "Run2017_CutBasedTightNoIso94XV2" : "Run2016_CutBasedTightNoIso94XV2";
+        TString eleSFHistoIsoName = ( leptonFileName.find("2017") != std::string::npos ) ? "Run2017_MVAVLooseTightIP2DMini" : "Run2016_Mini";
+        TString eleSFHistoTrigName = ( leptonFileName.find("2017") != std::string::npos ) ? "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_isoTrig" : "TrigEff_2016_num_el_pt40_trig_5jCut_htCut_isoTrig";
+        TString muSFHistoMediumName = ( leptonFileName.find("2017") != std::string::npos ) ? "NUM_MediumID_DEN_genTracks_pt_abseta" : "sf_mu_mediumID"; 
+        TString muSFHistoIsoName = ( leptonFileName.find("2017") != std::string::npos ) ? "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta" : "sf_mu_mediumID_mini02";
+        TString muSFHistoTrigName = ( leptonFileName.find("2017") != std::string::npos ) ? "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_isoTrig" : "TrigEff_2016_num_mu_pt40_trig_5jCut_htCut_isoTrig";
         
         eleSFHistoTight_        = (TH2F*)SFRootFile.Get(eleSFHistoTightName);
         eleSFHistoIso_          = (TH2F*)SFRootFile.Get(eleSFHistoIsoName);
@@ -871,14 +871,14 @@ public:
         muSFHistoMedium_        = (TH2F*)SFRootFile.Get(muSFHistoMediumName);
         muSFHistoIso_           = (TH2F*)SFRootFile.Get(muSFHistoIsoName);
         muSFHistoTrig_          = (TH2F*)SFRootFile.Get(muSFHistoTrigName);
-        if ( SFRootFileName.find("2017") == std::string::npos ) {
+        if ( leptonFileName.find("2017") == std::string::npos ) {
             muSFHistoReco_         = (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr"); //Only 2016 requires the track reconstruction efficiency.
             eleSFHistoIP2D_        = (TH2F*)SFRootFile.Get("Run2016_MVAVLooseIP2D");//In 2016, the isolation SF histogram is separate from the IP2D cut scale factor histogram.
         }
 
         SFRootFile.Close();
 
-        TFile SFMeanRootFile( SFMeanRootFileName.c_str() );
+        TFile SFMeanRootFile( meanFileName.c_str() );
         TIter next(SFMeanRootFile.GetListOfKeys());
         TKey* key;
         while(key = (TKey*)next())
@@ -889,8 +889,8 @@ public:
         }
         SFMeanRootFile.Close();
 
-        TFile puRootFile( puRootFileName.c_str() );
-        if( puRootFileName.find("PileupHistograms_0121_69p2mb_pm4p6.root") != std::string::npos ) {
+        TFile puRootFile( puFileName.c_str() );
+        if( puFileName.find("PileupHistograms_0121_69p2mb_pm4p6.root") != std::string::npos ) {
             puSFHisto_          = (TH1F*)puRootFile.Get("pu_weights_central");
             puSFUpHisto_        = (TH1F*)puRootFile.Get("pu_weights_up");
             puSFDownHisto_      = (TH1F*)puRootFile.Get("pu_weights_down");
