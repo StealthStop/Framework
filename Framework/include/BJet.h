@@ -63,7 +63,7 @@ private:
             // DeepCSV 2016
             loose  = 0.2217;
             medium = 0.6321;
-            tight  = 0.8950;
+            tight  = 0.8953;
         } else if (runYear == "2017") {
             // DeepCSV 2017
             loose  = 0.1522;
