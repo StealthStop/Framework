@@ -27,6 +27,9 @@ private:
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
         const auto& runYear = tr.getVar<std::string>("runYear");
+        const auto& loose = tr.getVar<double>("deepCSV_WP_loose");
+        const auto& medium = tr.getVar<double>("deepCSV_WP_medium");
+        const auto& tight = tr.getVar<double>("deepCSV_WP_tight");
 
         auto& bjets_loose_ = tr.createDerivedVec<bool>("BJets_loose"+myVarSuffix_);
         auto& bjets_pt30_loose_ = tr.createDerivedVec<bool>("BJets_pt30_loose"+myVarSuffix_);
@@ -57,24 +60,6 @@ private:
         auto& goodbjets_pt30_tight_ = tr.createDerivedVec<bool>("GoodBJets_pt30_tight"+myVarSuffix_);
         auto& goodbjets_pt45_tight_ = tr.createDerivedVec<bool>("GoodBJets_pt45_tight"+myVarSuffix_);
         int NGoodBJets_tight = 0, NGoodBJets_pt30_tight = 0, NGoodBJets_pt45_tight = 0;
-
-        double loose, medium, tight;
-        if (runYear == "2016") {
-            // DeepCSV 2016
-            loose  = 0.2217;
-            medium = 0.6321;
-            tight  = 0.8953;
-        } else if (runYear == "2017") {
-            // DeepCSV 2017
-            loose  = 0.1522;
-            medium = 0.4941;       
-            tight  = 0.8001;
-        } else if (runYear == "2018") {
-            // DeepCSV 2018
-            loose  = 0.1241;
-            medium = 0.4184;       
-            tight  = 0.7527;
-        }
 
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
