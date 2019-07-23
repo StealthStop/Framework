@@ -19,15 +19,10 @@ private:
     const std::vector<double>& Jets_bDiscriminatorCSV_;    
     const std::vector<double>& Jets_qgLikelihood_;         
     const std::vector<TLorentzVector>& JetsAK8_;                   
-    const std::vector<double>& JetsAK8_NsubjettinessTau1_; 
-    const std::vector<double>& JetsAK8_NsubjettinessTau2_; 
-    const std::vector<double>& JetsAK8_NsubjettinessTau3_; 
+    const std::vector<double>& JetsAK8_tDiscriminatorDeep_;
+    const std::vector<double>& JetsAK8_wDiscriminatorDeep_;
     const std::vector<double>& JetsAK8_softDropMass_;      
     const std::vector<std::vector<TLorentzVector>>& JetsAK8_subjets_;           
-    //const std::vector<std::vector<double>>& JetsAK8_subjets_bDiscriminatorCSV_;
-    //const std::vector<std::vector<double>>& JetsAK8_subjets_ptD_;
-    //const std::vector<std::vector<double>>& JetsAK8_subjets_axismajor_;
-    //const std::vector<std::vector<double>>& JetsAK8_subjets_axisminor_;
     const std::vector<TLorentzVector>& hadtops_;                   
     const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters_;           
     

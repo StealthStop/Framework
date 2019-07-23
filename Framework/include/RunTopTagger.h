@@ -146,7 +146,7 @@ private:
             {
                 ntops_1jet_++;
             }
-        }        
+        }
     }
 
     void runTopTagger(NTupleReader& tr)
@@ -164,25 +164,62 @@ private:
         // Get the top tagger results object     
         const TopTaggerResults& ttr = tt_->getResults();
 
-        // Get reconstructed tops and derive needed variables                            
-        const std::vector<TopObject*>& tops = ttr.getTops();
-        countTops(tops);
+        // Get tagged objects the new top tagger returns more than just tops now (MERGED_TOP, SEMIMERGEDWB_TOP, RESOLVED_TOP, MERGED_W, SEMIMERGEDQB_TOP)
+        // For now we will only use merged and resolved tops
+        const std::vector<TopObject*>& taggedObjects = ttr.getTops();
+        std::vector<TopObject*> mergedTops;
+        std::vector<TopObject*> resolvedTops;
+        for(auto* o : taggedObjects)
+        {
+            if     (o->getType()==TopObject::MERGED_TOP)   mergedTops.push_back(o);
+            else if(o->getType()==TopObject::RESOLVED_TOP) resolvedTops.push_back(o);
+        }
 
-        const auto& candidateTops = ttr.getTopCandidates();
+        // Get reconstructed tops and derive needed variables                            
+        std::vector<TopObject*> tops(mergedTops);
+        tops.insert(tops.end(), resolvedTops.begin(), resolvedTops.end());
+        countTops(tops);
+        
+        // -------------------------------------
+        // -- Calculate DeltaR between 2 tops
+        // -------------------------------------
+        double dR_top1_top2 = -1;
+        if(ntops_ == 2)
+        {
+            dR_top1_top2 = tops.at(0)->p().DeltaR(tops.at(1)->p()); 
+        }
+
+        // -------------------------------------------------------------
+        // -- get vectors of the top mass & eta & pT & LV in the event
+        // -------------------------------------------------------------
+        auto& topsMass = tr.createDerivedVec<double>("topsMass"+myVarSuffix_);
+        auto& topsEta  = tr.createDerivedVec<double>("topsEta"+myVarSuffix_);
+        auto& topsPt   = tr.createDerivedVec<double>("topsPt"+myVarSuffix_);
+        auto& topsLV   = tr.createDerivedVec<TLorentzVector>("topsLV"+myVarSuffix_);
+        for(const auto* t : tops)
+        {
+            topsMass.push_back(t->p().M());
+            topsEta.push_back(t->p().Eta());
+            topsPt.push_back(t->p().Pt());
+            topsLV.push_back(t->p());
+        }
+
         double bestTopMass = -9999.9;
         double bestTopEta = -9999.9;
+        double bestTopPt = -9999.9;
         const TopObject* bestTopMassLV = nullptr;
         bool bestTopMassGenMatch = false;
         bool bestTopMassTopTag = false;
-        for(int iTop = 0; iTop < candidateTops.size(); ++iTop)
+        for(int iTop = 0; iTop < tops.size(); ++iTop)
         {
-            auto& top = candidateTops[iTop];
+            auto* top = tops[iTop];
 
-            if(fabs(top.p().M() - 173.5) < fabs(bestTopMass - 173.5) && top.getNConstituents() == 3)
+            if(fabs(top->p().M() - 173.21) < fabs(bestTopMass - 173.21))
             {
-                bestTopMass = top.p().M();
-                bestTopEta = top.p().Eta();
-                bestTopMassLV = &top;
+                bestTopMass = top->p().M();
+                bestTopEta = top->p().Eta();
+                bestTopPt = top->p().Pt();
+                bestTopMassLV = top;
             }
         }
 
@@ -233,10 +270,13 @@ private:
         tr.registerDerivedVar("ntops_2jet"+myVarSuffix_, ntops_2jet_);
         tr.registerDerivedVar("ntops_1jet"+myVarSuffix_, ntops_1jet_);
         tr.registerDerivedVar("bestTopMassLV"+myVarSuffix_, bestTopMassLV?(bestTopMassLV->p()):(TLorentzVector()));
+        tr.registerDerivedVar("dR_top1_top2"+myVarSuffix_,dR_top1_top2);
         tr.registerDerivedVar("bestTopMass"+myVarSuffix_, bestTopMass);
+        tr.registerDerivedVar("bestTopEta"+myVarSuffix_, bestTopEta);
+        tr.registerDerivedVar("bestTopPt"+myVarSuffix_, bestTopPt);
         tr.registerDerivedVar("bestTopMassTopTag"+myVarSuffix_, bestTopMassTopTag);
         tr.registerDerivedVar("bestTopMassGenMatch"+myVarSuffix_, bestTopMassGenMatch);
-        tr.registerDerivedVar("bestTopEta"+myVarSuffix_, bestTopEta);
+
     }
 
 public:
