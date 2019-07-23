@@ -22,7 +22,7 @@ private:
             return findParent(p, GenParticles_ParentIdx[idx], GenParticles_ParentId, GenParticles_ParentIdx);
         }
     }
-
+//function to match all reco particles with all appropriate gen particles
     inline std::vector<std::tuple< int , int , double>> findAllDR(const std::vector<TLorentzVector>& GenParticles, const std::vector<TLorentzVector>& RecoParticles, const std::vector<bool>& GoodGenParticles, const int& resPartID, const std::vector<int>& GenParticles_ParentId, const std::vector<int>& GenParticles_ParentIdx,const int& nlino1_Idx,const int& nlino2_Idx) const
     {
         bool check_neutralinos = true;
@@ -53,7 +53,7 @@ private:
         }
         return AllDR;
     }       
-    
+    //function to sort for best matches and construct stop mass
     inline std::vector<TLorentzVector> getMatchedSum(const std::vector<std::tuple< int , int , double>>& AllDR, const std::vector<TLorentzVector>& RecoParticles, TLorentzVector& MatchedSum, std::vector<bool> availableDR, TLorentzVector& GenMatchedSum,const std::vector<TLorentzVector>& GenParticles) const
     {
         double minDR = 999;
@@ -66,7 +66,6 @@ private:
                 minDR = std::get<2>(AllDR.at(d));
             }
         }
-//        std::cout << std::get<1>(bestDR) << std::endl;
         bool allgone = true;
         for (const auto& u : availableDR)
         {
@@ -79,7 +78,6 @@ private:
                 MatchedSum +=  RecoParticles.at(std::get<1>(bestDR));
                 GenMatchedSum += GenParticles.at(std::get<0>(bestDR));
             }
-            // std::cout << MatchedSum.M() << " " << GenMatchedSum.M() << std::endl;
             for (unsigned int d=0;  d < AllDR.size(); d++)
             {
                 if (std::get<0>(AllDR.at(d)) == std::get<0>(bestDR) || std::get<1>(AllDR.at(d)) == std::get<1>(bestDR))
@@ -87,12 +85,6 @@ private:
                     availableDR.at(d) = false;
                 }
             }
-            // std::cout << std::get<0>(bestDR) << " " << std::get<1>(bestDR) << " " <<std::get<2>(bestDR) << std::endl;
-            // for (unsigned  int  t=0; t< AllDR.size(); t++)
-            // {
-            //   if (availableDR.at(t)) std::cout << std::get<0>(AllDR.at(t)) << " " << std::get<1>(AllDR.at(t)) << " " << std::get<2>(AllDR.at(t)) <<std::endl;
-            //  }
-            //  std::cout << "-------------------------------------------------" << std::endl;
             return getMatchedSum( AllDR, RecoParticles, MatchedSum, availableDR, GenMatchedSum, GenParticles);
         }
         else
@@ -145,7 +137,7 @@ private:
             int nUsedGen = 0;
             int totalGens = 0;
 
-
+            //Define OkayParticles, which allows leptons/jets by status code and parent
             std::vector<bool> OkayGenParticles(GenParticles.size(), false);
             int WJetCounter = 0, WPlusLepCounter = 0, WMinusLepCounter = 0,  TauLepCounter = 0;
             std::vector<int> WPlusLeps, WMinusLeps;
@@ -157,10 +149,10 @@ private:
                 bool is_lepton = ( abs(pdgid) == 11 || abs(pdgid) == 13 || abs(pdgid) == 15);
                 bool is_jet = ( abs(pdgid) <= 5 || abs(pdgid) == 21);
                 int WId = findParent(24, p, GenParticles_ParentId, GenParticles_ParentIdx);
-                bool pass_lepton = is_lepton ? (status == 1) && (abs(momid) == 24 || abs(momid) == 15): false;
-                bool pass_jet = is_jet ? status == 23 : false;
+                bool pass_lepton = is_lepton ? (status == 1) && (abs(momid) == 24 || abs(momid) == 15): false; //leptons must be status 1 and come from either a W or a tau
+                bool pass_jet = is_jet ? status == 23 : false; //jets must have status 23
                 int stopId = findParent(1000006, p, GenParticles_ParentId, GenParticles_ParentIdx);
-                bool pass_stop = stopId != -1;
+                bool pass_stop = stopId != -1; //all gen particles must come from a stop
                 bool filter = (pass_lepton || pass_jet) && pass_stop;
 
                 if (filter)
@@ -171,11 +163,12 @@ private:
                     OkayGenParticles.at(p) = true;
                 }
             }
+            //Define GoodGenParticles, which removed  W radiation and allows undecayed taus
             std::vector<bool> GoodGenParticles = OkayGenParticles;
             bool w_eplus = false, w_eminus = false, w_muplus = false, w_muminus =false;
             int em = 0, ep = 0, mm = 0, mp = 0;
             
-            for ( const auto& w : WPlusLeps)
+            for ( const auto& w : WPlusLeps) 
             {
                 if (GenParticles_PdgId.at(w) == 13)
                 {
@@ -198,7 +191,7 @@ private:
                     mp = w;
                 }
                     
-            }
+            } //removes pair produced leptons from radation. does not remove multiple pairs, need to fix for future studies
             if (w_eplus && w_eminus) 
             {
                 GoodGenParticles.at(ep) = false;
@@ -223,24 +216,9 @@ private:
                     neutralinos_Idx.push_back(g);
                 }
 
-                // if (findParent(1000006, g, GenParticles_ParentId, GenParticles_ParentIdx) == 1000006 && GoodGenParticles.at(g) ) 
-                //  {
-                    //      std::cout << GenParticles_PdgId.at(g) << " " << GenParticles_Status.at(g) << " " << GenParticles_ParentId.at(g) << std::endl;
-                    //      counter += 1;
-                // }
             }
-            //  if (counter != 5 && counter != 6) std::cout << "Aw fuck, there's " << counter << std::endl;
-
-            //     std::cout << "Non filtered particles:" << std::endl;
-            // for (unsigned int g=0; g < GenParticles.size();g++)
-            // {
-             
-            //   if (findParent(1000006, g, GenParticles_ParentId, GenParticles_ParentIdx) == 1000006 && GenParticles_Status.at(g) != 71) std::cout << GenParticles_PdgId.at(g) << " " << GenParticles_Status.at(g) << " " << GenParticles_ParentId.at(g) << std::endl;
-            // }
             
-
-            
-            if (neutralinos_Idx.size() == 2)
+            if (neutralinos_Idx.size() == 2) //need to sort neutralinos by Pt since no anti-neutralino
             {
                 if (GenParticles.at(neutralinos_Idx.at(0)).Pt() > GenParticles.at(neutralinos_Idx.at(1)).Pt())
                 {
@@ -261,7 +239,6 @@ private:
             {
                 TLorentzVector initMatchedSum;
                 TLorentzVector GenMatchedSum;
-                // std::cout << p << std::endl;
                 
                 std::vector<std::tuple< int , int , double>> AllDR = findAllDR(GenParticles, RecoParticles, GoodGenParticles, p, GenParticles_ParentId, GenParticles_ParentIdx, nlino1_Idx, nlino2_Idx);
                 std::vector<bool> availableDR(AllDR.size(), true);
@@ -289,10 +266,6 @@ private:
             tr.registerDerivedVar("Single1GenMass"+myVarSuffix_, GenSumList.at(4).M());
             tr.registerDerivedVar("Single2GenMass"+myVarSuffix_, GenSumList.at(5).M());
 
-
-
-
-            //  std::cout<<"----------------------------------------------------------"<<std::endl;
 
         }
     }
