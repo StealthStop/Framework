@@ -38,7 +38,7 @@ private:
             bin = h->GetYaxis()->FindBin(v);
             if( v >= h->GetYaxis()->GetBinUpEdge(h->GetNbinsY()) ) bin = h->GetNbinsY();           
         }
-        if(bin == -1) std::cerr<<"There was an error in extracting the bin for a scale factor"<<std::endl;
+        if(bin == -1) std::cerr<<"There was an error in extracting the bin index for a scale factor"<<std::endl;
         return bin;
     }
 
@@ -478,7 +478,7 @@ private:
         const auto& tru_npv    = tr.getVar<double>("TrueNumInteractions");
         double puWeightUnCorr  = 1.0, puSysUpUnCorr   = 1.0, puSysDownUnCorr = 1.0;
 
-        if( runYear == "2016" ) 
+        if( runYear == "2016" || runYear == "2018" ) 
         {
             puWeightUnCorr = puSFHisto_->GetBinContent( findBin<TH1F, double>(puSFHisto_, tru_npv, "X") );
             puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin<TH1F, double>(puSFUpHisto_, tru_npv, "X") );
@@ -586,11 +586,13 @@ public:
 
         // Getting Lepton scale factor histograms
         TFile SFRootFile( leptonFileName.c_str() );
-        TString eleSFHistoTightName, eleSFHistoIsoName, eleSFHistoTrigName, muSFHistoMediumName, muSFHistoIsoName, muSFHistoTrigName;
+        TString eleSFHistoTightName, eleSFHistoIsoName, eleSFHistoRecoName, eleSFHistoTrigName;
+        TString muSFHistoMediumName,  muSFHistoIsoName,  muSFHistoRecoName,  muSFHistoTrigName;
         if( runYear == "2016")
         {
             eleSFHistoTightName = "Run2016_CutBasedTightNoIso94XV2";
             eleSFHistoIsoName = "Run2016_Mini";
+            eleSFHistoRecoName = "EGamma_SF2D";
             eleSFHistoTrigName = "TrigEff_2016_num_el_pt40_trig_5jCut_htCut_isoTrig";
             muSFHistoMediumName = "sf_mu_mediumID";
             muSFHistoIsoName = "sf_mu_mediumID_mini02";
@@ -600,6 +602,7 @@ public:
         {
             eleSFHistoTightName = "Run2017_CutBasedTightNoIso94XV2";
             eleSFHistoIsoName = "Run2017_MVAVLooseTightIP2DMini";
+            eleSFHistoRecoName = "EGamma_SF2D";
             eleSFHistoTrigName = "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_isoTrig";
             muSFHistoMediumName = "NUM_MediumID_DEN_genTracks_pt_abseta";
             muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
@@ -607,15 +610,15 @@ public:
         }
         eleSFHistoTight_.reset( (TH2F*)SFRootFile.Get(eleSFHistoTightName) );
         eleSFHistoIso_.reset(   (TH2F*)SFRootFile.Get(eleSFHistoIsoName) );
-        eleSFHistoReco_.reset(  (TH2F*)SFRootFile.Get("EGamma_SF2D") ); //The name for this histogram is the same for both 2016 and 2017
+        eleSFHistoReco_.reset(  (TH2F*)SFRootFile.Get(eleSFHistoRecoName) );
         eleSFHistoTrig_.reset(  (TH2F*)SFRootFile.Get(eleSFHistoTrigName) );
         muSFHistoMedium_.reset( (TH2F*)SFRootFile.Get(muSFHistoMediumName) );
         muSFHistoIso_.reset(    (TH2F*)SFRootFile.Get(muSFHistoIsoName) );
         muSFHistoTrig_.reset(   (TH2F*)SFRootFile.Get(muSFHistoTrigName) );
         if( runYear == "2016" ) 
         {
-            muSFHistoReco_.reset(  (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr") ); //Only 2016 requires the track reconstruction efficiency.
             eleSFHistoIP2D_.reset( (TH2F*)SFRootFile.Get("Run2016_MVAVLooseIP2D") );//In 2016, the isolation SF histogram is separate from the IP2D cut scale factor histogram.
+            muSFHistoReco_.reset(  (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr") ); //Only 2016 requires the track reconstruction efficiency.
         }
         SFRootFile.Close();
 
@@ -633,7 +636,7 @@ public:
 
         // Getting the pile up histograms
         TFile puRootFile( puFileName.c_str() );
-        if( runYear == "2016" ) 
+        if( runYear == "2016" || runYear == "2018") 
         {
             puSFHisto_.reset(     (TH1F*)puRootFile.Get("pu_weights_central") );
             puSFUpHisto_.reset(   (TH1F*)puRootFile.Get("pu_weights_up") );
