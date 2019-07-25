@@ -2,8 +2,8 @@
 #define MEGAJEETCOMBINE_H
 
 #include <iostream>
-#include <algorithm>
-
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
+#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
 
 
 class MegaJetCombine
@@ -11,15 +11,15 @@ class MegaJetCombine
 private:
     typedef std::pair<std::vector<int>, std::vector<int>> pairListInt;
     std::string myVarSuffix_;
-    std::map<int, const std::vector<pairListInt>&&> comboMap;
+    std::map<int, const std::vector<pairListInt>> comboMap;
     
-    const std::vector<std::pair< std::vector<int>, std::vector<int>>> getCombineList(const int N = 3, const int MinNJetsTotal = 0, const int MinNJetsPerCombo = 0)
+    const std::vector<std::pair< std::vector<int>, std::vector<int>>> getCombineList(const int N = 3, const int MinNJetsTotal = 2, const int MinNJetsPerCombo = 1)
     {
         auto start = std::chrono::high_resolution_clock::now();
 
-        std::vector<std::pair< std::vector<int>,std::vector<int>>>  MegaJets;
+        std::vector<pairListInt>  MegaJets;
         std::vector<int> JetIndex(N, -1);
-        for (int i = 0; i<N; i++) JetIndex[i] = i+1;
+        for (int i = 0; i<N; i++) JetIndex[i] = i;
         for (int i=0; i < (1<<N); i++)
         {
             int len = 0;
@@ -71,14 +71,87 @@ private:
     
     void megaJetCombine(NTupleReader& tr)
     {
-        const auto& NGoodJets_pt30 = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
-        if( comboMap.find(NGoodJets_pt30) == comboMap.end() )
+        const auto& NGoodJets_pt30       = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
+        const auto& Jets                 = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+        const auto& GoodJets_pt30        = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
+        const auto& GoodLeptons          = tr.getVec<std::pair<std::string,TLorentzVector>>("GoodLeptons"+myVarSuffix_);
+        const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
+        const auto& GoodBJets_pt30       = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
+        const auto& NGoodBJets_pt30      = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
+        
+        const auto& TwoLep_Mbl1_Idx      = tr.getVar<std::pair<int,int>>("TwoLep_Mbl1_Idx"+myVarSuffix_);
+        const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<int,int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
+
+        const auto& MET                  = tr.getVar<double>("MET"+myVarSuffix_);
+        const auto& METPhi               = tr.getVar<double>("METPhi"+myVarSuffix_);
+        TLorentzVector lvMET;
+        lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
+      
+        TLorentzVector RecoStop1, RecoStop2;
+        if (NGoodLeptons == 2 && NGoodJets_pt30 >= 2)
         {
-            std::cout<<"Adding this combo vector in map for size: "<<NGoodJets_pt30<<std::endl;
-            comboMap.insert( std::move(std::pair<int, const std::vector<pairListInt>>( NGoodJets_pt30, getCombineList(NGoodJets_pt30, 0, 0))) );
+            TLorentzVector BLVec_1 = Jets[TwoLep_Mbl1_Idx.first] + GoodLeptons[TwoLep_Mbl1_Idx.second].second;
+            TLorentzVector BLVec_2 = Jets[TwoLep_Mbl2_Idx.first] + GoodLeptons[TwoLep_Mbl2_Idx.second].second;
+            double StopDiff = 9999;
+            
+            std::vector<TLorentzVector> JetsToCombine;
+            
+            for (int j =0; j < Jets.size(); j++)
+            {
+                if (GoodJets_pt30[j] && j != TwoLep_Mbl1_Idx.first && j != TwoLep_Mbl2_Idx.first) JetsToCombine.emplace_back(Jets[j]);
+            }
+            if( comboMap.find(JetsToCombine.size()) == comboMap.end() )
+            {
+//                std::cout<<"Adding this combo vector in map for size: "<<NGoodJets_pt30<<std::endl;
+                comboMap.insert( std::move(std::pair<int, const std::vector<pairListInt>>( JetsToCombine.size(), std::move(getCombineList(JetsToCombine.size(), 6, 3)))) );
+            }
+            //          std::cout<<comboMap[NGoodJets_pt30].size()<<std::endl;
+            for (int c=0; c < comboMap[JetsToCombine.size()].size(); c++)
+            {
+                TLorentzVector FirstOfPairSum, SecOfPairSum;
+//                std::cout <<"First pair: ";
+                for (int j=0; j < comboMap[JetsToCombine.size()][c].first.size(); j++)
+                {
+                    FirstOfPairSum +=  JetsToCombine[comboMap[JetsToCombine.size()][c].first[j]];
+                    //  std::cout << comboMap[JetsToCombine.size()][c].first[j] << " ";
+                }
+                // std::cout  << std::endl;
+                //std::cout << "Second pair: ";
+                for (int j=0; j < comboMap[JetsToCombine.size()][c].second.size(); j++)
+                {
+                    SecOfPairSum += JetsToCombine[comboMap[JetsToCombine.size()][c].second[j]];
+                    //     std::cout << comboMap[JetsToCombine.size()][c].second[j] << " ";
+                }
+                //std::cout << std::endl;
+                if ( abs( (FirstOfPairSum + BLVec_1).M() - (SecOfPairSum + BLVec_2).M()) < abs( (FirstOfPairSum + BLVec_2).M() - (SecOfPairSum + BLVec_1).M() ))
+                {
+                    FirstOfPairSum += BLVec_1;
+                    SecOfPairSum += BLVec_2;
+                }
+                else
+                {
+                    FirstOfPairSum += BLVec_2;
+                    SecOfPairSum += BLVec_1;
+                }
+                
+                double massDiff = abs(FirstOfPairSum.M() - SecOfPairSum.M());
+                if ( massDiff < StopDiff) 
+                {
+                    RecoStop1 = FirstOfPairSum;
+                    RecoStop2 = SecOfPairSum;
+                    StopDiff = massDiff;
+                }
+            }
+//            std::cout << RecoStop1.M() << " "<< RecoStop2.M() << "NJets: "<< JetsToCombine.size() << std::endl;
+            //          std::cout << "-----------------------------" << std::endl;           
         }
-        std::cout<<comboMap[NGoodJets_pt30].size()<<std::endl;
-    }
+
+        asymm_mt2_lester_bisect::disableCopyrightMessage();
+
+        tr.registerDerivedVar("RecoStop1"+myVarSuffix_, RecoStop1);
+        tr.registerDerivedVar("RecoStop2"+myVarSuffix_, RecoStop2);
+        tr.registerDerivedVar("RecoStopMT2"+myVarSuffix_, ttUtility::coreMT2calc(RecoStop1,RecoStop2,lvMET));
+    }    
 
 public:
     MegaJetCombine(std::string myVarSuffix = "")

@@ -1,6 +1,7 @@
 #ifndef STOPGENMATCH_H
 #define STOPGENMATCH_H
-#include "TopTagger/TopTagger/src/TopTaggerUtilities.cpp"
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
+#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
 
 class StopGenMatch
 {
@@ -102,20 +103,20 @@ private:
 
         if(runtype != "Data")
         {
-            const auto& GenParticles            = tr.getVec<TLorentzVector>("GenParticles");
-            const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
-            const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
-            const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");
-            const auto& GenParticles_Status     = tr.getVec<int>("GenParticles_Status");            
-            const auto& GoodJets_pt30           = tr.getVec<bool>("GoodJets_pt30");
-            const auto& GoodLeptons             = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
-            const auto& Jets                    = tr.getVec<TLorentzVector>("Jets");
-            const auto& GenParticles_TTFlag     = tr.getVec<bool>("GenParticles_TTFlag");
+            const auto& GenParticles            = tr.getVec<TLorentzVector>("GenParticles"+myVarSuffix_);
+            const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId"+myVarSuffix_);
+            const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId"+myVarSuffix_);
+            const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx"+myVarSuffix_);
+            const auto& GenParticles_Status     = tr.getVec<int>("GenParticles_Status"+myVarSuffix_);            
+            const auto& GoodJets_pt30           = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
+            const auto& GoodLeptons             = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons"+myVarSuffix_);
+            const auto& Jets                    = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+            const auto& GenParticles_TTFlag     = tr.getVec<bool>("GenParticles_TTFlag"+myVarSuffix_);
             
-            const auto& MET                     = tr.getVar<double>("MET");
-            const auto& METPhi                  = tr.getVar<double>("METPhi");
-            const auto& GenMET                  = tr.getVar<double>("GenMET");
-            const auto& GenMETPhi               = tr.getVar<double>("GenMETPhi");
+            const auto& MET                     = tr.getVar<double>("MET"+myVarSuffix_);
+            const auto& METPhi                  = tr.getVar<double>("METPhi"+myVarSuffix_);
+            const auto& GenMET                  = tr.getVar<double>("GenMET"+myVarSuffix_);
+            const auto& GenMETPhi               = tr.getVar<double>("GenMETPhi"+myVarSuffix_);
 
             TLorentzVector lvMET;
             lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
