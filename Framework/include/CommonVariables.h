@@ -32,6 +32,7 @@ private:
         // Get needed branches
         const auto& Jets = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
+        const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
         const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
 
         const auto& Muons = tr.getVec<TLorentzVector>("Muons");
@@ -48,6 +49,9 @@ private:
 
         const auto& etaCut = tr.getVar<double>("etaCut");
 
+        const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30");
+        const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30");
+
         // HT of jets with pT>40
         double ht = 0;
         double ht_pt30 = 0.0;
@@ -62,14 +66,13 @@ private:
 
             if(jet.Pt() > 40 && abs(jet.Eta()) < etaCut)
                 ht += jet.Pt();
-
+            
             if(jet.Pt() > 45 && abs(jet.Eta()) < etaCut) 
                 ht_pt45 += jet.Pt();
         }
         tr.registerDerivedVar("HT_trigger"+myVarSuffix_, ht);
         tr.registerDerivedVar("HT_trigger_pt30"+myVarSuffix_, ht_pt30);
-        tr.registerDerivedVar("HT_trigger_pt45"+myVarSuffix_, ht_pt45); 
-        
+        tr.registerDerivedVar("HT_trigger_pt45"+myVarSuffix_, ht_pt45); 	
 
         // Put leptons together
         auto* GoodLeptons = new std::vector<std::pair<std::string, TLorentzVector>>();
@@ -162,6 +165,205 @@ private:
         }
         tr.registerDerivedVar("onZ"+myVarSuffix_, onZ);
         tr.registerDerivedVar("mll"+myVarSuffix_, mll);        
+
+
+        //Two Lepton Mbl definiton
+        TLorentzVector lep1, lep2;
+        int  used_jet1, used_jet2;
+        double TwoLep_Mbl1=-1, TwoLep_Mbl2=-1;
+        double twoLep_mbl1diff=999, twoLep_mbl2diff=999;
+        std::pair<int,int> TwoLep_Mbl1_Idx, TwoLep_Mbl2_Idx;
+        if (NGoodLeptons==2)
+        {
+            std::vector<std::pair<TLorentzVector,int>> GoodBJetsVec_pt30;
+            std::pair<TLorentzVector,int> BJetPair;
+
+            for (int j=0; j < Jets.size(); j++)
+            {
+                if (GoodBJets_pt30.at(j))
+                {
+                    BJetPair.first = Jets.at(j);
+                    BJetPair.second = j;
+                    GoodBJetsVec_pt30.push_back(BJetPair);
+                }
+            }
+            if (GoodLeptons->at(0).second.Pt() >= GoodLeptons->at(1).second.Pt())
+            {
+                lep1 = GoodLeptons->at(0).second;
+                lep2 = GoodLeptons->at(1).second;
+                TwoLep_Mbl1_Idx.second = 0;
+                TwoLep_Mbl2_Idx.second = 1;
+            }
+            else
+            {
+                lep1 = GoodLeptons->at(1).second;
+                lep2 = GoodLeptons->at(0).second;
+                TwoLep_Mbl1_Idx.second  = 1;
+                TwoLep_Mbl2_Idx.second  = 0;
+            }
+            if (NGoodBJets_pt30 >= 2) //need three cases: N bjets >= 2, Nbjets == 1, Nbjets = 0. for Nbjets >=2 matches each lepton with best bjet
+            {
+                for (int b=0; b < NGoodBJets_pt30; b++)
+                {
+                    double  twoLep_mbl1 = (lep1 + GoodBJetsVec_pt30.at(b).first).M();
+                    if( abs(twoLep_mbl1 - 105) < twoLep_mbl1diff)
+                    {
+                        TwoLep_Mbl1 = twoLep_mbl1;
+                        twoLep_mbl1diff = abs(twoLep_mbl1 - 105);
+                        used_jet1 = b;
+                        TwoLep_Mbl1_Idx.first = GoodBJetsVec_pt30.at(b).second;                        
+                    }
+                    double twoLep_mbl2 = (lep2 + GoodBJetsVec_pt30.at(b).first).M();
+                    if (abs(twoLep_mbl2 - 105) < twoLep_mbl2diff)
+                    {
+                        TwoLep_Mbl2 = twoLep_mbl2;
+                        twoLep_mbl2diff = abs(twoLep_mbl2 - 105);
+                        used_jet2 = b;
+                        TwoLep_Mbl2_Idx.first = GoodBJetsVec_pt30.at(b).second;
+                    }
+                }                
+                if (used_jet1 == used_jet2) //if leptons are matched to same bjet, keep better one and rematch the other lepton
+                {
+                    if (twoLep_mbl1diff > twoLep_mbl2diff)
+                    {
+                        twoLep_mbl1diff = 999;
+                        for (int b=0; b < NGoodBJets_pt30; b++)
+                        {                         
+                            double twoLep_mbl1 = (lep1 + GoodBJetsVec_pt30.at(b).first).M();
+                            if( abs(twoLep_mbl1 - 105) < twoLep_mbl1diff && b != used_jet2)
+                            {                            
+                                TwoLep_Mbl1 = twoLep_mbl1;
+                                twoLep_mbl1diff = abs(twoLep_mbl1 - 105);
+                                TwoLep_Mbl1_Idx.first = GoodBJetsVec_pt30.at(b).second;
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        twoLep_mbl2diff = 999;
+                        for (int b=0; b < NGoodBJets_pt30; b++)
+                        {                           
+                            double twoLep_mbl2 = (lep2+ GoodBJetsVec_pt30.at(b).first).M();
+                            if (abs(twoLep_mbl2 - 105) < twoLep_mbl2diff && b != used_jet1)
+                            {
+                                TwoLep_Mbl2 = twoLep_mbl2;
+                                twoLep_mbl2diff = abs(twoLep_mbl2 - 105);
+                                TwoLep_Mbl2_Idx.first = GoodBJetsVec_pt30.at(b).second;
+                            }
+                        }
+                    }
+                }                        
+            }
+            else if (NGoodBJets_pt30 == 1) //in this case the better Mbl pair is made of the leptons, then the other lepton is paired with best goodjet
+            {
+                if ( abs((lep1 + GoodBJetsVec_pt30.at(0).first).M() - 105) <= abs((lep2 + GoodBJetsVec_pt30.at(0).first).M() - 105) )
+                {
+                    TwoLep_Mbl1 = (lep1 + GoodBJetsVec_pt30.at(0).first).M();
+                    TwoLep_Mbl1_Idx.first = GoodBJetsVec_pt30.at(0).second;
+                    for (int j = 0; j < Jets.size(); j++)
+                    {
+                        if (GoodJets_pt30.at(j))
+                        {
+                            double twoLep_mbl2 = (lep2 + Jets.at(j)).M();
+                            if (abs(twoLep_mbl2 - 105) < twoLep_mbl2diff && !GoodBJets_pt30.at(j))
+                            {
+                                TwoLep_Mbl2 = twoLep_mbl2;
+                                twoLep_mbl2diff = abs(twoLep_mbl2 - 105);
+                                TwoLep_Mbl2_Idx.first = j;
+                            }
+                        }
+                    }
+                }
+                else
+                { 
+                    TwoLep_Mbl2 = (lep2 + GoodBJetsVec_pt30.at(0).first).M();
+                    TwoLep_Mbl2_Idx.first =GoodBJetsVec_pt30.at(0).second;
+                    for (int j = 0; j < Jets.size(); j++)
+                    {
+                        if (GoodJets_pt30.at(j))
+                        {
+                            double twoLep_mbl1 = (lep1 + Jets.at(j)).M();
+                            if (abs(twoLep_mbl1 - 105) < twoLep_mbl1diff && !GoodBJets_pt30.at(j))
+                            {
+                                TwoLep_Mbl1 = twoLep_mbl1;
+                                twoLep_mbl1diff = abs(twoLep_mbl1 - 105);
+                                TwoLep_Mbl1_Idx.first = j;
+                            }
+                        }
+                    }
+                }
+            }
+            else           //with no bjets, leptons are paired with best goodjet
+            {
+                for (int j=0; j < Jets.size(); j++)
+                {
+                    if (GoodJets_pt30.at(j))
+                    {
+                        double  twoLep_mbl1 = (lep1 + Jets.at(j)).M();
+                        if( abs(twoLep_mbl1 - 105) < twoLep_mbl1diff)
+                        {
+                            TwoLep_Mbl1 = twoLep_mbl1;
+                            twoLep_mbl1diff = abs(twoLep_mbl1 - 105);
+                            used_jet1 = j;
+                            TwoLep_Mbl1_Idx.first = j;
+                        }
+                        double twoLep_mbl2 = (lep2 + Jets.at(j)).M();
+                        if( abs(twoLep_mbl2 - 105) < twoLep_mbl2diff)
+                        {
+                            TwoLep_Mbl2 = twoLep_mbl2;
+                            twoLep_mbl2diff = abs(twoLep_mbl2 - 105);
+                            used_jet2 = j;
+                            TwoLep_Mbl2_Idx.first = j;
+                        } 
+                    }
+                }
+                if (used_jet1 == used_jet2) //if leptons are matched to same jet, keep better one and find a new match for other
+                {
+                    if (twoLep_mbl1diff >  twoLep_mbl2diff)
+                    {
+                        twoLep_mbl1diff = 999;
+                        for (int j=0; j < Jets.size(); j++)
+                        {
+                            if (GoodJets_pt30.at(j))
+                            {
+                                double twoLep_mbl1 = (lep1 + Jets.at(j)).M();
+                                if (abs(twoLep_mbl1 - 105) < twoLep_mbl1diff && j != used_jet2)
+                                {
+                                    TwoLep_Mbl1 = twoLep_mbl1;
+                                    twoLep_mbl1diff = abs(twoLep_mbl1 - 105);
+                                    TwoLep_Mbl1_Idx.first = j;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        twoLep_mbl2diff = 999;
+                        for (int j=0; j < Jets.size(); j++)
+                        {
+                            if (GoodJets_pt30.at(j))
+                            {
+                                double twoLep_mbl2 = (lep2 + Jets.at(j)).M();
+                                if (abs(twoLep_mbl2-105) < twoLep_mbl2diff && j != used_jet1)
+                                {
+                                    TwoLep_Mbl2 = twoLep_mbl2;
+                                    twoLep_mbl2diff = abs(twoLep_mbl2-105);
+                                    TwoLep_Mbl2_Idx.first = j;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }      
+
+        tr.registerDerivedVar("TwoLep_Mbl1"+myVarSuffix_, TwoLep_Mbl1);
+        tr.registerDerivedVar("TwoLep_Mbl2"+myVarSuffix_, TwoLep_Mbl2);
+        tr.registerDerivedVar("TwoLep_Mbl1_Idx"+myVarSuffix_, TwoLep_Mbl1_Idx);
+        tr.registerDerivedVar("TwoLep_Mbl2_Idx"+myVarSuffix_, TwoLep_Mbl2_Idx);
+
+
+//____________end paste
     }
 
 public:
