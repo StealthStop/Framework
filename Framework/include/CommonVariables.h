@@ -199,7 +199,6 @@ private:
         if (NGoodLeptons==2)
         {
             std::vector<std::pair<TLorentzVector,int>> GoodBJetsVec_pt30;
-            std::vector<int> GoodBJetsVec_idx_pt30;
 
             if (GoodLeptons->at(0).second.Pt() >= GoodLeptons->at(1).second.Pt())
             {
@@ -223,21 +222,16 @@ private:
             {
                 getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl1diff, used_jet1, -1,  TwoLep_Mbl1, lep1, TwoLep_Mbl1_Idx, true);
                 getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl2diff, used_jet2, -1,  TwoLep_Mbl2, lep2, TwoLep_Mbl2_Idx, true);
-                if (used_jet1 == used_jet2) //if leptons are matched to same bjet, keep better one and rematch the other lepton
+                if (used_jet1 == used_jet2 && twoLep_mbl1diff > twoLep_mbl2diff) //if leptons are matched to same bjet, keep better one and rematch the other lepton
                 {
-                    if (twoLep_mbl1diff > twoLep_mbl2diff)
-                    {
-                        twoLep_mbl1diff = 999;
-                        getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl1diff, used_jet1, used_jet2, TwoLep_Mbl1, lep1, TwoLep_Mbl1_Idx, true);
-                    }
-                    else 
-                    {
-                        twoLep_mbl2diff = 999;
-                        getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl2diff, used_jet2, used_jet1, TwoLep_Mbl2, lep2, TwoLep_Mbl2_Idx, true);
-                    }
-
+                    twoLep_mbl1diff = 999;
+                    getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl1diff, used_jet1, used_jet2, TwoLep_Mbl1, lep1, TwoLep_Mbl1_Idx, true);
                 }
-
+                else if (used_jet1 == used_jet2 && twoLep_mbl1diff <= twoLep_mbl2diff) 
+                {
+                    twoLep_mbl2diff = 999;
+                    getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl2diff, used_jet2, used_jet1, TwoLep_Mbl2, lep2, TwoLep_Mbl2_Idx, true);
+                }
             }
             else if (NGoodBJets_pt30 == 1) //in this case the better Mbl pair is made of the leptons, then the other lepton is paired with best goodjet
             {
@@ -261,18 +255,15 @@ private:
                 getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl1diff, used_jet1, -1, TwoLep_Mbl1, lep1, TwoLep_Mbl1_Idx, false);
                 getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl2diff, used_jet2, -1, TwoLep_Mbl2, lep2, TwoLep_Mbl2_Idx, false);
 
-                if (used_jet1 == used_jet2) //if leptons are matched to same jet, keep better one and find a new match for other
+                if (used_jet1 == used_jet2 && twoLep_mbl1diff >=  twoLep_mbl2diff) //if leptons are matched to same jet, keep better one and find a new match for other
                 {
-                    if (twoLep_mbl1diff >  twoLep_mbl2diff)
-                    {
-                        twoLep_mbl1diff = 999;
-                        getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl1diff, used_jet1, used_jet2, TwoLep_Mbl1, lep1, TwoLep_Mbl1_Idx, false);
-                    }
-                    else
-                    {
-                        twoLep_mbl2diff = 999;
-                        getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl2diff, used_jet2, used_jet1, TwoLep_Mbl2, lep2, TwoLep_Mbl2_Idx, false);
-                    }
+                    twoLep_mbl1diff = 999;
+                    getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl1diff, used_jet1, used_jet2, TwoLep_Mbl1, lep1, TwoLep_Mbl1_Idx, false);
+                }
+                else if (used_jet1 == used_jet2 && twoLep_mbl1diff <  twoLep_mbl2diff)
+                {
+                    twoLep_mbl2diff = 999;
+                    getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl2diff, used_jet2, used_jet1, TwoLep_Mbl2, lep2, TwoLep_Mbl2_Idx, false);
                 }
             }
         }      
