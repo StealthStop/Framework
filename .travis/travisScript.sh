@@ -25,7 +25,7 @@ echo "Testing the top tagger"
 echo "============================"
 git clone https://github.com/susy2015/TopTaggerTools.git
 git clone https://github.com/susy2015/SusyAnaTools.git
-git clone https://github.com/StealthStop/Analyzer.git
+git clone -b adding2018 https://github.com/StealthStop/Analyzer.git
 git clone https://github.com/susy2015/TopTagger.git
 cd TopTagger/TopTagger/test
 #./configure TENSORFLOWDIR=
