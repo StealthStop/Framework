@@ -5,7 +5,5 @@ name=$2
 linkTo=$3
 
 if [[ ! -d "${linkTo}/${name}" ]]; then
-    ln -s ${linkFrom} ${linkTo}/${name}
-    echo ${linkFrom}
-    echo ${linkTo}/${name}
+    ln -s ${linkFrom}/${name} ${linkTo}/${name}
 fi
