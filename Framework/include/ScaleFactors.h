@@ -319,6 +319,13 @@ private:
                 xbinMuTrig = findBin<TH2F, double>(muSFHistoTrig_, mupt,  "X");
                 ybinMuTrig = findBin<TH2F, double>(muSFHistoTrig_, mueta, "Y");
             }
+            else if( runYear == "2018" )
+            {
+                //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2018 scale factor for MiniIso of 0.2 (has only 20 bins)
+                //The muon POG will not release MiniIso scale factors until the UltraLegacy, so we recommend to use the 2017 Data/FullSim SFs for MiniIso also for 2018
+                xbinMuIso = findBin<TH2F, double>(muSFHistoIso_, mupt,       "X");
+                ybinMuIso = findBin<TH2F, double>(muSFHistoIso_, abs(mueta), "Y");                
+            }            
 
             if( xbinMuMedium != 0 && ybinMuMedium != 0 && xbinMuIso != 0 && ybinMuIso != 0 ) 
             {
@@ -332,7 +339,7 @@ private:
                 double muTotSF        = muMediumSF * muIsoSF * muTrigSF;
                 double muTotSFPErr2   = 0.03*0.03 + muTrigSFPErr*muTrigSFPErr;
 
-                if( runYear == "2017" ) 
+                if( runYear == "2016" ) 
                 {
                     //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
                     //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
