@@ -1,9 +1,9 @@
-#Producing nTuples with TreeMaker
-##(as of 8/2/2019)
+# Producing nTuples with TreeMaker
+## (as of 8/2/2019)
 
 This is a guide for producing nTuples from miniAOD files using [TreeMaker](https://github.com/TreeMaker/TreeMaker). It is meant to compliment the [README](https://github.com/TreeMaker/TreeMaker/blob/Run2_2017/README.md), and serves as a step-by-step guide rather than any kind of documentation of TreeMaker. It is not written, endorsed, nor maintained by the developers of TreeMaker. Please update this as necessary.
 
-##Clone and install TreeMaker
+## Clone and install TreeMaker
 
 Connect via `ssh` to either LPC or CMSConnect. Ensure that a grid proxy is alread set-up. Initiate a VOMS proxy with 
 
@@ -33,7 +33,7 @@ Optional: query DAS to ensure that the miniAOD sample names are correct. Example
 
 Once the user has a list of miniAOD samples to nTupilize, proceed with the following.
 
-###Overview:
+### Overview:
 * Generate `_cff.py` files
 * Get neff values where appropriate
 * Produce text files containing configuration lines and add them to `getWeightProducer_cff.py`
@@ -41,7 +41,7 @@ Once the user has a list of miniAOD samples to nTupilize, proceed with the follo
 * Produce and submit jobs to Condor
 * Manage jobs until complete
 
-###Generating `_cff.py` files
+### Generating `_cff.py` files
 
 Each sample needs a `_cff.py` that contains its corresponding list of root files.
 
@@ -63,7 +63,7 @@ The script `get_py.py` run with the `-p` option is used to produce the `_cff.py`
 
 Run for each dictionary. For output destination, specify the relative path to the appropriate folder in [`TreeMaker/Production/python`](https://github.com/TreeMaker/TreeMaker/tree/Run2_2017/Production/python) for that dictionary's scenario. Alternatively, remove the `-o` option. This will produce the files in the current directory, and can be moved or copied to the appropriate folder.
 
-###Getting neff values
+### Getting neff values
 
 Some MC samples have events with negative weights which must be handled appropriately. This is done by running a program on the samples in Condor that outputs histograms containing neff(= positive events - negative events) values. These neff values will be manually entered into the dictonaries created in the previous step. If the user is sure that there are no negative weighted events (it does not hurt to check) they may skip this part.
 
@@ -99,7 +99,7 @@ This should print each sample name in the neff dictionary with its neff value (a
 
 Edit the dictionaries here used for `get_py.py` with the neff values for each sample, only entering the neff value if it's different from the number of tot events, i.e. `neg != 0`. 
 
-###Produce configuration lines to add to `getWeightProducer_cff.py`
+### Produce configuration lines to add to `getWeightProducer_cff.py`
 
 Now use `get_py.py` again with the `-w` option to generate text files containing the lines for configuring `getWeightProducer_cff.py`: 
 
@@ -113,7 +113,7 @@ Here there is a list of files named `MCSamples_[scenario].py`. These files conta
 
 In the first terminal window, open the `.txt` files and copy and paste each line into the respective `MCSamples` file. Save the files and close the second terminal window.
 
-###Create dictionaries for Condor submission
+### Create dictionaries for Condor submission
 
 `cd condorSub`
 
@@ -121,7 +121,7 @@ Another style of dictionary must be made in the style of e.g.[`dict_Autumn18_dib
 
 Once these dictionaries are made, the samples are ready to be submitted for nTuple production.
 
-###Submit jobs to Condor
+### Submit jobs to Condor
 
 Condor submission here uses the [CondorProduction](https://github.com/kpedro88/CondorProduction) package.
 
@@ -137,11 +137,11 @@ There should again be a list of softlinks to the files in condorSub. The script 
 
 The jobs should now be submitted to Condor. The samples will be nTupilized and placed in the specified EOS directory.
 
-###Manage jobs until completion
+### Manage jobs until completion
 
 It is common for these jobs to be held for various reasons. They need to be monitored and resubmitted as necessary. To manage this, use either basic [HTCondor](https://research.cs.wisc.edu/htcondor/manual/v7.8/10_Command_Reference.html) commands or (better) the `manageJobs.py` script documented [here](https://github.com/kpedro88/CondorProduction#job-management).
 
-####Once all the jobs are complete, the nTuples have been produced and are ready to be incorporated into analyses. 
+#### Once all the jobs are complete, the nTuples have been produced and are ready to be incorporated into analyses. 
 
 
 
