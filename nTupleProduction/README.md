@@ -11,17 +11,14 @@ Connect via `ssh` to either LPC or CMSConnect. Ensure that a grid proxy is alrea
 
 Now clone and install TreeMaker:
 
-`wget https://raw.githubusercontent.com/TreeMaker/TreeMaker/Run2_2017/`
-
-`setup.sh`
-
-`chmod +x setup.sh`
-
-`./setup.sh`
-
-`cd CMSSW_10_2_11_patch1/src/`
-
-`cmsenv`
+```
+wget https://raw.githubusercontent.com/TreeMaker/TreeMaker/Run2_2017/
+setup.sh
+chmod +x setup.sh
+./setup.sh
+cd CMSSW_10_2_11_patch1/src/
+cmsenv
+```
 
 If running `./setup.sh` gives an error indicating the repository does not exist, open `setup.sh` and change line 6 from `ACCESS=ssh` to `ACCESS=https`. Then save, close, and try again.
 
@@ -45,9 +42,10 @@ Once the user has a list of miniAOD samples to nTupilize, proceed with the follo
 
 Each sample needs a `_cff.py` that contains its corresponding list of root files.
 
-`cd Treemaker/Production/test`
-
-`source /cvmfs/cms.cern.ch/crab3/crab.csh`
+```
+cd Treemaker/Production/test`
+source /cvmfs/cms.cern.ch/crab3/crab.csh
+```
 
 if in tcsh: `setenv SSL_CERT_DIR '/etc/pki/tls/certs:/etc/grid-security/certificates` 
 
@@ -71,11 +69,11 @@ Some MC samples have events with negative weights which must be handled appropri
 
 A second type of dictionary must be created here in the style of [`dict_Fall17_neff.py`](https://github.com/TreeMaker/TreeMaker/blob/Run2_2017/Production/test/condorSub/dict_Fall17_neff.py). **The dictionary name must begin with** `dict_`. All of the samples, regardless of scenario, can be placed in the same dictionary.
 
-`cd ..`
-
-`./lnbatch.sh myNeff`
-
-`cd myNeff`
+```
+cd ..
+./lnbatch.sh myNeff
+cd myNeff
+```
 
 This directory should contain a list of softlinks to files in `condorSub`.
 
@@ -89,9 +87,10 @@ Now produce and submit jobs. If the neff dictionary is named `dict_neff.py`,
 
 Note the prefix `dict_` is removed. Once jobs are done,
 
-`./haddEOS.sh -d /store/user/amercald/myNeff -g _part -r`
-
-`python submitJobsNeff.py -g -d neff -N 50 -o root://cmseos.fnal.gov//store/user/amercald/myNeff`
+```
+./haddEOS.sh -d /store/user/amercald/myNeff -g _part -r
+python submitJobsNeff.py -g -d neff -N 50 -o root://cmseos.fnal.gov//store/user/amercald/myNeff
+```
 
 This should print each sample name in the neff dictionary with its neff value (and pos, neg, tot events). Now they need to be added to the dictionaries that were used to produce `_cff.py` files.
 
@@ -125,11 +124,11 @@ Once these dictionaries are made, the samples are ready to be submitted for nTup
 
 Condor submission here uses the [CondorProduction](https://github.com/kpedro88/CondorProduction) package.
 
-`cd ..`
-
-`./lnbatch.sh myProduction`
-
-`cd myProduction`
+```
+cd ..
+./lnbatch.sh myProduction
+cd myProduction
+```
 
 There should again be a list of softlinks to the files in condorSub. The script `submitJobs.py` will be used to produce and submit jobs to Condor (see [here](https://github.com/TreeMaker/TreeMaker#submit-production-to-condor) for documentation). When running `submitJobs.py`, enter the dictionary names without the `dict_` prefix:
 
