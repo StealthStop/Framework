@@ -433,7 +433,7 @@ private:
             else {
                 //Get the scale factor from the rootfile
                 double mupt = muons.at(imu).Pt();
-                double mueta = std::fabs( muons.at(imu).Eta() );
+                double mueta = muons.at(imu).Eta();
                 
                 int xbinMuMedium = 0, ybinMuMedium = 0, xbinMuIso = 0, ybinMuIso = 0, xbinMuTrig = 0, ybinMuTrig = 0, etabin = 0;
  
@@ -586,6 +586,7 @@ private:
         { 
             double norm     = 0.0;
             double expo     = 0.0;
+            
             if( filetag.find("2016") != std::string::npos ) { //If it is for 2016 MC sample
                 //No PU version
                 //norm = 0.05669*nJets + 0.8391;
@@ -614,6 +615,7 @@ private:
             }
             return norm*exp( expo*HT ); 
         };
+
         auto htScaleFactorFlat2000 = [](int nJets, double HT, std::string filetag)
         {
             double norm     = 0.0;
@@ -655,6 +657,7 @@ private:
                 return norm*exp( expo*HT ); 
             }
         };
+
         auto htScaleFactorNJet7 = [](double HT, std::string filetag)
         {
             double norm     = 0.0;
@@ -690,16 +693,38 @@ private:
             return norm*exp( expo*HT ); 
         };
 
+        auto htScaleFactorMG = [](int nJets, double HT, std::string filetag)
+        {
+            double norm     = 0.0;
+            double expo     = 0.0;
+
+            if( filetag.find("2016") != std::string::npos ) {
+                norm = 0.01802*nJets + 0.9762;
+                expo = (-0.003885*nJets - 0.1074)/1000;
+            }
+            else {
+                norm = 0.01818*nJets + 1.0535;
+                expo = (0.00425*nJets - 0.3170)/1000;
+            }
+
+            return norm*exp( expo*HT );
+        };
+
         double htDerivedweight = 1.0;
         double htDerivedweightFlat2000 = 1.0;
         double htDerivedweightNJet7 = 1.0;
+        double htDerivedweightMG    = 1.0;
 
         double htDerivedweightUncor = htScaleFactor(NGoodJets_pt30, HT_trigger_pt30, filetag);
         double htDerivedweightFlat2000Uncor = htScaleFactorFlat2000(NGoodJets_pt30, HT_trigger_pt30, filetag);
         double htDerivedweightNJet7Uncor = htScaleFactorNJet7(HT_trigger_pt30, filetag);
+        double htDerivedweightMGUncor = htScaleFactorMG(NGoodJets_pt30, HT_trigger_pt30, filetag);
 
         double htScaleUp = 1.0;
         double htScaleDown = 1.0;
+       
+        double htScaleUpMG = 1.0;
+        double htScaleDownMG = 1.0;
 
         if( sfMeanMap_.find(filetag+"_ht") != sfMeanMap_.end() && !isSignal ) 
         {
@@ -712,6 +737,9 @@ private:
             
             const double mean_ht_njet7 = sfMeanMap_[filetag+"_ht_njet7"];
             htDerivedweightNJet7 = (1/mean_ht_njet7)*htDerivedweightNJet7Uncor;
+            
+            const double mean_ht_MG = sfMeanMap_[filetag+"_ht_MG"];
+            htDerivedweightMG = (1/mean_ht_MG)*htDerivedweightMGUncor;
 
             // Derive ht up and down variation on SF
             if( filetag.find("2016") != std::string::npos ) {
@@ -719,9 +747,17 @@ private:
                 const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, filetag);
                 const double ratioUp = fit2NJetBin8/fit2NJetBin567;
                 const double ratioDown = fit2NJetBin567/fit2NJetBin8;
+                
+                const double fit2NJetBin8MG = 1.151*exp(-0.0001730*HT_trigger_pt30);
+                const double fit2NJetBin567MG = htScaleFactor(8, HT_trigger_pt30, filetag);
+                const double ratioUpMG = fit2NJetBin8/fit2NJetBin567;
+                const double ratioDownMG = fit2NJetBin567/fit2NJetBin8;
 
                 htScaleUp = htDerivedweight*ratioUp;
                 htScaleDown = htDerivedweight*ratioDown;
+
+                htScaleUpMG = htDerivedweightMG*ratioUpMG;
+                htScaleDownMG = htDerivedweightMG*ratioDownMG;
             }
             else {
                 const double fit2NJetBin8 = 1.215*exp(-0.0002613*HT_trigger_pt30);
@@ -729,8 +765,16 @@ private:
                 const double ratioUp = fit2NJetBin8/fit2NJetBin567;
                 const double ratioDown = fit2NJetBin567/fit2NJetBin8;
                 
+                const double fit2NJetBin8MG = 1.192*exp(-0.0002465*HT_trigger_pt30);
+                const double fit2NJetBin567MG = htScaleFactor(8, HT_trigger_pt30, filetag);
+                const double ratioUpMG = fit2NJetBin8/fit2NJetBin567;
+                const double ratioDownMG = fit2NJetBin567/fit2NJetBin8;
+                
                 htScaleUp = htDerivedweight*ratioUp;
                 htScaleDown = htDerivedweight*ratioDown;
+
+                htScaleUpMG = htDerivedweightMG*ratioUpMG;
+                htScaleDownMG = htDerivedweightMG*ratioDownMG;
             
             }
         }
@@ -738,13 +782,17 @@ private:
         tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
         tr.registerDerivedVar( "htDerivedweightFlat2000"+myVarSuffix_, htDerivedweightFlat2000 );
         tr.registerDerivedVar( "htDerivedweightNJet7"+myVarSuffix_, htDerivedweightNJet7 );
+        tr.registerDerivedVar( "htDerivedweightMG"+myVarSuffix_, htDerivedweightMG);
 
         tr.registerDerivedVar( "htDerivedweightUncor"+myVarSuffix_, htDerivedweightUncor);
         tr.registerDerivedVar( "htDerivedweightFlat2000Uncor"+myVarSuffix_, htDerivedweightFlat2000Uncor);
         tr.registerDerivedVar( "htDerivedweightNJet7Uncor"+myVarSuffix_, htDerivedweightNJet7Uncor );
+        tr.registerDerivedVar( "htDerivedweightMGUncor"+myVarSuffix_, htDerivedweightMGUncor);
 
         tr.registerDerivedVar( "htScaleUp"+myVarSuffix_, htScaleUp);
         tr.registerDerivedVar( "htScaleDown"+myVarSuffix_, htScaleDown);
+        tr.registerDerivedVar( "htScaleUpMG"+myVarSuffix_, htScaleUpMG);
+        tr.registerDerivedVar( "htScaleDownMG"+myVarSuffix_, htScaleDownMG);
 
 
         //-----------------------------------------------------------------------------
@@ -899,15 +947,19 @@ private:
         int    NGoodMuons               = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         
         double totalEventWeight         = -1.0;
+        double totalEventWeightMG       = -1.0;
 
         if( NGoodElectrons == 1 ) {
             totalEventWeight = Weight*bTagWeight*totGoodElectronSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
+            totalEventWeightMG = Weight*bTagWeight*totGoodElectronSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
         }
         else if ( NGoodMuons == 1 ) {
             totalEventWeight = Weight*bTagWeight*totGoodMuonSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
+            totalEventWeightMG = Weight*bTagWeight*totGoodMuonSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
         }
 
         tr.registerDerivedVar( "totalEventWeight"+myVarSuffix_, totalEventWeight );
+        tr.registerDerivedVar( "totalEventWeightMG"+myVarSuffix_, totalEventWeightMG );
     }
     
 public:
