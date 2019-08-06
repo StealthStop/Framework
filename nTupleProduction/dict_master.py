@@ -20,9 +20,9 @@ flist = {
         "QCD_PT" : [
         ['Summer16v3.QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8'],
         ['Summer16v3.QCD_Pt_120to170_TuneCUETP8M1_13TeV_pythia8'],
- 		['Summer16v3.QCD_Pt_120to170_TuneCUETP8M1_13TeV_pythia8_ext1'],
- 		['Summer16v3.QCD_Pt_170to300_TuneCUETP8M1_13TeV_pythia8'],	
- 		['Summer16v3.QCD_Pt_170to300_TuneCUETP8M1_13TeV_pythia8_ext1'],        
+        ['Summer16v3.QCD_Pt_120to170_TuneCUETP8M1_13TeV_pythia8_ext1'],
+        ['Summer16v3.QCD_Pt_170to300_TuneCUETP8M1_13TeV_pythia8'],	
+        ['Summer16v3.QCD_Pt_170to300_TuneCUETP8M1_13TeV_pythia8_ext1'],        
         ['Summer16v3.QCD_Pt_300to470_TuneCUETP8M1_13TeV_pythia8'],
         ['Summer16v3.QCD_Pt_300to470_TuneCUETP8M1_13TeV_pythia8_ext1'],
         ['Summer16v3.QCD_Pt_470to600_TuneCUETP8M1_13TeV_pythia8'],
