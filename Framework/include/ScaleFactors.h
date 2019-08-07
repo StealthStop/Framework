@@ -226,6 +226,18 @@ private:
                 xbinElTrig = findBin<TH2F, double>(eleSFHistoTrig_, elpt,  "X");
                 ybinElTrig = findBin<TH2F, double>(eleSFHistoTrig_, eleta, "Y");
             }
+            else if( runYear == "2018" )
+            {
+                //Find the bin indices (binned by x: eta and y: pt ) for the 2018 scale factor for Tight ID ( has 96 bins total in 2D parameter space )
+                xbinElTight = findBin<TH2F, double>(eleSFHistoTight_, eleta, "X");
+                ybinElTight = findBin<TH2F, double>(eleSFHistoTight_, elpt,  "Y");                
+                //Find the bin indices (binned by x: eta and y: pt ) for the 2018 scale factor for MiniIso of 0.1  ( has 96 bins total in 2D parameter space )
+                xbinElIso = findBin<TH2F, double>(eleSFHistoIso_, eleta, "X");
+                ybinElIso = findBin<TH2F, double>(eleSFHistoIso_, elpt,  "Y");
+                //Find the bin indices (binned by x: eta and y: pt ) for the 2018 scale factor for Data/MC comparison (reco eff) ( has 98 bins total in 2D parameter space )
+                xbinElReco = findBin<TH2F, double>(eleSFHistoReco_, eleta, "X");
+                ybinElReco = findBin<TH2F, double>(eleSFHistoReco_, elpt,  "Y");
+            }
 
             if( xbinElTight != -1 && ybinElTight != -1 && xbinElIso != -1 && ybinElIso != -1 && xbinElReco != -1 && ybinElReco != -1 ) 
             {
@@ -284,8 +296,6 @@ private:
 
         double totGoodMuonSF      = 1.0, totGoodMuonSF_Up   = 1.0, totGoodMuonSF_Down = 1.0;
         double totGoodMuonSFErr   = 0.0, totGoodMuonSFPErr2 = 0.0;
-
-        //Loop through the muons
         for( unsigned int imu = 0; imu < muons.size(); imu++ ) 
         {            
             if( !goodMuons.at(imu) ) continue;
@@ -321,11 +331,14 @@ private:
             }
             else if( runYear == "2018" )
             {
+                //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2018 scale factor for Medium ID (has only 36 bins)
+                xbinMuMedium = findBin<TH2F, double>(muSFHistoMedium_, mupt,       "X");
+                ybinMuMedium = findBin<TH2F, double>(muSFHistoMedium_, abs(mueta), "Y");
                 //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2018 scale factor for MiniIso of 0.2 (has only 20 bins)
                 //The muon POG will not release MiniIso scale factors until the UltraLegacy, so we recommend to use the 2017 Data/FullSim SFs for MiniIso also for 2018
                 xbinMuIso = findBin<TH2F, double>(muSFHistoIso_, mupt,       "X");
-                ybinMuIso = findBin<TH2F, double>(muSFHistoIso_, abs(mueta), "Y");                
-            }            
+                ybinMuIso = findBin<TH2F, double>(muSFHistoIso_, abs(mueta), "Y");            
+            }
 
             if( xbinMuMedium != 0 && ybinMuMedium != 0 && xbinMuIso != 0 && ybinMuIso != 0 ) 
             {
@@ -661,6 +674,16 @@ public:
             muSFHistoMediumName = "NUM_MediumID_DEN_genTracks_pt_abseta";
             muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
             muSFHistoTrigName = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_isoTrig";
+        }
+        else if( runYear == "2018")
+        {
+            eleSFHistoTightName = "Run2018_CutBasedTightNoIso94XV2";
+            eleSFHistoIsoName = "Run2018_Mini";
+            eleSFHistoRecoName = "EGamma_SF2D";
+            eleSFHistoTrigName = "";
+            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_pt_abseta";
+            muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
+            muSFHistoTrigName = "";
         }
         eleSFHistoTight_.reset( (TH2F*)SFRootFile.Get(eleSFHistoTightName) );
         eleSFHistoIso_.reset(   (TH2F*)SFRootFile.Get(eleSFHistoIsoName) );
