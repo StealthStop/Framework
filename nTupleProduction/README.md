@@ -11,17 +11,14 @@ Connect via `ssh` to either LPC or CMSConnect. Ensure that a grid proxy is alrea
 
 Now clone and install TreeMaker:
 
-`wget https://raw.githubusercontent.com/TreeMaker/TreeMaker/Run2_2017/`
-
-`setup.sh`
-
-`chmod +x setup.sh`
-
-`./setup.sh`
-
-`cd CMSSW_10_2_11_patch1/src/`
-
-`cmsenv`
+```
+wget https://raw.githubusercontent.com/TreeMaker/TreeMaker/Run2_2017/
+setup.sh
+chmod +x setup.sh
+./setup.sh
+cd CMSSW_10_2_11_patch1/src/
+cmsenv
+```
 
 If running `./setup.sh` gives an error indicating the repository does not exist, open `setup.sh` and change line 6 from `ACCESS=ssh` to `ACCESS=https`. Then save, close, and try again.
 
@@ -45,9 +42,10 @@ Once the user has a list of miniAOD samples to nTupilize, proceed with the follo
 
 Each sample needs a `_cff.py` that contains its corresponding list of root files.
 
-`cd Treemaker/Production/test`
-
-`source /cvmfs/cms.cern.ch/crab3/crab.csh`
+```
+cd Treemaker/Production/test`
+source /cvmfs/cms.cern.ch/crab3/crab.csh
+```
 
 if in tcsh: `setenv SSL_CERT_DIR '/etc/pki/tls/certs:/etc/grid-security/certificates` 
 
@@ -71,11 +69,11 @@ Some MC samples have events with negative weights which must be handled appropri
 
 A second type of dictionary must be created here in the style of [`dict_Fall17_neff.py`](https://github.com/TreeMaker/TreeMaker/blob/Run2_2017/Production/test/condorSub/dict_Fall17_neff.py). **The dictionary name must begin with** `dict_`. All of the samples, regardless of scenario, can be placed in the same dictionary.
 
-`cd ..`
-
-`./lnbatch.sh myNeff`
-
-`cd myNeff`
+```
+cd ..
+./lnbatch.sh myNeff
+cd myNeff
+```
 
 This directory should contain a list of softlinks to files in `condorSub`.
 
@@ -89,9 +87,10 @@ Now produce and submit jobs. If the neff dictionary is named `dict_neff.py`,
 
 Note the prefix `dict_` is removed. Once jobs are done,
 
-`./haddEOS.sh -d /store/user/amercald/myNeff -g _part -r`
-
-`python submitJobsNeff.py -g -d neff -N 50 -o root://cmseos.fnal.gov//store/user/amercald/myNeff`
+```
+./haddEOS.sh -d /store/user/amercald/myNeff -g _part -r
+python submitJobsNeff.py -g -d neff -N 50 -o root://cmseos.fnal.gov//store/user/amercald/myNeff
+```
 
 This should print each sample name in the neff dictionary with its neff value (and pos, neg, tot events). Now they need to be added to the dictionaries that were used to produce `_cff.py` files.
 
@@ -125,11 +124,11 @@ Once these dictionaries are made, the samples are ready to be submitted for nTup
 
 Condor submission here uses the [CondorProduction](https://github.com/kpedro88/CondorProduction) package.
 
-`cd ..`
-
-`./lnbatch.sh myProduction`
-
-`cd myProduction`
+```
+cd ..
+./lnbatch.sh myProduction
+cd myProduction
+```
 
 There should again be a list of softlinks to the files in condorSub. The script `submitJobs.py` will be used to produce and submit jobs to Condor (see [here](https://github.com/TreeMaker/TreeMaker#submit-production-to-condor) for documentation). When running `submitJobs.py`, enter the dictionary names without the `dict_` prefix:
 
@@ -141,16 +140,44 @@ The jobs should now be submitted to Condor. The samples will be nTupilized and p
 
 It is common for these jobs to be held for various reasons. They need to be monitored and resubmitted as necessary. To manage this, use either basic [HTCondor](https://research.cs.wisc.edu/htcondor/manual/v7.8/10_Command_Reference.html) commands or (better) the `manageJobs.py` script documented [here](https://github.com/kpedro88/CondorProduction#job-management).
 
-#### Once all the jobs are complete, the nTuples have been produced and are ready to be incorporated into analyses. 
+#### Once all the jobs are complete, the nTuples have been produced. Add the samples to the appropriate place in dict_master.py to keep track of what is in the EOS space.
 
 
+# getSampleList.py
 
+This is a simple script that lists the samples in the master dictionary corresponding to a specified year and sample type (or all sample types). The output can be printed or saved to a `.txt` file.
 
+### Summary of options:
 
+* `-y`: Specify year (Summer16v3, Fall17, or Autumn18)
+* `-s`: Specify one sample type (`QCD_HT`, `QCD_PT`, `QCD_PT_MuEnriched`, `diboson`, `dyjets`, `gjets`, `ttbar`, `tth`, `wjets`, `zjets`, or `singlet`)
+* `-a`: Give list of all samples for that year
+* `-p`: Print list in terminal
+* `-f`: Save list to `.txt` file
 
+The same information about options can also be obtained by running the script with the `-h` option for "help".
 
+### Example usage:
 
- 
+Input: `python getSampleList.py -y Autumn18 -s diboson -pf` 
 
+Output: 
 
+```
+Autumn18.WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8
 
+Autumn18.WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8
+
+Autumn18.ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8
+
+Autumn18.WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8_ext1
+
+Autumn18.WWZ_TuneCP5_13TeV-amcatnlo-pythia8_ext1
+
+Autumn18.WZZ_TuneCP5_13TeV-amcatnlo-pythia8_ext1
+
+Autumn18.ZZZ_TuneCP5_13TeV-amcatnlo-pythia8_ext1
+
+Saving all sample names for Autumn18 to sampleList_Autumn18_diboson.txt
+
+```
