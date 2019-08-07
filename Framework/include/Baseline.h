@@ -136,18 +136,18 @@ private:
         // -----------------------------------
         // -- Define lepton-agnostic baseline
         // -----------------------------------
-        bool passBaseline    = JetID             &&
-                               passMETFilters    &&
-                               HT_trigger_pt30   &&
-                               passMadHT         &&
-                               NBJets_pt30 >= 1  &&
+        bool passBaseline    = JetID                  &&
+                               passMETFilters         &&
+                               HT_trigger_pt30 > 300  &&
+                               passMadHT              &&
+                               NBJets_pt30 >= 1       &&
                                (50 < Mbl && Mbl < 250);
 
-        bool passBaselineGood = JetID                &&
-                                passMETFilters       &&
-                                HT_trigger_pt30      &&
-                                passMadHT            &&
-                                NGoodBJets_pt30 >= 1 &&
+        bool passBaselineGood = JetID                 &&
+                                passMETFilters        &&
+                                HT_trigger_pt30 > 300 &&
+                                passMadHT             &&
+                                NGoodBJets_pt30 >= 1  &&
                                 (50 < Mbl && Mbl < 250);
 
         // -------------------------------
