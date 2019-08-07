@@ -5,7 +5,7 @@ def main():
 
 	parser = OptionParser()
 	parser.add_option("-y", "--year", dest="year", default = "Autumn18", action="store", help="Indicate the desired year. Options: Summer16v3, Fall17, Autumn18")
-	parser.add_option("-s", "--sampleType", dest="sampType", default = "QCD_HT", action="store", help="Indicate the sample type desired. Options: QCD_HT, QCD_PT, QCD_PT_MuEnriched, diboson, dyjets, gjets")
+	parser.add_option("-s", "--sampleType", dest="sampType", default = "QCD_HT", action="store", help="Indicate the sample type desired. Options: QCD_HT, QCD_PT, QCD_PT_MuEnriched, diboson, dyjets, gjets, ttbar, tth, wjets, zjets, singlet")
 	parser.add_option("-a", "--allSamps", dest = "allSamps", default = False, action="store_true", help="List all sample types for specified year")	
 	parser.add_option("-p", "--print", dest = "doPrint", default = False, action="store_true", help="Print sample names in terminal")
         parser.add_option("-f", "--saveFile", dest = "saveFile", default = False, action="store_true", help="Save sample names to .txt file")
