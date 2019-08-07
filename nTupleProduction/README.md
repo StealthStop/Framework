@@ -140,16 +140,44 @@ The jobs should now be submitted to Condor. The samples will be nTupilized and p
 
 It is common for these jobs to be held for various reasons. They need to be monitored and resubmitted as necessary. To manage this, use either basic [HTCondor](https://research.cs.wisc.edu/htcondor/manual/v7.8/10_Command_Reference.html) commands or (better) the `manageJobs.py` script documented [here](https://github.com/kpedro88/CondorProduction#job-management).
 
-#### Once all the jobs are complete, the nTuples have been produced and are ready to be incorporated into analyses. 
+#### Once all the jobs are complete, the nTuples have been produced. Add the samples to the appropriate place in dict_master.py to keep track of what is in the EOS space.
 
 
+# getSampleList.py
 
+This is a simple script that lists the samples in the master dictionary corresponding to a specified year and sample type (or all sample types). The output can be printed or saved to a `.txt` file.
 
+### Summary of options:
 
+* `-y`: Specify year (Summer16v3, Fall17, or Autumn18)
+* `-s`: Specify one sample type (`QCD_HT`, `QCD_PT`, `QCD_PT_MuEnriched`, `diboson`, `dyjets`, `gjets`, `ttbar`, `tth`, `wjets`, `zjets`, or `singlet`)
+* `-a`: Give list of all samples for that year
+* `-p`: Print list in terminal
+* `-f`: Save list to `.txt` file
 
+The same information about options can also be obtained by running the script with the `-h` option for "help".
 
+### Example usage:
 
- 
+Input: `python getSampleList.py -y Autumn18 -s diboson -pf` 
 
+Output: 
 
+```
+Autumn18.WWTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8
 
+Autumn18.WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8
+
+Autumn18.ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8
+
+Autumn18.WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8_ext1
+
+Autumn18.WWZ_TuneCP5_13TeV-amcatnlo-pythia8_ext1
+
+Autumn18.WZZ_TuneCP5_13TeV-amcatnlo-pythia8_ext1
+
+Autumn18.ZZZ_TuneCP5_13TeV-amcatnlo-pythia8_ext1
+
+Saving all sample names for Autumn18 to sampleList_Autumn18_diboson.txt
+
+```
