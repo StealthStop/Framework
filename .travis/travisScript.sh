@@ -28,27 +28,19 @@ git clone https://github.com/susy2015/SusyAnaTools.git
 git clone -b adding2018 https://github.com/StealthStop/Analyzer.git
 git clone https://github.com/susy2015/TopTagger.git
 cd TopTagger/TopTagger/test
-#./configure TENSORFLOWDIR=
 ./configure
 make -j4
 echo "============================"
 echo "Testing Analyzer"
 echo "============================"
-cd ../../../
-cd Analyzer/Analyzer/test
+cd ${CMSSW_BASE}/src/Analyzer/Analyzer/test
 source ${CMSSW_BASE}/src/TopTagger/TopTagger/test/taggerSetup.sh
+export PATH=$PATH:${CMSSW_BASE}/src/Framework/Framework/scripts
 make -j4
-#source runTest.sh
-#getTaggerCfg.sh -t Tensorflow_Simple_Example_v1.0.0 -o
-#make -j4
-#echo "========================================================================="
-#./MyAnalysis -s -H myoutputfile.root -D TT -E 2000
-
 echo "============================"
 echo "Testing BackgroundMVA"
 echo "============================"
-cd ../../../
-cd Framework/BackgroundMVA/test
+cd ${CMSSW_BASE}/src/Framework/BackgroundMVA/test
 make -j4
 
 echo "Yeah Buddy"
