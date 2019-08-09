@@ -4,6 +4,7 @@
 #include "TGraph.h"
 #include "TFile.h"
 #include "TKey.h"
+#include "Framework/Framework/include/Utility.h"
 
 class ScaleFactors
 {
@@ -267,18 +268,18 @@ private:
                     double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
 
                     eleIsoSF            = eleIsoSF*eleIP2DSF;
-                    eleIsoPErr          = std::sqrt( eleIsoPErr*eleIsoPErr + eleIP2DPErr*eleIP2DPErr );
+                    eleIsoPErr          = utility::addInQuad( eleIsoPErr, eleIP2DPErr );
                     eleIsoSFErr         = eleIsoPErr*eleIsoSF;
                 }
                 
-                double eleTotSF         = eleTightSF*eleIsoSF*eleRecoSF*eleTrigSF; 
-                double eleNoTrigSF      = eleTightSF*eleIsoSF*eleRecoSF;
+                const double eleNoTrigSF      = eleTightSF*eleIsoSF*eleRecoSF;
+                const double eleTotSF         = eleNoTrigSF*eleTrigSF; 
 
-                double eleTotPErr       = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr + eleTrigPErr*eleTrigPErr);
-                double eleNoTrigPErr    = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr);
+                const double eleNoTrigPErr    = utility::addInQuad( eleTightPErr, eleIsoPErr, eleRecoPErr );
+                const double eleTotPErr       = utility::addInQuad( eleNoTrigPErr, eleTrigPErr );
 
-                double eleTotSFErr      = eleTotPErr*eleTotSF;
-                double eleNoTrigSFErr   = eleNoTrigPErr*eleNoTrigSF;
+                const double eleTotSFErr      = eleTotPErr*eleTotSF;
+                const double eleNoTrigSFErr   = eleNoTrigPErr*eleNoTrigSF;
 
                 totGoodElectronSF       *= eleTotSF; 
                 noTrigGoodElectronSF    *= eleNoTrigSF;
@@ -359,17 +360,17 @@ private:
             if( xbinMuMedium != 0 && ybinMuMedium != 0 && xbinMuIso != 0 && ybinMuIso != 0 ) 
             {
                 //The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
-                double muMediumSF     = muSFHistoMedium_->GetBinContent( xbinMuMedium, ybinMuMedium );
-                double muIsoSF        = muSFHistoIso_->GetBinContent( xbinMuIso, ybinMuIso );
-                double muTrigSF       = muSFHistoTrig_->GetBinContent( xbinMuTrig, ybinMuTrig );
-                double muTrigSFErr    = muSFHistoTrig_->GetBinError( xbinMuTrig, ybinMuTrig );
-                double muTrigSFPErr   = muTrigSFErr/muTrigSF;
+                const double muMediumSF     = muSFHistoMedium_->GetBinContent( xbinMuMedium, ybinMuMedium );
+                const double muIsoSF        = muSFHistoIso_->GetBinContent( xbinMuIso, ybinMuIso );
+                const double muTrigSF       = muSFHistoTrig_->GetBinContent( xbinMuTrig, ybinMuTrig );
+                const double muTrigSFErr    = muSFHistoTrig_->GetBinError( xbinMuTrig, ybinMuTrig );
+                const double muTrigSFPErr   = muTrigSFErr/muTrigSF;
 
-                double muTotSF        = muMediumSF * muIsoSF * muTrigSF;
                 double muNoTrigSF     = muMediumSF * muIsoSF; 
+                double muTotSF        = muNoTrigSF * muTrigSF;
 
-                double muTotSFPErr2   = 0.03*0.03 + muTrigSFPErr*muTrigSFPErr;
-                double muNoTrigSFPErr2 = 0.03*0.03;
+                const double muNoTrigSFPErr2 = 0.03*0.03;
+                const double muTotSFPErr2   = muNoTrigSFPErr2 + muTrigSFPErr*muTrigSFPErr;
                 
                 if( runYear == "2016" ) 
                 {
