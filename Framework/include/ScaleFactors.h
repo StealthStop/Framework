@@ -185,6 +185,7 @@ private:
         
         double totGoodElectronSF      = 1.0, totGoodElectronSF_Up   = 1.0, totGoodElectronSF_Down = 1.0;
         double totGoodElectronSFErr   = 0.0, totGoodElectronSFPErr2 = 0.0;
+        double noTrigGoodElectronSF   = 1.0, noTrigGoodElectronSFErr = 0.0, noTrigGoodElectronSFPErr2 = 0.0;
         for( unsigned int iel = 0; iel < electrons.size(); iel++ ) 
         {
             if( !goodElectrons.at(iel) ) continue;
@@ -271,15 +272,24 @@ private:
                 }
                 
                 double eleTotSF         = eleTightSF*eleIsoSF*eleRecoSF*eleTrigSF; 
+                double eleNoTrigSF      = eleTightSF*eleIsoSF*eleRecoSF;
+
                 double eleTotPErr       = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr + eleTrigPErr*eleTrigPErr);
+                double eleNoTrigPErr    = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr);
                 double eleTotSFErr      = eleTotPErr*eleTotSF;
+                double eleNoTrigSFErr   = eleNoTrigPErr*eleNoTrigSF;
 
                 totGoodElectronSF       *= eleTotSF; 
+                noTrigGoodElectronSF    *= eleNoTrigSF;
+
                 totGoodElectronSFPErr2  += eleTotPErr*eleTotPErr;
+                noTrigGoodElectronSFPErr2 += eleNoTrigPErr*eleNoTrigPErr;
             }            
         }
 
         totGoodElectronSFErr    = std::sqrt(totGoodElectronSFPErr2) * totGoodElectronSF;
+        noTrigGoodElectronSFErr = std::sqrt(noTrigGoodElectronSFPErr2) * noTrigGoodElectronSF;
+
         totGoodElectronSF_Up    = totGoodElectronSF + totGoodElectronSFErr;
         totGoodElectronSF_Down  = totGoodElectronSF - totGoodElectronSFErr;
 
@@ -287,6 +297,9 @@ private:
         tr.registerDerivedVar( "totGoodElectronSFErr"+myVarSuffix_,   totGoodElectronSFErr );
         tr.registerDerivedVar( "totGoodElectronSF_Up"+myVarSuffix_,   totGoodElectronSF_Up );
         tr.registerDerivedVar( "totGoodElectronSF_Down"+myVarSuffix_, totGoodElectronSF_Down );
+
+        tr.registerDerivedVar( "noTrigGoodElectronSF"+myVarSuffix_,   noTrigGoodElectronSF );
+        tr.registerDerivedVar( "noTrigGoodElectronSFErr"+myVarSuffix_, noTrigGoodElectronSFErr );
 
         // --------------------------------------------------------------------------------------
         // Adding code for implementing muon scale factors
@@ -296,6 +309,8 @@ private:
 
         double totGoodMuonSF      = 1.0, totGoodMuonSF_Up   = 1.0, totGoodMuonSF_Down = 1.0;
         double totGoodMuonSFErr   = 0.0, totGoodMuonSFPErr2 = 0.0;
+
+        double noTrigGoodMuonSF   = 1.0, noTrigGoodMuonSFErr = 0.0, noTrigGoodMuonSFPErr2 = 0.0;
         for( unsigned int imu = 0; imu < muons.size(); imu++ ) 
         {            
             if( !goodMuons.at(imu) ) continue;
@@ -350,17 +365,24 @@ private:
                 double muTrigSFPErr   = muTrigSFErr/muTrigSF;
 
                 double muTotSF        = muMediumSF * muIsoSF * muTrigSF;
-                double muTotSFPErr2   = 0.03*0.03 + muTrigSFPErr*muTrigSFPErr;
+                double muNoTrigSF     = muMediumSF * muIsoSF; 
 
+                double muTotSFPErr2   = 0.03*0.03 + muTrigSFPErr*muTrigSFPErr;
+                double muNoTrigSFPErr2 = 0.03*0.03;
+                
                 if( runYear == "2016" ) 
                 {
                     //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
                     //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
                     double muRecoSF   = muSFHistoReco_->Eval( mueta );
                     muTotSF           = muTotSF*muRecoSF;
+                    muNoTrigSF        = muNoTrigSF*muRecoSF;
                 }
                 totGoodMuonSF      *= muTotSF;
+                noTrigGoodMuonSF   *= muNoTrigSF;
+
                 totGoodMuonSFPErr2 += muTotSFPErr2;
+                noTrigGoodMuonSFPErr2 += muNoTrigSFPErr2;
             }
         }
 
@@ -368,10 +390,15 @@ private:
         totGoodMuonSF_Up    = totGoodMuonSF + totGoodMuonSFErr;
         totGoodMuonSF_Down  = totGoodMuonSF - totGoodMuonSFErr;
 
+        noTrigGoodMuonSFErr = std::sqrt(noTrigGoodMuonSFPErr2)*noTrigGoodMuonSF;
+
         tr.registerDerivedVar( "totGoodMuonSF"+myVarSuffix_,      totGoodMuonSF );
         tr.registerDerivedVar( "totGoodMuonSFErr"+myVarSuffix_,   totGoodMuonSFErr );
         tr.registerDerivedVar( "totGoodMuonSF_Up"+myVarSuffix_,   totGoodMuonSF_Up );
         tr.registerDerivedVar( "totGoodMuonSF_Down"+myVarSuffix_, totGoodMuonSF_Down );
+
+        tr.registerDerivedVar( "noTrigGoodMuonSF"+myVarSuffix_,   noTrigGoodMuonSF );
+        tr.registerDerivedVar( "noTrigGoodMuonSFErr"+myVarSuffix_,noTrigGoodMuonSFErr );
 
         // --------------------------------------------------------------------------------------
         // Adding a scale factor that corrects the disagreement between data and MC for Ht
