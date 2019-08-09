@@ -276,6 +276,7 @@ private:
 
                 double eleTotPErr       = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr + eleTrigPErr*eleTrigPErr);
                 double eleNoTrigPErr    = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr);
+
                 double eleTotSFErr      = eleTotPErr*eleTotSF;
                 double eleNoTrigSFErr   = eleNoTrigPErr*eleNoTrigSF;
 
