@@ -59,9 +59,9 @@ private:
         else if (runYear == "2018")
         {
             passTriggerAllHad = true;
-            passTriggerMuon = true;
-            passTriggerElectron = true;
-            passTriggerNonIsoMuon = true;
+            passTriggerMuon = PassTriggerMuon2018(TriggerNames, TriggerPass);
+            passTriggerElectron = PassTriggerElectron2018(TriggerNames, TriggerPass);
+            passTriggerNonIsoMuon = PassTriggerNonIsoMuon2018(TriggerNames, TriggerPass);
         }
         
         bool passTrigger   = true;
@@ -458,6 +458,13 @@ private:
     bool PassTriggerNonIsoMuon2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         //No track based muon 50 trigger in 2017 in our tuples
+        std::vector<std::string> mytriggers = {"HLT_Mu50"};
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+
+    bool PassTriggerNonIsoMuon2018(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        //No track based muon 50 trigger in 2018 in our tuples
         std::vector<std::string> mytriggers = {"HLT_Mu50"};
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
