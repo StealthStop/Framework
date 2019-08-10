@@ -4,6 +4,7 @@
 #include "TGraph.h"
 #include "TFile.h"
 #include "TKey.h"
+#include "Framework/Framework/include/Utility.h"
 
 class ScaleFactors
 {
@@ -185,6 +186,7 @@ private:
         
         double totGoodElectronSF      = 1.0, totGoodElectronSF_Up   = 1.0, totGoodElectronSF_Down = 1.0;
         double totGoodElectronSFErr   = 0.0, totGoodElectronSFPErr2 = 0.0;
+        double noTrigGoodElectronSF   = 1.0, noTrigGoodElectronSFErr = 0.0, noTrigGoodElectronSFPErr2 = 0.0;
         for( unsigned int iel = 0; iel < electrons.size(); iel++ ) 
         {
             if( !goodElectrons.at(iel) ) continue;
@@ -241,45 +243,55 @@ private:
 
             if( xbinElTight != -1 && ybinElTight != -1 && xbinElIso != -1 && ybinElIso != -1 && xbinElReco != -1 && ybinElReco != -1 ) 
             {
-                double eleTightSF       = eleSFHistoTight_->GetBinContent( xbinElTight, ybinElTight );
-                double eleTightSFErr    = eleSFHistoTight_->GetBinError( xbinElTight, ybinElTight );
-                double eleTightPErr     = eleTightSFErr/eleTightSF;
+                const double eleTightSF       = eleSFHistoTight_->GetBinContent( xbinElTight, ybinElTight );
+                const double eleTightSFErr    = eleSFHistoTight_->GetBinError( xbinElTight, ybinElTight );
+                const double eleTightPErr     = eleTightSFErr/eleTightSF;
 
                 double eleIsoSF         = eleSFHistoIso_->GetBinContent( xbinElIso, ybinElIso );
                 double eleIsoSFErr      = eleSFHistoIso_->GetBinError( xbinElIso, ybinElIso );
                 double eleIsoPErr       = eleIsoSFErr/eleIsoSF;
 
-                double eleRecoSF        = eleSFHistoReco_->GetBinContent( xbinElReco, ybinElReco );
-                double eleRecoSFErr     = eleSFHistoReco_->GetBinError( xbinElReco, ybinElReco );
-                double eleRecoPErr      = eleRecoSFErr/eleRecoSF;
-                
-                double eleTrigSF        = eleSFHistoTrig_->GetBinContent( xbinElTrig, ybinElTrig );
-                double eleTrigSFErr     = eleSFHistoTrig_->GetBinError( xbinElTrig, ybinElTrig );
-                double eleTrigPErr      = eleTrigSFErr/eleTrigSF;
+                const double eleRecoSF        = eleSFHistoReco_->GetBinContent( xbinElReco, ybinElReco );
+                const double eleRecoSFErr     = eleSFHistoReco_->GetBinError( xbinElReco, ybinElReco );
+                const double eleRecoPErr      = eleRecoSFErr/eleRecoSF;
+
+                const double eleTrigSF        = eleSFHistoTrig_->GetBinContent( xbinElTrig, ybinElTrig );
+                const double eleTrigSFErr     = eleSFHistoTrig_->GetBinError( xbinElTrig, ybinElTrig );
+                const double eleTrigPErr      = eleTrigSFErr/eleTrigSF;
                 
                 if( runYear == "2016" ) 
                 { 
                     //The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
                     //If this is the year 2016, we need to add the IP2D histogram scale factors into the Iso scale factor
-                    double eleIP2DSF    = eleSFHistoIP2D_->GetBinContent( xbinElIso, ybinElIso );
-                    double eleIP2DSFErr = eleSFHistoIP2D_->GetBinError( xbinElIso, ybinElIso );
-                    double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
+                    const double eleIP2DSF    = eleSFHistoIP2D_->GetBinContent( xbinElIso, ybinElIso );
+                    const double eleIP2DSFErr = eleSFHistoIP2D_->GetBinError( xbinElIso, ybinElIso );
+                    const double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
 
                     eleIsoSF            = eleIsoSF*eleIP2DSF;
-                    eleIsoPErr          = std::sqrt( eleIsoPErr*eleIsoPErr + eleIP2DPErr*eleIP2DPErr );
+                    eleIsoPErr          = utility::addInQuad( eleIsoPErr, eleIP2DPErr );
                     eleIsoSFErr         = eleIsoPErr*eleIsoSF;
                 }
                 
-                double eleTotSF         = eleTightSF*eleIsoSF*eleRecoSF*eleTrigSF; 
-                double eleTotPErr       = std::sqrt( eleTightPErr*eleTightPErr + eleIsoPErr*eleIsoPErr + eleRecoPErr*eleRecoPErr + eleTrigPErr*eleTrigPErr);
-                double eleTotSFErr      = eleTotPErr*eleTotSF;
+                const double eleNoTrigSF      = eleTightSF*eleIsoSF*eleRecoSF;
+                const double eleTotSF         = eleNoTrigSF*eleTrigSF; 
+
+                const double eleNoTrigPErr    = utility::addInQuad( eleTightPErr, eleIsoPErr, eleRecoPErr );
+                const double eleTotPErr       = utility::addInQuad( eleNoTrigPErr, eleTrigPErr );
+
+                const double eleTotSFErr      = eleTotPErr*eleTotSF;
+                const double eleNoTrigSFErr   = eleNoTrigPErr*eleNoTrigSF;
 
                 totGoodElectronSF       *= eleTotSF; 
+                noTrigGoodElectronSF    *= eleNoTrigSF;
+
                 totGoodElectronSFPErr2  += eleTotPErr*eleTotPErr;
+                noTrigGoodElectronSFPErr2 += eleNoTrigPErr*eleNoTrigPErr;
             }            
         }
 
         totGoodElectronSFErr    = std::sqrt(totGoodElectronSFPErr2) * totGoodElectronSF;
+        noTrigGoodElectronSFErr = std::sqrt(noTrigGoodElectronSFPErr2) * noTrigGoodElectronSF;
+
         totGoodElectronSF_Up    = totGoodElectronSF + totGoodElectronSFErr;
         totGoodElectronSF_Down  = totGoodElectronSF - totGoodElectronSFErr;
 
@@ -287,6 +299,9 @@ private:
         tr.registerDerivedVar( "totGoodElectronSFErr"+myVarSuffix_,   totGoodElectronSFErr );
         tr.registerDerivedVar( "totGoodElectronSF_Up"+myVarSuffix_,   totGoodElectronSF_Up );
         tr.registerDerivedVar( "totGoodElectronSF_Down"+myVarSuffix_, totGoodElectronSF_Down );
+
+        tr.registerDerivedVar( "noTrigGoodElectronSF"+myVarSuffix_,   noTrigGoodElectronSF );
+        tr.registerDerivedVar( "noTrigGoodElectronSFErr"+myVarSuffix_, noTrigGoodElectronSFErr );
 
         // --------------------------------------------------------------------------------------
         // Adding code for implementing muon scale factors
@@ -296,6 +311,8 @@ private:
 
         double totGoodMuonSF      = 1.0, totGoodMuonSF_Up   = 1.0, totGoodMuonSF_Down = 1.0;
         double totGoodMuonSFErr   = 0.0, totGoodMuonSFPErr2 = 0.0;
+
+        double noTrigGoodMuonSF   = 1.0, noTrigGoodMuonSFErr = 0.0, noTrigGoodMuonSFPErr2 = 0.0;
         for( unsigned int imu = 0; imu < muons.size(); imu++ ) 
         {            
             if( !goodMuons.at(imu) ) continue;
@@ -343,24 +360,31 @@ private:
             if( xbinMuMedium != 0 && ybinMuMedium != 0 && xbinMuIso != 0 && ybinMuIso != 0 ) 
             {
                 //The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
-                double muMediumSF     = muSFHistoMedium_->GetBinContent( xbinMuMedium, ybinMuMedium );
-                double muIsoSF        = muSFHistoIso_->GetBinContent( xbinMuIso, ybinMuIso );
-                double muTrigSF       = muSFHistoTrig_->GetBinContent( xbinMuTrig, ybinMuTrig );
-                double muTrigSFErr    = muSFHistoTrig_->GetBinError( xbinMuTrig, ybinMuTrig );
-                double muTrigSFPErr   = muTrigSFErr/muTrigSF;
+                const double muMediumSF     = muSFHistoMedium_->GetBinContent( xbinMuMedium, ybinMuMedium );
+                const double muIsoSF        = muSFHistoIso_->GetBinContent( xbinMuIso, ybinMuIso );
+                const double muTrigSF       = muSFHistoTrig_->GetBinContent( xbinMuTrig, ybinMuTrig );
+                const double muTrigSFErr    = muSFHistoTrig_->GetBinError( xbinMuTrig, ybinMuTrig );
+                const double muTrigSFPErr   = muTrigSFErr/muTrigSF;
 
-                double muTotSF        = muMediumSF * muIsoSF * muTrigSF;
-                double muTotSFPErr2   = 0.03*0.03 + muTrigSFPErr*muTrigSFPErr;
+                double muNoTrigSF     = muMediumSF * muIsoSF; 
+                double muTotSF        = muNoTrigSF * muTrigSF;
 
+                const double muNoTrigSFPErr2 = 0.03*0.03;
+                const double muTotSFPErr2   = muNoTrigSFPErr2 + muTrigSFPErr*muTrigSFPErr;
+                
                 if( runYear == "2016" ) 
                 {
                     //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
                     //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
-                    double muRecoSF   = muSFHistoReco_->Eval( mueta );
+                    const double muRecoSF   = muSFHistoReco_->Eval( mueta );
                     muTotSF           = muTotSF*muRecoSF;
+                    muNoTrigSF        = muNoTrigSF*muRecoSF;
                 }
                 totGoodMuonSF      *= muTotSF;
+                noTrigGoodMuonSF   *= muNoTrigSF;
+
                 totGoodMuonSFPErr2 += muTotSFPErr2;
+                noTrigGoodMuonSFPErr2 += muNoTrigSFPErr2;
             }
         }
 
@@ -368,10 +392,15 @@ private:
         totGoodMuonSF_Up    = totGoodMuonSF + totGoodMuonSFErr;
         totGoodMuonSF_Down  = totGoodMuonSF - totGoodMuonSFErr;
 
+        noTrigGoodMuonSFErr = std::sqrt(noTrigGoodMuonSFPErr2)*noTrigGoodMuonSF;
+
         tr.registerDerivedVar( "totGoodMuonSF"+myVarSuffix_,      totGoodMuonSF );
         tr.registerDerivedVar( "totGoodMuonSFErr"+myVarSuffix_,   totGoodMuonSFErr );
         tr.registerDerivedVar( "totGoodMuonSF_Up"+myVarSuffix_,   totGoodMuonSF_Up );
         tr.registerDerivedVar( "totGoodMuonSF_Down"+myVarSuffix_, totGoodMuonSF_Down );
+
+        tr.registerDerivedVar( "noTrigGoodMuonSF"+myVarSuffix_,   noTrigGoodMuonSF );
+        tr.registerDerivedVar( "noTrigGoodMuonSFErr"+myVarSuffix_,noTrigGoodMuonSFErr );
 
         // --------------------------------------------------------------------------------------
         // Adding a scale factor that corrects the disagreement between data and MC for Ht
