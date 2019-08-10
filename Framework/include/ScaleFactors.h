@@ -243,29 +243,29 @@ private:
 
             if( xbinElTight != -1 && ybinElTight != -1 && xbinElIso != -1 && ybinElIso != -1 && xbinElReco != -1 && ybinElReco != -1 ) 
             {
-                double eleTightSF       = eleSFHistoTight_->GetBinContent( xbinElTight, ybinElTight );
-                double eleTightSFErr    = eleSFHistoTight_->GetBinError( xbinElTight, ybinElTight );
-                double eleTightPErr     = eleTightSFErr/eleTightSF;
+                const double eleTightSF       = eleSFHistoTight_->GetBinContent( xbinElTight, ybinElTight );
+                const double eleTightSFErr    = eleSFHistoTight_->GetBinError( xbinElTight, ybinElTight );
+                const double eleTightPErr     = eleTightSFErr/eleTightSF;
 
                 double eleIsoSF         = eleSFHistoIso_->GetBinContent( xbinElIso, ybinElIso );
                 double eleIsoSFErr      = eleSFHistoIso_->GetBinError( xbinElIso, ybinElIso );
                 double eleIsoPErr       = eleIsoSFErr/eleIsoSF;
 
-                double eleRecoSF        = eleSFHistoReco_->GetBinContent( xbinElReco, ybinElReco );
-                double eleRecoSFErr     = eleSFHistoReco_->GetBinError( xbinElReco, ybinElReco );
-                double eleRecoPErr      = eleRecoSFErr/eleRecoSF;
-                
-                double eleTrigSF        = eleSFHistoTrig_->GetBinContent( xbinElTrig, ybinElTrig );
-                double eleTrigSFErr     = eleSFHistoTrig_->GetBinError( xbinElTrig, ybinElTrig );
-                double eleTrigPErr      = eleTrigSFErr/eleTrigSF;
+                const double eleRecoSF        = eleSFHistoReco_->GetBinContent( xbinElReco, ybinElReco );
+                const double eleRecoSFErr     = eleSFHistoReco_->GetBinError( xbinElReco, ybinElReco );
+                const double eleRecoPErr      = eleRecoSFErr/eleRecoSF;
+
+                const double eleTrigSF        = eleSFHistoTrig_->GetBinContent( xbinElTrig, ybinElTrig );
+                const double eleTrigSFErr     = eleSFHistoTrig_->GetBinError( xbinElTrig, ybinElTrig );
+                const double eleTrigPErr      = eleTrigSFErr/eleTrigSF;
                 
                 if( runYear == "2016" ) 
                 { 
                     //The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
                     //If this is the year 2016, we need to add the IP2D histogram scale factors into the Iso scale factor
-                    double eleIP2DSF    = eleSFHistoIP2D_->GetBinContent( xbinElIso, ybinElIso );
-                    double eleIP2DSFErr = eleSFHistoIP2D_->GetBinError( xbinElIso, ybinElIso );
-                    double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
+                    const double eleIP2DSF    = eleSFHistoIP2D_->GetBinContent( xbinElIso, ybinElIso );
+                    const double eleIP2DSFErr = eleSFHistoIP2D_->GetBinError( xbinElIso, ybinElIso );
+                    const double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
 
                     eleIsoSF            = eleIsoSF*eleIP2DSF;
                     eleIsoPErr          = utility::addInQuad( eleIsoPErr, eleIP2DPErr );
@@ -376,7 +376,7 @@ private:
                 {
                     //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
                     //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
-                    double muRecoSF   = muSFHistoReco_->Eval( mueta );
+                    const double muRecoSF   = muSFHistoReco_->Eval( mueta );
                     muTotSF           = muTotSF*muRecoSF;
                     muNoTrigSF        = muNoTrigSF*muRecoSF;
                 }
