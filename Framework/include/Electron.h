@@ -1,6 +1,8 @@
 #ifndef ELECTRON_H
 #define ELECTRON_H
 
+#include "Framework/Framework/include/Utility.h"
+
 class Electron
 {
 private:
@@ -44,7 +46,7 @@ private:
                 NGoodElectrons++;
                 if( allElectrons_charge.at(iel) ==  1 ) NGoodPlusElectrons++;
                 else if( allElectrons_charge.at(iel) == -1 ) NGoodMinusElectrons++;
-                else std::cout<<"Charge values in nTuples are different"<<std::endl;
+                else std::cout<<utility::color("Charge values in nTuples are different", "red")<<std::endl;
             }
             else
             {

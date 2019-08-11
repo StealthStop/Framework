@@ -1,6 +1,8 @@
 #ifndef MUON_H
 #define MUON_H
 
+#include "Framework/Framework/include/Utility.h"
+
 class Muon
 {
 private:
@@ -44,7 +46,7 @@ private:
                 NGoodMuons++;
                 if( allMuons_charge.at(imu) ==  1 ) NGoodPlusMuons++;
                 else if( allMuons_charge.at(imu) == -1 ) NGoodMinusMuons++;
-                else std::cout<<"Charge values in nTuples are different"<<std::endl;
+                else std::cout<<utility::color("Charge values in nTuples are different", "red")<<std::endl;
             }
             else
             {
