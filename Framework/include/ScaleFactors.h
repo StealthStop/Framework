@@ -1086,9 +1086,11 @@ private:
         const auto& bTagWeight          = tr.getVar<double>("bTagSF_EventWeightSimple_Central"+myVarSuffix_);
         int    NGoodElectrons           = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         int    NGoodMuons               = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
+        int    NNonIsoMuons             = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
         
         double totalEventWeight         = -1.0;
         double totalEventWeightMG       = -1.0;
+        double totalEventWeightNIM      = -1.0;
 
         if( NGoodElectrons == 1 ) {
             totalEventWeight = Weight*bTagWeight*totGoodElectronSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
@@ -1099,8 +1101,13 @@ private:
             totalEventWeightMG = Weight*bTagWeight*totGoodMuonSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
         }
 
+        if( NNonIsoMuons == 1 ) {
+            totalEventWeightNIM = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr;
+        }
+
         tr.registerDerivedVar( "totalEventWeight"+myVarSuffix_, totalEventWeight );
         tr.registerDerivedVar( "totalEventWeightMG"+myVarSuffix_, totalEventWeightMG );
+        tr.registerDerivedVar( "totalEventWeightNIM"+myVarSuffix_, totalEventWeightNIM );
     }
     
 public:
@@ -1140,6 +1147,7 @@ public:
         muSFHistoMedium_        = (TH2F*)SFRootFile.Get(muSFHistoMediumName);
         muSFHistoIso_           = (TH2F*)SFRootFile.Get(muSFHistoIsoName);
         muSFHistoTrig_          = (TH2F*)SFRootFile.Get(muSFHistoTrigName);
+        nimuSFHistoTrig_        = (TH2F*)SFRootFile.Get(nimuSFHistoTrigName);
         if ( SFRootFileName.find("2017") == std::string::npos ) {
             muSFHistoReco_         = (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr"); //Only 2016 requires the track reconstruction efficiency.
             eleSFHistoIP2D_        = (TH2F*)SFRootFile.Get("Run2016_MVAVLooseIP2D");//In 2016, the isolation SF histogram is separate from the IP2D cut scale factor histogram.
