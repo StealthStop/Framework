@@ -19,6 +19,7 @@ private:
     std::shared_ptr<TH2F> muSFHistoMedium_;
     std::shared_ptr<TH2F> muSFHistoIso_;
     std::shared_ptr<TH2F> muSFHistoTrig_;
+    std::shared_ptr<TH2F> nimuSFHistoTrig_;
     std::shared_ptr<TGraph> muSFHistoReco_;
     std::shared_ptr<TH1F> puSFHisto_;
     std::shared_ptr<TH1F> puSFUpHisto_;
@@ -274,31 +275,27 @@ private:
                     const double eleIP2DSFErr = eleSFHistoIP2D_->GetBinError( xbinElIso, ybinElIso );
                     const double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
 
-                    eleIsoSF            = eleIsoSF*eleIP2DSF;
-                    eleIsoPErr          = utility::addInQuad( eleIsoPErr, eleIP2DPErr );
-                    eleIsoSFErr         = eleIsoPErr*eleIsoSF;
+                    eleIsoSF    = eleIsoSF*eleIP2DSF;
+                    eleIsoPErr  = utility::addInQuad( eleIsoPErr, eleIP2DPErr );
+                    eleIsoSFErr = eleIsoPErr*eleIsoSF;
                 }
                 
                 const double eleNoTrigSF      = eleTightSF*eleIsoSF*eleRecoSF;
                 const double eleTotSF         = eleNoTrigSF*eleTrigSF; 
-
                 const double eleNoTrigPErr    = utility::addInQuad( eleTightPErr, eleIsoPErr, eleRecoPErr );
                 const double eleTotPErr       = utility::addInQuad( eleNoTrigPErr, eleTrigPErr );
-
                 const double eleTotSFErr      = eleTotPErr*eleTotSF;
                 const double eleNoTrigSFErr   = eleNoTrigPErr*eleNoTrigSF;
 
                 totGoodElectronSF       *= eleTotSF; 
                 noTrigGoodElectronSF    *= eleNoTrigSF;
-
                 totGoodElectronSFPErr2  += eleTotPErr*eleTotPErr;
                 noTrigGoodElectronSFPErr2 += eleNoTrigPErr*eleNoTrigPErr;
             }            
         }
 
-        totGoodElectronSFErr    = std::sqrt(totGoodElectronSFPErr2) * totGoodElectronSF;
-        noTrigGoodElectronSFErr = std::sqrt(noTrigGoodElectronSFPErr2) * noTrigGoodElectronSF;
-
+        totGoodElectronSFErr    = sqrt(totGoodElectronSFPErr2) * totGoodElectronSF;
+        noTrigGoodElectronSFErr = sqrt(noTrigGoodElectronSFPErr2) * noTrigGoodElectronSF;
         totGoodElectronSF_Up    = totGoodElectronSF + totGoodElectronSFErr;
         totGoodElectronSF_Down  = totGoodElectronSF - totGoodElectronSFErr;
 
@@ -306,7 +303,6 @@ private:
         tr.registerDerivedVar( "totGoodElectronSFErr"+myVarSuffix_,   totGoodElectronSFErr );
         tr.registerDerivedVar( "totGoodElectronSF_Up"+myVarSuffix_,   totGoodElectronSF_Up );
         tr.registerDerivedVar( "totGoodElectronSF_Down"+myVarSuffix_, totGoodElectronSF_Down );
-
         tr.registerDerivedVar( "noTrigGoodElectronSF"+myVarSuffix_,   noTrigGoodElectronSF );
         tr.registerDerivedVar( "noTrigGoodElectronSFErr"+myVarSuffix_, noTrigGoodElectronSFErr );
 
@@ -315,19 +311,20 @@ private:
         // --------------------------------------------------------------------------------------
         const auto& muons         = tr.getVec<TLorentzVector>("Muons");
         const auto& goodMuons     = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
+        const auto& nonisoMuons     = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
 
-        double totGoodMuonSF      = 1.0, totGoodMuonSF_Up   = 1.0, totGoodMuonSF_Down = 1.0;
-        double totGoodMuonSFErr   = 0.0, totGoodMuonSFPErr2 = 0.0;
+        double totGoodMuonSF      = 1.0, totGoodMuonSF_Up     = 1.0, totGoodMuonSF_Down    = 1.0;
+        double totGoodMuonSFErr   = 0.0, totGoodMuonSFPErr2   = 0.0;
+        double noTrigGoodMuonSF   = 1.0, noTrigGoodMuonSFErr  = 0.0, noTrigGoodMuonSFPErr2 = 0.0;
+        double totNonIsoMuonSF    = 1.0, totNonIsoMuonSF_Up   = 1.0, totNonIsoMuonSF_Down  = 1.0;
+        double totNonIsoMuonSFErr = 0.0, totNonIsoMuonSFPErr2 = 0.0;        
 
-        double noTrigGoodMuonSF   = 1.0, noTrigGoodMuonSFErr = 0.0, noTrigGoodMuonSFPErr2 = 0.0;
         for( unsigned int imu = 0; imu < muons.size(); imu++ ) 
         {            
-            if( !goodMuons.at(imu) ) continue;
-            
             //Get the scale factor from the rootfile
             const double mupt = muons.at(imu).Pt();
             const double mueta = muons.at(imu).Eta();
-            int xbinMuMedium = -1, ybinMuMedium = -1, xbinMuIso = -1, ybinMuIso = -1, xbinMuTrig = -1, ybinMuTrig = -1;
+            int xbinMuMedium = -1, ybinMuMedium = -1, xbinMuIso = -1, ybinMuIso = -1, xbinMuTrig = -1, ybinMuTrig = -1, xbinNonIsoMuTrig = -1, ybinNonIsoMuTrig = -1;
 
             if( runYear == "2016" ) 
             {
@@ -340,6 +337,9 @@ private:
                 //Find the bin indices (binned by x: pt and y: eta ) for the 2016 scale factor for Data/MC Trigger Efficiency
                 xbinMuTrig = findBin(muSFHistoTrig_, mupt,  "X");
                 ybinMuTrig = findBin(muSFHistoTrig_, mueta, "Y");
+                //Find the bin indices (binned by x: pt and y: eta ) for the 2016 scale factor for Data/MC Non Iso Trigger Efficiency
+                xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,  "X");
+                ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta, "Y");
             } 
             else if( runYear == "2017" ) 
             {
@@ -352,6 +352,9 @@ private:
                 //Find the bin indices (binned by x: pt and y: eta ) for the 2017 scale factor for Data/MC Trigger Efficiency
                 xbinMuTrig = findBin(muSFHistoTrig_, mupt,  "X");
                 ybinMuTrig = findBin(muSFHistoTrig_, mueta, "Y");
+                //Find the bin indices (binned by x: pt and y: eta ) for the 2017 scale factor for Data/MC Non Iso Trigger Efficiency
+                xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,  "X");
+                ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta, "Y");
             }
             else if( runYear == "2018" )
             {
@@ -367,47 +370,64 @@ private:
             if( xbinMuMedium != -1 && ybinMuMedium != -1 && xbinMuIso != -1 && ybinMuIso != -1 ) 
             {
                 //The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
-                const double muMediumSF     = muSFHistoMedium_->GetBinContent( xbinMuMedium, ybinMuMedium );
-                const double muIsoSF        = muSFHistoIso_->GetBinContent( xbinMuIso, ybinMuIso );
-                const double muTrigSF       = (muSFHistoTrig_) ? muSFHistoTrig_->GetBinContent( xbinMuTrig, ybinMuTrig ) : 1.0;
-                const double muTrigSFErr    = (muSFHistoTrig_) ? muSFHistoTrig_->GetBinError( xbinMuTrig, ybinMuTrig ) : 0.0;
-                const double muTrigSFPErr   = muTrigSFErr/muTrigSF;
-
-                double muNoTrigSF     = muMediumSF * muIsoSF; 
-                double muTotSF        = muNoTrigSF * muTrigSF;
-
-                const double muNoTrigSFPErr2 = 0.03*0.03;
-                const double muTotSFPErr2   = muNoTrigSFPErr2 + muTrigSFPErr*muTrigSFPErr;
+                const double muMediumSF         = muSFHistoMedium_->GetBinContent( xbinMuMedium, ybinMuMedium );
+                const double muIsoSF            = muSFHistoIso_->GetBinContent( xbinMuIso, ybinMuIso );
+                const double muTrigSF           = (muSFHistoTrig_) ? muSFHistoTrig_->GetBinContent( xbinMuTrig, ybinMuTrig ) : 1.0;
+                const double muNonIsoTrigSF     = (nimuSFHistoTrig_) ? nimuSFHistoTrig_->GetBinContent( xbinNonIsoMuTrig, ybinNonIsoMuTrig ) : 1.0;
+                const double muTrigSFErr        = (muSFHistoTrig_) ? muSFHistoTrig_->GetBinError( xbinMuTrig, ybinMuTrig ) : 0.0;
+                const double muNonIsoTrigSFErr  = (nimuSFHistoTrig_) ? nimuSFHistoTrig_->GetBinError( xbinNonIsoMuTrig, ybinNonIsoMuTrig ) : 0.0;
+                const double muTrigSFPErr       = muTrigSFErr/muTrigSF;
+                const double muNonIsoTrigSFPErr = muNonIsoTrigSFErr/muNonIsoTrigSF;
+                double muNoTrigSF               = muMediumSF*muIsoSF; 
+                double muTotSF                  = muNoTrigSF*muTrigSF;
+                double muNonIsoTotSF            = muNoTrigSF*muNonIsoTrigSF;
+                const double muNoTrigSFPErr2    = 0.03*0.03;
+                const double muTotSFPErr2       = muNoTrigSFPErr2 + muTrigSFPErr*muTrigSFPErr;
+                const double muNonIsoTotSFPErr2 = muNoTrigSFPErr2 + muNonIsoTrigSFPErr*muNonIsoTrigSFPErr;
                 
                 if( runYear == "2016" ) 
                 {
                     //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
                     //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
-                    const double muRecoSF   = muSFHistoReco_->Eval( mueta );
-                    muTotSF           = muTotSF*muRecoSF;
-                    muNoTrigSF        = muNoTrigSF*muRecoSF;
+                    const double muRecoSF    = muSFHistoReco_->Eval( mueta );
+                    muTotSF                 *= muRecoSF;
+                    muNoTrigSF              *= muRecoSF;
+                    muNonIsoTotSF           *= muRecoSF;
                 }
-                totGoodMuonSF      *= muTotSF;
-                noTrigGoodMuonSF   *= muNoTrigSF;
 
-                totGoodMuonSFPErr2 += muTotSFPErr2;
-                noTrigGoodMuonSFPErr2 += muNoTrigSFPErr2;
+                if( goodMuons.at(imu) )
+                {                
+                    totGoodMuonSF           *= muTotSF;
+                    noTrigGoodMuonSF        *= muNoTrigSF;
+                    totGoodMuonSFPErr2      += muTotSFPErr2;
+                    noTrigGoodMuonSFPErr2   += muNoTrigSFPErr2;
+                }
+                if( nonisoMuons.at(imu) )
+                {
+                    totNonIsoMuonSF         *= muNonIsoTotSF;
+                    totNonIsoMuonSFPErr2    += muNonIsoTotSFPErr2;
+                }
             }
         }
 
-        totGoodMuonSFErr    = std::sqrt(totGoodMuonSFPErr2)*totGoodMuonSF;
-        totGoodMuonSF_Up    = totGoodMuonSF + totGoodMuonSFErr;
-        totGoodMuonSF_Down  = totGoodMuonSF - totGoodMuonSFErr;
+        totGoodMuonSFErr     = sqrt(totGoodMuonSFPErr2)*totGoodMuonSF;
+        totGoodMuonSF_Up     = totGoodMuonSF + totGoodMuonSFErr;
+        totGoodMuonSF_Down   = totGoodMuonSF - totGoodMuonSFErr;
+        noTrigGoodMuonSFErr  = sqrt(noTrigGoodMuonSFPErr2)*noTrigGoodMuonSF;
+        totNonIsoMuonSFErr   = sqrt(totNonIsoMuonSFPErr2)*totNonIsoMuonSF;
+        totNonIsoMuonSF_Up   = totNonIsoMuonSF + totNonIsoMuonSFErr;
+        totNonIsoMuonSF_Down = totNonIsoMuonSF - totNonIsoMuonSFErr;
 
-        noTrigGoodMuonSFErr = std::sqrt(noTrigGoodMuonSFPErr2)*noTrigGoodMuonSF;
-
-        tr.registerDerivedVar( "totGoodMuonSF"+myVarSuffix_,      totGoodMuonSF );
-        tr.registerDerivedVar( "totGoodMuonSFErr"+myVarSuffix_,   totGoodMuonSFErr );
-        tr.registerDerivedVar( "totGoodMuonSF_Up"+myVarSuffix_,   totGoodMuonSF_Up );
-        tr.registerDerivedVar( "totGoodMuonSF_Down"+myVarSuffix_, totGoodMuonSF_Down );
-
-        tr.registerDerivedVar( "noTrigGoodMuonSF"+myVarSuffix_,   noTrigGoodMuonSF );
-        tr.registerDerivedVar( "noTrigGoodMuonSFErr"+myVarSuffix_,noTrigGoodMuonSFErr );
+        tr.registerDerivedVar( "totGoodMuonSF"+myVarSuffix_,       totGoodMuonSF );
+        tr.registerDerivedVar( "totGoodMuonSFErr"+myVarSuffix_,    totGoodMuonSFErr );
+        tr.registerDerivedVar( "totGoodMuonSF_Up"+myVarSuffix_,    totGoodMuonSF_Up );
+        tr.registerDerivedVar( "totGoodMuonSF_Down"+myVarSuffix_,  totGoodMuonSF_Down );
+        tr.registerDerivedVar( "noTrigGoodMuonSF"+myVarSuffix_,    noTrigGoodMuonSF );
+        tr.registerDerivedVar( "noTrigGoodMuonSFErr"+myVarSuffix_, noTrigGoodMuonSFErr );
+        tr.registerDerivedVar( "totNonIsoMuonSF"+myVarSuffix_,     totNonIsoMuonSF );
+        tr.registerDerivedVar( "totNonIsoMuonSFErr"+myVarSuffix_,  totNonIsoMuonSFErr );
+        tr.registerDerivedVar( "totNonIsoMuonSF_Up"+myVarSuffix_,  totNonIsoMuonSF_Up );
+        tr.registerDerivedVar( "totNonIsoMuonSF_Down"+myVarSuffix_,totNonIsoMuonSF_Down );
 
         // --------------------------------------------------------------------------------------
         // Adding a scale factor that corrects the disagreement between data and MC for Ht
@@ -660,9 +680,11 @@ private:
         const auto& bTagWeight     = tr.getVar<double>("bTagSF_EventWeightSimple_Central"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& NGoodMuons     = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
+        const auto& NNonIsoMuons   = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
         
         double totalEventWeight    = -1.0;
         double totalEventWeightMG  = -1.0;
+        double totalEventWeightNIM      = -1.0;
         if( NGoodElectrons == 1 ) 
         {
             totalEventWeight = Weight*bTagWeight*totGoodElectronSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
@@ -673,8 +695,12 @@ private:
             totalEventWeight = Weight*bTagWeight*totGoodMuonSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
             totalEventWeightMG = Weight*bTagWeight*totGoodMuonSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
         }
+        if( NNonIsoMuons == 1 ) {
+            totalEventWeightNIM = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr;
+        }
         tr.registerDerivedVar( "totalEventWeight"+myVarSuffix_, totalEventWeight );
         tr.registerDerivedVar( "totalEventWeightMG"+myVarSuffix_, totalEventWeightMG );
+        tr.registerDerivedVar( "totalEventWeightNIM"+myVarSuffix_, totalEventWeightNIM );
     }
 
 public:
@@ -687,7 +713,8 @@ public:
         // Getting Lepton scale factor histograms
         TFile SFRootFile( leptonFileName.c_str() );
         TString eleSFHistoTightName, eleSFHistoIsoName, eleSFHistoRecoName, eleSFHistoTrigName;
-        TString muSFHistoMediumName,  muSFHistoIsoName,  muSFHistoRecoName,  muSFHistoTrigName;
+        TString muSFHistoMediumName,  muSFHistoIsoName,  muSFHistoRecoName,  muSFHistoTrigName, nimuSFHistoTrigName;
+
         if( runYear == "2016")
         {
             eleSFHistoTightName = "Run2016_CutBasedTightNoIso94XV2";
@@ -697,6 +724,7 @@ public:
             muSFHistoMediumName = "sf_mu_mediumID";
             muSFHistoIsoName = "sf_mu_mediumID_mini02";
             muSFHistoTrigName = "TrigEff_2016_num_mu_pt40_trig_5jCut_htCut_isoTrig";
+            nimuSFHistoTrigName = "TrigEff_2016_num_nimu_pt40_trig_4jCut";
         }
         else if( runYear == "2017")
         {
@@ -707,6 +735,7 @@ public:
             muSFHistoMediumName = "NUM_MediumID_DEN_genTracks_pt_abseta";
             muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
             muSFHistoTrigName = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_isoTrig";
+            nimuSFHistoTrigName = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
         }
         else if( runYear == "2018")
         {
@@ -717,7 +746,9 @@ public:
             muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_pt_abseta";
             muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
             muSFHistoTrigName = "";
+            nimuSFHistoTrigName = "";
         }
+
         getHisto(SFRootFile, eleSFHistoTight_, eleSFHistoTightName);
         getHisto(SFRootFile, eleSFHistoIso_,   eleSFHistoIsoName);
         getHisto(SFRootFile, eleSFHistoReco_,  eleSFHistoRecoName);
@@ -725,6 +756,7 @@ public:
         getHisto(SFRootFile, muSFHistoMedium_, muSFHistoMediumName);
         getHisto(SFRootFile, muSFHistoIso_,    muSFHistoIsoName);
         getHisto(SFRootFile, muSFHistoTrig_,   muSFHistoTrigName);
+        getHisto(SFRootFile, nimuSFHistoTrig_, nimuSFHistoTrigName);
         if( runYear == "2016" ) 
         {
             getHisto(SFRootFile, eleSFHistoIP2D_, "Run2016_MVAVLooseIP2D");//In 2016, the isolation SF histogram is separate from the IP2D cut scale factor histogram.
