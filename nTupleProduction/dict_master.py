@@ -1,5 +1,24 @@
 flist = {
+    
+    "Summer16" : {
 
+        "tth" : [
+        
+        ['Summer16.TT_TuneCUETP8M2T4_13TeV-powheg-isrup-pythia8_ext1'],
+        ['Summer16.TT_TuneCUETP8M2T4_13TeV-powheg-isrup-pythia8_ext2'],
+        ['Summer16.tZq_W_lept_Z_hadron_4f_ckm_NLO_13TeV_amcatnlo_pythia8'],
+        ['Summer16.ZGTo2NuG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'],
+        ['Summer16.ttHJetToNonbb_M125_13TeV_amcatnloFXFX_madspin_pythia8_mWCutfix_ext1'],
+        ['Summer16.ttHJetTobb_M125_13TeV_amcatnloFXFX_madspin_pythia8_ext3'],
+        ['Summer16.TTHH_TuneCUETP8M2T4_13TeV-madgraph-pythia8'],
+        ['Summer16.TTTW_TuneCUETP8M2T4_13TeV-madgraph-pythia8'],
+        ['Summer16.TTWH_TuneCUETP8M2T4_13TeV-madgraph-pythia8'],
+        ['Summer16.TTWZ_TuneCUETP8M2T4_13TeV-madgraph-pythia8'],
+        ['Summer16.TTZH_TuneCUETP8M2T4_13TeV-madgraph-pythia8'],
+        ['Summer16.TTZZ_TuneCUETP8M2T4_13TeV-madgraph-pythia8'],
+        ['Summer16.TTTJ_TuneCUETP8M2T4_13TeV-madgraph-pythia8'],
+        ],
+    },
     "Summer16v3" : {
 		
 	"QCD_HT" : [
@@ -418,20 +437,23 @@ flist = {
         ['Autumn18.DYJetsToLL_M-50_HT-400to600_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8'],
         ['Autumn18.DYJetsToLL_M-50_HT-600to800_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8'],
         ['Autumn18.DYJetsToLL_M-50_HT-800to1200_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8'],
-        ['Autumn18.DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8'],
-        ['Autumn18.DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8'],
         ['Autumn18.DYJetsToLL_M-50_HT-1200to2500_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8'],
+        ['Autumn18.DYJetsToLL_M-50_HT-2500toInf_TuneCP5_PSweights_13TeV-madgraphMLM-pythia8'],
+        ['Autumn18.DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8'],
+        
+        
     	],
 
     	"gjets" : [
-    	['Autumn18.GJets_DR-0p4_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8'],
-        ['Autumn18.GJets_DR-0p4_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8'],
         ['Autumn18.GJets_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8'],
         ['Autumn18.GJets_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8'],
         ['Autumn18.GJets_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8'],
         ['Autumn18.GJets_HT-600ToInf_TuneCP5_13TeV-madgraphMLM-pythia8_ext1'],
         ['Autumn18.GJets_DR-0p4_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8'],
         ['Autumn18.GJets_DR-0p4_HT-600ToInf_TuneCP5_13TeV-madgraphMLM-pythia8'],
+        ['Autumn18.GJets_DR-0p4_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8'],
+        ['Autumn18.GJets_DR-0p4_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8'],
+
     	],
 
     	"ttbar": [
