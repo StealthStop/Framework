@@ -55,7 +55,7 @@ private:
         return AllDR;
     }       
     //function to sort for best matches and construct stop mass
-    inline std::vector<TLorentzVector> getMatchedSum(const std::vector<std::tuple< int , int , double>>& AllDR, const std::vector<TLorentzVector>& RecoParticles, TLorentzVector& MatchedSum, std::vector<bool> availableDR, TLorentzVector& GenMatchedSum,const std::vector<TLorentzVector>& GenParticles) const
+    inline std::pair<std::vector<TLorentzVector>,int> getMatchedSum(const std::vector<std::tuple< int , int , double>>& AllDR, const std::vector<TLorentzVector>& RecoParticles, TLorentzVector& MatchedSum, std::vector<bool> availableDR, TLorentzVector& GenMatchedSum,const std::vector<TLorentzVector>& GenParticles, int NGenMatched = 0) const
     {
         double minDR = 999;
         std::tuple< int, int, double> bestDR;
@@ -78,6 +78,7 @@ private:
             {
                 MatchedSum +=  RecoParticles.at(std::get<1>(bestDR));
                 GenMatchedSum += GenParticles.at(std::get<0>(bestDR));
+                NGenMatched += 1;
             }
             for (unsigned int d=0;  d < AllDR.size(); d++)
             {
@@ -86,13 +87,14 @@ private:
                     availableDR.at(d) = false;
                 }
             }
-            return getMatchedSum( AllDR, RecoParticles, MatchedSum, availableDR, GenMatchedSum, GenParticles);
+            return getMatchedSum( AllDR, RecoParticles, MatchedSum, availableDR, GenMatchedSum, GenParticles, NGenMatched);
         }
         else
         {
-            std::vector<TLorentzVector> Sums;
-            Sums.push_back(MatchedSum);
-            Sums.push_back(GenMatchedSum);
+            std::pair<std::vector<TLorentzVector>,int> Sums;
+            Sums.first.push_back(MatchedSum);
+            Sums.first.push_back(GenMatchedSum);
+            Sums.second = NGenMatched;
             return Sums;
         }
     }
@@ -164,7 +166,7 @@ private:
                     OkayGenParticles.at(p) = true;
                 }
             }
-            //Define GoodGenParticles, which removed  W radiation and allows undecayed taus
+            //Define GoodGenParticles, which has no W radiation (for most part) and allows undecayed taus
             std::vector<bool> GoodGenParticles = OkayGenParticles;
             bool w_eplus = false, w_eminus = false, w_muplus = false, w_muminus =false;
             int em = 0, ep = 0, mm = 0, mp = 0;
@@ -219,7 +221,7 @@ private:
 
             }
             
-            if (neutralinos_Idx.size() == 2) //need to sort neutralinos by Pt since no anti-neutralino
+            if (neutralinos_Idx.size() == 2) //need to sort neutralinos by Pt
             {
                 if (GenParticles.at(neutralinos_Idx.at(0)).Pt() > GenParticles.at(neutralinos_Idx.at(1)).Pt())
                 {
@@ -236,38 +238,51 @@ private:
             std::vector<int>  resParticleList{1000006, -1000006, 1000022, -1000022,  5000002, -5000002};
             std::vector<TLorentzVector> RecoSumList;
             std::vector<TLorentzVector> GenSumList;
-            for (const auto& p : resParticleList)
+            std::vector<int> NMatched(2,0);
+            float NGenTotal = 0;
+            double fracGenMatched = -1.0;
+            for (int g=0; g < GenParticles.size(); g++)
+            {
+                if (GoodGenParticles[g]) NGenTotal += 1;
+            }
+            for (int p=0; p < resParticleList.size(); p++)
             {
                 TLorentzVector initMatchedSum;
                 TLorentzVector GenMatchedSum;
                 
-                std::vector<std::tuple< int , int , double>> AllDR = findAllDR(GenParticles, RecoParticles, GoodGenParticles, p, GenParticles_ParentId, GenParticles_ParentIdx, nlino1_Idx, nlino2_Idx);
+                std::vector<std::tuple< int , int , double>> AllDR = findAllDR(GenParticles, RecoParticles, GoodGenParticles, resParticleList[p], GenParticles_ParentId, GenParticles_ParentIdx, nlino1_Idx, nlino2_Idx);
                 std::vector<bool> availableDR(AllDR.size(), true);
-                std::vector<TLorentzVector> Sums = getMatchedSum( AllDR, RecoParticles, initMatchedSum, availableDR, GenMatchedSum, GenParticles);
-                RecoSumList.push_back(Sums.at(0));
-                GenSumList.push_back(Sums.at(1));
-            }
+                std::pair<std::vector<TLorentzVector>,int> Sums = getMatchedSum( AllDR, RecoParticles, initMatchedSum, availableDR, GenMatchedSum, GenParticles);
+                RecoSumList.push_back(Sums.first.at(0));
+                GenSumList.push_back(Sums.first.at(1));
                 
+                if (resParticleList[p] == 1000006) NMatched[0] = Sums.second;
+                else if (resParticleList[p] == -1000006) NMatched[1] = Sums.second;
+            }
+            int NTotMatched = NMatched[0] + NMatched[1];
+            if (NGenTotal != 0) fracGenMatched = std::round((NTotMatched / NGenTotal)*1000)/1000;
+//            std::cout << NTotMatched << " " << NGenTotal << " " << fracGenMatched << std::endl;
+       
 
             
             asymm_mt2_lester_bisect::disableCopyrightMessage();
             
-            tr.registerDerivedVar("StopMT2"+myVarSuffix_,        ttUtility::coreMT2calc(RecoSumList.at(0),RecoSumList.at(1),lvMET));
-            tr.registerDerivedVar("StopGenMT2"+myVarSuffix_,     ttUtility::coreMT2calc(GenSumList.at(0),GenSumList.at(1),lvGenMET));
-            tr.registerDerivedVar("Stop1Mass"+myVarSuffix_,      RecoSumList.at(0).M());
-            tr.registerDerivedVar("Stop2Mass"+myVarSuffix_,      RecoSumList.at(1).M());
-            tr.registerDerivedVar("Stop1GenMass"+myVarSuffix_,   GenSumList.at(0).M());
-            tr.registerDerivedVar("Stop2GenMass"+myVarSuffix_,   GenSumList.at(1).M());            
-            tr.registerDerivedVar("Nlino1Mass"+myVarSuffix_,     RecoSumList.at(2).M());
-            tr.registerDerivedVar("Nlino2Mass"+myVarSuffix_,     RecoSumList.at(3).M());
-            tr.registerDerivedVar("Nlino1GenMass"+myVarSuffix_,  GenSumList.at(2).M());
-            tr.registerDerivedVar("Nlino2GenMass"+myVarSuffix_,  GenSumList.at(3).M());
-            tr.registerDerivedVar("Single1Mass"+myVarSuffix_,    RecoSumList.at(4).M());
-            tr.registerDerivedVar("Single2Mass"+myVarSuffix_,    RecoSumList.at(5).M());
-            tr.registerDerivedVar("Single1GenMass"+myVarSuffix_, GenSumList.at(4).M());
-            tr.registerDerivedVar("Single2GenMass"+myVarSuffix_, GenSumList.at(5).M());
+            tr.registerDerivedVar("GM_StopMT2"+myVarSuffix_,        ttUtility::coreMT2calc(RecoSumList.at(0),RecoSumList.at(1),lvMET));
+            tr.registerDerivedVar("GM_StopGenMT2"+myVarSuffix_,     ttUtility::coreMT2calc(GenSumList.at(0),GenSumList.at(1),lvGenMET));
+            tr.registerDerivedVar("GM_Stop1Mass"+myVarSuffix_,      RecoSumList.at(0).M());
+            tr.registerDerivedVar("GM_Stop2Mass"+myVarSuffix_,      RecoSumList.at(1).M());
+            tr.registerDerivedVar("GM_Stop1GenMass"+myVarSuffix_,   GenSumList.at(0).M());
+            tr.registerDerivedVar("GM_Stop2GenMass"+myVarSuffix_,   GenSumList.at(1).M());            
+            tr.registerDerivedVar("GM_Nlino1Mass"+myVarSuffix_,     RecoSumList.at(2).M());
+            tr.registerDerivedVar("GM_Nlino2Mass"+myVarSuffix_,     RecoSumList.at(3).M());
+            tr.registerDerivedVar("GM_Nlino1GenMass"+myVarSuffix_,  GenSumList.at(2).M());
+            tr.registerDerivedVar("GM_Nlino2GenMass"+myVarSuffix_,  GenSumList.at(3).M());
+            tr.registerDerivedVar("GM_Single1Mass"+myVarSuffix_,    RecoSumList.at(4).M());
+            tr.registerDerivedVar("GM_Single2Mass"+myVarSuffix_,    RecoSumList.at(5).M());
+            tr.registerDerivedVar("GM_Single1GenMass"+myVarSuffix_, GenSumList.at(4).M());
+            tr.registerDerivedVar("GM_Single2GenMass"+myVarSuffix_, GenSumList.at(5).M());
 
-
+            tr.registerDerivedVar("fracGenMatched"+myVarSuffix_,  fracGenMatched);
         }
     }
 
