@@ -18,6 +18,7 @@ private:
     TH2F* muSFHistoMedium_;
     TH2F* muSFHistoIso_;
     TH2F* muSFHistoTrig_;
+    TH2F* nimuSFHistoTrig_;
     TGraph* muSFHistoReco_;
     TH1F* puSFHisto_;
     TH1F* puSFUpHisto_;
@@ -574,6 +575,146 @@ private:
         tr.registerDerivedVar( "totGoodMuonSF_Up"+myVarSuffix_,      totGoodMuonSF_Up );
         tr.registerDerivedVar( "totGoodMuonSF_Down"+myVarSuffix_,    totGoodMuonSF_Down );
 
+        // -------------------------------------------------------------------------------------
+        // Adding non isolated muon scale factors
+        // -------------------------------------------------------------------------------------
+        
+        const auto& nonisoMuons     = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
+
+        double totNonIsoMuonSF      = 1.0;
+        double totNonIsoMuonSFPErr2   = 0.0;
+        double totNonIsoMuonSFErr     = 0.0;
+        double totNonIsoMuonSF_Up     = 1.0;
+        double totNonIsoMuonSF_Down   = 1.0;
+
+        //Loop through the muons
+        for( unsigned int imu = 0; imu < muons.size(); imu++ ) {
+            
+            //If it is not a good lepton, no need to calculate scale factor since we are not using it in the analysis
+            if( !nonisoMuons.at(imu) ) continue;
+
+            else {
+                //Get the scale factor from the rootfile
+                double mupt = muons.at(imu).Pt();
+                double mueta = muons.at(imu).Eta();
+                
+                int xbinMuMedium = 0, ybinMuMedium = 0, xbinMuTrig = 0, ybinMuTrig = 0;
+ 
+                if( filetag.find("2017") != std::string::npos ) { //If this is the year 2017
+                    //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2017 scale factor for Medium ID (has only 24 bins)
+                    for( unsigned int ixbin = 0; ixbin < muSFHistoMedium_->GetNbinsX()+1; ixbin++ ) {
+                        double tempxBinEdgeMax = muSFHistoMedium_->GetXaxis()->GetBinUpEdge(ixbin);
+                        if( mupt < tempxBinEdgeMax )  {
+                            xbinMuMedium = ixbin; 
+                            break;
+                        }
+                    }
+    
+                    for( unsigned int iybin = 0; iybin < muSFHistoMedium_->GetNbinsY()+1; iybin++ ) {
+                        double tempyBinEdgeMax = muSFHistoMedium_->GetYaxis()->GetBinUpEdge(iybin);
+                        if( std::fabs( mueta ) < tempyBinEdgeMax ) { //Histogram is binned by absolute value of eta!
+                            ybinMuMedium = iybin;
+                            break;
+                        }
+                    }
+                    if( xbinMuMedium == 0 && mupt > 120.0) xbinMuMedium = muSFHistoMedium_->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
+                    
+                    //Find the bin indices (binned by x: pt and y: eta ) for the 2017 scale factor for Data/MC Trigger Efficiency
+                    for( unsigned int ixbin = 0; ixbin < nimuSFHistoTrig_->GetNbinsX()+1; ixbin++ ) {
+                        double tempxBinEdgeMax = nimuSFHistoTrig_->GetXaxis()->GetBinUpEdge(ixbin);
+                        if( mupt < tempxBinEdgeMax )  {
+                            xbinMuTrig = ixbin; 
+                            break;
+                        }
+                    }
+    
+                    for( unsigned int iybin = 0; iybin < nimuSFHistoTrig_->GetNbinsY()+1; iybin++ ) {
+                        double tempyBinEdgeMax = nimuSFHistoTrig_->GetYaxis()->GetBinUpEdge(iybin);
+                        if( mueta < tempyBinEdgeMax ) {
+                            ybinMuTrig = iybin;
+                            break;
+                        }
+                    }
+                    if( xbinMuTrig == 0 && mupt > 200.0) xbinMuTrig = nimuSFHistoTrig_->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
+                    if( ybinMuTrig == 0 ) std::cerr<<"Mu Trig Histo: Invalid eta stored for a non isolated muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
+                }//END of 2017 loop
+
+                else { //If the year is 2016 loop
+                    
+                    //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2016 scale factor for both Medium ID and MiniIso of 0.2 (has only 20 bins) - same binning!
+                    for( unsigned int ixbin = 0; ixbin < muSFHistoMedium_->GetNbinsX()+1; ixbin++ ) {
+                        double tempxBinEdgeMax = muSFHistoMedium_->GetXaxis()->GetBinUpEdge(ixbin);
+                        if( mupt < tempxBinEdgeMax )  {
+                            xbinMuMedium = ixbin; 
+                            break;
+                        }
+                    }
+    
+                    for( unsigned int iybin = 0; iybin < muSFHistoMedium_->GetNbinsY()+1; iybin++ ) {
+                        double tempyBinEdgeMax = muSFHistoMedium_->GetYaxis()->GetBinUpEdge(iybin);
+                        if( std::fabs( mueta ) < tempyBinEdgeMax ) {
+                            ybinMuMedium = iybin;
+                            break;
+                        }
+                    }
+                   
+                    if( xbinMuMedium == 0 && mupt > 200.0) xbinMuMedium = muSFHistoMedium_->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
+                    if( ybinMuMedium == 0 ) std::cerr<<"Mu Iso Histo: Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
+
+                    //Find the bin indices (binned by x: pt and y: eta ) for the 2016 scale factor for Data/MC Trigger Efficiency
+                    for( unsigned int ixbin = 0; ixbin < nimuSFHistoTrig_->GetNbinsX()+1; ixbin++ ) {
+                        double tempxBinEdgeMax = nimuSFHistoTrig_->GetXaxis()->GetBinUpEdge(ixbin);
+                        if( mupt < tempxBinEdgeMax )  {
+                            xbinMuTrig = ixbin; 
+                            break;
+                        }
+                    }
+    
+                    for( unsigned int iybin = 0; iybin < nimuSFHistoTrig_->GetNbinsY()+1; iybin++ ) {
+                        double tempyBinEdgeMax = nimuSFHistoTrig_->GetYaxis()->GetBinUpEdge(iybin);
+                        if( mueta < tempyBinEdgeMax ) {
+                            ybinMuTrig = iybin;
+                            break;
+                        }
+                    }
+                    if( xbinMuTrig == 0 && mupt > 200.0) xbinMuTrig = nimuSFHistoTrig_->GetNbinsX(); //If the muon does not have a pT smaller than the max bin edge, it must have a pT greater than 200, which according to the Twiki, means we use the largest pT scale factor (until further notice).
+                    if( ybinMuTrig == 0 ) std::cerr<<"Mu Trig Histo: Invalid eta stored for a good muon!"<<std::endl;//Our good leptons should not have an absolute value of eta greater than that of the max bin of the histogram
+                }//END of 2016 loop
+                //std::cout<<"MU pt: "<<mupt<<" ; eta: "<<mueta<<"; "<<xbin<<" "<<ybin<<" "<<muSFHisto->GetBinContent(xbin,ybin)<<" "<<muSFHistoReco->Eval(mueta)<<";"<<muSFHisto->GetBinContent(xbin,ybin)*muSFHistoReco->Eval(mueta)<<std::endl;
+
+                if( xbinMuMedium != 0 && ybinMuMedium != 0 && xbinMuTrig != 0 && ybinMuTrig != 0) {
+
+                    //The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
+                    double muMediumSF           = muSFHistoMedium_->GetBinContent( xbinMuMedium, ybinMuMedium );
+                    double muTrigSF             = nimuSFHistoTrig_->GetBinContent( xbinMuTrig, ybinMuTrig );
+                    double muTrigSFErr          = nimuSFHistoTrig_->GetBinError( xbinMuTrig, ybinMuTrig );
+                    double muTrigSFPErr         = muTrigSFErr/muTrigSF;
+
+                    double muTotSF              = muMediumSF * muTrigSF;
+                    double muTotSFPErr2         = 0.03*0.03 + muTrigSFPErr*muTrigSFPErr;
+
+                    if( filetag.find("2017") == std::string::npos ) {
+                    //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
+                    //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
+                        double muRecoSF         = muSFHistoReco_->Eval( mueta );
+                        muTotSF                 = muTotSF * muRecoSF;
+                    }
+
+                    totNonIsoMuonSF           *= muTotSF;
+                    totNonIsoMuonSFPErr2      += muTotSFPErr2;
+                }
+            }
+        }
+
+        totNonIsoMuonSFErr    = std::sqrt(totNonIsoMuonSFPErr2) * totNonIsoMuonSF;
+        totNonIsoMuonSF_Up    = totNonIsoMuonSF + totNonIsoMuonSFErr;
+        totNonIsoMuonSF_Down  = totNonIsoMuonSF - totNonIsoMuonSFErr;
+
+        tr.registerDerivedVar( "totNonIsoMuonSF"+myVarSuffix_,         totNonIsoMuonSF );
+        tr.registerDerivedVar( "totNonIsoMuonSFErr"+myVarSuffix_,      totNonIsoMuonSFErr );
+        tr.registerDerivedVar( "totNonIsoMuonSF_Up"+myVarSuffix_,      totNonIsoMuonSF_Up );
+        tr.registerDerivedVar( "totNonIsoMuonSF_Down"+myVarSuffix_,    totNonIsoMuonSF_Down );
+        
         // --------------------------------------------------------------------------------------
         // Adding a scale factor that corrects the disagreement between data and MC for Ht
         // --------------------------------------------------------------------------------------
@@ -945,9 +1086,11 @@ private:
         const auto& bTagWeight          = tr.getVar<double>("bTagSF_EventWeightSimple_Central"+myVarSuffix_);
         int    NGoodElectrons           = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         int    NGoodMuons               = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
+        int    NNonIsoMuons             = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
         
         double totalEventWeight         = -1.0;
         double totalEventWeightMG       = -1.0;
+        double totalEventWeightNIM      = -1.0;
 
         if( NGoodElectrons == 1 ) {
             totalEventWeight = Weight*bTagWeight*totGoodElectronSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
@@ -958,8 +1101,13 @@ private:
             totalEventWeightMG = Weight*bTagWeight*totGoodMuonSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
         }
 
+        if( NNonIsoMuons == 1 ) {
+            totalEventWeightNIM = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr;
+        }
+
         tr.registerDerivedVar( "totalEventWeight"+myVarSuffix_, totalEventWeight );
         tr.registerDerivedVar( "totalEventWeightMG"+myVarSuffix_, totalEventWeightMG );
+        tr.registerDerivedVar( "totalEventWeightNIM"+myVarSuffix_, totalEventWeightNIM );
     }
     
 public:
@@ -974,6 +1122,7 @@ public:
         , muSFHistoIso_(nullptr)
         , muSFHistoReco_(nullptr)
         , muSFHistoTrig_(nullptr)
+        , nimuSFHistoTrig_(nullptr)
         , puSFHisto_(nullptr)
         , puSFUpHisto_(nullptr)
         , puSFDownHisto_(nullptr)
@@ -988,6 +1137,7 @@ public:
         TString muSFHistoMediumName = ( SFRootFileName.find("2017") != std::string::npos ) ? "NUM_MediumID_DEN_genTracks_pt_abseta" : "sf_mu_mediumID"; 
         TString muSFHistoIsoName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta" : "sf_mu_mediumID_mini02";
         TString muSFHistoTrigName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_isoTrig" : "TrigEff_2016_num_mu_pt40_trig_5jCut_htCut_isoTrig";
+        TString nimuSFHistoTrigName = ( SFRootFileName.find("2017") != std::string::npos ) ? "TrigEff_2017_num_nimu_pt40_trig_4jCut" : "TrigEff_2016_num_nimu_pt40_trig_4jCut";
         
         eleSFHistoTight_        = (TH2F*)SFRootFile.Get(eleSFHistoTightName);
         eleSFHistoIso_          = (TH2F*)SFRootFile.Get(eleSFHistoIsoName);
@@ -997,6 +1147,7 @@ public:
         muSFHistoMedium_        = (TH2F*)SFRootFile.Get(muSFHistoMediumName);
         muSFHistoIso_           = (TH2F*)SFRootFile.Get(muSFHistoIsoName);
         muSFHistoTrig_          = (TH2F*)SFRootFile.Get(muSFHistoTrigName);
+        nimuSFHistoTrig_        = (TH2F*)SFRootFile.Get(nimuSFHistoTrigName);
         if ( SFRootFileName.find("2017") == std::string::npos ) {
             muSFHistoReco_         = (TGraph*)SFRootFile.Get("ratio_eff_aeta_dr030e030_corr"); //Only 2016 requires the track reconstruction efficiency.
             eleSFHistoIP2D_        = (TH2F*)SFRootFile.Get("Run2016_MVAVLooseIP2D");//In 2016, the isolation SF histogram is separate from the IP2D cut scale factor histogram.

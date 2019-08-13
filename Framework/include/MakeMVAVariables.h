@@ -80,6 +80,10 @@ private:
         const auto& MET = tr.getVar<double>("MET"); 
         const auto& METPhi = tr.getVar<double>("METPhi");
 
+        const auto& GoodNonIsoMuons = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodNonIsoMuons"+myVarSuffix_);
+        const auto& NNonIsoMuons = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
+        const auto& doQCDCR = tr.getVar<bool>("doQCDCR");
+
         //--- Get the 4-vec for the MET
         TLorentzVector lvMET;
         lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
@@ -122,7 +126,13 @@ private:
             GoodLeptons_cm->push_back( pair.second );
         }
         TLorentzVector lvMET_cm = lvMET;
-        lvMET_cm.Boost( rec_boost_beta_vec );            
+        lvMET_cm.Boost( rec_boost_beta_vec );           
+
+        auto GoodNonIsoMuons_cm = std::make_unique<std::vector<TLorentzVector>>();
+        for(auto pair: GoodNonIsoMuons) {
+            pair.second.Boost( rec_boost_beta_vec );
+            GoodNonIsoMuons_cm->push_back( pair.second );
+        }
 
         //--- Try using only the 7 highest-P jets in the CM frame in the event shape vars.
         //    First, need to make a new input vector of jets containing only those jets.
@@ -189,13 +199,25 @@ private:
             tr.registerDerivedVar("Jet_phi_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Phi() : 0.0));
             tr.registerDerivedVar("Jet_m_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).M()   : 0.0));
         }
-        for(unsigned int i = 0; i < nLeptons_; i++)
-        {
-            tr.registerDerivedVar("GoodLeptons_pt_"+std::to_string(i+1)+myVarSuffix_,  static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Pt()  : 0.0));
-            tr.registerDerivedVar("GoodLeptons_eta_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Eta() : 0.0));
-            tr.registerDerivedVar("GoodLeptons_phi_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Phi() : 0.0));
-            tr.registerDerivedVar("GoodLeptons_m_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).M()   : 0.0));
+        if( doQCDCR ) {
+            for(unsigned int i = 0; i < nLeptons_; i++)
+            {
+                tr.registerDerivedVar("GoodLeptons_pt_"+std::to_string(i+1)+myVarSuffix_,  static_cast<double>( (GoodNonIsoMuons_cm->size() >= i+1) ? GoodNonIsoMuons_cm->at(i).Pt()  : 0.0));
+                tr.registerDerivedVar("GoodLeptons_eta_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (GoodNonIsoMuons_cm->size() >= i+1) ? GoodNonIsoMuons_cm->at(i).Eta() : 0.0));
+                tr.registerDerivedVar("GoodLeptons_phi_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (GoodNonIsoMuons_cm->size() >= i+1) ? GoodNonIsoMuons_cm->at(i).Phi() : 0.0));
+                tr.registerDerivedVar("GoodLeptons_m_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (GoodNonIsoMuons_cm->size() >= i+1) ? GoodNonIsoMuons_cm->at(i).M()   : 0.0));
+            }
         }
+        else {
+            for(unsigned int i = 0; i < nLeptons_; i++)
+            {
+                tr.registerDerivedVar("GoodLeptons_pt_"+std::to_string(i+1)+myVarSuffix_,  static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Pt()  : 0.0));
+                tr.registerDerivedVar("GoodLeptons_eta_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Eta() : 0.0));
+                tr.registerDerivedVar("GoodLeptons_phi_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Phi() : 0.0));
+                tr.registerDerivedVar("GoodLeptons_m_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).M()   : 0.0));
+            }
+        }
+
         tr.registerDerivedVar("lvMET_cm_pt"+myVarSuffix_,  static_cast<double>( lvMET_cm.Pt() ));
         tr.registerDerivedVar("lvMET_cm_eta"+myVarSuffix_, static_cast<double>( lvMET_cm.Eta()));
         tr.registerDerivedVar("lvMET_cm_phi"+myVarSuffix_, static_cast<double>( lvMET_cm.Phi()));
