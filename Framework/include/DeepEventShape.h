@@ -103,6 +103,9 @@ public:
      */
     void calculateVars(const NTupleReader& tr)
     {
+
+        bool doQCDCR        = tr.getVar<bool>("doQCDCR");
+
         if(fwm2_top6_ >= 0)  *(basePtr_ + fwm2_top6_) =  tr.getVar<double>("fwm2_top6"+myVarSuffix_);
         if(fwm3_top6_ >= 0)  *(basePtr_ + fwm3_top6_) =  tr.getVar<double>("fwm3_top6"+myVarSuffix_);
         if(fwm4_top6_ >= 0)  *(basePtr_ + fwm4_top6_) =  tr.getVar<double>("fwm4_top6"+myVarSuffix_);

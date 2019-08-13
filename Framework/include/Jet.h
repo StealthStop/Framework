@@ -47,28 +47,51 @@ private:
             {            
                 if( doQCDCR ) {
                     if( !GoodMuons[imu] && !NonIsoMuons[imu] ) continue;
+                    
+                    TLorentzVector myMuon = Muons.at(imu);
+                    double         tempDeltaR = 10.0;
+                    int            tempJetIt  = -1;                
+                    for( int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
+                    {                    
+                        TLorentzVector myJet = Jets.at(myJetIt);
+                        //First check pT matching between Jet and Muon
+                        if( std::fabs( myJet.Pt() - myMuon.Pt() ) / myMuon.Pt() > 1.0 ) continue; 
+                        double jetDeltaR = myMuon.DeltaR(myJet);                    
+                        if( jetDeltaR < tempDeltaR ) 
+                        {
+                            tempDeltaR = jetDeltaR;
+                            tempJetIt  = myJetIt;
+                        }                    
+                    }//END of looping through jets
+
+                    if( tempDeltaR < 0.4 && tempJetIt != -1) 
+                    {
+                        tempGoodJets->at(tempJetIt) = false;
+                    }
                 }
+                
                 else {
                     if( !GoodMuons[imu] ) continue;
-                }
-                TLorentzVector myMuon = Muons.at(imu);
-                double         tempDeltaR = 10.0;
-                int            tempJetIt  = -1;                
-                for( int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
-                {                    
-                    TLorentzVector myJet = Jets.at(myJetIt);
-                    //First check pT matching between Jet and Muon
-                    if( std::fabs( myJet.Pt() - myMuon.Pt() ) / myMuon.Pt() > 1.0 ) continue; 
-                    double jetDeltaR = myMuon.DeltaR(myJet);                    
-                    if( jetDeltaR < tempDeltaR ) 
+
+                    TLorentzVector myMuon = Muons.at(imu);
+                    double         tempDeltaR = 10.0;
+                    int            tempJetIt  = -1;                
+                    for( int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
+                    {                    
+                        TLorentzVector myJet = Jets.at(myJetIt);
+                        //First check pT matching between Jet and Muon
+                        if( std::fabs( myJet.Pt() - myMuon.Pt() ) / myMuon.Pt() > 1.0 ) continue; 
+                        double jetDeltaR = myMuon.DeltaR(myJet);                    
+                        if( jetDeltaR < tempDeltaR ) 
+                        {
+                            tempDeltaR = jetDeltaR;
+                            tempJetIt  = myJetIt;
+                        }                    
+                    }//END of looping through jets
+                    if( tempDeltaR < 0.4 && tempJetIt != -1) 
                     {
-                        tempDeltaR = jetDeltaR;
-                        tempJetIt  = myJetIt;
-                    }                    
-                }//END of looping through jets
-                if( tempDeltaR < 0.4 && tempJetIt != -1) 
-                {
-                    tempGoodJets->at(tempJetIt) = false;
+                        tempGoodJets->at(tempJetIt) = false;
+                    }
                 }
             }//END of looping through muons
         }//END of NMuons if statement
