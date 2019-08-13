@@ -26,7 +26,7 @@ If running `./setup.sh` gives an error indicating the repository does not exist,
 ## For MC Samples
 
 Optional: query DAS to ensure that the miniAOD sample names are correct. Example:
-`dasgoclient --query="dataset dataset=/WW*/*Autumn18*/MINIAODSIM”`
+`dasgoclient --query="dataset dataset=/WW*/*Autumn18*/MINIAODSIM"`
 
 Once the user has a list of miniAOD samples to nTupilize, proceed with the following.
 
@@ -47,9 +47,9 @@ cd Treemaker/Production/test`
 source /cvmfs/cms.cern.ch/crab3/crab.csh
 ```
 
-if in tcsh: `setenv SSL_CERT_DIR '/etc/pki/tls/certs:/etc/grid-security/certificates` 
+if in tcsh: `setenv SSL_CERT_DIR '/etc/pki/tls/certs:/etc/grid-security/certificates'` 
 
-if in bash: `export SSL_CERT_DIR='/etc/pki/tls/certs:/etc/grid-security/certificates` 
+if in bash: `export SSL_CERT_DIR='/etc/pki/tls/certs:/etc/grid-security/certificates'` 
 
 Create "dictionaries" (python files containing sample names, formatted depending on the script that will be using it) for each sample scenario (e.g. `Autumn18`, `Fall17`, `Summer16`, `Summer16v3`) in the style of [`dict.py`](https://github.com/TreeMaker/TreeMaker/blob/Run2_2017/Production/test/dict.py). Follow the formatting in the header assuming for now that there are no negative weights.
 
@@ -88,8 +88,8 @@ Now produce and submit jobs. If the neff dictionary is named `dict_neff.py`,
 Note the prefix `dict_` is removed. Once jobs are done,
 
 ```
-./haddEOS.sh -d /store/user/amercald/myNeff -g _part -r
-python submitJobsNeff.py -g -d neff -N 50 -o root://cmseos.fnal.gov//store/user/amercald/myNeff
+./haddEOS.sh -d /store/user/YOURUSERNAME/myNeff -g _part -r
+python submitJobsNeff.py -g -d neff -N 50 -o root://cmseos.fnal.gov//store/user/YOURUSERNAME/myNeff
 ```
 
 This should print each sample name in the neff dictionary with its neff value (and pos, neg, tot events). Now they need to be added to the dictionaries that were used to produce `_cff.py` files.
