@@ -160,8 +160,7 @@ private:
                                NGoodLeptons == 0     &&
                                HT_trigger_pt45 > 500 &&
                                NGoodBJets_pt45 >= 2  &&
-                               NGoodJets_pt45 >= 6   &&
-                               ntops >= 2;
+                               NGoodJets_pt45 >= 6;
 
         // -------------------------------
         // -- Define 1 Lepton Baseline

@@ -55,10 +55,6 @@ private:
             singlets_           = tr.createDerivedVec<TLorentzVector>("singlets"+myVarSuffix_);
             hadtops_idx_        = tr.createDerivedVec<int>("hadtops_idx"+myVarSuffix_);
         
-            bool genTopEvt      = false;
-            bool genTopAcptEvt  = false;
-            bool genTopMatchEvt = false;
-
             const auto& GenParticles            = tr.getVec<TLorentzVector>("GenParticles");
             const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
             const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
