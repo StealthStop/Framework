@@ -37,7 +37,6 @@ private:
         const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_); 
         const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
         const auto& Mbl                 = tr.getVar<double>("Mbl"+myVarSuffix_);
-        const auto& ntops               = tr.getVar<int>("ntops");
  
         // ------------------------------
         // -- Data dependent stuff
@@ -155,48 +154,6 @@ private:
         // -------------------------------
         // -- Define 0 Lepton Baseline
         // -------------------------------
-        
-        bool passBaseline0l = JetID              &&
-                              passMETFilters     &&
-                              passMadHT          &&
-                              passTrigger        &&
-                              passTriggerMC      &&
-                              passBlindHad       &&
-                              NGoodLeptons == 0  && 
-                              NJets_pt45 >= 7    && 
-                              HT_trigger > 500   && 
-                              NBJets_pt45 >= 2;
-        
-        bool passBaseline0l_Good = JetID          &&
-                              passMETFilters      &&
-                              passMadHT           &&
-                              passTrigger         &&
-                              passTriggerMC       &&
-                              passBlindHad_Good   &&
-                              NGoodLeptons == 0   && 
-                              NGoodJets_pt45 >= 7 && 
-                              HT_trigger > 500    && 
-                              NGoodBJets_pt45 >= 2;
-
-        bool passBaseline0l_hadTrig = JetID      &&
-                              passMETFilters     &&
-                              passMadHT          &&
-                              passTrigger        &&
-                              passTriggerMC      &&
-                              passBlindHad       &&
-                              NJets_pt45 >= 7    && 
-                              HT_trigger > 500   && 
-                              NBJets_pt45 >= 2;
-        
-        bool passBaseline0l_hadTrig_Good = JetID  &&
-                              passMETFilters      &&
-                              passMadHT           &&
-                              passTrigger         &&
-                              passTriggerMC       &&
-                              passBlindHad_Good   &&
-                              NGoodJets_pt45 >= 7 && 
-                              HT_trigger > 500    && 
-                              NGoodBJets_pt45 >= 2;
 
        bool pass_baseline_0l = JetID                 &&
                                passMadHT             && 
@@ -347,10 +304,6 @@ private:
         
         tr.registerDerivedVar<bool>("passBaselineOffline1l"+myVarSuffix_,       passBaselineOffline1l);
         tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"+myVarSuffix_,   passBaselineGoodOffline1l);
-        tr.registerDerivedVar<bool>("passBaseline0l"+myVarSuffix_,              passBaseline0l);
-        tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,         passBaseline0l_Good);
-        tr.registerDerivedVar<bool>("passBaseline0l_hadTrig"+myVarSuffix_,      passBaseline0l_hadTrig);
-        tr.registerDerivedVar<bool>("passBaseline0l_hadTrig_Good"+myVarSuffix_, passBaseline0l_hadTrig_Good);
         tr.registerDerivedVar<bool>("pass_baseline_0l"+myVarSuffix_,            pass_baseline_0l); //
         tr.registerDerivedVar<bool>("passBaseline1l"+myVarSuffix_,              passBaseline1l);
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,         passBaseline1l_Good);

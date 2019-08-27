@@ -167,7 +167,9 @@ private:
 
         // Get the top tagger results object     
         const TopTaggerResults& ttr = tt_->getResults();
-        
+       
+        // Get tagged objects the new top tagger returns more than just tops now (MERGED_TOP, SEMIMERGEDWB_TOP, RESOLVED_TOP, MERGED_W, SEMIMERGEDQB_TOP)
+ 
         // For now we will only use merged and resolved tops
         const std::vector<TopObject*>& taggedObjects = ttr.getTops();
         std::vector<TopObject*> mergedTops;
