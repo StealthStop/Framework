@@ -21,7 +21,7 @@ private:
     int ntops_3jet_;
     int ntops_2jet_;
     int ntops_1jet_;
-
+    
     inline int findParent(const int p, const int idx, const std::vector<int>& GenParticles_ParentId, const std::vector<int>& GenParticles_ParentIdx) const
     {
         if (idx == -1)
@@ -54,13 +54,17 @@ private:
             singlinos_          = tr.createDerivedVec<TLorentzVector>("singlinos"+myVarSuffix_);
             singlets_           = tr.createDerivedVec<TLorentzVector>("singlets"+myVarSuffix_);
             hadtops_idx_        = tr.createDerivedVec<int>("hadtops_idx"+myVarSuffix_);
+        
+            bool genTopEvt      = false;
+            bool genTopAcptEvt  = false;
+            bool genTopMatchEvt = false;
 
             const auto& GenParticles            = tr.getVec<TLorentzVector>("GenParticles");
             const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
             const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
             const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");
             const auto& GenParticles_Status     = tr.getVec<int>("GenParticles_Status");            
-            //const auto& GenParticles_TTFlag     = tr.getVec<bool>("GenParticles_TTFlag");
+            const auto& GenParticles_TTFlag     = tr.getVec<bool>("GenParticles_TTFlag");
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++ ) 
             {
@@ -70,13 +74,13 @@ private:
                 int momidx = GenParticles_ParentIdx.at(gpi);
                 int momstatus = (momidx == -1) ? -1 : GenParticles_Status.at(momidx);
                 int topIdx = findParent(6, gpi, GenParticles_ParentId, GenParticles_ParentIdx);
-                //bool passTopStatus = status == 22 || status == 23 || status == 52;
-                //bool passWMomStatus = false;
-                //if((abs(momid) == 24) && (momstatus != 1 || status == 2 || momstatus != 22 || momstatus != 23 || momstatus != 52) )
-                //{
-                //    passWMomStatus = true;
-                //}
-                //else if(abs(pdgid) == 5) passWMomStatus = true;
+                bool passTopStatus = status == 22 || status == 23 || status == 52;
+                bool passWMomStatus = false;
+                if((abs(momid) == 24) && (momstatus != 1 || status == 2 || momstatus != 22 || momstatus != 23 || momstatus != 52) )
+                {
+                    passWMomStatus = true;
+                }
+                else if(abs(pdgid) == 5) passWMomStatus = true;
                 //printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i TTFlag: %6i", gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi], int(GenParticles_TTFlag[gpi]) ); fflush(stdout);
                 if(abs(pdgid) == 1000022 && (status==22 || status == 52))
                 {
@@ -90,8 +94,7 @@ private:
                 {
                     singlets_.push_back(GenParticles.at(gpi));
                 }
-                //if( topIdx >= 0 && (abs(pdgid) != 24) && passTopStatus && passWMomStatus)
-                if( topIdx >= 0 && (abs(pdgid) != 24))
+                if( topIdx >= 0 && (abs(pdgid) != 24) && passTopStatus && passWMomStatus)
                 {
                     //printf(" topIdx: %i particle: %i\n", topIdx, pdgid); fflush(stdout);
                     
@@ -130,6 +133,7 @@ private:
         ntops_3jet_ = 0;
         ntops_2jet_ = 0;
         ntops_1jet_ = 0;
+       
         for (const TopObject* top : tops)
         {
             ntops_++;
@@ -163,8 +167,7 @@ private:
 
         // Get the top tagger results object     
         const TopTaggerResults& ttr = tt_->getResults();
-
-        // Get tagged objects the new top tagger returns more than just tops now (MERGED_TOP, SEMIMERGEDWB_TOP, RESOLVED_TOP, MERGED_W, SEMIMERGEDQB_TOP)
+        
         // For now we will only use merged and resolved tops
         const std::vector<TopObject*>& taggedObjects = ttr.getTops();
         std::vector<TopObject*> mergedTops;
@@ -204,12 +207,15 @@ private:
             topsLV.push_back(t->p());
         }
 
-        double bestTopMass = -9999.9;
-        double bestTopEta = -9999.9;
-        double bestTopPt = -9999.9;
+        // ----------------------------------
+        // -- get best top mass & eta & pt 
+        // ----------------------------------
+        double bestTopMass             = -9999.9;
+        double bestTopEta              = -9999.9;
+        double bestTopPt               = -9999.9;
         const TopObject* bestTopMassLV = nullptr;
-        bool bestTopMassGenMatch = false;
-        bool bestTopMassTopTag = false;
+        bool bestTopMassGenMatch       = false;
+        bool bestTopMassTopTag         = false;
         for(int iTop = 0; iTop < tops.size(); ++iTop)
         {
             auto* top = tops[iTop];
@@ -220,15 +226,51 @@ private:
                 bestTopEta = top->p().Eta();
                 bestTopPt = top->p().Pt();
                 bestTopMassLV = top;
+            }     
+        }
+        bestTopMassGenMatch = (bestTopMassLV)?(bestTopMassLV->getBestGenTopMatch(0.6) != nullptr):(false);
+        
+        for(const auto& topPtr : tops)
+        {
+            if(topPtr == bestTopMassLV)
+            {
+                bestTopMassTopTag = true;
+                break;
             }
         }
 
-        bestTopMassGenMatch = (bestTopMassLV)?(bestTopMassLV->getBestGenTopMatch(0.6) != nullptr):(false);
+        // -----------------------------------------------
+        // -- get variables for fake rate & efficiency 
+        // -----------------------------------------------
+        const auto& candidateTops          = ttr.getTopCandidates();
+        float highestDisc                  = -9999.9;
+        float bestTopMassCand              = -9999.9;
+        float bestTopEtaCand               = -9999.9;
+        const TopObject* bestTopMassLVCand = nullptr;
+        float bestTopMassTopTagDisc        = -999.9;
+        bool bestTopMassGenMatchCand       = false;
+        bool bestTopMassTopTagCand         = false;
+        for(int iTop = 0; iTop < candidateTops.size(); ++iTop)
+            {
+                auto& top = candidateTops[iTop];
+
+                highestDisc = (top.getDiscriminator() > highestDisc ? top.getDiscriminator() : highestDisc);
+
+                if(fabs(top.p().M() - 173.5) < fabs(bestTopMassCand - 173.5) && top.getNConstituents() == 3)
+                {
+                    bestTopMassCand = top.p().M();
+                    bestTopEtaCand = top.p().Eta();
+                    bestTopMassLVCand = &top;
+                    bestTopMassTopTagDisc = top.getDiscriminator();
+                }
+        }
+        bestTopMassGenMatchCand = (bestTopMassLVCand)?(bestTopMassLVCand->getBestGenTopMatch(0.6) != nullptr):(false);
+
         for(const auto& topPtr : tops) 
         {
-            if(topPtr == bestTopMassLV) 
+            if(topPtr == bestTopMassLVCand) 
             {
-                bestTopMassTopTag = true;
+                bestTopMassTopTagCand = true;
                 break;
             }
         }
@@ -245,17 +287,17 @@ private:
                 tightPhotons.push_back(Photons[i]);
             }
         }
-
-        ////std::cout<<" Size Yo "<<hadtops_->size()<<"  "<<hadtopdaughters_->size()<<std::endl;
-        //for (int i = 0; i < hadtops_->size(); ++i)
+        
+        //std::cout<<" Size Yo "<<hadtops_.size()<<"  "<<hadtopdaughters_.size()<<std::endl;
+        //for (int i = 0; i < hadtops_.size(); ++i)
         //{
         //    TLorentzVector dSum;
-        //    for (int j = 0; j < ((*hadtopdaughters_)[i]).size(); j++)
+        //    for (int j = 0; j < (hadtopdaughters_[i]).size(); j++)
         //    {
-        //        dSum += *(((*hadtopdaughters_)[i])[j]);
+        //        dSum += *((hadtopdaughters_[i])[j]);
         //    }
-        //    printf("nTops: %i ndaughters %i   top: (pt %4.5lf , eta %4.5lf, phi %4.5lf, mass %4.5lf) dSum: (pt %4.5lf , eta %4.5lf, phi %4.5lf, mass %4.5lf)\n", hadtops_->size(), (*hadtopdaughters_)[i].size(), 
-        //           (*hadtops_)[i].Pt(), (*hadtops_)[i].Eta(), (*hadtops_)[i].Phi(), (*hadtops_)[i].M(), 
+        //    printf("nTops: %i ndaughters %i   top: (pt %4.5lf , eta %4.5lf, phi %4.5lf, mass %4.5lf) dSum: (pt %4.5lf , eta %4.5lf, phi %4.5lf, mass %4.5lf)\n", hadtops_.size(), hadtopdaughters_[i].size(), 
+        //           hadtops_[i].Pt(), hadtops_[i].Eta(), hadtops_[i].Phi(), hadtops_[i].M(), 
         //           dSum.Pt(), dSum.Eta(), dSum.Phi(), dSum.M()
         //          );
         //
@@ -269,14 +311,20 @@ private:
         tr.registerDerivedVar("ntops_3jet"+myVarSuffix_, ntops_3jet_);
         tr.registerDerivedVar("ntops_2jet"+myVarSuffix_, ntops_2jet_);
         tr.registerDerivedVar("ntops_1jet"+myVarSuffix_, ntops_1jet_);
-        tr.registerDerivedVar("bestTopMassLV"+myVarSuffix_, bestTopMassLV?(bestTopMassLV->p()):(TLorentzVector()));
         tr.registerDerivedVar("dR_top1_top2"+myVarSuffix_,dR_top1_top2);
         tr.registerDerivedVar("bestTopMass"+myVarSuffix_, bestTopMass);
         tr.registerDerivedVar("bestTopEta"+myVarSuffix_, bestTopEta);
         tr.registerDerivedVar("bestTopPt"+myVarSuffix_, bestTopPt);
-        tr.registerDerivedVar("bestTopMassTopTag"+myVarSuffix_, bestTopMassTopTag);
+        tr.registerDerivedVar("bestTopMassLV"+myVarSuffix_, bestTopMassLV?(bestTopMassLV->p()):(TLorentzVector()));
         tr.registerDerivedVar("bestTopMassGenMatch"+myVarSuffix_, bestTopMassGenMatch);
-
+        tr.registerDerivedVar("bestTopMassTopTag"+myVarSuffix_, bestTopMassTopTag);
+        tr.registerDerivedVar("highestDisc"+myVarSuffix_, highestDisc);
+        tr.registerDerivedVar("bestTopMassCand"+myVarSuffix_, bestTopMassCand);
+        tr.registerDerivedVar("bestTopEtaCand"+myVarSuffix_, bestTopEtaCand);
+        tr.registerDerivedVar("bestTopMassLVCand"+myVarSuffix_, bestTopMassLVCand?(bestTopMassLVCand->p()):(TLorentzVector()));
+        tr.registerDerivedVar("bestTopMassTopTagDisc"+myVarSuffix_, bestTopMassTopTagDisc);
+        tr.registerDerivedVar("bestTopMassGenMatchCand"+myVarSuffix_, bestTopMassGenMatchCand);
+        tr.registerDerivedVar("bestTopMassTopTagCand"+myVarSuffix_, bestTopMassTopTagCand); 
     }
 
 public:
