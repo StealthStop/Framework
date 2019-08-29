@@ -154,14 +154,17 @@ private:
         // -------------------------------
         // -- Define 0 Lepton Baseline
         // -------------------------------
-
-       bool pass_baseline_0l = JetID                 &&
-                               passMadHT             && 
-                               NGoodLeptons == 0     &&
-                               HT_trigger_pt45 > 500 &&
-                               NGoodBJets_pt45 >= 2  &&
-                               NGoodJets_pt45 >= 6;
-
+        bool passBaseline0l_Good = JetID           &&
+                              passMETFilters       &&
+                              passMadHT            &&
+                              //passTrigger          &&
+                              //passTriggerMC        &&
+                              //passBlindHad_Good    &&
+                              NGoodLeptons == 0    &&
+                              HT_trigger > 500     && 
+                              NGoodBJets_pt45 >= 2 && 
+                              NGoodJets_pt45 >= 6;   
+ 
         // -------------------------------
         // -- Define 1 Lepton Baseline
         // -------------------------------
@@ -303,7 +306,7 @@ private:
         
         tr.registerDerivedVar<bool>("passBaselineOffline1l"+myVarSuffix_,       passBaselineOffline1l);
         tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"+myVarSuffix_,   passBaselineGoodOffline1l);
-        tr.registerDerivedVar<bool>("pass_baseline_0l"+myVarSuffix_,            pass_baseline_0l); //
+        tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,         passBaseline0l_Good); 
         tr.registerDerivedVar<bool>("passBaseline1l"+myVarSuffix_,              passBaseline1l);
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,         passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1mu"+myVarSuffix_,             passBaseline1mu);
