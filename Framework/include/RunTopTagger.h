@@ -60,7 +60,6 @@ private:
             const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
             const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");
             const auto& GenParticles_Status     = tr.getVec<int>("GenParticles_Status");            
-            const auto& GenParticles_TTFlag     = tr.getVec<bool>("GenParticles_TTFlag");
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++ ) 
             {
@@ -70,14 +69,13 @@ private:
                 int momidx = GenParticles_ParentIdx.at(gpi);
                 int momstatus = (momidx == -1) ? -1 : GenParticles_Status.at(momidx);
                 int topIdx = findParent(6, gpi, GenParticles_ParentId, GenParticles_ParentIdx);
-                bool passTopStatus = status == 22 || status == 23 || status == 52;
                 bool passWMomStatus = false;
+
+                //printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i", gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi]); fflush(stdout);
                 if((abs(momid) == 24) && (momstatus != 1 || status == 2 || momstatus != 22 || momstatus != 23 || momstatus != 52) )
                 {
                     passWMomStatus = true;
                 }
-                else if(abs(pdgid) == 5) passWMomStatus = true;
-                //printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i TTFlag: %6i", gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi], int(GenParticles_TTFlag[gpi]) ); fflush(stdout);
                 if(abs(pdgid) == 1000022 && (status==22 || status == 52))
                 {
                     neutralinos_->push_back(GenParticles.at(gpi));
@@ -90,7 +88,7 @@ private:
                 {
                     singlets_->push_back(GenParticles.at(gpi));
                 }
-                if( topIdx >= 0 && (abs(pdgid) != 24) && passTopStatus && passWMomStatus)
+                if( topIdx >= 0 && (abs(pdgid) != 24) && (passWMomStatus || abs(pdgid) == 5))
                 {
                     //printf(" topIdx: %i particle: %i\n", topIdx, pdgid); fflush(stdout);
                     
@@ -105,14 +103,8 @@ private:
                     {
                         hadtops_idx_->push_back(topIdx);
                         hadtops_->push_back(GenParticles.at(topIdx));
-
-                        std::vector<const TLorentzVector*> daughters;
-                        daughters.push_back(&(GenParticles.at(gpi)));
-                        hadtopdaughters_->push_back(daughters);
-
-                        std::vector<int> daughters_id;
-                        daughters_id.push_back(gpi);
-                        hadtopdaughters_id_->push_back(daughters_id);
+                        hadtopdaughters_->push_back( {&(GenParticles.at(gpi))} );
+                        hadtopdaughters_id_->push_back( {static_cast<int>(gpi)} );
                     }
                 }
                 //else
@@ -286,21 +278,19 @@ private:
             }
         }
         
-        std::cout<<" Size Yo "<<hadtops_->size()<<"  "<<hadtopdaughters_->size()<<std::endl;
         //for (int i = 0; i < hadtops_->size(); ++i)
         //{
         //    TLorentzVector dSum;
-        //    for (int j = 0; j < (hadtopdaughters_[i]).size(); j++)
+        //    for (int j = 0; j < hadtopdaughters_->at(i).size(); j++)
         //    {
-        //        dSum += *((hadtopdaughters_[i])[j]);
+        //        dSum += *((hadtopdaughters_->at(i))[j]);
         //    }
-        //    printf("nTops: %i ndaughters %i   top: (pt %4.5lf , eta %4.5lf, phi %4.5lf, mass %4.5lf) dSum: (pt %4.5lf , eta %4.5lf, phi %4.5lf, mass %4.5lf)\n", hadtops_->size(), hadtopdaughters_->size(), 
+        //    printf("nTops: %i ndaughters %i   top: (pt %4.5lf , eta %4.5lf, phi %4.5lf, mass %4.5lf) dSum: (pt %4.5lf , eta %4.5lf, phi %4.5lf, mass %4.5lf)\n", hadtops_->size(), hadtopdaughters_->at(i).size(), 
         //           hadtops_->at(i).Pt(), hadtops_->at(i).Eta(), hadtops_->at(i).Phi(), hadtops_->at(i).M(), 
         //           dSum.Pt(), dSum.Eta(), dSum.Phi(), dSum.M()
         //          );
         //
-        //}
-        //
+        //}        
         //printf("=========================================================================================\n");
 
         // Register Variables

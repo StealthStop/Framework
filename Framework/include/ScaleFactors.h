@@ -720,10 +720,10 @@ public:
             eleSFHistoTightName = "Run2016_CutBasedTightNoIso94XV2";
             eleSFHistoIsoName = "Run2016_Mini";
             eleSFHistoRecoName = "EGamma_SF2D";
-            eleSFHistoTrigName = "TrigEff_2016_num_el_pt40_trig_5jCut_htCut_isoTrig";
+            eleSFHistoTrigName = "TrigEff_2016_num_el_pt40_trig_5jCut_htCut_DeepCSV";
             muSFHistoMediumName = "sf_mu_mediumID";
             muSFHistoIsoName = "sf_mu_mediumID_mini02";
-            muSFHistoTrigName = "TrigEff_2016_num_mu_pt40_trig_5jCut_htCut_isoTrig";
+            muSFHistoTrigName = "TrigEff_2016_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             nimuSFHistoTrigName = "TrigEff_2016_num_nimu_pt40_trig_4jCut";
         }
         else if( runYear == "2017")
@@ -731,10 +731,10 @@ public:
             eleSFHistoTightName = "Run2017_CutBasedTightNoIso94XV2";
             eleSFHistoIsoName = "Run2017_MVAVLooseTightIP2DMini";
             eleSFHistoRecoName = "EGamma_SF2D";
-            eleSFHistoTrigName = "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_isoTrig";
+            eleSFHistoTrigName = "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_DeepCSV";
             muSFHistoMediumName = "NUM_MediumID_DEN_genTracks_pt_abseta";
             muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
-            muSFHistoTrigName = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_isoTrig";
+            muSFHistoTrigName = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             nimuSFHistoTrigName = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
         }
         else if( runYear == "2018")
@@ -742,10 +742,10 @@ public:
             eleSFHistoTightName = "Run2018_CutBasedTightNoIso94XV2";
             eleSFHistoIsoName = "Run2018_Mini";
             eleSFHistoRecoName = "EGamma_SF2D";
-            eleSFHistoTrigName = "";
+            eleSFHistoTrigName = "TrigEff_2018_num_el_pt40_trig_5jCut_htCut_DeepCSV";
             muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_pt_abseta";
             muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
-            muSFHistoTrigName = "";
+            muSFHistoTrigName = "TrigEff_2018_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             nimuSFHistoTrigName = "";
         }
 
