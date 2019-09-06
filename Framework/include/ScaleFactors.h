@@ -54,6 +54,98 @@ private:
         return bin;
     }
 
+    const double htScaleFactor(const int nJets, const double HT, const std::string& runYear) const
+    { 
+        double norm = 1.0;
+        double expo = 0.0;
+        if( runYear == "2016" ) 
+        {
+            norm = 0.03422*nJets + 0.9367;
+            expo = (-0.02310*nJets - 0.0940 )/1000;
+        }
+        else if( runYear == "2017" ) 
+        {
+            norm = 0.02565*nJets + 0.9635;
+            expo = (-0.01418*nJets - 0.1101 )/1000;
+        }
+        else if( runYear == "2018" ) 
+        {
+            norm = 1.0;
+            expo = 0.0;
+        }
+        return norm*exp( expo*HT ); 
+    }
+
+    const double htScaleFactorFlat2000(const int nJets, const double HT, const std::string& runYear) const
+    {
+        double norm = 1.0;
+        double expo = 0.0;
+        if( runYear == "2016" ) 
+        {
+            norm = 0.03422*nJets + 0.9367;
+            expo = (-0.02310*nJets - 0.0940 )/1000;
+        }
+        else if( runYear == "2017" ) 
+        {
+            norm = 0.02565*nJets + 0.9635;
+            expo = (-0.01418*nJets - 0.1101 )/1000;
+        }
+        else if( runYear == "2018" ) 
+        {
+            norm = 1.0;
+            expo = 0.0;
+        }
+            
+        if( HT > 2000 )
+            return norm*exp( expo*2000.00 );
+        else
+            return norm*exp( expo*HT ); 
+    }
+
+    const double htScaleFactorNJet7(const double HT, const std::string& runYear) const
+    {
+        double norm = 1.0;
+        double expo = 0.0;      
+        if( runYear == "2016" ) 
+        {
+            norm = 0.03422*7 + 0.9367;
+            expo = (-0.02310*7 - 0.0940 )/1000;
+        }
+        else if( runYear == "2017" ) 
+        {
+            norm = 0.02565*7 + 0.9635;
+            expo = (-0.01418*7 - 0.1101 )/1000;
+        }            
+        else if( runYear == "2018" ) 
+        {
+            norm = 1.0;
+            expo = 0.0;
+        }
+        return norm*exp( expo*HT ); 
+    }
+
+    const double htScaleFactorMG(const int nJets, const double HT, const std::string& runYear) const
+    {
+        double norm = 1.0;
+        double expo = 0.0;
+        if( runYear == "2016" ) 
+        {
+            norm = 0.01802*nJets + 0.9762;
+            expo = (-0.003885*nJets - 0.1074)/1000;
+        }
+        else if( runYear == "2017" ) 
+        {
+            norm = 0.01818*nJets + 1.0535;
+            expo = (0.00425*nJets - 0.3170)/1000;
+        }
+        else if( runYear == "2018" ) 
+        {
+            norm = 1.0;
+            expo = 0.0;
+        }
+        return norm*exp( expo*HT );
+    }
+
     void scaleFactors(NTupleReader& tr)
     {
         // --------------------------------------------------------------------------------------
@@ -436,82 +528,12 @@ private:
         const auto& HT_trigger_pt30 = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& isSignal = tr.getVar<bool>("isSignal");
 
-        auto htScaleFactor = [](int nJets, double HT, const std::string& runYear) 
-        { 
-            double norm = 0.0;
-            double expo = 0.0;
-            if( runYear == "2016" ) 
-            {
-                norm = 0.03422*nJets + 0.9367;
-                expo = (-0.02310*nJets - 0.0940 )/1000;
-            }
-            else if( runYear == "2017" ) 
-            {
-                norm = 0.02565*nJets + 0.9635;
-                expo = (-0.01418*nJets - 0.1101 )/1000;
-            }
-            return norm*exp( expo*HT ); 
-        };
-        auto htScaleFactorFlat2000 = [](int nJets, double HT, const std::string& runYear)
-        {
-            double norm = 0.0;
-            double expo = 0.0;
-            if( runYear == "2016" ) 
-            {
-                norm = 0.03422*nJets + 0.9367;
-                expo = (-0.02310*nJets - 0.0940 )/1000;
-            }
-            else if( runYear == "2017" ) 
-            {
-                norm = 0.02565*nJets + 0.9635;
-                expo = (-0.01418*nJets - 0.1101 )/1000;
-            }
-            
-            if( HT > 2000 )
-                return norm*exp( expo*2000.00 );
-            else
-                return norm*exp( expo*HT ); 
-        };
-        auto htScaleFactorNJet7 = [](double HT, const std::string& runYear)
-        {
-            double norm = 0.0;
-            double expo = 0.0;
-            
-            if( runYear == "2016" ) 
-            {
-                norm = 0.03422*7 + 0.9367;
-                expo = (-0.02310*7 - 0.0940 )/1000;
-            }
-            else if( runYear == "2017" ) 
-            {
-                norm = 0.02565*7 + 0.9635;
-                expo = (-0.01418*7 - 0.1101 )/1000;
-            }            
-            return norm*exp( expo*HT ); 
-        };
-        auto htScaleFactorMG = [](int nJets, double HT, std::string filetag)
-        {
-            double norm     = 0.0;
-            double expo     = 0.0;
-
-            if( filetag.find("2016") != std::string::npos ) {
-                norm = 0.01802*nJets + 0.9762;
-                expo = (-0.003885*nJets - 0.1074)/1000;
-            }
-            else {
-                norm = 0.01818*nJets + 1.0535;
-                expo = (0.00425*nJets - 0.3170)/1000;
-            }
-
-            return norm*exp( expo*HT );
-        };
-
-        double htDerivedweight = 1.0, htDerivedweightFlat2000 = 1.0, htDerivedweightNJet7 = 1.0, htDerivedweightMG = 1.0;
         double htDerivedweightUncor = htScaleFactor(NGoodJets_pt30, HT_trigger_pt30, runYear);
         double htDerivedweightFlat2000Uncor = htScaleFactorFlat2000(NGoodJets_pt30, HT_trigger_pt30, runYear);
         double htDerivedweightNJet7Uncor = htScaleFactorNJet7(HT_trigger_pt30, runYear);
-        double htDerivedweightMGUncor = htScaleFactorMG(NGoodJets_pt30, HT_trigger_pt30, filetag);
+        double htDerivedweightMGUncor = htScaleFactorMG(NGoodJets_pt30, HT_trigger_pt30, runYear);
 
+        double htDerivedweight = 1.0, htDerivedweightFlat2000 = 1.0, htDerivedweightNJet7 = 1.0, htDerivedweightMG = 1.0;
         double htScaleUp = 1.0, htScaleDown = 1.0, htScaleUpMG = 1.0, htScaleDownMG = 1.0;
         if( sfMeanMap_.find(filetag+"_ht") != sfMeanMap_.end() && !isSignal ) 
         {
@@ -561,6 +583,14 @@ private:
                 
                 htScaleUpMG = htDerivedweightMG*ratioUpMG;
                 htScaleDownMG = htDerivedweightMG*ratioDownMG;
+            }
+            else if( runYear == "2018" ) 
+            {
+                htScaleUp = 1.0;
+                htScaleDown = 1.0;
+                
+                htScaleUpMG = 1.0;
+                htScaleDownMG = 1.0;
             }
         }
 
