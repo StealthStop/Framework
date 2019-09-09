@@ -11,6 +11,7 @@ class ScaleFactors
 private:
     std::string myVarSuffix_;
     bool printMeanError_;
+    bool printGetBinError_;
 
     std::shared_ptr<TH2F> eleSFHistoTight_;        
     std::shared_ptr<TH2F> eleSFHistoIso_;
@@ -51,7 +52,7 @@ private:
                 if( v >= h->GetYaxis()->GetBinUpEdge(h->GetNbinsY()) ) bin = h->GetNbinsY();           
             }
         }
-        if(bin == -1) std::cerr<<utility::color("Warning: There was an error in extracting the bin index for a scale factor", "red")<<std::endl;
+        if(bin == -1) printGetBinError_ = true;
         return bin;
     }
 
@@ -356,6 +357,9 @@ private:
                 //Find the bin indices (binned by x: eta and y: pt ) for the 2018 scale factor for Data/MC comparison (reco eff) ( has 98 bins total in 2D parameter space )
                 xbinElReco = findBin(eleSFHistoReco_, eleta, "X");
                 ybinElReco = findBin(eleSFHistoReco_, elpt,  "Y");
+                //Find the bin indices (binned by x: pt and y: eta ) for the 2018 scale factor for Data/MC trig efficiency
+                xbinElTrig = findBin(eleSFHistoTrig_, elpt,  "X");
+                ybinElTrig = findBin(eleSFHistoTrig_, eleta, "Y");
             }
 
             if( xbinElTight != -1 && ybinElTight != -1 && xbinElIso != -1 && ybinElIso != -1 && xbinElReco != -1 && ybinElReco != -1 ) 
@@ -471,6 +475,12 @@ private:
                 //The muon POG will not release MiniIso scale factors until the UltraLegacy, so we recommend to use the 2017 Data/FullSim SFs for MiniIso also for 2018
                 xbinMuIso = findBin(muSFHistoIso_, mupt,       "X");
                 ybinMuIso = findBin(muSFHistoIso_, abs(mueta), "Y");            
+                //Find the bin indices (binned by x: pt and y: eta ) for the 2018 scale factor for Data/MC Trigger Efficiency
+                xbinMuTrig = findBin(muSFHistoTrig_, mupt,  "X");
+                ybinMuTrig = findBin(muSFHistoTrig_, mueta, "Y");
+                //Find the bin indices (binned by x: pt and y: eta ) for the 2018 scale factor for Data/MC Non Iso Trigger Efficiency
+                xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,  "X");
+                ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta, "Y");
             }
 
             if( xbinMuMedium != -1 && ybinMuMedium != -1 && xbinMuIso != -1 && ybinMuIso != -1 ) 
@@ -749,7 +759,7 @@ private:
 
 public:
     ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& puFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
-        : myVarSuffix_(myVarSuffix), printMeanError_(false)
+        : myVarSuffix_(myVarSuffix), printMeanError_(false), printGetBinError_(false)
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
@@ -844,7 +854,8 @@ public:
 
     ~ScaleFactors() 
     {
-        if(printMeanError_) std::cerr<< utility::color("Error: Scale Factor mean is 0.0 setting it to 1.0", "red") <<std::endl;
+        if(printMeanError_)   std::cerr<<utility::color("Error: Scale Factor mean is 0.0 setting it to 1.0", "red")<<std::endl;
+        if(printGetBinError_) std::cerr<<utility::color("Warning: There was an error in extracting the bin index for a scale factor", "red")<<std::endl;
     }
 
     void operator()(NTupleReader& tr)
