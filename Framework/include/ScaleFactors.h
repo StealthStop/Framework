@@ -10,6 +10,7 @@ class ScaleFactors
 {
 private:
     std::string myVarSuffix_;
+    bool printMeanError_;
 
     std::shared_ptr<TH2F> eleSFHistoTight_;        
     std::shared_ptr<TH2F> eleSFHistoIso_;
@@ -146,6 +147,19 @@ private:
         return norm*exp( expo*HT );
     }
 
+    const double getMean(const std::string& name)
+    {
+        if( sfMeanMap_[name] == 0.0 )
+        {
+            printMeanError_ = true;
+            return 1.0;
+        }
+        else
+        {
+            return sfMeanMap_[name];
+        }
+    }
+
     void scaleFactors(NTupleReader& tr)
     {
         // --------------------------------------------------------------------------------------
@@ -185,8 +199,8 @@ private:
         double scaleWeightLowerBound_corr = scaleWeightLowerBound;
         if(sfMeanMap_.find(filetag+"_sclUp") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_sclDown") != sfMeanMap_.end()) 
         {            
-            const double meanUp = sfMeanMap_[filetag+"_sclUp"];
-            const double meanDown = sfMeanMap_[filetag+"_sclDown"];
+            const double meanUp = getMean(filetag+"_sclUp");
+            const double meanDown = getMean(filetag+"_sclDown");
             scaleWeightUpperBound_corr = (1/meanUp)*scaleWeightUpperBound;
             scaleWeightLowerBound_corr = (1/meanDown)*scaleWeightLowerBound;
         }
@@ -269,8 +283,8 @@ private:
         double NNPDF_from_median_down_corr = NNPDF_from_median_down;
         if(sfMeanMap_.find(filetag+"_pdf_Up") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_pdf_Down") != sfMeanMap_.end()) 
         {
-            const double meanUp = sfMeanMap_[filetag+"_pdf_Up"];
-            const double meanDown = sfMeanMap_[filetag+"_pdf_Down"];
+            const double meanUp = getMean(filetag+"_pdf_Up");
+            const double meanDown = getMean(filetag+"_pdf_Down");
             NNPDF_from_median_up_corr = (1/meanUp)*NNPDF_from_median_up;
             NNPDF_from_median_down_corr = (1/meanDown)*NNPDF_from_median_down;
         }
@@ -538,13 +552,13 @@ private:
         if( sfMeanMap_.find(filetag+"_ht") != sfMeanMap_.end() && !isSignal ) 
         {
             // Derive ht SF
-            const double mean_ht = sfMeanMap_[filetag+"_ht"];
+            const double mean_ht = getMean(filetag+"_ht");
             htDerivedweight = (1/mean_ht)*htDerivedweightUncor;
-            const double mean_ht_flat2000 = sfMeanMap_[filetag+"_ht_flat2000"];
+            const double mean_ht_flat2000 = getMean(filetag+"_ht_flat2000");
             htDerivedweightFlat2000 = (1/mean_ht_flat2000)*htDerivedweightFlat2000Uncor;
-            const double mean_ht_njet7 = sfMeanMap_[filetag+"_ht_njet7"];
+            const double mean_ht_njet7 = getMean(filetag+"_ht_njet7");
             htDerivedweightNJet7 = (1/mean_ht_njet7)*htDerivedweightNJet7Uncor;
-            const double mean_ht_MG = sfMeanMap_[filetag+"_ht_MG"];
+            const double mean_ht_MG = getMean(filetag+"_ht_MG");
             htDerivedweightMG = (1/mean_ht_MG)*htDerivedweightMGUncor;
 
             // Derive ht up and down variation on SF
@@ -644,11 +658,11 @@ private:
         double puSysDownCorr = puSysDown;
         if( sfMeanMap_.find(filetag+"_pu") != sfMeanMap_.end() && !isSignal )
         {
-            const double mean = sfMeanMap_[filetag+"_pu"];
+            const double mean = getMean(filetag+"_pu");
             puWeightCorr     = (1/mean)*puWeightUnCorr;
-            const double meanUp = sfMeanMap_[filetag+"_pu_Up"];
+            const double meanUp = getMean(filetag+"_pu_Up");
             puSysUpCorr      = (1/meanUp)*puSysUpUnCorr;
-            const double meanDown = sfMeanMap_[filetag+"_pu_Down"];
+            const double meanDown = getMean(filetag+"_pu_Down");
             puSysDownCorr    = (1/meanDown)*puSysDownUnCorr;
         }
 
@@ -735,7 +749,7 @@ private:
 
 public:
     ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& puFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
-        : myVarSuffix_(myVarSuffix)
+        : myVarSuffix_(myVarSuffix), printMeanError_(false)
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
@@ -830,6 +844,7 @@ public:
 
     ~ScaleFactors() 
     {
+        if(printMeanError_) std::cerr<< utility::color("Error: Scale Factor mean is 0.0 setting it to 1.0", "red") <<std::endl;
     }
 
     void operator()(NTupleReader& tr)
