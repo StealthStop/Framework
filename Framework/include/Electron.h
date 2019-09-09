@@ -1,6 +1,8 @@
 #ifndef ELECTRON_H
 #define ELECTRON_H
 
+#include "Framework/Framework/include/Utility.h"
+
 class Electron
 {
 private:
@@ -25,7 +27,10 @@ private:
         int NGoodElectrons = 0;
         int NGoodPlusElectrons = 0;
         int NGoodMinusElectrons = 0;
-        const double ptCut = (runYear == "2017") ? 37.0 : 30.0;
+        double ptCut;
+        if      (runYear == "2016") ptCut = 30.0;
+        else if (runYear == "2017") ptCut = 37.0; 
+        else if (runYear == "2018") ptCut = 37.0; 
         for(unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
             TLorentzVector lvel = allElectrons.at(iel);
@@ -41,7 +46,7 @@ private:
                 NGoodElectrons++;
                 if( allElectrons_charge.at(iel) ==  1 ) NGoodPlusElectrons++;
                 else if( allElectrons_charge.at(iel) == -1 ) NGoodMinusElectrons++;
-                else std::cout<<"Charge values in nTuples are different"<<std::endl;
+                else std::cout<<utility::color("Charge values in nTuples are different", "red")<<std::endl;
             }
             else
             {

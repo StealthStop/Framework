@@ -23,7 +23,6 @@ private:
     {
         const auto& Jets          = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
         const auto& etaCut        = tr.getVar<double>("etaCut");
-        const auto& Jets_CSV      = tr.getVec<double>("Jets"+myVarSuffix_+"_bDiscriminatorCSV");
 
         const auto& Muons         = tr.getVec<TLorentzVector>("Muons");
         const auto& GoodMuons     = tr.getVec<bool>("GoodMuons"+myVarSuffix_);

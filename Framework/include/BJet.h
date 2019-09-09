@@ -22,11 +22,14 @@ private:
     void bjet(NTupleReader& tr)
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-        const auto& Jets_bDiscriminatorCSV = tr.getVec<double>("Jets"+myVarSuffix_+"_bDiscriminatorCSV");
+        const auto& Jets_bJetTagDeepCSVtotb = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb");
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
-        const auto& filetag = tr.getVar<std::string>("filetag");
+        const auto& runYear = tr.getVar<std::string>("runYear");
+        const auto& loose = tr.getVar<double>("deepCSV_WP_loose");
+        const auto& medium = tr.getVar<double>("deepCSV_WP_medium");
+        const auto& tight = tr.getVar<double>("deepCSV_WP_tight");
 
         auto& bjets_loose_ = tr.createDerivedVec<bool>("BJets_loose"+myVarSuffix_);
         auto& bjets_pt30_loose_ = tr.createDerivedVec<bool>("BJets_pt30_loose"+myVarSuffix_);
@@ -58,42 +61,34 @@ private:
         auto& goodbjets_pt45_tight_ = tr.createDerivedVec<bool>("GoodBJets_pt45_tight"+myVarSuffix_);
         int NGoodBJets_tight = 0, NGoodBJets_pt30_tight = 0, NGoodBJets_pt45_tight = 0;
 
-        double loose = (filetag.find("2017") != std::string::npos) ? 0.5803 : 0.5426;
-        double medium = (filetag.find("2017") != std::string::npos) ? 0.8838 : 0.8484;
-        double tight = (filetag.find("2017") != std::string::npos) ? 0.9693 : 0.9535;
-
-        //Adding values for 2017 DeepCSV cuts:
-        //double loose_deepCSV = 0.1522
-        //double medium_deepCSV = 0.4941
-        //double tight_deepCSV = 0.8001
-
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
             TLorentzVector lv = Jets.at(ijet);
+            double bdisc = Jets_bJetTagDeepCSVtotb.at(ijet);
 
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > loose                , bjets_loose_,      NBJets_loose     );
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > loose && lv.Pt() > 30, bjets_pt30_loose_, NBJets_pt30_loose);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > loose                , bjets_loose_,      NBJets_loose     );
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > loose && lv.Pt() > 30, bjets_pt30_loose_, NBJets_pt30_loose);
 
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > loose                 && GoodJets.at(ijet), goodbjets_loose_,      NGoodBJets_loose     );
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > loose && lv.Pt() > 30 && GoodJets.at(ijet), goodbjets_pt30_loose_, NGoodBJets_pt30_loose);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > loose                 && GoodJets.at(ijet), goodbjets_loose_,      NGoodBJets_loose     );
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > loose && lv.Pt() > 30 && GoodJets.at(ijet), goodbjets_pt30_loose_, NGoodBJets_pt30_loose);
 
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > medium                , bjets_,      NBJets     );
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > medium && lv.Pt() > 30, bjets_pt30_, NBJets_pt30);
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > medium && lv.Pt() > 40, bjets_pt40_, NBJets_pt40);
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > medium && lv.Pt() > 45, bjets_pt45_, NBJets_pt45);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium                , bjets_,      NBJets     );
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium && lv.Pt() > 30, bjets_pt30_, NBJets_pt30);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium && lv.Pt() > 40, bjets_pt40_, NBJets_pt40);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium && lv.Pt() > 45, bjets_pt45_, NBJets_pt45);
 
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > medium                 && GoodJets.at(ijet), goodbjets_,      NGoodBJets     );
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > medium && lv.Pt() > 30 && GoodJets.at(ijet), goodbjets_pt30_, NGoodBJets_pt30);
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > medium && lv.Pt() > 40 && GoodJets.at(ijet), goodbjets_pt40_, NGoodBJets_pt40);
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > medium && lv.Pt() > 45 && GoodJets.at(ijet), goodbjets_pt45_, NGoodBJets_pt45);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium                 && GoodJets.at(ijet), goodbjets_,      NGoodBJets     );
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium && lv.Pt() > 30 && GoodJets.at(ijet), goodbjets_pt30_, NGoodBJets_pt30);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium && lv.Pt() > 40 && GoodJets.at(ijet), goodbjets_pt40_, NGoodBJets_pt40);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium && lv.Pt() > 45 && GoodJets.at(ijet), goodbjets_pt45_, NGoodBJets_pt45);
 
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > tight                , bjets_tight_,      NBJets_tight     );
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > tight && lv.Pt() > 30, bjets_pt30_tight_, NBJets_pt30_tight);
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > tight && lv.Pt() > 45, bjets_pt45_tight_, NBJets_pt45_tight);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight                , bjets_tight_,      NBJets_tight     );
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight && lv.Pt() > 30, bjets_pt30_tight_, NBJets_pt30_tight);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight && lv.Pt() > 45, bjets_pt45_tight_, NBJets_pt45_tight);
 
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > tight                 && GoodJets.at(ijet), goodbjets_tight_,      NGoodBJets_tight     );
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > tight && lv.Pt() > 30 && GoodJets.at(ijet), goodbjets_pt30_tight_, NGoodBJets_pt30_tight);
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && Jets_bDiscriminatorCSV.at(ijet) > tight && lv.Pt() > 45 && GoodJets.at(ijet), goodbjets_pt45_tight_, NGoodBJets_pt45_tight);            
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight                 && GoodJets.at(ijet), goodbjets_tight_,      NGoodBJets_tight     );
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight && lv.Pt() > 30 && GoodJets.at(ijet), goodbjets_pt30_tight_, NGoodBJets_pt30_tight);
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight && lv.Pt() > 45 && GoodJets.at(ijet), goodbjets_pt45_tight_, NGoodBJets_pt45_tight);            
         }
 
         tr.registerDerivedVar("NBJets_loose"+myVarSuffix_,       NBJets_loose);

@@ -98,7 +98,7 @@ $(ODIR)/%.o : $(WDIR)/%.cc
 $(ODIR)/%.o : $(WDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) $(CXXDEPFLAGS)  -I$(TDIR) -I$(IFWDIR) -I$(SFWDIR) -I$(IADIR) -I$(SADIR) -I$(SSDIR) -I$(ITTDir) -I$(STTDir) -o $@ -c $<
 
-make_training_trees: $(ODIR)/make_training_trees.o $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/SATException.o $(ODIR)/EventShapeVariables.o
+make_training_trees: $(ODIR)/make_training_trees.o $(ODIR)/NTupleReader.o $(ODIR)/samples.o $(ODIR)/SATException.o $(ODIR)/EventShapeVariables.o $(ODIR)/Utility.o
 	$(LD) $^ $(LIBS) -o $@
 
 train_tmva: $(ODIR)/train_tmva.o
