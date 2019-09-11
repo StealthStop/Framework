@@ -88,6 +88,7 @@ private:
         bool passHEMVeto = (!objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear)) && 
                            (!objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear)) && 
                            (!objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
+        tr.registerDerivedVar("passHEMVeto"+myVarSuffix_, passHEMVeto);
 
         // HT of jets with pT>40
         double ht = 0;
