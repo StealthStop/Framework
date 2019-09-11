@@ -46,30 +46,49 @@ private:
         }
     }
     
+    const bool objectInHEM(std::vector<TLorentzVector> objects, const double etalow, const double etahigh, const double philow, const double phihigh, const double ptcut, const std::string& runYear) const
+    {
+        bool inHEM = false;
+        if(runYear == "2018")
+        {
+            for(const auto& o : objects)
+            {
+                if((o.Eta() >= etalow) and (o.Eta() <= etahigh) and (o.Phi() >= philow) and (o.Phi() <= phihigh) and (o.Pt() > ptcut))
+                {
+                    inHEM = true;
+                }
+            }
+        }
+        return inHEM;
+    }
+
     void commonVariables(NTupleReader& tr)
     {
         // Get needed branches
+        const auto& runYear = tr.getVar<std::string>("runYear");
         const auto& Jets = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
         const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
         const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
-
         const auto& Muons = tr.getVec<TLorentzVector>("Muons");
         const auto& MuonsCharge = tr.getVec<int>("Muons_charge");
         const auto& MuonsMTW = tr.getVec<double>("MuonsMTW"+myVarSuffix_);
         const auto& GoodMuons = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& NGoodMuons = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
-
         const auto& Electrons = tr.getVec<TLorentzVector>("Electrons");
         const auto& ElectronsCharge = tr.getVec<int>("Electrons_charge");
         const auto& ElectronsMTW = tr.getVec<double>("ElectronsMTW"+myVarSuffix_);
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
-
         const auto& etaCut = tr.getVar<double>("etaCut");
-
         const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30");
         const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30");
+
+        // Define HEM15/16 veto
+        bool passHEMVeto = (!objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear)) && 
+                           (!objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear)) && 
+                           (!objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
+        tr.registerDerivedVar("passHEMVeto"+myVarSuffix_, passHEMVeto);
 
         // HT of jets with pT>40
         double ht = 0;
