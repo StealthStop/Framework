@@ -53,7 +53,7 @@ private:
         {
             for(const auto& o : objects)
             {
-                if((o.Eta() >= etalow) and (o.Eta() <= etahigh) and (o.Phi() >= philow) and (o.Phi() <= phihigh) and (o.Pt() > ptcut))
+                if( (o.Eta() >= etalow) && (o.Eta() <= etahigh) && (o.Phi() >= philow) && (o.Phi() <= phihigh) && (o.Pt() > ptcut) )
                 {
                     inHEM = true;
                 }
@@ -85,8 +85,8 @@ private:
         const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30");
 
         // Define HEM15/16 veto
-        bool passHEMVeto = (!objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear)) && 
-                           (!objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear)) && 
+        bool passHEMVeto = (!objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear)) ||
+                           (!objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear)) || 
                            (!objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
         tr.registerDerivedVar("passHEMVeto"+myVarSuffix_, passHEMVeto);
 
@@ -117,7 +117,7 @@ private:
         auto* GoodLeptonsCharge = new std::vector<int>();
         int NGoodLeptons = 0;
         for(unsigned int imu = 0; imu < Muons.size(); ++imu)
-        {            
+        {
             if(!GoodMuons[imu]) continue;
             TLorentzVector muon = Muons.at(imu);
             GoodLeptons->push_back( std::make_pair("m", muon) );
