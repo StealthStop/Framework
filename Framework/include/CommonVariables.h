@@ -71,6 +71,9 @@ private:
         const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30");
         const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30");
 
+        const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45");
+        const auto& GoodBJets_pt45  = tr.getVec<bool>("GoodBJets_pt45");
+
         // HT of jets with pT>40
         double ht = 0;
         double ht_pt30 = 0.0;
@@ -273,8 +276,31 @@ private:
         tr.registerDerivedVar("TwoLep_Mbl1_Idx"+myVarSuffix_, TwoLep_Mbl1_Idx);
         tr.registerDerivedVar("TwoLep_Mbl2_Idx"+myVarSuffix_, TwoLep_Mbl2_Idx);
 
+        // ---------------------------------------------------
+        // -- Calculate DeltaR between 2 bjets for 0 lepton
+        // ---------------------------------------------------
+        double dR_bjets = -1;
+        if (NGoodBJets_pt45 >= 2)
+        {
+            std::vector<TLorentzVector> bjets;
+            for(int ijet = 0; ijet < Jets.size(); ijet++)
+            {
+                if(!GoodBJets_pt45[ijet]) continue;
+                bjets.push_back(Jets.at(ijet));
+            }
+            int n = bjets.size();
+            std::vector<double> deltaRs( n*(n - 1)/2, 0.0 );
+            for (int i = 0; i < n; i++) 
+            {
+                for (int j = i+1; j < n; j++) 
+                {
+                    deltaRs[i+j-1] = bjets[i].DeltaR(bjets[j]);
+                }
+            }
+            dR_bjets = *std::max_element(deltaRs.begin(), deltaRs.end());
+        }
+        tr.registerDerivedVar("dR_bjets"+myVarSuffix_, dR_bjets);
 
-//____________end paste
     }
 
 public:
