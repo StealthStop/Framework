@@ -23,7 +23,7 @@ ls -l
 echo "============================"
 echo "Testing the top tagger"
 echo "============================"
-git clone https://github.com/susy2015/TopTaggerTools.git
+git clone -b Stealth https://github.com/susy2015/TopTaggerTools.git
 git clone https://github.com/susy2015/SusyAnaTools.git
 git clone https://github.com/StealthStop/Analyzer.git
 git clone https://github.com/susy2015/TopTagger.git
