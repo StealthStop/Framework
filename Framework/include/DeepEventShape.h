@@ -14,7 +14,6 @@ class EventShapeCalculator
 private:
     float* basePtr_;
     std::string myVarSuffix_;
-    int len_;
 
     int fwm2_top6_, fwm3_top6_, fwm4_top6_, fwm5_top6_, fwm6_top6_, fwm7_top6_, fwm8_top6_, fwm9_top6_, fwm10_top6_, jmt_ev0_top6_, jmt_ev1_top6_, jmt_ev2_top6_;
     int NGoodJets_double_;
@@ -24,6 +23,13 @@ private:
     int Jet_m_1_, Jet_m_2_, Jet_m_3_, Jet_m_4_, Jet_m_5_, Jet_m_6_, Jet_m_7_;
     int GoodLeptons_pt_1_, GoodLeptons_eta_1_, GoodLeptons_phi_1_, GoodLeptons_m_1_;
     int BestComboAvgMass_;
+    int NonIsoMuons_fwm2_top6_, NonIsoMuons_fwm3_top6_, NonIsoMuons_fwm4_top6_, NonIsoMuons_fwm5_top6_, NonIsoMuons_fwm6_top6_, NonIsoMuons_fwm7_top6_, NonIsoMuons_fwm8_top6_, NonIsoMuons_fwm9_top6_;
+    int NonIsoMuons_fwm10_top6_, NonIsoMuons_jmt_ev0_top6_, NonIsoMuons_jmt_ev1_top6_, NonIsoMuons_jmt_ev2_top6_;
+    int JetNonIsoMuons_pt_1_, JetNonIsoMuons_pt_2_, JetNonIsoMuons_pt_3_, JetNonIsoMuons_pt_4_, JetNonIsoMuons_pt_5_, JetNonIsoMuons_pt_6_, JetNonIsoMuons_pt_7_;
+    int JetNonIsoMuons_eta_1_, JetNonIsoMuons_eta_2_, JetNonIsoMuons_eta_3_, JetNonIsoMuons_eta_4_, JetNonIsoMuons_eta_5_, JetNonIsoMuons_eta_6_, JetNonIsoMuons_eta_7_;
+    int JetNonIsoMuons_phi_1_, JetNonIsoMuons_phi_2_, JetNonIsoMuons_phi_3_, JetNonIsoMuons_phi_4_, JetNonIsoMuons_phi_5_, JetNonIsoMuons_phi_6_, JetNonIsoMuons_phi_7_;
+    int JetNonIsoMuons_m_1_, JetNonIsoMuons_m_2_, JetNonIsoMuons_m_3_, JetNonIsoMuons_m_4_, JetNonIsoMuons_m_5_, JetNonIsoMuons_m_6_, JetNonIsoMuons_m_7_;
+    int GoodNonIsoMuons_pt_1_, GoodNonIsoMuons_eta_1_, GoodNonIsoMuons_phi_1_, GoodNonIsoMuons_m_1_;
 
 public:
     EventShapeCalculator(std::string myVarSuffix = "")
@@ -37,6 +43,13 @@ public:
         Jet_m_1_ = Jet_m_2_ = Jet_m_3_ = Jet_m_4_ = Jet_m_5_ = Jet_m_6_ = Jet_m_7_ = -1;
         GoodLeptons_pt_1_ = GoodLeptons_eta_1_ = GoodLeptons_phi_1_ = GoodLeptons_m_1_ = -1;
         BestComboAvgMass_ = -1;
+        NonIsoMuons_fwm2_top6_ = NonIsoMuons_fwm3_top6_ = NonIsoMuons_fwm4_top6_ = NonIsoMuons_fwm5_top6_ = NonIsoMuons_fwm6_top6_ = NonIsoMuons_fwm7_top6_ = NonIsoMuons_fwm8_top6_ = NonIsoMuons_fwm9_top6_ = -1;
+        NonIsoMuons_fwm10_top6_ = NonIsoMuons_jmt_ev0_top6_ = NonIsoMuons_jmt_ev1_top6_ = NonIsoMuons_jmt_ev2_top6_ = -1;
+        JetNonIsoMuons_pt_1_ = JetNonIsoMuons_pt_2_ = JetNonIsoMuons_pt_3_ = JetNonIsoMuons_pt_4_ = JetNonIsoMuons_pt_5_ = JetNonIsoMuons_pt_6_ = JetNonIsoMuons_pt_7_ = -1;
+        JetNonIsoMuons_eta_1_ = JetNonIsoMuons_eta_2_ = JetNonIsoMuons_eta_3_ = JetNonIsoMuons_eta_4_ = JetNonIsoMuons_eta_5_ = JetNonIsoMuons_eta_6_ = JetNonIsoMuons_eta_7_ = -1;
+        JetNonIsoMuons_phi_1_ = JetNonIsoMuons_phi_2_ = JetNonIsoMuons_phi_3_ = JetNonIsoMuons_phi_4_ = JetNonIsoMuons_phi_5_ = JetNonIsoMuons_phi_6_ = JetNonIsoMuons_phi_7_ = -1;
+        JetNonIsoMuons_m_1_ = JetNonIsoMuons_m_2_ = JetNonIsoMuons_m_3_ = JetNonIsoMuons_m_4_ = JetNonIsoMuons_m_5_ = JetNonIsoMuons_m_6_ = JetNonIsoMuons_m_7_ = -1;
+        GoodNonIsoMuons_pt_1_ = GoodNonIsoMuons_eta_1_ = GoodNonIsoMuons_phi_1_ = GoodNonIsoMuons_m_1_ = -1;
     }
 
     /**
@@ -92,6 +105,50 @@ public:
             else if(vars[i].compare("GoodLeptons_phi_1") == 0) GoodLeptons_phi_1_ = i;
             else if(vars[i].compare("GoodLeptons_m_1") == 0) GoodLeptons_m_1_ = i;
             else if(vars[i].compare("BestComboAvgMass") == 0) BestComboAvgMass_ = i;
+            else if(vars[i].compare("NonIsoMuons_fwm2_top6") == 0)  NonIsoMuons_fwm2_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_fwm3_top6") == 0)  NonIsoMuons_fwm3_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_fwm4_top6") == 0)  NonIsoMuons_fwm4_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_fwm5_top6") == 0)  NonIsoMuons_fwm5_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_fwm6_top6") == 0)  NonIsoMuons_fwm6_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_fwm7_top6") == 0)  NonIsoMuons_fwm7_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_fwm8_top6") == 0)  NonIsoMuons_fwm8_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_fwm9_top6") == 0)  NonIsoMuons_fwm9_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_fwm10_top6") == 0) NonIsoMuons_fwm10_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_jmt_ev0_top6") == 0) NonIsoMuons_jmt_ev0_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_jmt_ev1_top6") == 0) NonIsoMuons_jmt_ev1_top6_ = i;
+            else if(vars[i].compare("NonIsoMuons_jmt_ev2_top6") == 0) NonIsoMuons_jmt_ev2_top6_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_pt_1") == 0) JetNonIsoMuons_pt_1_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_pt_2") == 0) JetNonIsoMuons_pt_2_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_pt_3") == 0) JetNonIsoMuons_pt_3_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_pt_4") == 0) JetNonIsoMuons_pt_4_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_pt_5") == 0) JetNonIsoMuons_pt_5_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_pt_6") == 0) JetNonIsoMuons_pt_6_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_pt_7") == 0) JetNonIsoMuons_pt_7_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_eta_1") == 0) JetNonIsoMuons_eta_1_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_eta_2") == 0) JetNonIsoMuons_eta_2_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_eta_3") == 0) JetNonIsoMuons_eta_3_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_eta_4") == 0) JetNonIsoMuons_eta_4_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_eta_5") == 0) JetNonIsoMuons_eta_5_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_eta_6") == 0) JetNonIsoMuons_eta_6_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_eta_7") == 0) JetNonIsoMuons_eta_7_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_phi_1") == 0) JetNonIsoMuons_phi_1_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_phi_2") == 0) JetNonIsoMuons_phi_2_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_phi_3") == 0) JetNonIsoMuons_phi_3_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_phi_4") == 0) JetNonIsoMuons_phi_4_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_phi_5") == 0) JetNonIsoMuons_phi_5_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_phi_6") == 0) JetNonIsoMuons_phi_6_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_phi_7") == 0) JetNonIsoMuons_phi_7_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_m_1") == 0) JetNonIsoMuons_m_1_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_m_2") == 0) JetNonIsoMuons_m_2_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_m_3") == 0) JetNonIsoMuons_m_3_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_m_4") == 0) JetNonIsoMuons_m_4_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_m_5") == 0) JetNonIsoMuons_m_5_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_m_6") == 0) JetNonIsoMuons_m_6_ = i;
+            else if(vars[i].compare("JetNonIsoMuons_m_7") == 0) JetNonIsoMuons_m_7_ = i;
+            else if(vars[i].compare("GoodNonIsoMuons_pt_1") == 0) GoodNonIsoMuons_pt_1_ = i;
+            else if(vars[i].compare("GoodNonIsoMuons_eta_1") == 0) GoodNonIsoMuons_eta_1_ = i;
+            else if(vars[i].compare("GoodNonIsoMuons_phi_1") == 0) GoodNonIsoMuons_phi_1_ = i;
+            else if(vars[i].compare("GoodNonIsoMuons_m_1") == 0) GoodNonIsoMuons_m_1_ = i;
         }
     }
     /**
@@ -101,54 +158,103 @@ public:
     /**
      *Calculate the requested variables and store the values directly in the input array for the MVA
      */
+    template<typename T1, typename T2 = double> void calculateVar(const NTupleReader& tr, const int varId, const std::string& name)
+    {
+        if(varId >= 0) *(basePtr_ + varId) = static_cast<T1>( tr.getVar<T2>(name) );
+    }
+
     void calculateVars(const NTupleReader& tr)
     {
-        if(fwm2_top6_ >= 0)  *(basePtr_ + fwm2_top6_) =  tr.getVar<double>("fwm2_top6"+myVarSuffix_);
-        if(fwm3_top6_ >= 0)  *(basePtr_ + fwm3_top6_) =  tr.getVar<double>("fwm3_top6"+myVarSuffix_);
-        if(fwm4_top6_ >= 0)  *(basePtr_ + fwm4_top6_) =  tr.getVar<double>("fwm4_top6"+myVarSuffix_);
-        if(fwm5_top6_ >= 0)  *(basePtr_ + fwm5_top6_) =  tr.getVar<double>("fwm5_top6"+myVarSuffix_);
-        if(fwm6_top6_ >= 0)  *(basePtr_ + fwm6_top6_) =  tr.getVar<double>("fwm6_top6"+myVarSuffix_);
-        if(fwm7_top6_ >= 0)  *(basePtr_ + fwm7_top6_) =  tr.getVar<double>("fwm7_top6"+myVarSuffix_);
-        if(fwm8_top6_ >= 0)  *(basePtr_ + fwm8_top6_) =  tr.getVar<double>("fwm8_top6"+myVarSuffix_);
-        if(fwm9_top6_ >= 0)  *(basePtr_ + fwm9_top6_) =  tr.getVar<double>("fwm9_top6"+myVarSuffix_);
-        if(fwm10_top6_ >= 0) *(basePtr_ + fwm10_top6_) =  tr.getVar<double>("fwm10_top6"+myVarSuffix_);
-        if(jmt_ev0_top6_ >= 0) *(basePtr_ + jmt_ev0_top6_) =  tr.getVar<double>("jmt_ev0_top6"+myVarSuffix_);
-        if(jmt_ev1_top6_ >= 0) *(basePtr_ + jmt_ev1_top6_) =  tr.getVar<double>("jmt_ev1_top6"+myVarSuffix_);
-        if(jmt_ev2_top6_ >= 0) *(basePtr_ + jmt_ev2_top6_) =  tr.getVar<double>("jmt_ev2_top6"+myVarSuffix_);
-        if(NGoodJets_double_ >= 0) *(basePtr_ + NGoodJets_double_) =  static_cast<double>(tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_));
-        if(Jet_pt_1_  >= 0) *(basePtr_ + Jet_pt_1_ ) = tr.getVar<double>("Jet_pt_1"+myVarSuffix_);
-        if(Jet_pt_2_  >= 0) *(basePtr_ + Jet_pt_2_ ) = tr.getVar<double>("Jet_pt_2"+myVarSuffix_);
-        if(Jet_pt_3_  >= 0) *(basePtr_ + Jet_pt_3_ ) = tr.getVar<double>("Jet_pt_3"+myVarSuffix_);
-        if(Jet_pt_4_  >= 0) *(basePtr_ + Jet_pt_4_ ) = tr.getVar<double>("Jet_pt_4"+myVarSuffix_);
-        if(Jet_pt_5_  >= 0) *(basePtr_ + Jet_pt_5_ ) = tr.getVar<double>("Jet_pt_5"+myVarSuffix_);
-        if(Jet_pt_6_  >= 0) *(basePtr_ + Jet_pt_6_ ) = tr.getVar<double>("Jet_pt_6"+myVarSuffix_);
-        if(Jet_pt_7_  >= 0) *(basePtr_ + Jet_pt_7_ ) = tr.getVar<double>("Jet_pt_7"+myVarSuffix_);
-        if(Jet_eta_1_  >= 0) *(basePtr_ + Jet_eta_1_ ) = tr.getVar<double>("Jet_eta_1"+myVarSuffix_);
-        if(Jet_eta_2_  >= 0) *(basePtr_ + Jet_eta_2_ ) = tr.getVar<double>("Jet_eta_2"+myVarSuffix_);
-        if(Jet_eta_3_  >= 0) *(basePtr_ + Jet_eta_3_ ) = tr.getVar<double>("Jet_eta_3"+myVarSuffix_);
-        if(Jet_eta_4_  >= 0) *(basePtr_ + Jet_eta_4_ ) = tr.getVar<double>("Jet_eta_4"+myVarSuffix_);
-        if(Jet_eta_5_  >= 0) *(basePtr_ + Jet_eta_5_ ) = tr.getVar<double>("Jet_eta_5"+myVarSuffix_);
-        if(Jet_eta_6_  >= 0) *(basePtr_ + Jet_eta_6_ ) = tr.getVar<double>("Jet_eta_6"+myVarSuffix_);
-        if(Jet_eta_7_  >= 0) *(basePtr_ + Jet_eta_7_ ) = tr.getVar<double>("Jet_eta_7"+myVarSuffix_);
-        if(Jet_phi_1_  >= 0) *(basePtr_ + Jet_phi_1_ ) = tr.getVar<double>("Jet_phi_1"+myVarSuffix_);
-        if(Jet_phi_2_  >= 0) *(basePtr_ + Jet_phi_2_ ) = tr.getVar<double>("Jet_phi_2"+myVarSuffix_);
-        if(Jet_phi_3_  >= 0) *(basePtr_ + Jet_phi_3_ ) = tr.getVar<double>("Jet_phi_3"+myVarSuffix_);
-        if(Jet_phi_4_  >= 0) *(basePtr_ + Jet_phi_4_ ) = tr.getVar<double>("Jet_phi_4"+myVarSuffix_);
-        if(Jet_phi_5_  >= 0) *(basePtr_ + Jet_phi_5_ ) = tr.getVar<double>("Jet_phi_5"+myVarSuffix_);
-        if(Jet_phi_6_  >= 0) *(basePtr_ + Jet_phi_6_ ) = tr.getVar<double>("Jet_phi_6"+myVarSuffix_);
-        if(Jet_phi_7_  >= 0) *(basePtr_ + Jet_phi_7_ ) = tr.getVar<double>("Jet_phi_7"+myVarSuffix_);
-        if(Jet_m_1_  >= 0) *(basePtr_ + Jet_m_1_ ) = tr.getVar<double>("Jet_m_1"+myVarSuffix_);
-        if(Jet_m_2_  >= 0) *(basePtr_ + Jet_m_2_ ) = tr.getVar<double>("Jet_m_2"+myVarSuffix_);
-        if(Jet_m_3_  >= 0) *(basePtr_ + Jet_m_3_ ) = tr.getVar<double>("Jet_m_3"+myVarSuffix_);
-        if(Jet_m_4_  >= 0) *(basePtr_ + Jet_m_4_ ) = tr.getVar<double>("Jet_m_4"+myVarSuffix_);
-        if(Jet_m_5_  >= 0) *(basePtr_ + Jet_m_5_ ) = tr.getVar<double>("Jet_m_5"+myVarSuffix_);
-        if(Jet_m_6_  >= 0) *(basePtr_ + Jet_m_6_ ) = tr.getVar<double>("Jet_m_6"+myVarSuffix_);
-        if(Jet_m_7_  >= 0) *(basePtr_ + Jet_m_7_ ) = tr.getVar<double>("Jet_m_7"+myVarSuffix_);
-        if(GoodLeptons_pt_1_  >= 0) *(basePtr_ + GoodLeptons_pt_1_ ) = tr.getVar<double>("GoodLeptons_pt_1"+myVarSuffix_);
-        if(GoodLeptons_eta_1_ >= 0) *(basePtr_ + GoodLeptons_eta_1_) = tr.getVar<double>("GoodLeptons_eta_1"+myVarSuffix_);
-        if(GoodLeptons_phi_1_ >= 0) *(basePtr_ + GoodLeptons_phi_1_) = tr.getVar<double>("GoodLeptons_phi_1"+myVarSuffix_);
-        if(GoodLeptons_m_1_   >= 0) *(basePtr_ + GoodLeptons_m_1_  ) = tr.getVar<double>("GoodLeptons_m_1"+myVarSuffix_);
-        if(BestComboAvgMass_ >= 0) *(basePtr_ + BestComboAvgMass_) = tr.getVar<double>("BestComboAvgMass"+myVarSuffix_);
+        calculateVar<double, int>(tr, NGoodJets_double_, "NGoodJets_double_"+myVarSuffix_);
+        calculateVar<double>(tr, fwm2_top6_,    "fwm2_top6"+myVarSuffix_);
+        calculateVar<double>(tr, fwm3_top6_,    "fwm3_top6"+myVarSuffix_);
+        calculateVar<double>(tr, fwm4_top6_,    "fwm4_top6"+myVarSuffix_);
+        calculateVar<double>(tr, fwm5_top6_,    "fwm5_top6"+myVarSuffix_);
+        calculateVar<double>(tr, fwm6_top6_,    "fwm6_top6"+myVarSuffix_);
+        calculateVar<double>(tr, fwm7_top6_,    "fwm7_top6"+myVarSuffix_);
+        calculateVar<double>(tr, fwm8_top6_,    "fwm8_top6"+myVarSuffix_);
+        calculateVar<double>(tr, fwm9_top6_,    "fwm9_top6"+myVarSuffix_);
+        calculateVar<double>(tr, fwm10_top6_,   "fwm10_top6"+myVarSuffix_);
+        calculateVar<double>(tr, jmt_ev0_top6_, "jmt_ev0_top6"+myVarSuffix_);
+        calculateVar<double>(tr, jmt_ev1_top6_, "jmt_ev1_top6"+myVarSuffix_);
+        calculateVar<double>(tr, jmt_ev2_top6_, "jmt_ev2_top6"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_pt_1_,  "Jet_pt_1"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_pt_2_,  "Jet_pt_2"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_pt_3_,  "Jet_pt_3"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_pt_4_,  "Jet_pt_4"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_pt_5_,  "Jet_pt_5"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_pt_6_,  "Jet_pt_6"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_pt_7_,  "Jet_pt_7"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_eta_1_, "Jet_eta_1"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_eta_2_, "Jet_eta_2"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_eta_3_, "Jet_eta_3"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_eta_4_, "Jet_eta_4"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_eta_5_, "Jet_eta_5"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_eta_6_, "Jet_eta_6"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_eta_7_, "Jet_eta_7"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_phi_1_, "Jet_phi_1"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_phi_2_, "Jet_phi_2"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_phi_3_, "Jet_phi_3"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_phi_4_, "Jet_phi_4"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_phi_5_, "Jet_phi_5"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_phi_6_, "Jet_phi_6"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_phi_7_, "Jet_phi_7"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_m_1_,   "Jet_m_1"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_m_2_,   "Jet_m_2"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_m_3_,   "Jet_m_3"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_m_4_,   "Jet_m_4"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_m_5_,   "Jet_m_5"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_m_6_,   "Jet_m_6"+myVarSuffix_);
+        calculateVar<double>(tr, Jet_m_7_,   "Jet_m_7"+myVarSuffix_);
+        calculateVar<double>(tr, GoodLeptons_pt_1_,  "GoodLeptons_pt_1"+myVarSuffix_);
+        calculateVar<double>(tr, GoodLeptons_eta_1_, "GoodLeptons_eta_1"+myVarSuffix_);
+        calculateVar<double>(tr, GoodLeptons_phi_1_, "GoodLeptons_phi_1"+myVarSuffix_);
+        calculateVar<double>(tr, GoodLeptons_m_1_,   "GoodLeptons_m_1"+myVarSuffix_);
+        calculateVar<double>(tr, BestComboAvgMass_,  "BestComboAvgMass"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_fwm2_top6_,    "NonIsoMuons_fwm2_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_fwm3_top6_,    "NonIsoMuons_fwm3_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_fwm4_top6_,    "NonIsoMuons_fwm4_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_fwm5_top6_,    "NonIsoMuons_fwm5_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_fwm6_top6_,    "NonIsoMuons_fwm6_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_fwm7_top6_,    "NonIsoMuons_fwm7_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_fwm8_top6_,    "NonIsoMuons_fwm8_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_fwm9_top6_,    "NonIsoMuons_fwm9_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_fwm10_top6_,   "NonIsoMuons_fwm10_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_jmt_ev0_top6_, "NonIsoMuons_jmt_ev0_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_jmt_ev1_top6_, "NonIsoMuons_jmt_ev1_top6"+myVarSuffix_);
+        calculateVar<double>(tr, NonIsoMuons_jmt_ev2_top6_, "NonIsoMuons_jmt_ev2_top6"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_pt_1_,  "JetNonIsoMuons_pt_1"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_pt_2_,  "JetNonIsoMuons_pt_2"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_pt_3_,  "JetNonIsoMuons_pt_3"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_pt_4_,  "JetNonIsoMuons_pt_4"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_pt_5_,  "JetNonIsoMuons_pt_5"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_pt_6_,  "JetNonIsoMuons_pt_6"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_pt_7_,  "JetNonIsoMuons_pt_7"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_eta_1_, "JetNonIsoMuons_eta_1"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_eta_2_, "JetNonIsoMuons_eta_2"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_eta_3_, "JetNonIsoMuons_eta_3"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_eta_4_, "JetNonIsoMuons_eta_4"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_eta_5_, "JetNonIsoMuons_eta_5"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_eta_6_, "JetNonIsoMuons_eta_6"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_eta_7_, "JetNonIsoMuons_eta_7"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_phi_1_, "JetNonIsoMuons_phi_1"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_phi_2_, "JetNonIsoMuons_phi_2"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_phi_3_, "JetNonIsoMuons_phi_3"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_phi_4_, "JetNonIsoMuons_phi_4"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_phi_5_, "JetNonIsoMuons_phi_5"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_phi_6_, "JetNonIsoMuons_phi_6"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_phi_7_, "JetNonIsoMuons_phi_7"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_m_1_,   "JetNonIsoMuons_m_1"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_m_2_,   "JetNonIsoMuons_m_2"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_m_3_,   "JetNonIsoMuons_m_3"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_m_4_,   "JetNonIsoMuons_m_4"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_m_5_,   "JetNonIsoMuons_m_5"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_m_6_,   "JetNonIsoMuons_m_6"+myVarSuffix_);
+        calculateVar<double>(tr, JetNonIsoMuons_m_7_,   "JetNonIsoMuons_m_7"+myVarSuffix_);
+        calculateVar<double>(tr, GoodNonIsoMuons_pt_1_,  "GoodNonIsoMuons_pt_1"+myVarSuffix_);
+        calculateVar<double>(tr, GoodNonIsoMuons_eta_1_, "GoodNonIsoMuons_eta_1"+myVarSuffix_);
+        calculateVar<double>(tr, GoodNonIsoMuons_phi_1_, "GoodNonIsoMuons_phi_1"+myVarSuffix_);
+        calculateVar<double>(tr, GoodNonIsoMuons_m_1_,   "GoodNonIsoMuons_m_1"+myVarSuffix_);
     }
 };
 
@@ -156,7 +262,7 @@ class DeepEventShape
 {
 private:
     double discriminator_;
-    std::string modelFile_, inputOp_, outputOp_, year_, myVarSuffix_;
+    std::string modelFile_, inputOp_, outputOp_, year_, name_, nJetVar_, myVarSuffix_;
     int minNJet_, maxNJet_;
     bool firstEvent_;
 
@@ -208,6 +314,8 @@ private:
         inputOp_     = cfgDoc->get("inputOp",   localCxt, "main_input");
         outputOp_    = cfgDoc->get("outputOp",  localCxt, "first_output/Softmax");
         year_        = cfgDoc->get("year",      localCxt, "");
+        name_        = cfgDoc->get("name",      localCxt, "");
+        nJetVar_     = cfgDoc->get("nJetVar",   localCxt, "NGoodJets_pt30");
         minNJet_     = cfgDoc->get("minNJet",   localCxt, 7);
         maxNJet_     = cfgDoc->get("maxNJet",   localCxt, 7);
         vars_        = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
@@ -318,10 +426,10 @@ private:
         TF_DeleteStatus(status);
 
         // Register Variables
-        tr.registerDerivedVar("deepESM_val"+myVarSuffix_, discriminator);
+        tr.registerDerivedVar("deepESM_val"+name_+myVarSuffix_, discriminator);
 
         // Define and register deepESM bins
-        const auto& NGoodJets_pt30 = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
+        const auto& NGoodJets_pt30 = tr.getVar<int>(nJetVar_+myVarSuffix_);
         int nMVABin = (binEdges_.size() / (maxNJet_ - minNJet_ + 1)) - 1;
         int nJetBinning;
         if(NGoodJets_pt30 < minNJet_) nJetBinning = 0;
@@ -332,8 +440,8 @@ private:
         {
             bool passDeepESMBin = discriminator > binEdges_[i-1] && discriminator <= binEdges_[i];
             int bin = i - (nMVABin+1)*nJetBinning;
-            tr.registerDerivedVar("deepESM_bin"+std::to_string(bin)+myVarSuffix_, passDeepESMBin);
-            if(passDeepESMBin) tr.registerDerivedVar("deepESM_binNum"+myVarSuffix_, bin);
+            tr.registerDerivedVar("deepESM_bin"+name_+std::to_string(bin)+myVarSuffix_, passDeepESMBin);
+            if(passDeepESMBin) tr.registerDerivedVar("deepESM_binNum"+name_+myVarSuffix_, bin);
             //std::cout<<"nMVABin: "<<nMVABin<<" NJets: "<<NGoodJets_pt30<<" nJetBinning: "<<nJetBinning
             //         <<" i: "<<i<<" lowBinEdge: "<<binEdges_[i-1]<<" highBinEdge: "<<binEdges_[i]<<" MVABinNumber: "<<bin<<std::endl;
         }
@@ -370,6 +478,8 @@ public:
         , inputOp_(husk.inputOp_)
         , outputOp_(husk.outputOp_)
         , year_(husk.year_)
+        , name_(husk.name_)
+        , nJetVar_(husk.nJetVar_)
         , myVarSuffix_(husk.myVarSuffix_)
         , minNJet_(husk.minNJet_)
         , maxNJet_(husk.maxNJet_)

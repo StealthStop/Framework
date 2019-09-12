@@ -70,6 +70,7 @@ private:
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
         const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
         const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
+        const auto& NonIsoMuonJets_pt30 = tr.getVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
         const auto& Muons = tr.getVec<TLorentzVector>("Muons");
         const auto& MuonsCharge = tr.getVec<int>("Muons_charge");
         const auto& MuonsMTW = tr.getVec<double>("MuonsMTW"+myVarSuffix_);
@@ -81,8 +82,8 @@ private:
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& etaCut = tr.getVar<double>("etaCut");
-        const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30");
-        const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30");
+        const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
+        const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
 
         // Define HEM15/16 veto
         bool passHEMVeto = (!objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear)) ||
@@ -90,27 +91,24 @@ private:
                            (!objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
         tr.registerDerivedVar("passHEMVeto"+myVarSuffix_, passHEMVeto);
 
-        // HT of jets with pT>40
-        double ht = 0;
-        double ht_pt30 = 0.0;
-        double ht_pt45 = 0.0; 
+        // HT of jets
+        double ht = 0.0, ht_pt30 = 0.0, ht_pt45 = 0.0;         
+        double ht_NonIsoMuon_pt30 = 0.0;
         for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {            
-            if(!GoodJets[ijet]) continue;
-            TLorentzVector jet = Jets.at(ijet);
+            double pT = Jets.at(ijet).Pt();
+            double absEta = abs(Jets.at(ijet).Eta());
 
-            if(jet.Pt() > 30 && abs(jet.Eta()) < etaCut)
-                ht_pt30 += jet.Pt();
-
-            if(jet.Pt() > 40 && abs(jet.Eta()) < etaCut)
-                ht += jet.Pt();
+            if(GoodJets[ijet] && pT > 30 && absEta < etaCut) ht_pt30 += pT;
+            if(GoodJets[ijet] && pT > 40 && absEta < etaCut)      ht += pT;
+            if(GoodJets[ijet] && pT > 45 && absEta < etaCut) ht_pt45 += pT;
             
-            if(jet.Pt() > 45 && abs(jet.Eta()) < etaCut) 
-                ht_pt45 += jet.Pt();
+            if(NonIsoMuonJets_pt30[ijet] && pT > 30 && absEta < etaCut) ht_NonIsoMuon_pt30 += pT;
         }
         tr.registerDerivedVar("HT_trigger"+myVarSuffix_, ht);
         tr.registerDerivedVar("HT_trigger_pt30"+myVarSuffix_, ht_pt30);
-        tr.registerDerivedVar("HT_trigger_pt45"+myVarSuffix_, ht_pt45); 	
+        tr.registerDerivedVar("HT_trigger_pt45"+myVarSuffix_, ht_pt45);
+        tr.registerDerivedVar("HT_NonIsoMuon_pt30"+myVarSuffix_, ht_NonIsoMuon_pt30);
 
         // Put leptons together
         auto* GoodLeptons = new std::vector<std::pair<std::string, TLorentzVector>>();
