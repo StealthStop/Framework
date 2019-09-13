@@ -73,7 +73,7 @@ private:
 
     void setJetCollection(const std::string& jetColl)
     {
-        if(jetColl == "NonIsoMuons")
+        if(jetColl == "NonIsoMuonJets_pt30")
         {
             GoodJetsName_ = "NonIsoMuonJets_pt30";
             NGoodJetsName_ = "NNonIsoMuonJets_pt30";
