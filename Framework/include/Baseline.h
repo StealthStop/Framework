@@ -8,31 +8,33 @@ private:
 
     void baseline(NTupleReader& tr)
     {
-        const auto& runtype             = tr.getVar<std::string>("runtype");     
-        const auto& filetag             = tr.getVar<std::string>("filetag");
-        const auto& runYear             = tr.getVar<std::string>("runYear");
-        const auto& blind               = tr.getVar<bool>("blind");
-        const auto& TriggerNames        = tr.getVec<std::string>("TriggerNames");
-        const auto& TriggerPass         = tr.getVec<int>("TriggerPass");
-        const auto& NNonIsoMuons        = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
-        const auto& NGoodLeptons        = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
-        const auto& NGoodMuons          = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
-        const auto& NGoodPlusMuons      = tr.getVar<int>("NGoodPlusMuons"+myVarSuffix_);
-        const auto& NGoodMinusMuons     = tr.getVar<int>("NGoodMinusMuons"+myVarSuffix_);
-        const auto& NGoodElectrons      = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
-        const auto& NGoodPlusElectrons  = tr.getVar<int>("NGoodPlusElectrons"+myVarSuffix_);
-        const auto& NGoodMinusElectrons = tr.getVar<int>("NGoodMinusElectrons"+myVarSuffix_);
-        const auto& HT_trigger          = tr.getVar<double>("HT_trigger"+myVarSuffix_);
-        const auto& HT_trigger_pt30     = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
-        const auto& HT_trigger_pt45     = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
-        const auto& onZ                 = tr.getVar<bool>("onZ"+myVarSuffix_); 
-        const auto& JetID               = tr.getVar<bool>("JetID"+myVarSuffix_); 
-        const auto& NGoodJets_pt45      = tr.getVar<int>("NGoodJets_pt45"+myVarSuffix_);
-        const auto& NGoodBJets_pt45     = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
-        const auto& NGoodBJets_pt30     = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_); 
-        const auto& NGoodJets_pt30      = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_); 
-        const auto& NGoodPhotons        = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
-        const auto& Mbl                 = tr.getVar<double>("Mbl"+myVarSuffix_);
+        const auto& runtype              = tr.getVar<std::string>("runtype");     
+        const auto& filetag              = tr.getVar<std::string>("filetag");
+        const auto& runYear              = tr.getVar<std::string>("runYear");
+        const auto& blind                = tr.getVar<bool>("blind");
+        const auto& TriggerNames         = tr.getVec<std::string>("TriggerNames");
+        const auto& TriggerPass          = tr.getVec<int>("TriggerPass");
+        const auto& NNonIsoMuons         = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
+        const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
+        const auto& NGoodMuons           = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
+        const auto& NGoodPlusMuons       = tr.getVar<int>("NGoodPlusMuons"+myVarSuffix_);
+        const auto& NGoodMinusMuons      = tr.getVar<int>("NGoodMinusMuons"+myVarSuffix_);
+        const auto& NGoodElectrons       = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
+        const auto& NGoodPlusElectrons   = tr.getVar<int>("NGoodPlusElectrons"+myVarSuffix_);
+        const auto& NGoodMinusElectrons  = tr.getVar<int>("NGoodMinusElectrons"+myVarSuffix_);
+        const auto& HT_trigger           = tr.getVar<double>("HT_trigger"+myVarSuffix_);
+        const auto& HT_trigger_pt30      = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
+        const auto& HT_trigger_pt45      = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
+        const auto& HT_NonIsoMuon_pt30   = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);
+        const auto& onZ                  = tr.getVar<bool>("onZ"+myVarSuffix_); 
+        const auto& JetID                = tr.getVar<bool>("JetID"+myVarSuffix_); 
+        const auto& NGoodJets_pt45       = tr.getVar<int>("NGoodJets_pt45"+myVarSuffix_);
+        const auto& NGoodBJets_pt45      = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
+        const auto& NGoodBJets_pt30      = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_); 
+        const auto& NGoodJets_pt30       = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_); 
+        const auto& NNonIsoMuonJets_pt30 = tr.getVar<int>("NNonIsoMuonJets_pt30"+myVarSuffix_);         
+        const auto& NGoodPhotons         = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
+        const auto& Mbl                  = tr.getVar<double>("Mbl"+myVarSuffix_);
  
         // ------------------------------
         // -- Data dependent stuff
@@ -172,29 +174,29 @@ private:
 
         bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
 
-        bool passBaseline1l_NonIsoMuon =    HT_trigger_pt30 > 300 &&
-                                            passMETFilters        &&
-                                            passMadHT             &&
-                                            passNonIsoTrigger     &&
-                                            passNonIsoTriggerMC   &&
-                                            NNonIsoMuons == 1     &&
-                                            NGoodMuons == 0       &&
-                                            JetID                 &&
-                                            NGoodJets_pt30 >= 7;
+        bool passBaseline1l_NonIsoMuon = HT_NonIsoMuon_pt30 > 300 &&
+                                         passMETFilters           &&
+                                         passMadHT                &&
+                                         passNonIsoTrigger        &&
+                                         passNonIsoTriggerMC      &&
+                                         NNonIsoMuons == 1        &&
+                                         NGoodMuons == 0          &&
+                                         JetID                    &&
+                                         NNonIsoMuonJets_pt30 >= 7;
 
         // ----------------------------------
         // -- Define 2 Lepton onZ Baseline
         // ----------------------------------        
-        bool passBaseline2lonZ_Good = JetID         &&
-                                 passMETFilters     &&
-                                 passMadHT          &&
-                                 passTrigger        &&
-                                 passTriggerMC      &&
-                                 NGoodLeptons == 2  && 
-                                 onZ                &&
-                                 (runtype != "Data" || (NGoodMuons == 2 && filetag.find("Data_SingleMuon") != std::string::npos ) 
-                                                    || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
-                                 NGoodJets_pt30 >= 7; 
+        bool passBaseline2lonZ_Good = JetID              &&
+                                      passMETFilters     &&
+                                      passMadHT          &&
+                                      passTrigger        &&
+                                      passTriggerMC      &&
+                                      NGoodLeptons == 2  && 
+                                      onZ                &&
+                                      (runtype != "Data" || (NGoodMuons == 2 && filetag.find("Data_SingleMuon") != std::string::npos ) 
+                                                         || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
+                                      NGoodJets_pt30 >= 7; 
         
         // -----------------------------------
         // -- Define 2 Lepton offZ Baseline
