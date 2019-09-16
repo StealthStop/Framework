@@ -30,11 +30,9 @@ private:
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NElectrons    = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& NonIsoMuons   = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
-        const auto& NNonIsoMuons  = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
 
         //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) 
         //if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same
-
         auto tempGoodJets       = std::make_unique<std::vector<bool>>(Jets.size(), true);
         auto tempNonIsoMuonJets = std::make_unique<std::vector<bool>>(Jets.size(), true);
 
@@ -61,7 +59,7 @@ private:
                 if( tempDeltaR < 0.4 && tempJetIt != -1) 
                 {
                     if(GoodMuons[imu])                     tempGoodJets->at(tempJetIt)       = false;
-                    if(GoodMuons[imu] && NonIsoMuons[imu]) tempNonIsoMuonJets->at(tempJetIt) = false;
+                    if(GoodMuons[imu] || NonIsoMuons[imu]) tempNonIsoMuonJets->at(tempJetIt) = false;
                 }
             }//END of looping through muons
         }//END of NMuons if statement
