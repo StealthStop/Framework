@@ -16,6 +16,7 @@ VERBOSE=
 OPTIND=1    # Reset in case getopts has been used previously in the shell.
 
 SOFTLINK_NAME=DeepEventShape
+SOFTLINK_NAME_2=DeepEventShape_NonIsoMuon
 SOFTLINK_SUFFIX=
 
 function print_help {
@@ -91,8 +92,10 @@ fi
 if [[ -z $SOFTLINK_SUFFIX ]]
 then
     SOFTLINK_NAME="${SOFTLINK_NAME}.cfg"
+    SOFTLINK_NAME_2="${SOFTLINK_NAME_2}.cfg"
 else
     SOFTLINK_NAME="${SOFTLINK_NAME}_${SOFTLINK_SUFFIX}.cfg"
+    SOFTLINK_NAME_2="${SOFTLINK_NAME_2}_${SOFTLINK_SUFFIX}.cfg"
 fi
 
 echo " - Running getDeepESMCfg.sh"
@@ -156,9 +159,9 @@ fi
 
 cd $CFG_DIRECTORY
 
-if [ ! -d $REPO_NAME-$TAG ]
+if [ ! -d ${REPO_NAME}_$TAG ]
 then
-    echo " - Downloading this REPO-TAG: $REPO_NAME-$TAG"
+    echo " - Downloading this REPO-TAG: ${REPO_NAME}_$TAG"
     if [[ ! -z $VERBOSE ]] # True if VERBOSE is set
     then
         wget $GITHUB_URL/$REPO_NAME/archive/$TAG.tar.gz
@@ -169,19 +172,20 @@ then
     then
         tar xzf $TAG.tar.gz
         rm $TAG.tar.gz
+        mv $REPO_NAME-$TAG ${REPO_NAME}_$TAG
     else
         echo "ERROR: Failed to download $GITHUB_URL/$REPO_NAME/archive/$TAG.tar.gz"
-        echo "  Check that the REPO-TAG that you entered ($REPO_NAME-$TAG)"
+        echo "  Check that the REPO-TAG that you entered (${REPO_NAME}_$TAG)"
         echo "  exists at $RELEASE_URL"
         echo "  Check your spelling... you may have a typo! Copy and paste are your friends."
         exit 1
     fi
 else
-    echo " - Skipping the download of the requested REPO-TAG because the directory "$REPO_NAME-$TAG" is already present"
+    echo " - Skipping the download of the requested REPO-TAG because the directory "${REPO_NAME}_$TAG" is already present"
 fi
 
 
-cd $REPO_NAME-$TAG
+cd ${REPO_NAME}_$TAG
 DOWNLOAD_DIR=$PWD
 
 if [[ ! -z $VERBOSE ]] # True if VERBOSE is set
@@ -262,6 +266,7 @@ if [[ -z $NO_SOFTLINK ]]
 then
     # create softlinks
     ln $OVERWRITE -s $DOWNLOAD_DIR/DeepEventShape.cfg $CHECKOUT_DIRECTORY/$SOFTLINK_NAME > /dev/null 2>&1 && echo " - Created softlinks to $REPO_NAME config file"
+    ln $OVERWRITE -s $DOWNLOAD_DIR/DeepEventShape_NonIsoMuon.cfg $CHECKOUT_DIRECTORY/$SOFTLINK_NAME_2 > /dev/null 2>&1 && echo " - Created softlinks to $REPO_NAME config file"
     if [[ ! -z ${MVAFILES// } ]] 
     then
         for MVAFILE in $MVAFILES; do
@@ -275,4 +280,3 @@ then
         done
     fi
 fi
-
