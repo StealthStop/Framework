@@ -35,6 +35,7 @@ private:
         const auto& NNonIsoMuonJets_pt30 = tr.getVar<int>("NNonIsoMuonJets_pt30"+myVarSuffix_);         
         const auto& NGoodPhotons         = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
         const auto& Mbl                  = tr.getVar<double>("Mbl"+myVarSuffix_);
+        const auto& passHEMVeto          = tr.getVar<bool>("passHEMVeto"+myVarSuffix_);
  
         // ------------------------------
         // -- Data dependent stuff
@@ -131,6 +132,7 @@ private:
         // -- Define 1-lepton proto-baseline
         // -----------------------------------
         bool passBaselineGoodOffline1l = JetID                 &&
+                                         passHEMVeto           &&
                                          passMETFilters        &&
                                          HT_trigger_pt30 > 300 &&
                                          passMadHT             &&
