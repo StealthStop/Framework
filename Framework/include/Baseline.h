@@ -183,6 +183,7 @@ private:
                                          passNonIsoTriggerMC      &&
                                          NNonIsoMuons == 1        &&
                                          NGoodMuons == 0          &&
+                                         NGoodElectrons == 0      &&
                                          JetID                    &&
                                          NNonIsoMuonJets_pt30 >= 7;
 
