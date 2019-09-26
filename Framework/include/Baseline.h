@@ -177,6 +177,7 @@ private:
         bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
 
         bool passBaseline1l_NonIsoMuon = HT_NonIsoMuon_pt30 > 300 &&
+                                         passHEMVeto              &&
                                          passMETFilters           &&
                                          passMadHT                &&
                                          passNonIsoTrigger        &&
