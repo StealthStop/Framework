@@ -368,13 +368,13 @@ private:
             {                
                 if(runYear != year_)
                 {
-                    throw "\n Error: Using the wrong DeepESM config file \n";
+                    throw "\n Warning: expected the year \""+year_+"\" of the DeepESM config file using but is using \""+runYear+"\"\n";
                 }
             }
             catch (const char* msg) 
             {
                 std::cerr<<msg<<std::endl;
-                throw;
+                //throw;
             }
 
             firstEvent_ = false;
