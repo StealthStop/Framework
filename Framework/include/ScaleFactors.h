@@ -595,15 +595,15 @@ private:
 
         if( runYear == "2016" || runYear == "2018pre" || runYear == "2018post") 
         {
-            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X") );
-            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X") );
-            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X") );
+            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X", "nom pu") );
+            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X", "up pu") );
+            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X", "down pu") );
         }
         else if( runYear == "2017") 
         {
-            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X") )*puWeight; 
-            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X") )*puWeight;
-            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X") )*puWeight;
+            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X", "nom pu") )*puWeight; 
+            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X", "up pu") )*puWeight;
+            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X", "down pu") )*puWeight;
         }
         
         tr.registerDerivedVar( "puWeightUnCorr"+myVarSuffix_,  puWeightUnCorr);
