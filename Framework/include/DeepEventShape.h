@@ -4,6 +4,7 @@
 #include "tensorflow/c/c_api.h"
 #include "TopTagger/CfgParser/include/Context.hh"
 #include "TopTagger/CfgParser/include/CfgDocument.hh"
+#include "Framework/Framework/include/Utility.h"
 
 #include "cstdlib"
 #include "cstdio"
@@ -368,13 +369,12 @@ private:
             {                
                 if(runYear != year_)
                 {
-                    throw "\n Warning: expected the year \""+year_+"\" of the DeepESM config file using but is using \""+runYear+"\"\n";
+                    throw "Warning: using DeepESM config file with \""+year_+"\" year but expected \""+runYear+"\" year";
                 }
             }
-            catch (const char* msg) 
+            catch (const std::string msg) 
             {
-                std::cerr<<msg<<std::endl;
-                //throw;
+                std::cerr<<utility::color(msg, "red")<<std::endl;
             }
 
             firstEvent_ = false;
