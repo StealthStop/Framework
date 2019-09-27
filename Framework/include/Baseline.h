@@ -56,14 +56,14 @@ private:
             passTriggerElectron = PassTriggerElectron2017(TriggerNames, TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2017(TriggerNames, TriggerPass);            
         }
-        else if (runYear == "2018")
+        else if (runYear == "2018pre" || runYear == "2018post")
         {
             passTriggerAllHad = true;
             passTriggerMuon = PassTriggerMuon2018(TriggerNames, TriggerPass);
             passTriggerElectron = PassTriggerElectron2018(TriggerNames, TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2018(TriggerNames, TriggerPass);
         }
-        
+
         bool passTrigger   = true;
         bool passTriggerMC = true;
         bool passNonIsoTrigger = true;

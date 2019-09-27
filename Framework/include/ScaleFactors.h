@@ -79,7 +79,12 @@ private:
             norm = 0.02565*nJets + 0.9635;
             expo = (-0.01418*nJets - 0.1101 )/1000;
         }
-        else if( runYear == "2018" ) 
+        else if( runYear == "2018pre" ) 
+        {
+            norm = 1.0;
+            expo = 0.0;
+        }
+        else if( runYear == "2018post" ) 
         {
             norm = 1.0;
             expo = 0.0;
@@ -101,7 +106,12 @@ private:
             norm = 0.02565*nJets + 0.9635;
             expo = (-0.01418*nJets - 0.1101 )/1000;
         }
-        else if( runYear == "2018" ) 
+        else if( runYear == "2018pre" ) 
+        {
+            norm = 1.0;
+            expo = 0.0;
+        }
+        else if( runYear == "2018post" ) 
         {
             norm = 1.0;
             expo = 0.0;
@@ -127,7 +137,12 @@ private:
             norm = 0.02565*7 + 0.9635;
             expo = (-0.01418*7 - 0.1101 )/1000;
         }            
-        else if( runYear == "2018" ) 
+        else if( runYear == "2018pre" ) 
+        {
+            norm = 1.0;
+            expo = 0.0;
+        }
+        else if( runYear == "2018post" ) 
         {
             norm = 1.0;
             expo = 0.0;
@@ -149,7 +164,12 @@ private:
             norm = 0.01818*nJets + 1.0535;
             expo = (0.00425*nJets - 0.3170)/1000;
         }
-        else if( runYear == "2018" ) 
+        else if( runYear == "2018pre" ) 
+        {
+            norm = 1.0;
+            expo = 0.0;
+        }
+        else if( runYear == "2018post" ) 
         {
             norm = 1.0;
             expo = 0.0;
@@ -321,56 +341,15 @@ private:
             //Get the scale factor from the rootfile
             const double elpt  = electrons.at(iel).Pt();
             const double eleta = electrons.at(iel).Eta();
-            int xbinElTight = -1, ybinElTight = -1, xbinElIso = -1, ybinElIso = -1, xbinElReco = -1, ybinElReco = -1, xbinElTrig = -1, ybinElTrig = -1;
 
-            if( runYear == "2016") 
-            {
-                //Find the bin indices (binned by x: eta and y: pt ) for the 2016 scale factor for Tight ID ( has 30 bins total in 2D parameter space )
-                //This is the same index as for the Iso ID
-                xbinElTight = findBin(eleSFHistoTight_, eleta, "X", "el id x");
-                ybinElTight = findBin(eleSFHistoTight_, elpt,  "Y", "el id y");
-                //Since the binning for MiniIso < 0.1 is the same as that for Tight ID, we will use the same values (values initialized for uniformity later on). 
-                //Same for the IP2D (hence you do not need an extra set of variables).
-                xbinElIso = xbinElTight;
-                ybinElIso = ybinElTight;
-                //Find the bin indices (binned by x: eta and y: pt ) for the 2016 scale factor for Data/MC differences (reco eff) ( has 90 bins total in 2D parameter space )
-                xbinElReco = findBin(eleSFHistoReco_, eleta, "X", "el reco x");
-                ybinElReco = findBin(eleSFHistoReco_, elpt,  "Y", "el reco y");
-                //Find the bin indices (binned by x: pt and y: eta ) for the 2016 scale factor for Data/MC trig efficiency
-                xbinElTrig = findBin(eleSFHistoTrig_, elpt,  "X", "el trigger x");
-                ybinElTrig = findBin(eleSFHistoTrig_, eleta, "Y", "el trigger y");
-            }
-            else if( runYear == "2017" ) 
-            {                
-                //Find the bin indices (binned by x: eta and y: pt ) for the 2017 scale factor for Tight ID ( has 180 bins total in 2D parameter space )
-                xbinElTight = findBin(eleSFHistoTight_, eleta, "X", "el id x");
-                ybinElTight = findBin(eleSFHistoTight_, elpt,  "Y", "el id y");
-                //Find the bin indices (binned by x: eta and y: pt ) for the 2017 scale factor for MiniIso of 0.1  ( has 210 bins total in 2D parameter space )
-                xbinElIso = findBin(eleSFHistoIso_, eleta, "X", "el iso x");
-                ybinElIso = findBin(eleSFHistoIso_, elpt,  "Y", "el iso y");
-                //Find the bin indices (binned by x: eta and y: pt ) for the 2017 scale factor for Data/MC comparison (reco eff) ( has 144 bins total in 2D parameter space )
-                xbinElReco = findBin(eleSFHistoReco_, eleta, "X", "el reco x");
-                ybinElReco = findBin(eleSFHistoReco_, elpt,  "Y", "el reco y");
-                //Find the bin indices (binned by x: pt and y: eta ) for the 2017 scale factor for Data/MC trig efficiency
-                xbinElTrig = findBin(eleSFHistoTrig_, elpt,  "X", "el trigger x");
-                ybinElTrig = findBin(eleSFHistoTrig_, eleta, "Y", "el trigger y");
-            }
-            else if( runYear == "2018" )
-            {
-                //Find the bin indices (binned by x: eta and y: pt ) for the 2018 scale factor for Tight ID ( has 96 bins total in 2D parameter space )
-                xbinElTight = findBin(eleSFHistoTight_, eleta, "X", "el id x");
-                ybinElTight = findBin(eleSFHistoTight_, elpt,  "Y", "el id y");                
-                //Find the bin indices (binned by x: eta and y: pt ) for the 2018 scale factor for MiniIso of 0.1  ( has 96 bins total in 2D parameter space )
-                xbinElIso = findBin(eleSFHistoIso_, eleta, "X", "el iso x");
-                ybinElIso = findBin(eleSFHistoIso_, elpt,  "Y", "el iso y");
-                //Find the bin indices (binned by x: eta and y: pt ) for the 2018 scale factor for Data/MC comparison (reco eff) ( has 98 bins total in 2D parameter space )
-                xbinElReco = findBin(eleSFHistoReco_, eleta, "X", "el reco x");
-                ybinElReco = findBin(eleSFHistoReco_, elpt,  "Y", "el reco y");
-                //Find the bin indices (binned by x: pt and y: eta ) for the 2018 scale factor for Data/MC trig efficiency
-                xbinElTrig = findBin(eleSFHistoTrig_, elpt,  "X", "el trigger x");
-                ybinElTrig = findBin(eleSFHistoTrig_, eleta, "Y", "el trigger y");
-            }
-
+            const int xbinElTight = findBin(eleSFHistoTight_, eleta, "X", "el id x");
+            const int ybinElTight = findBin(eleSFHistoTight_, elpt,  "Y", "el id y");                
+            const int xbinElIso   = findBin(eleSFHistoIso_,   eleta, "X", "el iso x");
+            const int ybinElIso   = findBin(eleSFHistoIso_,   elpt,  "Y", "el iso y");
+            const int xbinElReco  = findBin(eleSFHistoReco_,  eleta, "X", "el reco x");
+            const int ybinElReco  = findBin(eleSFHistoReco_,  elpt,  "Y", "el reco y");
+            const int xbinElTrig  = findBin(eleSFHistoTrig_,  elpt,  "X", "el trigger x");
+            const int ybinElTrig  = findBin(eleSFHistoTrig_,  eleta, "Y", "el trigger y");
             if( xbinElTight != -1 && ybinElTight != -1 && xbinElIso != -1 && ybinElIso != -1 && xbinElReco != -1 && ybinElReco != -1 ) 
             {
                 const double eleTightSF       = eleSFHistoTight_->GetBinContent( xbinElTight, ybinElTight );
@@ -443,55 +422,15 @@ private:
             //Get the scale factor from the rootfile
             const double mupt = muons.at(imu).Pt();
             const double mueta = muons.at(imu).Eta();
-            int xbinMuMedium = -1, ybinMuMedium = -1, xbinMuIso = -1, ybinMuIso = -1, xbinMuTrig = -1, ybinMuTrig = -1, xbinNonIsoMuTrig = -1, ybinNonIsoMuTrig = -1;
 
-            if( runYear == "2016" ) 
-            {
-                //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2016 scale factor for both Medium ID and MiniIso of 0.2 (has only 20 bins) - same binning!
-                xbinMuMedium = findBin(muSFHistoMedium_, mupt,  "X", "mu id x");
-                ybinMuMedium = findBin(muSFHistoMedium_, abs(mueta), "Y", "mu id y");
-                //For consistency with 2017, copy the values over to these variables.
-                xbinMuIso = xbinMuMedium;
-                ybinMuIso = ybinMuMedium;
-                //Find the bin indices (binned by x: pt and y: eta ) for the 2016 scale factor for Data/MC Trigger Efficiency
-                xbinMuTrig = findBin(muSFHistoTrig_, mupt,  "X", "mu trigger x");
-                ybinMuTrig = findBin(muSFHistoTrig_, mueta, "Y", "mu trigger y");
-                //Find the bin indices (binned by x: pt and y: eta ) for the 2016 scale factor for Data/MC Non Iso Trigger Efficiency
-                xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,  "X", "mu iso trigger x");
-                ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta, "Y", "mu iso trigger y");
-            } 
-            else if( runYear == "2017" ) 
-            {
-                //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2017 scale factor for Medium ID (has only 24 bins)
-                xbinMuMedium = findBin(muSFHistoMedium_, mupt,       "X", "mu id x");
-                ybinMuMedium = findBin(muSFHistoMedium_, abs(mueta), "Y", "mu id y");
-                //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2017 scale factor for MiniIso of 0.2 (has only 20 bins)
-                xbinMuIso = findBin(muSFHistoIso_, mupt,       "X", "mu iso x");
-                ybinMuIso = findBin(muSFHistoIso_, abs(mueta), "Y", "mu iso y");
-                //Find the bin indices (binned by x: pt and y: eta ) for the 2017 scale factor for Data/MC Trigger Efficiency
-                xbinMuTrig = findBin(muSFHistoTrig_, mupt,  "X", "mu trigger x");
-                ybinMuTrig = findBin(muSFHistoTrig_, mueta, "Y", "mu trigger y");
-                //Find the bin indices (binned by x: pt and y: eta ) for the 2017 scale factor for Data/MC Non Iso Trigger Efficiency
-                xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,  "X", "mu iso trigger x");
-                ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta, "Y", "mu iso trigger y");
-            }
-            else if( runYear == "2018" )
-            {
-                //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2018 scale factor for Medium ID (has only 36 bins)
-                xbinMuMedium = findBin(muSFHistoMedium_, mupt,       "X", "mu id x");
-                ybinMuMedium = findBin(muSFHistoMedium_, abs(mueta), "Y", "mu id y");
-                //Find the bin indices (binned by x: pt and y: abs(eta) ) for the 2018 scale factor for MiniIso of 0.2 (has only 20 bins)
-                //The muon POG will not release MiniIso scale factors until the UltraLegacy, so we recommend to use the 2017 Data/FullSim SFs for MiniIso also for 2018
-                xbinMuIso = findBin(muSFHistoIso_, mupt,       "X", "mu iso x");
-                ybinMuIso = findBin(muSFHistoIso_, abs(mueta), "Y", "mu iso y");            
-                //Find the bin indices (binned by x: pt and y: eta ) for the 2018 scale factor for Data/MC Trigger Efficiency
-                xbinMuTrig = findBin(muSFHistoTrig_, mupt,  "X", "mu trigger x");
-                ybinMuTrig = findBin(muSFHistoTrig_, mueta, "Y", "mu trigger y");
-                //Find the bin indices (binned by x: pt and y: eta ) for the 2018 scale factor for Data/MC Non Iso Trigger Efficiency
-                xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,  "X", "mu iso trigger x");
-                ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta, "Y", "mu iso trigger y");
-            }
-
+            const int xbinMuMedium     = findBin(muSFHistoMedium_, mupt,       "X", "mu id x");
+            const int ybinMuMedium     = findBin(muSFHistoMedium_, abs(mueta), "Y", "mu id y");
+            const int xbinMuIso        = findBin(muSFHistoIso_,    mupt,       "X", "mu iso x");
+            const int ybinMuIso        = findBin(muSFHistoIso_,    abs(mueta), "Y", "mu iso y");            
+            const int xbinMuTrig       = findBin(muSFHistoTrig_,   mupt,       "X", "mu trigger x");
+            const int ybinMuTrig       = findBin(muSFHistoTrig_,   mueta,      "Y", "mu trigger y");
+            const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,       "X", "mu iso trigger x");
+            const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,      "Y", "mu iso trigger y");
             if( xbinMuMedium != -1 && ybinMuMedium != -1 && xbinMuIso != -1 && ybinMuIso != -1 ) 
             {
                 //The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
@@ -617,7 +556,7 @@ private:
                 htScaleUpMG = htDerivedweightMG*ratioUpMG;
                 htScaleDownMG = htDerivedweightMG*ratioDownMG;
             }
-            else if( runYear == "2018" ) 
+            else if( runYear == "2018pre" || runYear == "2018post") 
             {
                 htScaleUp = 1.0;
                 htScaleDown = 1.0;
@@ -654,17 +593,17 @@ private:
         const auto& tru_npv   = tr.getVar<double>("TrueNumInteractions");
         double puWeightUnCorr = 1.0, puSysUpUnCorr = 1.0, puSysDownUnCorr = 1.0;
 
-        if( runYear == "2016" || runYear == "2018" ) 
+        if( runYear == "2016" || runYear == "2018pre" || runYear == "2018post") 
         {
-            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X") );
-            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X") );
-            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X") );
+            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X", "nom pu") );
+            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X", "up pu") );
+            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X", "down pu") );
         }
         else if( runYear == "2017") 
         {
-            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X") )*puWeight; 
-            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X") )*puWeight;
-            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X") )*puWeight;
+            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X", "nom pu") )*puWeight; 
+            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X", "up pu") )*puWeight;
+            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X", "down pu") )*puWeight;
         }
         
         tr.registerDerivedVar( "puWeightUnCorr"+myVarSuffix_,  puWeightUnCorr);
@@ -802,7 +741,18 @@ public:
             muSFHistoTrigName = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             nimuSFHistoTrigName = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
         }
-        else if( runYear == "2018")
+        else if( runYear == "2018pre")
+        {
+            eleSFHistoTightName = "Run2018_CutBasedTightNoIso94XV2";
+            eleSFHistoIsoName = "Run2018_Mini";
+            eleSFHistoRecoName = "EGamma_SF2D";
+            eleSFHistoTrigName = "TrigEff_2018_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_pt_abseta";
+            muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
+            muSFHistoTrigName = "TrigEff_2018_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            nimuSFHistoTrigName = "";
+        }
+        else if( runYear == "2018post")
         {
             eleSFHistoTightName = "Run2018_CutBasedTightNoIso94XV2";
             eleSFHistoIsoName = "Run2018_Mini";
@@ -843,7 +793,7 @@ public:
 
         // Getting the pile up histograms
         TFile puRootFile( puFileName.c_str() );
-        if( runYear == "2016" || runYear == "2018") 
+        if( runYear == "2016" || runYear == "2018pre" || runYear == "2018post") 
         {
             getHisto(puRootFile, puSFHisto_,     "pu_weights_central");
             getHisto(puRootFile, puSFUpHisto_,   "pu_weights_up");
