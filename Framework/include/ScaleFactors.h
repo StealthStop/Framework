@@ -10,10 +10,10 @@ class ScaleFactors
 {
 private:
     std::string myVarSuffix_;
-    bool firstEvent_;
+    bool firstPrint_;
     bool printMeanError_;
     bool printGetBinError_;
-    std::string binError_message_;
+    std::set<std::string> binError_message_;
 
     std::shared_ptr<TH2F> eleSFHistoTight_;        
     std::shared_ptr<TH2F> eleSFHistoIso_;
@@ -54,13 +54,10 @@ private:
                 if( v >= h->GetYaxis()->GetBinUpEdge(h->GetNbinsY()) ) bin = h->GetNbinsY();           
             }
         }
-        if(bin == -1)
+        if(bin == -1 && firstPrint_)
         {
+            binError_message_.insert(message); 
             printGetBinError_ = true;
-            if(firstEvent_ && binError_message_ == "") 
-                binError_message_  = message; 
-            else if(firstEvent_) 
-                binError_message_ += ", "+message;
         }
         return bin;
     }
@@ -704,12 +701,12 @@ private:
         tr.registerDerivedVar( "totalEventWeightMG"+myVarSuffix_, totalEventWeightMG );
         tr.registerDerivedVar( "totalEventWeightNIM"+myVarSuffix_, totalEventWeightNIM );
 
-        firstEvent_ = false;
+        if(printGetBinError_) firstPrint_ = false;
     }
 
 public:
     ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& puFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
-        : myVarSuffix_(myVarSuffix), firstEvent_(true), printMeanError_(false), printGetBinError_(false), binError_message_("")
+        : myVarSuffix_(myVarSuffix), firstPrint_(true), printMeanError_(false), printGetBinError_(false)
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
@@ -816,7 +813,10 @@ public:
     ~ScaleFactors() 
     {
         if(printMeanError_)   std::cerr<<utility::color("Error: Scale Factor mean is 0.0 setting it to 1.0", "red")<<std::endl;
-        if(printGetBinError_) std::cerr<<utility::color("Warning: There was an error in extracting the bin index for the following scale factor(s): \""+binError_message_+"\"", "red")<<std::endl;
+
+        std::string message = "";
+        for(const auto& m : binError_message_) message += (message=="") ? m : ", "+m;
+        if(printGetBinError_) std::cerr<<utility::color("Warning: There was an error in extracting the bin index for the following scale factor(s): \""+message+"\"", "red")<<std::endl;
     }
 
     void operator()(NTupleReader& tr)
