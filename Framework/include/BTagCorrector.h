@@ -160,8 +160,7 @@ public:
             for(unsigned jb = 0; jb < Jets->size(); ++jb)
             {
                 //skip the same jet
-                if(jb==ja) continue;	   
-                if(!jetMask->at(ja)) continue;
+                if(jb==ja || !jetMask->at(ja)) continue;	   
 	   	   
                 //get sf and eff values (checks if already calculated)
                 InitSFEff(Jets->at(jb).Pt(), Jets->at(jb).Eta(), Jets_flavor->at(jb), sfEffLists[jb]);
@@ -183,8 +182,7 @@ public:
                 for(unsigned jc = 0; jc < Jets->size(); ++jc)
                 {
                     //skip the same jet
-                    if(jc==jb || jc==ja) continue;
-                    if(!jetMask->at(ja)) continue;
+                    if(jc==jb || jc==ja || !jetMask->at(ja)) continue;
 	     
                     //get sf and eff values (checks if already calculated)
                     InitSFEff(Jets->at(jc).Pt(), Jets->at(jc).Eta(), Jets_flavor->at(jc), sfEffLists[jc]);
@@ -269,8 +267,6 @@ public:
         const double max_btagSF_pt = 1000.0;
         const double max_ctagSF_pt = 1000.0;
         const double max_udsgSF_pt = 1000.0;
-        
-        /********************************************************************/  
         if(flav==5)
         { //b-tag
             // data_t Uncertainty are now taken care automaticall with method eval_auto_bounds
@@ -286,7 +282,6 @@ public:
                             (btagSFunc==1 ? readerUp.eval_auto_bounds("up",BTagEntry::FLAV_B,eta,pt) :
                              readerDown.eval_auto_bounds("down",BTagEntry::FLAV_B,eta,pt) ) );       
         }
-        /********************************************************************/
         else if(flav==4)
         { //charm mistag
             int pt_bin = h_eff_c->GetXaxis()->FindBin(pt); 
@@ -299,7 +294,6 @@ public:
                             (btagSFunc==1 ? readerUp.eval_auto_bounds("up",BTagEntry::FLAV_C,eta,pt) :
                              readerDown.eval_auto_bounds("down", BTagEntry::FLAV_C,eta,pt) ) );
         }
-        /********************************************************************/
         else if(flav<4 || flav==21)
         { //udsg mistag
             int pt_bin = h_eff_udsg->GetXaxis()->FindBin(pt); 
@@ -333,8 +327,7 @@ public:
         
         /*************************************************/
         // Case 0: Central value;
-        /*************************************************/
-        
+        /*************************************************/        
         int switch_Unc = 0, switch_udsg_Unc = 0;
         SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
         SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
@@ -365,7 +358,7 @@ public:
         double evtWeightSimple_Up  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
         if( std::isnan( evtWeightSimple_Up) || std::isinf(evtWeightSimple_Up) )
         {
-            evtWeightSimple_Up= 1.0;
+            evtWeightSimple_Up = 1.0;
         }
         std::vector<double> *evtWeightProb_Up = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("bTagSF_EventWeightSimple_Up"+myVarSuffix_, evtWeightSimple_Up);
@@ -381,7 +374,7 @@ public:
         double evtWeightSimple_Down  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
         if( std::isnan( evtWeightSimple_Down) || std::isinf(evtWeightSimple_Down) )
         {
-            evtWeightSimple_Down= 1.0;
+            evtWeightSimple_Down = 1.0;
         }
         std::vector<double> *evtWeightProb_Down = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("bTagSF_EventWeightSimple_Down"+myVarSuffix_, evtWeightSimple_Down);
@@ -397,7 +390,7 @@ public:
         double evtWeightSimple_mistag_Up  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
         if( std::isnan( evtWeightSimple_mistag_Up) || std::isinf(evtWeightSimple_mistag_Up) )
         {
-            evtWeightSimple_mistag_Up= 1.0;
+            evtWeightSimple_mistag_Up = 1.0;
         }
         std::vector<double> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("mistagSF_EventWeightSimple_Up"+myVarSuffix_, evtWeightSimple_mistag_Up);
@@ -413,7 +406,7 @@ public:
         double evtWeightSimple_mistag_Down  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
         if( std::isnan( evtWeightSimple_mistag_Down) || std::isinf(evtWeightSimple_mistag_Down) )
         {
-            evtWeightSimple_mistag_Down= 1.0;
+            evtWeightSimple_mistag_Down = 1.0;
         }
         std::vector<double> *evtWeightProb_mistag_Down = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("mistagSF_EventWeightSimple_Down"+myVarSuffix_, evtWeightSimple_mistag_Down);
