@@ -23,17 +23,19 @@ class BTagCorrector
 {
 public:
     //constructor
-    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", std::string CSVFile = "CSVv2_Moriond17_B_H.csv", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : inFileName(file), debug(false), fastsim(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0), h_eff_b(nullptr), h_eff_c(nullptr), h_eff_udsg(nullptr), MCBranch("genDecayPdgIdVec"), JetsVec("jetsLVec"), BJetsVec("recoJetsCSVv2"), JetsFlavor("recoJetsFlavor"), myVarSuffix_("")
+    BTagCorrector(std::string file, std::string CSVFilePath, std::string CSVFile, std::string suffix = "") 
+    : inFileName(file), debug(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0)
+    , h_eff_b(nullptr), h_eff_c(nullptr), h_eff_udsg(nullptr), MCBranch(""), JetsVec(""), JetMask(""), BJetsVec(""), JetsFlavor(""), myVarSuffix_("")
     {
         std::cout<<"Setting up BTagCorrector"<<std::endl;
-
+        
         //Stops unwanted segfaults.
         TH1::AddDirectory(false);
-
+        
         TFile inFile(inFileName.c_str());
         SetEffs(inFile, suffix);
         inFile.Close();
-
+        
         if(CSVFilePath.size())
         {
             SetCalib((CSVFilePath + "/" + CSVFile).c_str());
@@ -42,22 +44,11 @@ public:
         {
             SetCalib(CSVFile.c_str());
         }
-
-        if(isFastSim)
-        {
-            //FastSim
-            SetFastSim(true);
-            SetCalibFastSim("fastsim_csvv2_ttbar_26_1_2017.csv");
-        }
-    }
-
-    BTagCorrector(std::string file = "allINone_bTagEff.root", std::string CSVFilePath = "", bool isFastSim = false, std::string suffix = "TTbarSingleLepT") : BTagCorrector(file,CSVFilePath,"CSVv2_Moriond17_B_H.csv",isFastSim,suffix)
-    {
     }
 
     //accessors
     void SetDebug(bool d) { debug = d; }
-    void SetFastSim(bool f) { fastsim = f; }
+
     void SetEffs(TFile& file, std::string suffix = "")
     {
         if(suffix.size())
@@ -96,12 +87,14 @@ public:
             }
         }
     }
+
     void resetEffs(std::string suffix)
     {
         TFile inFile(inFileName.c_str());
         SetEffs(inFile, suffix);
         inFile.Close();
     }
+
     void SetCalib(std::string cfile)
     {        
         //initialize btag helper classes. Interface has been changed.
@@ -113,21 +106,12 @@ public:
         readerDown = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "down");
         readerDown.load(calib, BTagEntry::FLAV_B, "comb"); readerDown.load(calib, BTagEntry::FLAV_C, "comb");  readerDown.load(calib, BTagEntry::FLAV_UDSG, "incl");        
     }
-    void SetCalibFastSim(std::string cfile)
-    {        
-        //read CFs  New 2016 Modifications
-        calibFast = BTagCalibration("",cfile);
-	readerFast = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central");
-	readerFast.load(calibFast, BTagEntry::FLAV_B, "fastsim"); readerFast.load(calibFast, BTagEntry::FLAV_C, "fastsim");  readerFast.load(calibFast, BTagEntry::FLAV_UDSG, "fastsim");
-	readerFastUp = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "up");
-	readerFastUp.load(calibFast, BTagEntry::FLAV_B, "fastsim"); readerFastUp.load(calibFast, BTagEntry::FLAV_C, "fastsim");  readerFastUp.load(calibFast, BTagEntry::FLAV_UDSG, "fastsim");
-	readerFastDown = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "down");
-	readerFastDown.load(calibFast, BTagEntry::FLAV_B, "fastsim"); readerFastDown.load(calibFast, BTagEntry::FLAV_C, "fastsim");  readerFastDown.load(calibFast, BTagEntry::FLAV_UDSG, "fastsim"); 	
-    }
-    void SetVarNames(std::string MCBranchName, std::string JetsVecName, std::string BJetsVecName, std::string JetsFlavorName, std::string myVarSuffix = "")
+
+    void SetVarNames(std::string MCBranchName, std::string JetsVecName, std::string JetMaskName, std::string BJetsVecName, std::string JetsFlavorName, std::string myVarSuffix = "")
     {
         MCBranch = MCBranchName;
         JetsVec = JetsVecName;
+        JetMask = JetMaskName;
         BJetsVec = BJetsVecName;
         JetsFlavor = JetsFlavorName;
         myVarSuffix_ = myVarSuffix;
@@ -140,35 +124,31 @@ public:
     void SetBtagCFunc(int u) { btagCFunc = u; }
     void SetCtagCFunc(int u) { ctagCFunc = u; }
     void SetMistagCFunc(int u) { mistagCFunc = u; }
-    
-    //test Method
-    std::vector<double> GetCorrectionsTest(std::vector<TLorentzVector>* Jets, std::vector<int>* Jets_flavor);
 
     /***********************************************************************************/
     // Method 1b) in twiki
     // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
     /***********************************************************************************/
-    std::vector<double>* GetCorrections(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor)
+    std::vector<double>* GetCorrections(const std::vector<TLorentzVector>* Jets, const std::vector<bool>* jetMask,  const std::vector<int>* Jets_flavor)
     {
         //reset probabilities
-        std::vector<double> *prob = new std::vector<double>(4,0.0);
+        std::vector<double>* prob = new std::vector<double>(4,0.0);
         (*prob)[0] = 1.0;
-  
+        
         //first loop over jets
         std::vector<std::vector<double> > sfEffLists = std::vector<std::vector<double> >(Jets->size(),std::vector<double>());
-        for(unsigned ja = 0; ja < Jets->size(); ++ja){
-            //HT jet cuts
-            if(Jets->at(ja).Pt()< 30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
-
+        for(unsigned ja = 0; ja < Jets->size(); ++ja)
+        {
+            if(!jetMask->at(ja)) continue;
+        
             //get sf and eff values (checks if already calculated)
             InitSFEff(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), sfEffLists[ja]);
             double eps_a = sfEffLists[ja][0]*sfEffLists[ja][1]*sfEffLists[ja][2];
-  
+        
             //jet index, pt, eta, flavor, eff, sf, cf
-	
             if(debug) std::cout << "Jet " << ja << ": " << Jets->at(ja).Pt() << ", " << fabs(Jets->at(ja).Eta()) << ", " << abs(Jets_flavor->at(ja)) 
                                 << " sfEffLists[ja][0], " << sfEffLists[ja][0] << "  sfEffLists[ja][1], " << sfEffLists[ja][1] << "  sfEffLists[ja][2], " << sfEffLists[ja][2] << std::endl;
-  
+        
             //calculate prob(0 b-tags)
             (*prob)[0] *= (1-eps_a);
 	 
@@ -177,22 +157,18 @@ public:
             double subprob2 = 0.0;
 	 
             //second loop over jets
-            for(unsigned jb = 0; jb < Jets->size(); ++jb){
+            for(unsigned jb = 0; jb < Jets->size(); ++jb)
+            {
                 //skip the same jet
-                if(jb==ja) continue;
-	   
-                //HT jet cuts
-	   
-                if(Jets->at(ja).Pt()<30.0 ||fabs(Jets->at(ja).Eta()) > 2.4) continue;
-	   
-	   
+                if(jb==ja) continue;	   
+                if(!jetMask->at(ja)) continue;
+	   	   
                 //get sf and eff values (checks if already calculated)
                 InitSFEff(Jets->at(jb).Pt(), Jets->at(jb).Eta(), Jets_flavor->at(jb), sfEffLists[jb]);
 	   
                 double eps_b = sfEffLists[jb][0]*sfEffLists[jb][1]*sfEffLists[jb][2];
 	   
                 //jet index, pt, eta, flavor, eff, sf, cf
-	    
                 if(debug) std::cout << "\tJet " << jb << ": " << Jets->at(jb).Pt() << ", " << fabs(Jets->at(jb).Eta()) << ", " << abs(Jets_flavor->at(jb)) 
                                     << ", " << sfEffLists[jb][0] << ", " << sfEffLists[jb][1] << ", " << sfEffLists[jb][2] << std::endl;
 	   
@@ -204,19 +180,17 @@ public:
 	   
                 //third loop over jets (only for jb>ja)
                 if(jb<ja) continue;
-                for(unsigned jc = 0; jc < Jets->size(); ++jc){
+                for(unsigned jc = 0; jc < Jets->size(); ++jc)
+                {
                     //skip the same jet
                     if(jc==jb || jc==ja) continue;
-	     
-                    //HT jet cuts
-                    if(Jets->at(ja).Pt()<30.0 ||fabs(Jets->at(ja).Eta()) > 2.4) continue;
+                    if(!jetMask->at(ja)) continue;
 	     
                     //get sf and eff values (checks if already calculated)
                     InitSFEff(Jets->at(jc).Pt(), Jets->at(jc).Eta(), Jets_flavor->at(jc), sfEffLists[jc]);
                     double eps_c = sfEffLists[jc][0]*sfEffLists[jc][1]*sfEffLists[jc][2];
 	     
-                    //jet index, pt, eta, flavor, eff, sf, cf
-		
+                    //jet index, pt, eta, flavor, eff, sf, cf		
                     if(debug) std::cout << "\t\tJet " << jc << ": " << Jets->at(jc).Pt() << ", " << fabs(Jets->at(jc).Eta()) << ", " << abs(Jets_flavor->at(jc)) 
                                         << ", " << sfEffLists[jc][0] << ", " << sfEffLists[jc][1] << ", " << sfEffLists[jc][2] << std::endl;
 	     
@@ -232,12 +206,11 @@ public:
             (*prob)[1] += eps_a*subprob1;
             (*prob)[2] += eps_a*subprob2;
         }
-       
-        //conserve probability
-       
+        
+        //conserve probability       
         (*prob)[3] = 1 - (*prob)[0] -(*prob)[1] - (*prob)[2];
         if(debug) std::cout << (*prob)[0] << ", " << (*prob)[1] << ", " << (*prob)[2] << ", " << (*prob)[3] << std::endl;
-       
+        
         return prob;
     }
 
@@ -245,34 +218,28 @@ public:
     //method 1a in twiki
     // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods  
     /***********************************************************************************/
-    double GetSimpleCorrection(const std::vector<TLorentzVector> *Jets, const std::vector<int> *Jets_flavor, const std::vector<double> *Jets_bDiscriminatorCSV){
-
-        double mcTag = 1.;
-        double mcNoTag = 1.;
-        double dataTag = 1.;
-        double dataNoTag = 1.;
-  
+    double GetSimpleCorrection(const std::vector<TLorentzVector>* Jets, const std::vector<bool>* jetMask, const std::vector<int>* Jets_flavor, const std::vector<double>* Jets_bDiscriminatorCSV, const double wp)
+    {
+        double mcTag = 1.0, mcNoTag = 1.0, dataTag = 1.0, dataNoTag = 1.0;
+        
         //loop over jets
         std::vector<std::vector<double> > sfEffLists = std::vector<std::vector<double> >(Jets->size(),std::vector<double>());
         for(unsigned ja = 0; ja < Jets->size(); ++ja)
         {
-            //HT jet cuts
-            if(Jets->at(ja).Pt()<30.0 || fabs(Jets->at(ja).Eta()) > 2.4) continue;
-    
+            if(!jetMask->at(ja)) continue;
+            
             //get sf and eff values (checks if already calculated)
             InitSFEff(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), sfEffLists[ja]);
             double eff_a = sfEffLists[ja][0]; //eff
             double cf_a = sfEffLists[ja][2]; //CF
             double sf_a = sfEffLists[ja][1];
-    
-            if( sfEffLists[ja][0] ==0 || sfEffLists[ja][1] ==0 || sfEffLists[ja][2] ==0 )
+            
+            if( sfEffLists[ja][0] == 0.0 || sfEffLists[ja][1] == 0.0 || sfEffLists[ja][2] == 0.0 )
             {
                 if(debug) std::cout<<"sfEffLists[ja][0] : "<<sfEffLists[ja][0]<<"  sfEffLists[ja][1] : "<<sfEffLists[ja][1]<<"  sfEffLists[ja][2] : "<<sfEffLists[ja][2]<<std::endl;
             }
-
-            //Fix this
-            //if(Jets_bDiscriminatorCSV->at(ja) > AnaConsts::cutCSVS){
-            if(Jets_bDiscriminatorCSV->at(ja) > 0.8)
+            
+            if(Jets_bDiscriminatorCSV->at(ja) > wp)
             {
                 mcTag *= eff_a*cf_a;
                 dataTag *= eff_a*cf_a*sf_a;
@@ -283,9 +250,8 @@ public:
                 dataNoTag *= (1-eff_a*cf_a*sf_a);
             }
         }
-
+        
         double result = (mcNoTag * mcTag ==0) ? 1.0 : (dataNoTag * dataTag)/(mcNoTag * mcTag);
-
         return result;
     }
 
@@ -294,18 +260,16 @@ public:
         //avoid rerunning this
         sfEffList.clear();
         if(sfEffList.size()>0) return;
-  
-        //use abs(eta) for now
-        eta = fabs(eta);
+        
         //use abs(flav) always
         flav = abs(flav);
-    
+        
         sfEffList = std::vector<double>(3,1.0); //eff, sf (central, up, or down), cf (central, up, or down)
-
-        const double max_btagSF_pt = 670.0, max_fastsim_btagCF_pt = 800.0;
-        const double max_ctagSF_pt = 670.0, max_fastsim_ctagCF_pt = 800.0;
-        const double max_udsgSF_pt = 1000.0, max_fastsim_udsgCF_pt = 800.0;
-
+        
+        const double max_btagSF_pt = 1000.0;
+        const double max_ctagSF_pt = 1000.0;
+        const double max_udsgSF_pt = 1000.0;
+        
         /********************************************************************/  
         if(flav==5)
         { //b-tag
@@ -315,20 +279,12 @@ public:
             if( pt_bin > h_eff_b->GetXaxis()->GetNbins() ) pt_bin = h_eff_b->GetXaxis()->GetNbins(); 
             int eta_bin = h_eff_b->GetYaxis()->FindBin(eta); 
             if ( eta_bin > h_eff_b->GetYaxis()->GetNbins() ) eta_bin = h_eff_b->GetYaxis()->GetNbins();
-
+        
             sfEffList[0] = h_eff_b->GetBinContent(pt_bin, eta_bin);
-
+        
             sfEffList[1] = (btagSFunc==0 ? reader.eval_auto_bounds("central",BTagEntry::FLAV_B,eta,pt) :
                             (btagSFunc==1 ? readerUp.eval_auto_bounds("up",BTagEntry::FLAV_B,eta,pt) :
-                             readerDown.eval_auto_bounds("down",BTagEntry::FLAV_B,eta,pt) ) );
-       
-            if(fastsim)
-            {
-                sfEffList[2] = (btagCFunc==0 ? readerFast.eval_auto_bounds("central",BTagEntry::FLAV_B,eta,pt) :
-                                (btagCFunc==1 ? readerFastUp.eval_auto_bounds("up",BTagEntry::FLAV_B,eta,pt) :
-                                 readerFastDown.eval_auto_bounds("down", BTagEntry::FLAV_B,eta,pt) ) );
-           
-            }
+                             readerDown.eval_auto_bounds("down",BTagEntry::FLAV_B,eta,pt) ) );       
         }
         /********************************************************************/
         else if(flav==4)
@@ -338,17 +294,10 @@ public:
             int eta_bin = h_eff_c->GetYaxis()->FindBin(eta); 
             if ( eta_bin > h_eff_c->GetYaxis()->GetNbins() ) eta_bin = h_eff_c->GetYaxis()->GetNbins();
             sfEffList[0] =h_eff_c->GetBinContent(pt_bin, eta_bin);
-
+        
             sfEffList[1] = (btagSFunc==0 ? reader.eval_auto_bounds("central",BTagEntry::FLAV_C,eta,pt) :
                             (btagSFunc==1 ? readerUp.eval_auto_bounds("up",BTagEntry::FLAV_C,eta,pt) :
                              readerDown.eval_auto_bounds("down", BTagEntry::FLAV_C,eta,pt) ) );
-            if(fastsim)
-            {
-                sfEffList[2] = (ctagCFunc==0 ? readerFast.eval_auto_bounds("central",BTagEntry::FLAV_C,eta,pt) :
-                                (ctagCFunc==1 ? readerFastUp.eval_auto_bounds("up",BTagEntry::FLAV_C,eta,pt) :
-                                 readerFastDown.eval_auto_bounds("down", BTagEntry::FLAV_C,eta,pt) ) );
-
-            }
         }
         /********************************************************************/
         else if(flav<4 || flav==21)
@@ -357,23 +306,13 @@ public:
             if( pt_bin > h_eff_udsg->GetXaxis()->GetNbins() ) pt_bin = h_eff_udsg->GetXaxis()->GetNbins(); 
             int eta_bin = h_eff_udsg->GetYaxis()->FindBin(eta); 
             if ( eta_bin > h_eff_udsg->GetYaxis()->GetNbins() ) eta_bin = h_eff_udsg->GetYaxis()->GetNbins();
-
+        
             sfEffList[0] = h_eff_udsg->GetBinContent( pt_bin, eta_bin);
-
+        
             sfEffList[1] = (mistagSFunc==0 ? reader.eval_auto_bounds("central",BTagEntry::FLAV_UDSG,eta,pt) :
                             (mistagSFunc==1 ? readerUp.eval_auto_bounds("up",BTagEntry::FLAV_UDSG,eta,pt) :
-                             readerDown.eval_auto_bounds("down", BTagEntry::FLAV_UDSG,eta,pt) ) );
-       
-    
-            if(fastsim)
-            {
-                sfEffList[2] = (mistagCFunc==0 ? readerFast.eval_auto_bounds("central", BTagEntry::FLAV_UDSG,eta,pt) :
-                                (mistagCFunc==1 ? readerFastUp.eval_auto_bounds("up",BTagEntry::FLAV_UDSG,eta,pt) :
-                                 readerFastDown.eval_auto_bounds("down", BTagEntry::FLAV_UDSG,eta,pt) ) );
-    
-            }
-        }
-  
+                             readerDown.eval_auto_bounds("down", BTagEntry::FLAV_UDSG,eta,pt) ) );           
+        }  
     }
 
     // To register Event weights/ Probabilities to FlatTuples
@@ -382,109 +321,103 @@ public:
         //Check if this is data
         if( !tr.checkBranch(MCBranch) ) return;
         const auto& inputJets = tr.getVec<TLorentzVector>(JetsVec);
+        const auto& jetMask = tr.getVec<bool>(JetMask);
         const auto& recoJetsBtag = tr.getVec<double>(BJetsVec);
         const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
-
+        const auto& wp = tr.getVar<double>("deepCSV_WP_medium");
+        
         /*************************************************/
         // Here we define which(up, down or central
         // to be stored central = 0, up = 1 down = else
         /*************************************************/
-    
+        
         /*************************************************/
         // Case 0: Central value;
         /*************************************************/
-
+        
         int switch_Unc = 0, switch_udsg_Unc = 0;
         SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
         SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
         SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
         //Method 1a) ignoring b-tag status 
-        double evtWeightSimple_Central  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
-        if( std::isnan( evtWeightSimple_Central) || std::isinf(evtWeightSimple_Central) ){
+        double evtWeightSimple_Central  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
+        if( std::isnan( evtWeightSimple_Central) || std::isinf(evtWeightSimple_Central) )
+        {
             evtWeightSimple_Central = 1.0;
         } 
-
+        
         // Method 1b) in different b-jet mullticipity bins.
-        std::vector<double> *evtWeightProb_Central = GetCorrections(&inputJets, &recoJetsFlavor);
+        std::vector<double> *evtWeightProb_Central = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         //Register derived quantities to nTuples.
         tr.registerDerivedVar("bTagSF_EventWeightSimple_Central"+myVarSuffix_, evtWeightSimple_Central);
         //evtWeightProb[0] = probability of 0 Btags...... evtWeightProb[3] = probability of 3 Btags
         //put event in each btag bin, weighted by evtWeightprob[0], evtWeightprob[1],
         // evtWeightprob[2], evtWeightprob[3] for nb = 0, 1, 2, 3+
         tr.registerDerivedVec("bTagSF_EventWeightProb_Central"+myVarSuffix_, evtWeightProb_Central);
-
-
+        
         /*************************************************/
         // Case 1: Up  value;                            
         /*************************************************/
-
         switch_Unc = 1; switch_udsg_Unc = 0;
         SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
         SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
         SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-        double evtWeightSimple_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
-        if( std::isnan( evtWeightSimple_Up) || std::isinf(evtWeightSimple_Up) ){
+        double evtWeightSimple_Up  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
+        if( std::isnan( evtWeightSimple_Up) || std::isinf(evtWeightSimple_Up) )
+        {
             evtWeightSimple_Up= 1.0;
         }
-        std::vector<double> *evtWeightProb_Up = GetCorrections(&inputJets, &recoJetsFlavor);
+        std::vector<double> *evtWeightProb_Up = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("bTagSF_EventWeightSimple_Up"+myVarSuffix_, evtWeightSimple_Up);
         tr.registerDerivedVec("bTagSF_EventWeightProb_Up"+myVarSuffix_, evtWeightProb_Up);
-
-
+        
         /*************************************************/
         // Case -1:Down  value;                            
         /*************************************************/
-
         switch_Unc = -1; switch_udsg_Unc = 0;
         SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
         SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
         SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-        double evtWeightSimple_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
-        if( std::isnan( evtWeightSimple_Down) || std::isinf(evtWeightSimple_Down) ){
+        double evtWeightSimple_Down  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
+        if( std::isnan( evtWeightSimple_Down) || std::isinf(evtWeightSimple_Down) )
+        {
             evtWeightSimple_Down= 1.0;
         }
-        std::vector<double> *evtWeightProb_Down = GetCorrections(&inputJets, &recoJetsFlavor);
+        std::vector<double> *evtWeightProb_Down = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("bTagSF_EventWeightSimple_Down"+myVarSuffix_, evtWeightSimple_Down);
         tr.registerDerivedVec("bTagSF_EventWeightProb_Down"+myVarSuffix_, evtWeightProb_Down);
-
-   
+        
         /*************************************************/
         // Mistag (udsg) Case 1: Up  value;                            
         /*************************************************/
-
         switch_Unc = 0; switch_udsg_Unc = 1;
         SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
         SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
         SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-        double evtWeightSimple_mistag_Up  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
-        if( std::isnan( evtWeightSimple_mistag_Up) || std::isinf(evtWeightSimple_mistag_Up) ){
+        double evtWeightSimple_mistag_Up  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
+        if( std::isnan( evtWeightSimple_mistag_Up) || std::isinf(evtWeightSimple_mistag_Up) )
+        {
             evtWeightSimple_mistag_Up= 1.0;
         }
-        std::vector<double> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets, &recoJetsFlavor);
+        std::vector<double> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("mistagSF_EventWeightSimple_Up"+myVarSuffix_, evtWeightSimple_mistag_Up);
         tr.registerDerivedVec("mistagSF_EventWeightProb_Up"+myVarSuffix_, evtWeightProb_mistag_Up);
-
-
+        
         /*************************************************/
         // Case -1:Down  value;                            
         /*************************************************/
-
         switch_Unc = 0; switch_udsg_Unc = -1;
         SetBtagSFunc(switch_Unc); SetBtagCFunc(switch_Unc);
         SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
         SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
-        double evtWeightSimple_mistag_Down  = GetSimpleCorrection(&inputJets ,&recoJetsFlavor,&recoJetsBtag);
-        if( std::isnan( evtWeightSimple_mistag_Down) || std::isinf(evtWeightSimple_mistag_Down) ){
+        double evtWeightSimple_mistag_Down  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
+        if( std::isnan( evtWeightSimple_mistag_Down) || std::isinf(evtWeightSimple_mistag_Down) )
+        {
             evtWeightSimple_mistag_Down= 1.0;
         }
-        std::vector<double> *evtWeightProb_mistag_Down = GetCorrections(&inputJets, &recoJetsFlavor);
+        std::vector<double> *evtWeightProb_mistag_Down = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("mistagSF_EventWeightSimple_Down"+myVarSuffix_, evtWeightSimple_mistag_Down);
         tr.registerDerivedVec("mistagSF_EventWeightProb_Down"+myVarSuffix_, evtWeightProb_mistag_Down);
-
-        /*************************************************/
-        // Example to use these variables are in
-        // https://github.com/humkies/bTag/blob/master/bTagScaleFactor.C#L151                                                                             
-        /*************************************************/
     }
 
     //Operator
@@ -494,14 +427,13 @@ public:
     }
 
     //member variables
-    bool debug, fastsim;
+    bool debug;
     int btagSFunc, mistagSFunc;
     int btagCFunc, ctagCFunc, mistagCFunc;
-    BTagCalibration calib, calibFast;
+    BTagCalibration calib;
     BTagCalibrationReader reader, readerUp, readerDown;
-    BTagCalibrationReader readerFast, readerFastUp, readerFastDown;
     std::shared_ptr<TH2F> h_eff_b, h_eff_c, h_eff_udsg;
-    std::string inFileName, MCBranch, JetsVec, BJetsVec, JetsFlavor, myVarSuffix_;
+    std::string inFileName, MCBranch, JetsVec, JetMask, BJetsVec, JetsFlavor, myVarSuffix_;
 };
 
 #endif
