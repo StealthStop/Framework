@@ -71,15 +71,11 @@ private:
         bool passNonIsoTriggerMC = true;
         bool passBlindHad_Good = true;
         bool passBlindLep_Good = true;        
-        bool vetoHEMEvent = false;
+        bool preHEMEvent = true;
         if (runtype == "Data")
         {
             
-            if (RunNum >= 319077)
-            {
-                if (passHEMVeto) vetoHEMEvent = false;
-                if (!passHEMVeto) vetoHEMEvent = true;
-            }
+            if (runYear == "2018post" && RunNum >= 319077) preHEMEvent = false;
 
             // Pass the right trigger
             if (filetag.find("Data_JetHT") != std::string::npos && !passTriggerAllHad) passTrigger = false;
@@ -141,7 +137,8 @@ private:
         // -- Define 1-lepton proto-baseline
         // -----------------------------------
         bool passBaselineGoodOffline1l = JetID                 &&
-                                         !vetoHEMEvent         &&
+                                         passHEMVeto           &&
+                                         preHEMEvent           &&
                                          passMETFilters        &&
                                          HT_trigger_pt30 > 300 &&
                                          passMadHT             &&
@@ -186,7 +183,8 @@ private:
         bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
 
         bool passBaseline1l_NonIsoMuon = HT_NonIsoMuon_pt30 > 300 &&
-                                         !vetoHEMEvent            &&
+                                         preHEMEvent              &&
+                                         passHEMVeto              &&
                                          passMETFilters           &&
                                          passMadHT                &&
                                          passNonIsoTrigger        &&
