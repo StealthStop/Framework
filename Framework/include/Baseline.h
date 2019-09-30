@@ -71,11 +71,12 @@ private:
         bool passNonIsoTriggerMC = true;
         bool passBlindHad_Good = true;
         bool passBlindLep_Good = true;        
-        bool preHEMEvent = true;
+        bool correct2018Split = true;
         if (runtype == "Data")
         {
             
-            if (runYear == "2018post" && RunNum >= 319077) preHEMEvent = false;
+            if (runYear == "2018pre" && RunNum >= 319077) correct2018Split = false;
+            else if (runYear == "2018post" && RunNum < 319077) correct2018Split = false;
 
             // Pass the right trigger
             if (filetag.find("Data_JetHT") != std::string::npos && !passTriggerAllHad) passTrigger = false;
@@ -138,7 +139,7 @@ private:
         // -----------------------------------
         bool passBaselineGoodOffline1l = JetID                 &&
                                          passHEMVeto           &&
-                                         preHEMEvent           &&
+                                         correct2018Split      &&
                                          passMETFilters        &&
                                          HT_trigger_pt30 > 300 &&
                                          passMadHT             &&
@@ -183,7 +184,7 @@ private:
         bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
 
         bool passBaseline1l_NonIsoMuon = HT_NonIsoMuon_pt30 > 300 &&
-                                         preHEMEvent              &&
+                                         correct2018Split         &&
                                          passHEMVeto              &&
                                          passMETFilters           &&
                                          passMadHT                &&
