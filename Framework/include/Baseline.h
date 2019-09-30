@@ -11,6 +11,7 @@ private:
         const auto& runtype              = tr.getVar<std::string>("runtype");     
         const auto& filetag              = tr.getVar<std::string>("filetag");
         const auto& runYear              = tr.getVar<std::string>("runYear");
+        const auto& RunNum               = tr.getVar<unsigned int>("RunNum");
         const auto& blind                = tr.getVar<bool>("blind");
         const auto& TriggerNames         = tr.getVec<std::string>("TriggerNames");
         const auto& TriggerPass          = tr.getVec<int>("TriggerPass");
@@ -70,8 +71,19 @@ private:
         bool passNonIsoTriggerMC = true;
         bool passBlindHad_Good = true;
         bool passBlindLep_Good = true;        
+        bool vetoHEMEvent = false;
         if (runtype == "Data")
         {
+            
+            if (runYear == "2018pre" || runYear == "2018post")
+            {
+                if (RunNum >= 319077)
+                {
+                    if (passHEMVeto) vetoHEMEvent = false;
+                    if (!passHEMVeto) vetoHEMEvent = true;
+                }
+            }
+
             // Pass the right trigger
             if (filetag.find("Data_JetHT") != std::string::npos && !passTriggerAllHad) passTrigger = false;
             if (filetag.find("Data_SingleMuon") != std::string::npos && !passTriggerMuon) passTrigger = false;
@@ -132,7 +144,7 @@ private:
         // -- Define 1-lepton proto-baseline
         // -----------------------------------
         bool passBaselineGoodOffline1l = JetID                 &&
-                                         passHEMVeto           &&
+                                         !vetoHEMEvent         &&
                                          passMETFilters        &&
                                          HT_trigger_pt30 > 300 &&
                                          passMadHT             &&
@@ -177,7 +189,7 @@ private:
         bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
 
         bool passBaseline1l_NonIsoMuon = HT_NonIsoMuon_pt30 > 300 &&
-                                         passHEMVeto              &&
+                                         !vetoHEMEvent            &&
                                          passMETFilters           &&
                                          passMadHT                &&
                                          passNonIsoTrigger        &&
