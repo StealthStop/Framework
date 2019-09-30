@@ -75,13 +75,10 @@ private:
         if (runtype == "Data")
         {
             
-            if (runYear == "2018pre" || runYear == "2018post")
+            if (RunNum >= 319077)
             {
-                if (RunNum >= 319077)
-                {
-                    if (passHEMVeto) vetoHEMEvent = false;
-                    if (!passHEMVeto) vetoHEMEvent = true;
-                }
+                if (passHEMVeto) vetoHEMEvent = false;
+                if (!passHEMVeto) vetoHEMEvent = true;
             }
 
             // Pass the right trigger
