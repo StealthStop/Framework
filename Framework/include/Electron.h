@@ -30,7 +30,7 @@ private:
         double ptCut;
         if      (runYear == "2016") ptCut = 30.0;
         else if (runYear == "2017") ptCut = 37.0; 
-        else if (runYear == "2018") ptCut = 37.0; 
+        else if (runYear == "2018pre" || runYear == "2018post") ptCut = 37.0; 
         for(unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
             TLorentzVector lvel = allElectrons.at(iel);

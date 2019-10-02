@@ -49,7 +49,7 @@ private:
     const bool objectInHEM(std::vector<TLorentzVector> objects, const double etalow, const double etahigh, const double philow, const double phihigh, const double ptcut, const std::string& runYear) const
     {
         bool inHEM = false;
-        if(runYear == "2018")
+        if(runYear == "2018post")
         {
             for(const auto& o : objects)
             {
