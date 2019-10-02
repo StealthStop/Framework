@@ -745,9 +745,10 @@ private:
         const auto& NGoodMuons     = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& NNonIsoMuons   = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
         
-        double totalEventWeight    = -1.0;
-        double totalEventWeightMG  = -1.0;
+        double totalEventWeight         = -1.0;
+        double totalEventWeightMG       = -1.0;
         double totalEventWeightNIM      = -1.0;
+        double totalEventWeightNIM_ht   = -1.0;
         if( NGoodElectrons == 1 ) 
         {
             totalEventWeight = Weight*bTagWeight*totGoodElectronSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
@@ -760,7 +761,9 @@ private:
         }
         if( NNonIsoMuons == 1 ) {
             totalEventWeightNIM = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr;
+            totalEventWeightNIM_ht = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr*htDerivedweight;
         }
+
         tr.registerDerivedVar( "totalEventWeight"+myVarSuffix_, totalEventWeight );
         tr.registerDerivedVar( "totalEventWeightMG"+myVarSuffix_, totalEventWeightMG );
         tr.registerDerivedVar( "totalEventWeightNIM"+myVarSuffix_, totalEventWeightNIM );
@@ -789,7 +792,8 @@ public:
             muSFHistoMediumName = "sf_mu_mediumID";
             muSFHistoIsoName = "sf_mu_mediumID_mini02";
             muSFHistoTrigName = "TrigEff_2016_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            nimuSFHistoTrigName = "TrigEff_2016_num_nimu_pt40_trig_4jCut";
+            //nimuSFHistoTrigName = "TrigEff_2016_num_nimu_pt40_trig_4jCut";
+            nimuSFHistoTrigName = ""; //just for calculating non iso muon scale factors
         }
         else if( runYear == "2017")
         {
@@ -800,7 +804,8 @@ public:
             muSFHistoMediumName = "NUM_MediumID_DEN_genTracks_pt_abseta";
             muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
             muSFHistoTrigName = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            nimuSFHistoTrigName = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
+            //nimuSFHistoTrigName = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
+            nimuSFHistoTrigName = ""; //just for calculating non iso muon scale factors
         }
         else if( runYear == "2018")
         {
