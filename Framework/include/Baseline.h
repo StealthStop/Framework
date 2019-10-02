@@ -75,8 +75,8 @@ private:
         if (runtype == "Data")
         {
             
-            if (runYear == "2018pre" && RunNum >= 319077) correct2018Split = false;
-            else if (runYear == "2018post" && RunNum < 319077) correct2018Split = false;
+            if      (runYear == "2018pre"  && RunNum >= 319077) correct2018Split = false;
+            else if (runYear == "2018post" && RunNum <  319077) correct2018Split = false;
 
             // Pass the right trigger
             if (filetag.find("Data_JetHT") != std::string::npos && !passTriggerAllHad) passTrigger = false;
@@ -272,6 +272,7 @@ private:
         tr.registerDerivedVar<bool>("passNonIsoTriggerMC"+myVarSuffix_,         passNonIsoTriggerMC);
         tr.registerDerivedVar<bool>("passMadHT"+myVarSuffix_,                   passMadHT);
         tr.registerDerivedVar<bool>("passMETFilters"+myVarSuffix_,              passMETFilters);
+        tr.registerDerivedVar<bool>("correct2018Split"+myVarSuffix_,            correct2018Split);        
     }
 
     bool PassTriggerGeneral(std::vector<std::string>& mytriggers, const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
