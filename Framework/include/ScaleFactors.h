@@ -743,10 +743,10 @@ public:
             eleSFHistoTightName = "Run2018_CutBasedTightNoIso94XV2";
             eleSFHistoIsoName = "Run2018_Mini";
             eleSFHistoRecoName = "EGamma_SF2D";
-            eleSFHistoTrigName = "TrigEff_2018_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            eleSFHistoTrigName = "TrigEff_2018pre_num_el_pt40_trig_5jCut_htCut_DeepCSV";
             muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_pt_abseta";
             muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
-            muSFHistoTrigName = "TrigEff_2018_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoTrigName = "TrigEff_2018pre_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             nimuSFHistoTrigName = "";
         }
         else if( runYear == "2018post")
@@ -754,10 +754,10 @@ public:
             eleSFHistoTightName = "Run2018_CutBasedTightNoIso94XV2";
             eleSFHistoIsoName = "Run2018_Mini";
             eleSFHistoRecoName = "EGamma_SF2D";
-            eleSFHistoTrigName = "TrigEff_2018_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            eleSFHistoTrigName = "TrigEff_2018post_num_el_pt40_trig_5jCut_htCut_DeepCSV";
             muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_pt_abseta";
             muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
-            muSFHistoTrigName = "TrigEff_2018_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoTrigName = "TrigEff_2018post_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             nimuSFHistoTrigName = "";
         }
 
