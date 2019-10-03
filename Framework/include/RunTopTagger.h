@@ -169,8 +169,9 @@ private:
         }
 
         // Get reconstructed tops and derive needed variables                            
-        std::vector<TopObject*> tops(mergedTops);
-        tops.insert(tops.end(), resolvedTops.begin(), resolvedTops.end());
+        std::vector<TopObject*> tops(mergedTops); // for whole top tagger
+        tops.insert(tops.end(), resolvedTops.begin(), resolvedTops.end()); // for whole top tagger
+        //std::vector<TopObject*> tops(resolvedTops); // this for using only Resolved one
         countTops(tops);
         
         // -------------------------------------
