@@ -73,8 +73,7 @@ private:
         bool passBlindLep_Good = true;        
         bool correct2018Split = true;
         if (runtype == "Data")
-        {
-            
+        {            
             if      (runYear == "2018pre"  && RunNum >= 319077) correct2018Split = false;
             else if (runYear == "2018post" && RunNum <  319077) correct2018Split = false;
 
@@ -87,7 +86,7 @@ private:
 
             // Blinding data 
             if (NGoodJets_pt30 >= 9 && blind) passBlindHad_Good = false;
-            if (NGoodJets_pt30 >= 8 && blind) passBlindLep_Good = false;
+            if (NGoodJets_pt30 >= 9 && blind) passBlindLep_Good = false;
         }
         
         // ------------------------
