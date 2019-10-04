@@ -39,21 +39,12 @@ private:
 
     void getHemispheres(NTupleReader& tr) const
     {
-<<<<<<< HEAD
         //--------------------------------------------
         // -- Calculate/find the folowing variables
         //--------------------------------------------
-        double testmass = 0.0;
-        bool massive = true; 
-        int hemi_association = 1;
-=======
-        //-----------------------------------
-        //Calculate/find the folowing variables
-        //-----------------------------------
         const double testmass = 0.0;
         const bool massive = true; 
         const int hemi_association = 1;
->>>>>>> 920214e01eca1b2eddc6ebaff4df6674b2b95b52
 
         const auto& met = tr.getVar<double>("MET");
         const auto& metPhi = tr.getVar<double>("METPhi");
