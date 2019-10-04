@@ -1,12 +1,9 @@
 #ifndef MT2_BISECT_H
 #define MT2_BISECT_H
 
-
 /*The user can change the desired precision below, the larger one of the following two definitions is used. Relative precision less than 0.00001 is not guaranteed to be achievable--use with caution*/ 
-
 #define RELATIVE_PRECISION 0.00001 //defined as precision = RELATIVE_PRECISION * scale, where scale = max{Ea, Eb}
 #define ABSOLUTE_PRECISION 0.0     //absolute precision for mt2, unused by default
-
 
 //Reserved for expert
 #define MIN_MASS  0.1   //if ma<MINMASS and mb<MINMASS, use massless code
@@ -17,12 +14,9 @@
 #include <math.h>
 #include "TObject.h"
 
-// using namespace std;
-
-class Davismt2{
-// class Davismt2 : public TObject {
+class Davismt2
+{
 public:
-
 	Davismt2();
 	virtual ~Davismt2();
 	void   mt2_bisect();
@@ -35,7 +29,6 @@ public:
 	int    nevt;
 
 private:
-
 	int    verbose;
 	bool   solved;
 	bool   momenta_set;

@@ -2,22 +2,18 @@
 #define MakeMT2Hemispheres_h
 
 #include "Framework/Framework/include/MT2Hemispheres.h"
-#include "Framework/Framework/include/MT2HemispheresUtilities.h"
 #include "Framework/Framework/include/Davismt2.h"
-#include "Framework/Framework/include/TMctLib.h"
-#include "Framework/Framework/include/mctlib.h"
 
 #include <vector>
 #include <iostream>
 #include <cmath>
 
-
 class MakeMT2Hemispheres
 {
 private:
-    std::string myVarSuffix_;
+    std::string jetMaskName_, nJetName_, myVarSuffix_;
 
-    double CalcMT2(double testmass, bool massive, TLorentzVector visible1, TLorentzVector visible2, TLorentzVector MET)
+    const double CalcMT2(const double testmass, const bool massive, const TLorentzVector& visible1, const TLorentzVector& visible2, const TLorentzVector& MET) const
     {
         double pa[3];
         double pb[3];
@@ -35,51 +31,57 @@ private:
         pb[1] = visible2.Px();
         pb[2] = visible2.Py();
 
-        Davismt2 *mt2 = new Davismt2();
-        mt2->set_momenta(pa, pb, pmiss);
-        mt2->set_mn(testmass);
-        double MT2 = mt2->get_mt2();
-        delete mt2;
-        return MT2;
+        Davismt2 mt2;
+        mt2.set_momenta(pa, pb, pmiss);
+        mt2.set_mn(testmass);
+        return mt2.get_mt2();
     }
 
-    void getHemispheres(NTupleReader& tr) 
+    void getHemispheres(NTupleReader& tr) const
     {
         //-----------------------------------
         //Calculate/find the folowing variables
         //-----------------------------------
-        double testmass = 0.0;
-        bool massive = true; 
-        int hemi_association = 1;
+        const double testmass = 0.0;
+        const bool massive = true; 
+        const int hemi_association = 1;
 
         const auto& met = tr.getVar<double>("MET");
         const auto& metPhi = tr.getVar<double>("METPhi");
-        const auto& jet = tr.getVec<TLorentzVector>("Jets");
-        const auto& GoodJets_pt45 = tr.getVec<bool>("GoodJets_pt45");
-        const auto& NGoodJets_pt45 = tr.getVar<int>("NGoodJets_pt45");
+        const auto& Jets = tr.getVec<TLorentzVector>("Jets");
+        const auto& GoodJets = tr.getVec<bool>(jetMaskName_);
+        const auto& NGoodJets = tr.getVar<int>(nJetName_);
+        const auto& GoodLeptons = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
 
         double stopMass = 0.0;
-        if(NGoodJets_pt45 >= 2)
+        if(NGoodJets >= 2)
         {
             TLorentzVector MET;
             MET.SetPtEtaPhiM(met, 0.0, metPhi, 0.0);
 
             vector<float> px, py, pz, E;
-            for(int i=0; i<jet.size(); ++i)
+            for(int i=0; i < Jets.size(); ++i)
             {
-                if(!GoodJets_pt45[i]) continue;
-                px.push_back(jet[i].Px());
-                py.push_back(jet[i].Py());
-                pz.push_back(jet[i].Pz());
-                E .push_back(jet[i].E ());
+                if(!GoodJets[i]) continue;
+                px.push_back(Jets[i].Px());
+                py.push_back(Jets[i].Py());
+                pz.push_back(Jets[i].Pz());
+                E .push_back(Jets[i].E ());
+            }
+            for(const auto& pair : GoodLeptons)
+            {
+                px.push_back(pair.second.Px());
+                py.push_back(pair.second.Py());
+                pz.push_back(pair.second.Pz());
+                E .push_back(pair.second.E ());                
             }
 
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             Hemisphere hemi(px, py, pz, E, 2, hemi_association);
             vector<int> grouping = hemi.getGrouping();
 
-            TLorentzVector pseudojet1(0.,0.,0.,0.);
-            TLorentzVector pseudojet2(0.,0.,0.,0.);
+            TLorentzVector pseudojet1(0.0, 0.0, 0.0, 0.0);
+            TLorentzVector pseudojet2(0.0, 0.0, 0.0, 0.0);
             for(int i=0; i<px.size(); ++i)
             {
                 if(grouping[i]==1)
@@ -103,10 +105,12 @@ private:
     }
 
 public:    
-    MakeMT2Hemispheres(std::string myVarSuffix = "")
-        : myVarSuffix_       (myVarSuffix)
+    MakeMT2Hemispheres(const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "")
+        : jetMaskName_(jetMaskName)
+        , nJetName_(nJetName)
+        , myVarSuffix_(myVarSuffix)
     {
-        std::cout<<"Setting up MT2Hemispheres"<<std::endl;
+        std::cout<<"Setting up MT2Hemispheres with jet collection: \""<<jetMaskName<<"\""<<std::endl;
     }
 
     void operator()(NTupleReader& tr)
