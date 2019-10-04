@@ -113,7 +113,6 @@ private:
             const auto& GoodJets_pt30           = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
             const auto& GoodLeptons             = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons"+myVarSuffix_);
             const auto& Jets                    = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-            const auto& GenParticles_TTFlag     = tr.getVec<bool>("GenParticles_TTFlag"+myVarSuffix_);
             
             const auto& MET                     = tr.getVar<double>("MET"+myVarSuffix_);
             const auto& METPhi                  = tr.getVar<double>("METPhi"+myVarSuffix_);
