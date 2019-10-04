@@ -338,15 +338,15 @@ public:
         {
             evtWeightSimple_Central = 1.0;
         } 
-        
-        // Method 1b) in different b-jet mullticipity bins.
-        std::vector<double> *evtWeightProb_Central = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         //Register derived quantities to nTuples.
-        tr.registerDerivedVar("bTagSF_EventWeightSimple_Central"+myVarSuffix_, evtWeightSimple_Central);
-        //evtWeightProb[0] = probability of 0 Btags...... evtWeightProb[3] = probability of 3 Btags
-        //put event in each btag bin, weighted by evtWeightprob[0], evtWeightprob[1],
-        // evtWeightprob[2], evtWeightprob[3] for nb = 0, 1, 2, 3+
-        tr.registerDerivedVec("bTagSF_EventWeightProb_Central"+myVarSuffix_, evtWeightProb_Central);
+        tr.registerDerivedVar("bTagSF_EventWeightSimple_Central"+myVarSuffix_, evtWeightSimple_Central);        
+
+        //// Method 1b) in different b-jet mullticipity bins.
+        //std::vector<double> *evtWeightProb_Central = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
+        ////evtWeightProb[0] = probability of 0 Btags...... evtWeightProb[3] = probability of 3 Btags
+        ////put event in each btag bin, weighted by evtWeightprob[0], evtWeightprob[1],
+        //// evtWeightprob[2], evtWeightprob[3] for nb = 0, 1, 2, 3+
+        //tr.registerDerivedVec("bTagSF_EventWeightProb_Central"+myVarSuffix_, evtWeightProb_Central);
         
         /*************************************************/
         // Case 1: Up  value;                            
@@ -360,9 +360,10 @@ public:
         {
             evtWeightSimple_Up = 1.0;
         }
-        std::vector<double> *evtWeightProb_Up = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("bTagSF_EventWeightSimple_Up"+myVarSuffix_, evtWeightSimple_Up);
-        tr.registerDerivedVec("bTagSF_EventWeightProb_Up"+myVarSuffix_, evtWeightProb_Up);
+
+        //std::vector<double> *evtWeightProb_Up = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
+        //tr.registerDerivedVec("bTagSF_EventWeightProb_Up"+myVarSuffix_, evtWeightProb_Up);
         
         /*************************************************/
         // Case -1:Down  value;                            
@@ -376,9 +377,10 @@ public:
         {
             evtWeightSimple_Down = 1.0;
         }
-        std::vector<double> *evtWeightProb_Down = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("bTagSF_EventWeightSimple_Down"+myVarSuffix_, evtWeightSimple_Down);
-        tr.registerDerivedVec("bTagSF_EventWeightProb_Down"+myVarSuffix_, evtWeightProb_Down);
+
+        //std::vector<double> *evtWeightProb_Down = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
+        //tr.registerDerivedVec("bTagSF_EventWeightProb_Down"+myVarSuffix_, evtWeightProb_Down);
         
         /*************************************************/
         // Mistag (udsg) Case 1: Up  value;                            
@@ -392,9 +394,10 @@ public:
         {
             evtWeightSimple_mistag_Up = 1.0;
         }
-        std::vector<double> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("mistagSF_EventWeightSimple_Up"+myVarSuffix_, evtWeightSimple_mistag_Up);
-        tr.registerDerivedVec("mistagSF_EventWeightProb_Up"+myVarSuffix_, evtWeightProb_mistag_Up);
+
+        //std::vector<double> *evtWeightProb_mistag_Up =  GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
+        //tr.registerDerivedVec("mistagSF_EventWeightProb_Up"+myVarSuffix_, evtWeightProb_mistag_Up);
         
         /*************************************************/
         // Case -1:Down  value;                            
@@ -408,9 +411,10 @@ public:
         {
             evtWeightSimple_mistag_Down = 1.0;
         }
-        std::vector<double> *evtWeightProb_mistag_Down = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         tr.registerDerivedVar("mistagSF_EventWeightSimple_Down"+myVarSuffix_, evtWeightSimple_mistag_Down);
-        tr.registerDerivedVec("mistagSF_EventWeightProb_Down"+myVarSuffix_, evtWeightProb_mistag_Down);
+
+        //std::vector<double> *evtWeightProb_mistag_Down = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
+        //tr.registerDerivedVec("mistagSF_EventWeightProb_Down"+myVarSuffix_, evtWeightProb_mistag_Down);
     }
 
     //Operator

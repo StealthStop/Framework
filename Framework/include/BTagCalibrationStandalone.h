@@ -56,7 +56,6 @@ public:
  *             - as 1D-function dependent of pt or discriminant
  *
  ************************************************************/
-
 class BTagCalibration
 {
 public:
@@ -132,6 +131,5 @@ public:
 protected:
     BTagCalibrationReaderImpl* pimpl;
 };
-
 
 #endif
