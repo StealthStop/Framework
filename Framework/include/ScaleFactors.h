@@ -63,28 +63,33 @@ private:
     }
 
     const double htScaleFactor(const int nJets, const double HT, const std::string& runYear) const
-    { 
+    {
+        //All values updated for v1.0 on October 4, 2019. Commented out values are from the old setup (just 2016 and 2017).
         double norm = 1.0;
         double expo = 0.0;
         if( runYear == "2016" ) 
         {
-            norm = 0.03422*nJets + 0.9367;
-            expo = (-0.02310*nJets - 0.0940 )/1000;
+            norm = 0.04214*nJets + 0.8908;
+            expo = (-0.02387*nJets - 0.08999)/1000;
+            //norm = 0.03422*nJets + 0.9367;
+            //expo = (-0.02310*nJets - 0.0940 )/1000;
         }
         else if( runYear == "2017" ) 
         {
-            norm = 0.02565*nJets + 0.9635;
-            expo = (-0.01418*nJets - 0.1101 )/1000;
+            norm = 0.02486*nJets + 0.9919;
+            expo = (-0.01448*nJets - 0.1221)/1000;
+            //norm = 0.02565*nJets + 0.9635;
+            //expo = (-0.01418*nJets - 0.1101 )/1000;
         }
         else if( runYear == "2018pre" ) 
         {
-            norm = 1.0;
-            expo = 0.0;
+            norm = 0.03951*nJets + 0.8940;
+            expo = (-0.03819*nJets + 0.009471)/1000;
         }
         else if( runYear == "2018post" ) 
         {
-            norm = 1.0;
-            expo = 0.0;
+            norm = 0.01952*nJets + 1.0160;
+            expo = (-0.10392*nJets - 0.1343)/1000;
         }
         return norm*exp( expo*HT ); 
     }
@@ -95,23 +100,27 @@ private:
         double expo = 0.0;
         if( runYear == "2016" ) 
         {
-            norm = 0.03422*nJets + 0.9367;
-            expo = (-0.02310*nJets - 0.0940 )/1000;
+            norm = 0.04214*nJets + 0.8908;
+            expo = (-0.02387*nJets - 0.08999)/1000;
+            //norm = 0.03422*nJets + 0.9367;
+            //expo = (-0.02310*nJets - 0.0940 )/1000;
         }
         else if( runYear == "2017" ) 
         {
-            norm = 0.02565*nJets + 0.9635;
-            expo = (-0.01418*nJets - 0.1101 )/1000;
+            norm = 0.02486*nJets + 0.9919;
+            expo = (-0.01448*nJets - 0.1221)/1000;
+            //norm = 0.02565*nJets + 0.9635;
+            //expo = (-0.01418*nJets - 0.1101 )/1000;
         }
         else if( runYear == "2018pre" ) 
         {
-            norm = 1.0;
-            expo = 0.0;
+            norm = 0.03951*nJets + 0.8940;
+            expo = (-0.03819*nJets + 0.009471)/1000;
         }
         else if( runYear == "2018post" ) 
         {
-            norm = 1.0;
-            expo = 0.0;
+            norm = 0.01952*nJets + 1.0160;
+            expo = (-0.10392*nJets - 0.1343)/1000;
         }
             
         if( HT > 2000 )
@@ -126,23 +135,27 @@ private:
         double expo = 0.0;      
         if( runYear == "2016" ) 
         {
-            norm = 0.03422*7 + 0.9367;
-            expo = (-0.02310*7 - 0.0940 )/1000;
+            norm = 0.04214*7 + 0.8908;
+            expo = (-0.02387*7 - 0.08999)/1000;
+            //norm = 0.03422*7 + 0.9367;
+            //expo = (-0.02310*7 - 0.0940 )/1000;
         }
         else if( runYear == "2017" ) 
         {
-            norm = 0.02565*7 + 0.9635;
-            expo = (-0.01418*7 - 0.1101 )/1000;
-        }            
+            norm = 0.02486*7 + 0.9919;
+            expo = (-0.01448*7 - 0.1221)/1000;
+            //norm = 0.02565*7 + 0.9635;
+            //expo = (-0.01418*7 - 0.1101 )/1000;
+        }
         else if( runYear == "2018pre" ) 
         {
-            norm = 1.0;
-            expo = 0.0;
+            norm = 0.03951*7 + 0.8940;
+            expo = (-0.03819*7 + 0.009471)/1000;
         }
         else if( runYear == "2018post" ) 
         {
-            norm = 1.0;
-            expo = 0.0;
+            norm = 0.01952*7 + 1.0160;
+            expo = (-0.10392*7 - 0.1343)/1000;
         }
         return norm*exp( expo*HT ); 
     }
@@ -519,7 +532,8 @@ private:
             // Derive ht up and down variation on SF
             if( runYear == "2016" ) 
             {
-                const double fit2NJetBin8 = 1.307*exp(-0.0003416*HT_trigger_pt30);
+                const double fit2NJetBin8 = 1.317*exp(-0.0003481*HT_trigger_pt30);
+                //const double fit2NJetBin8 = 1.307*exp(-0.0003416*HT_trigger_pt30);
                 const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, runYear);
                 const double ratioUp = fit2NJetBin8/fit2NJetBin567;
                 const double ratioDown = fit2NJetBin567/fit2NJetBin8;
@@ -537,7 +551,8 @@ private:
             }
             else if( runYear == "2017" )
             {
-                const double fit2NJetBin8 = 1.215*exp(-0.0002613*HT_trigger_pt30);
+                const double fit2NJetBin8 = 1.210*exp(-0.0002564*HT_trigger_pt30);
+                //const double fit2NJetBin8 = 1.215*exp(-0.0002613*HT_trigger_pt30);
                 const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, runYear);
                 const double ratioUp = fit2NJetBin8/fit2NJetBin567;
                 const double ratioDown = fit2NJetBin567/fit2NJetBin8;
