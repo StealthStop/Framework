@@ -577,7 +577,10 @@ private:
                 const double ratioDown = fit2NJetBin567/fit2NJetBin8;
                 
                 htScaleUp = htDerivedweight*ratioUp;
-                htScaleDown = htDerivedweight*ratioDown;            
+                htScaleDown = htDerivedweight*ratioDown;
+                
+                htScaleUpMG = 1.0;
+                htScaleDownMG = 1.0;
             }
             
             else if( runYear == "2018post" )
@@ -588,7 +591,10 @@ private:
                 const double ratioDown = fit2NJetBin567/fit2NJetBin8;
                 
                 htScaleUp = htDerivedweight*ratioUp;
-                htScaleDown = htDerivedweight*ratioDown;            
+                htScaleDown = htDerivedweight*ratioDown;
+
+                htScaleUpMG = 1.0;
+                htScaleDwonMG = 1.0;
             }
 
         }
