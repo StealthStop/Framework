@@ -594,7 +594,7 @@ private:
                 htScaleDown = htDerivedweight*ratioDown;
 
                 htScaleUpMG = 1.0;
-                htScaleDwonMG = 1.0;
+                htScaleDownMG = 1.0;
             }
 
         }
