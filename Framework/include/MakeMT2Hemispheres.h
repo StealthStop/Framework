@@ -39,9 +39,9 @@ private:
 
     void getHemispheres(NTupleReader& tr) const
     {
-        //-----------------------------------
-        //Calculate/find the folowing variables
-        //-----------------------------------
+        //--------------------------------------------
+        // -- Calculate/find the folowing variables
+        //--------------------------------------------
         const double testmass = 0.0;
         const bool massive = true; 
         const int hemi_association = 1;
@@ -84,7 +84,7 @@ private:
             TLorentzVector pseudojet2(0.0, 0.0, 0.0, 0.0);
             for(int i=0; i<px.size(); ++i)
             {
-                if(grouping[i]==1)
+                if(grouping[i] == 1)
                 {
                     pseudojet1.SetPx(pseudojet1.Px() + px[i]);
                     pseudojet1.SetPy(pseudojet1.Py() + py[i]);
