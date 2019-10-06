@@ -562,7 +562,7 @@ private:
                 const double ratioUpMG = fit2NJetBin8/fit2NJetBin567;
                 const double ratioDownMG = fit2NJetBin567/fit2NJetBin8;
                 
-                htScaleUp = htDerivedweight*ratioUp;
+                htScaleUp = htDerivedweight*ratioUp; 
                 htScaleDown = htDerivedweight*ratioDown;            
                 
                 htScaleUpMG = htDerivedweightMG*ratioUpMG;
