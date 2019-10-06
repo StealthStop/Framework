@@ -89,7 +89,7 @@ private:
         else if( runYear == "2018post" ) 
         {
             norm = 0.01952*nJets + 1.0160;
-            expo = (-0.10392*nJets - 0.1343)/1000;
+            expo = (-0.01392*nJets - 0.1343)/1000;
         }
         return norm*exp( expo*HT ); 
     }
@@ -120,7 +120,7 @@ private:
         else if( runYear == "2018post" ) 
         {
             norm = 0.01952*nJets + 1.0160;
-            expo = (-0.10392*nJets - 0.1343)/1000;
+            expo = (-0.01392*nJets - 0.1343)/1000;
         }
             
         if( HT > 2000 )
@@ -155,7 +155,7 @@ private:
         else if( runYear == "2018post" ) 
         {
             norm = 0.01952*7 + 1.0160;
-            expo = (-0.10392*7 - 0.1343)/1000;
+            expo = (-0.01392*7 - 0.1343)/1000;
         }
         return norm*exp( expo*HT ); 
     }
@@ -568,14 +568,29 @@ private:
                 htScaleUpMG = htDerivedweightMG*ratioUpMG;
                 htScaleDownMG = htDerivedweightMG*ratioDownMG;
             }
-            else if( runYear == "2018pre" || runYear == "2018post") 
+
+            else if( runYear == "2018pre" )
             {
-                htScaleUp = 1.0;
-                htScaleDown = 1.0;
+                const double fit2NJetBin8 = 1.230*exp(-0.0002754*HT_trigger_pt30);
+                const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, runYear);
+                const double ratioUp = fit2NJetBin8/fit2NJetBin567;
+                const double ratioDown = fit2NJetBin567/fit2NJetBin8;
                 
-                htScaleUpMG = 1.0;
-                htScaleDownMG = 1.0;
+                htScaleUp = htDerivedweight*ratioUp;
+                htScaleDown = htDerivedweight*ratioDown;            
             }
+            
+            else if( runYear == "2018post" )
+            {
+                const double fit2NJetBin8 = 1.300*exp(-0.0003486*HT_trigger_pt30);
+                const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, runYear);
+                const double ratioUp = fit2NJetBin8/fit2NJetBin567;
+                const double ratioDown = fit2NJetBin567/fit2NJetBin8;
+                
+                htScaleUp = htDerivedweight*ratioUp;
+                htScaleDown = htDerivedweight*ratioDown;            
+            }
+
         }
 
         tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
