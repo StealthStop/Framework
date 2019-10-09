@@ -96,68 +96,38 @@ private:
 
     const double htScaleFactorFlat2000(const int nJets, const double HT, const std::string& runYear) const
     {
-        double norm = 1.0;
-        double expo = 0.0;
-        if( runYear == "2016" ) 
-        {
-            norm = 0.04214*nJets + 0.8908;
-            expo = (-0.02387*nJets - 0.08999)/1000;
-            //norm = 0.03422*nJets + 0.9367;
-            //expo = (-0.02310*nJets - 0.0940 )/1000;
-        }
-        else if( runYear == "2017" ) 
-        {
-            norm = 0.02486*nJets + 0.9919;
-            expo = (-0.01448*nJets - 0.1221)/1000;
-            //norm = 0.02565*nJets + 0.9635;
-            //expo = (-0.01418*nJets - 0.1101 )/1000;
-        }
-        else if( runYear == "2018pre" ) 
-        {
-            norm = 0.03951*nJets + 0.8940;
-            expo = (-0.03819*nJets + 0.009471)/1000;
-        }
-        else if( runYear == "2018post" ) 
-        {
-            norm = 0.01952*nJets + 1.0160;
-            expo = (-0.01392*nJets - 0.1343)/1000;
-        }
-            
-        if( HT > 2000 )
-            return norm*exp( expo*2000.00 );
-        else
-            return norm*exp( expo*HT ); 
+        return ( HT > 2000.0 ) ? htScaleFactor(nJets,2000.0,runYear) : htScaleFactor(nJets,HT,runYear);
     }
 
-    const double htScaleFactorNJet7(const double HT, const std::string& runYear) const
+    const double htScaleFactorNJet8(const double HT, const std::string& runYear) const
     {
         double norm = 1.0;
         double expo = 0.0;      
         if( runYear == "2016" ) 
         {
-            norm = 0.04214*7 + 0.8908;
-            expo = (-0.02387*7 - 0.08999)/1000;
-            //norm = 0.03422*7 + 0.9367;
-            //expo = (-0.02310*7 - 0.0940 )/1000;
+            norm = 1.317;
+            expo = -0.0003481;
+            //norm = 1.307;
+            //expo = -0.0003416;
         }
-        else if( runYear == "2017" ) 
+        else if( runYear == "2017" )
         {
-            norm = 0.02486*7 + 0.9919;
-            expo = (-0.01448*7 - 0.1221)/1000;
-            //norm = 0.02565*7 + 0.9635;
-            //expo = (-0.01418*7 - 0.1101 )/1000;
+            norm = 1.210;
+            expo = -0.0002564;
+            //norm = 1.215;
+            //expo = -0.0002613;
         }
-        else if( runYear == "2018pre" ) 
+        else if( runYear == "2018pre" )
         {
-            norm = 0.03951*7 + 0.8940;
-            expo = (-0.03819*7 + 0.009471)/1000;
+            norm = 1.230;
+            expo = -0.0002754;
         }
-        else if( runYear == "2018post" ) 
+        else if( runYear == "2018post" )
         {
-            norm = 0.01952*7 + 1.0160;
-            expo = (-0.01392*7 - 0.1343)/1000;
+            norm = 1.300;
+            expo = -0.0003486;
         }
-        return norm*exp( expo*HT ); 
+        return norm*exp( expo*HT );
     }
 
     const double htScaleFactorMG(const int nJets, const double HT, const std::string& runYear) const
@@ -180,6 +150,33 @@ private:
             expo = 0.0;
         }
         else if( runYear == "2018post" ) 
+        {
+            norm = 1.0;
+            expo = 0.0;
+        }
+        return norm*exp( expo*HT );
+    }
+
+    const double htScaleFactorNJet8MG(const double HT, const std::string& runYear) const
+    {
+        double norm = 1.0;
+        double expo = 0.0;
+        if( runYear == "2016" ) 
+        {
+            norm = 1.151;
+            expo = -0.0001730;
+        }
+        else if( runYear == "2017" )
+        {
+            norm = 1.192;
+            expo = -0.0002465;
+        }
+        else if( runYear == "2018pre" )
+        {
+            norm = 1.0;
+            expo = 0.0;
+        }
+        else if( runYear == "2018post" )
         {
             norm = 1.0;
             expo = 0.0;
@@ -508,107 +505,50 @@ private:
         // --------------------------------------------------------------------------------------
         const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         const auto& HT_trigger_pt30 = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
-        const auto& isSignal = tr.getVar<bool>("isSignal");
+        const auto& isSignal        = tr.getVar<bool>("isSignal");
 
-        double htDerivedweightUncor = htScaleFactor(NGoodJets_pt30, HT_trigger_pt30, runYear);
-        double htDerivedweightFlat2000Uncor = htScaleFactorFlat2000(NGoodJets_pt30, HT_trigger_pt30, runYear);
-        double htDerivedweightNJet7Uncor = htScaleFactorNJet7(HT_trigger_pt30, runYear);
-        double htDerivedweightMGUncor = htScaleFactorMG(NGoodJets_pt30, HT_trigger_pt30, runYear);
-
+        // Get the uncorrected ht scale factors
+        const double htDerivedweightUncor         = htScaleFactor(NGoodJets_pt30, HT_trigger_pt30, runYear);
+        const double htDerivedweightFlat2000Uncor = htScaleFactorFlat2000(NGoodJets_pt30, HT_trigger_pt30, runYear);
+        const double htDerivedweightNJet7Uncor    = htScaleFactor(7, HT_trigger_pt30, runYear);
+        const double htDerivedweightMGUncor       = htScaleFactorMG(NGoodJets_pt30, HT_trigger_pt30, runYear);
+        const double fit2NJetBin8                 = htScaleFactorNJet8(HT_trigger_pt30, runYear);
+        const double fit2NJetBin567               = htScaleFactor(8, HT_trigger_pt30, runYear);
+        const double fit2NJetBin8MG               = htScaleFactorNJet8MG(HT_trigger_pt30, runYear);
+        const double fit2NJetBin567MG             = htScaleFactor(8, HT_trigger_pt30, runYear);
+                
         double htDerivedweight = 1.0, htDerivedweightFlat2000 = 1.0, htDerivedweightNJet7 = 1.0, htDerivedweightMG = 1.0;
+        double htScaleUpUncor = 1.0, htScaleDownUncor = 1.0, htScaleUpMGUncor = 1.0, htScaleDownMGUncor = 1.0;
         double htScaleUp = 1.0, htScaleDown = 1.0, htScaleUpMG = 1.0, htScaleDownMG = 1.0;
         if( sfMeanMap_.find(filetag+"_ht") != sfMeanMap_.end() && !isSignal ) 
         {
-            // Derive ht SF
-            const double mean_ht = getMean(filetag+"_ht");
-            htDerivedweight = (1/mean_ht)*htDerivedweightUncor;
-            const double mean_ht_flat2000 = getMean(filetag+"_ht_flat2000");
-            htDerivedweightFlat2000 = (1/mean_ht_flat2000)*htDerivedweightFlat2000Uncor;
-            const double mean_ht_njet7 = getMean(filetag+"_ht_njet7");
-            htDerivedweightNJet7 = (1/mean_ht_njet7)*htDerivedweightNJet7Uncor;
-            const double mean_ht_MG = getMean(filetag+"_ht_MG");
-            htDerivedweightMG = (1/mean_ht_MG)*htDerivedweightMGUncor;
+            htDerivedweight         = (1.0/getMean(filetag+"_ht"         ))*htDerivedweightUncor;
+            htDerivedweightFlat2000 = (1.0/getMean(filetag+"_ht_flat2000"))*htDerivedweightFlat2000Uncor;
+            htDerivedweightNJet7    = (1.0/getMean(filetag+"_ht_njet7"   ))*htDerivedweightNJet7Uncor;
+            htDerivedweightMG       = (1.0/getMean(filetag+"_ht_MG"      ))*htDerivedweightMGUncor;
 
-            // Derive ht up and down variation on SF
-            if( runYear == "2016" ) 
-            {
-                const double fit2NJetBin8 = 1.317*exp(-0.0003481*HT_trigger_pt30);
-                //const double fit2NJetBin8 = 1.307*exp(-0.0003416*HT_trigger_pt30);
-                const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, runYear);
-                const double ratioUp = fit2NJetBin8/fit2NJetBin567;
-                const double ratioDown = fit2NJetBin567/fit2NJetBin8;
-                
-                const double fit2NJetBin8MG = 1.151*exp(-0.0001730*HT_trigger_pt30);
-                const double fit2NJetBin567MG = htScaleFactor(8, HT_trigger_pt30, filetag);
-                const double ratioUpMG = fit2NJetBin8/fit2NJetBin567;
-                const double ratioDownMG = fit2NJetBin567/fit2NJetBin8;
-
-                htScaleUp = htDerivedweight*ratioUp;
-                htScaleDown = htDerivedweight*ratioDown;
-
-                htScaleUpMG = htDerivedweightMG*ratioUpMG;
-                htScaleDownMG = htDerivedweightMG*ratioDownMG;
-            }
-            else if( runYear == "2017" )
-            {
-                const double fit2NJetBin8 = 1.210*exp(-0.0002564*HT_trigger_pt30);
-                //const double fit2NJetBin8 = 1.215*exp(-0.0002613*HT_trigger_pt30);
-                const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, runYear);
-                const double ratioUp = fit2NJetBin8/fit2NJetBin567;
-                const double ratioDown = fit2NJetBin567/fit2NJetBin8;
-                
-                const double fit2NJetBin8MG = 1.192*exp(-0.0002465*HT_trigger_pt30);
-                const double fit2NJetBin567MG = htScaleFactor(8, HT_trigger_pt30, filetag);
-                const double ratioUpMG = fit2NJetBin8/fit2NJetBin567;
-                const double ratioDownMG = fit2NJetBin567/fit2NJetBin8;
-                
-                htScaleUp = htDerivedweight*ratioUp; 
-                htScaleDown = htDerivedweight*ratioDown;            
-                
-                htScaleUpMG = htDerivedweightMG*ratioUpMG;
-                htScaleDownMG = htDerivedweightMG*ratioDownMG;
-            }
-
-            else if( runYear == "2018pre" )
-            {
-                const double fit2NJetBin8 = 1.230*exp(-0.0002754*HT_trigger_pt30);
-                const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, runYear);
-                const double ratioUp = fit2NJetBin8/fit2NJetBin567;
-                const double ratioDown = fit2NJetBin567/fit2NJetBin8;
-                
-                htScaleUp = htDerivedweight*ratioUp;
-                htScaleDown = htDerivedweight*ratioDown;
-                
-                htScaleUpMG = 1.0;
-                htScaleDownMG = 1.0;
-            }
-            
-            else if( runYear == "2018post" )
-            {
-                const double fit2NJetBin8 = 1.300*exp(-0.0003486*HT_trigger_pt30);
-                const double fit2NJetBin567 = htScaleFactor(8, HT_trigger_pt30, runYear);
-                const double ratioUp = fit2NJetBin8/fit2NJetBin567;
-                const double ratioDown = fit2NJetBin567/fit2NJetBin8;
-                
-                htScaleUp = htDerivedweight*ratioUp;
-                htScaleDown = htDerivedweight*ratioDown;
-
-                htScaleUpMG = 1.0;
-                htScaleDownMG = 1.0;
-            }
-
+            htScaleUpUncor          = htDerivedweight*(fit2NJetBin8/fit2NJetBin567);
+            htScaleDownUncor        = htDerivedweight*(fit2NJetBin567/fit2NJetBin8);
+            htScaleUpMGUncor        = htDerivedweightMG*(fit2NJetBin8MG/fit2NJetBin567MG);
+            htScaleDownMGUncor      = htDerivedweightMG*(fit2NJetBin567MG/fit2NJetBin8MG);
+            htScaleUp               = (1.0/getMean(filetag+"_htUp"     ))*htScaleUpUncor;
+            htScaleDown             = (1.0/getMean(filetag+"_htDown"   ))*htScaleDownUncor;
+            htScaleUpMG             = (1.0/getMean(filetag+"_ht_MGUp"  ))*htScaleUpMGUncor;
+            htScaleDownMG           = (1.0/getMean(filetag+"_ht_MGDown"))*htScaleDownMGUncor;
         }
 
         tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
         tr.registerDerivedVar( "htDerivedweightFlat2000"+myVarSuffix_, htDerivedweightFlat2000 );
         tr.registerDerivedVar( "htDerivedweightNJet7"+myVarSuffix_, htDerivedweightNJet7 );
         tr.registerDerivedVar( "htDerivedweightMG"+myVarSuffix_, htDerivedweightMG);
-
         tr.registerDerivedVar( "htDerivedweightUncor"+myVarSuffix_, htDerivedweightUncor);
         tr.registerDerivedVar( "htDerivedweightFlat2000Uncor"+myVarSuffix_, htDerivedweightFlat2000Uncor);
         tr.registerDerivedVar( "htDerivedweightNJet7Uncor"+myVarSuffix_, htDerivedweightNJet7Uncor );
         tr.registerDerivedVar( "htDerivedweightMGUncor"+myVarSuffix_, htDerivedweightMGUncor);
-
+        tr.registerDerivedVar( "htScaleUpUncor"+myVarSuffix_, htScaleUpUncor);
+        tr.registerDerivedVar( "htScaleDownUncor"+myVarSuffix_, htScaleDownUncor);
+        tr.registerDerivedVar( "htScaleUpMGUncor"+myVarSuffix_, htScaleUpMGUncor);
+        tr.registerDerivedVar( "htScaleDownMGUncor"+myVarSuffix_, htScaleDownMGUncor);
         tr.registerDerivedVar( "htScaleUp"+myVarSuffix_, htScaleUp);
         tr.registerDerivedVar( "htScaleDown"+myVarSuffix_, htScaleDown);
         tr.registerDerivedVar( "htScaleUpMG"+myVarSuffix_, htScaleUpMG);
