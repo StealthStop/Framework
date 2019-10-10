@@ -2,8 +2,7 @@
 #define MakeMT2Hemispheres_h
 
 #include "Framework/Framework/include/MT2Hemispheres.h"
-#include "Framework/Framework/include/Davismt2.h"
-
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h" 
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -13,50 +12,29 @@ class MakeMT2Hemispheres
 private:
     std::string jetMaskName_, nJetName_, myVarSuffix_;
 
-    const double CalcMT2(const double testmass, const bool massive, const TLorentzVector& visible1, const TLorentzVector& visible2, const TLorentzVector& MET) const
-    {
-        double pa[3];
-        double pb[3];
-        double pmiss[3];
-
-        pmiss[0] = 0;
-        pmiss[1] = MET.Px();
-        pmiss[2] = MET.Py();
-
-        pa[0] = massive ? visible1.M() : 0;
-        pa[1] = visible1.Px();
-        pa[2] = visible1.Py();
-
-        pb[0] = massive ? visible2.M() : 0;
-        pb[1] = visible2.Px();
-        pb[2] = visible2.Py();
-
-        Davismt2 mt2;
-        mt2.set_momenta(pa, pb, pmiss);
-        mt2.set_mn(testmass);
-        return mt2.get_mt2();
-    }
-
     void getHemispheres(NTupleReader& tr) const
     {
         // these variables values the same as  MT2
-        const double testmass      = 0.0;
-        const bool massive         = false; 
         const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
 
-        const auto& met            = tr.getVar<double>("MET");
-        const auto& metPhi         = tr.getVar<double>("METPhi");
-        const auto& Jets           = tr.getVec<TLorentzVector>("Jets");
-        const auto& GoodJets       = tr.getVec<bool>(jetMaskName_);
-        const auto& NGoodJets      = tr.getVar<int>(nJetName_);
-        const auto& GoodLeptons    = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
+        const auto& met                = tr.getVar<double>("MET");
+        const auto& metPhi             = tr.getVar<double>("METPhi");
+        const auto& Jets               = tr.getVec<TLorentzVector>("Jets");
+        const auto& GoodJets           = tr.getVec<bool>(jetMaskName_);
+        const auto& NGoodJets          = tr.getVar<int>(nJetName_);
+        const auto& GoodLeptons        = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
 
-        double stopMass            = 0.0;
-        double hemi1Mass           = -9999.9, hemi1Eta = -9999.9, hemi1Phi = -9999.9, hemi1Pt = -9999.9;
-        double hemi2Mass           = -9999.9, hemi2Eta = -9999.9, hemi2Phi = -9999.9, hemi2Pt = -9999.9;
-        double dR_hemi1hemi2       = -1;
-        double dPhi_hemi1hemi2     = -1;
-
+        double MT2                     = 0.0;
+        double stop1Mass               = -9999.9, stop1Eta = -9999.9, stop1Phi = -9999.9, stop1Pt = -9999.9;
+        double stop2Mass               = -9999.9, stop2Eta = -9999.9, stop2Phi = -9999.9, stop2Pt = -9999.9;
+        double dR_stop1stop2           = -1;
+        double dPhi_stop1stop2         = -1;
+        double stop1Mass_PtRank        = -9999.9, stop2Mass_PtRank   = -9999.9; 
+        double stop1Mass_MassRank      = -9999.9, stop2Mass_MassRank = -9999.9;
+        double difference_stopMasses   = -9999.9;
+        double average_stopMasses      = -9999.9;
+        double relativeDiff_stopMasses = -9999.9;
+        
         if(NGoodJets >= 2)
         {
             TLorentzVector MET;
@@ -93,8 +71,7 @@ private:
                     pseudojet1.SetPy(pseudojet1.Py() + py[i]);
                     pseudojet1.SetPz(pseudojet1.Pz() + pz[i]);
                     pseudojet1.SetE( pseudojet1.E()  + E[i]);
-                }
-            
+                }            
                 else if(grouping[i] == 2)
                 {
                     pseudojet2.SetPx(pseudojet2.Px() + px[i]);
@@ -103,35 +80,70 @@ private:
                     pseudojet2.SetE( pseudojet2.E()  + E[i]);
                 }
             }
-        
-            stopMass = CalcMT2(testmass, massive, pseudojet1, pseudojet2, MET);
-        
+                
             // --------------------------
-            // -- stop MT2 hemispheres 
+            // -- stop MT2 stopspheres 
             // --------------------------
-            hemi1Mass       = pseudojet1.M();
-            hemi1Eta        = pseudojet1.Eta();
-            hemi1Phi        = pseudojet1.Phi();
-            hemi1Pt         = pseudojet1.Pt();
-            hemi2Mass       = pseudojet2.M();
-            hemi2Eta        = pseudojet2.Eta();
-            hemi2Phi        = pseudojet2.Phi();
-            hemi2Pt         = pseudojet2.Pt(); 
-            dR_hemi1hemi2   = pseudojet1.DeltaR(pseudojet2);    
-            dPhi_hemi1hemi2 = pseudojet1.DeltaPhi(pseudojet2);
+            MT2             = ttUtility::coreMT2calc(pseudojet1, pseudojet2, MET);
+            stop1Mass       = pseudojet1.M();
+            stop1Eta        = pseudojet1.Eta();
+            stop1Phi        = pseudojet1.Phi();
+            stop1Pt         = pseudojet1.Pt();
+            stop2Mass       = pseudojet2.M();
+            stop2Eta        = pseudojet2.Eta();
+            stop2Phi        = pseudojet2.Phi();
+            stop2Pt         = pseudojet2.Pt(); 
+            dR_stop1stop2   = pseudojet1.DeltaR(pseudojet2);    
+            dPhi_stop1stop2 = pseudojet1.DeltaPhi(pseudojet2);
+            
+            // stopMass Pt rank
+            if (pseudojet1.Pt() > pseudojet2.Pt()) 
+            {
+                stop1Mass_PtRank = pseudojet1.M();
+                stop2Mass_PtRank = pseudojet2.M();           
+            } 
+            else
+            {
+                stop1Mass_PtRank = pseudojet2.M();
+                stop2Mass_PtRank = pseudojet1.M();
+            }
+    
+            // stopMass Mass rank
+            if (pseudojet1.M() > pseudojet2.M())
+            {
+                stop1Mass_MassRank = pseudojet1.M();
+                stop2Mass_MassRank = pseudojet2.M();
+            } 
+            else
+            {
+                stop1Mass_MassRank = pseudojet2.M();
+                stop2Mass_MassRank = pseudojet1.M();
+            }
+        
+            // stop Masses difference & average & relative difference
+            difference_stopMasses   = ( pseudojet1.M() - pseudojet2.M() );
+            average_stopMasses      = ( 0.5 * ( pseudojet1.M() + pseudojet2.M() ) );
+            relativeDiff_stopMasses = ( pseudojet1.M() - pseudojet2.M() ) / ( 0.5 * ( pseudojet1.M() + pseudojet2.M() ) );
 
         }
-        tr.registerDerivedVar("stopMass"+myVarSuffix_,stopMass);
-        tr.registerDerivedVar("hemi1Mass"+myVarSuffix_,hemi1Mass);
-        tr.registerDerivedVar("hemi1Eta"+myVarSuffix_,hemi1Eta);
-        tr.registerDerivedVar("hemi1Phi"+myVarSuffix_,hemi1Phi);
-        tr.registerDerivedVar("hemi1Pt"+myVarSuffix_,hemi1Pt);
-        tr.registerDerivedVar("hemi2Mass"+myVarSuffix_,hemi2Mass);
-        tr.registerDerivedVar("hemi2Eta"+myVarSuffix_,hemi2Eta);
-        tr.registerDerivedVar("hemi2Phi"+myVarSuffix_,hemi2Phi);
-        tr.registerDerivedVar("hemi2Pt"+myVarSuffix_,hemi2Pt);
-        tr.registerDerivedVar("dR_hemi1hemi2"+myVarSuffix_,dR_hemi1hemi2);
-        tr.registerDerivedVar("dPhi_hemi1hemi2"+myVarSuffix_,dPhi_hemi1hemi2);
+        tr.registerDerivedVar("MT2"+myVarSuffix_,MT2);
+        tr.registerDerivedVar("stop1Mass"+myVarSuffix_,stop1Mass);
+        tr.registerDerivedVar("stop1Eta"+myVarSuffix_,stop1Eta);
+        tr.registerDerivedVar("stop1Phi"+myVarSuffix_,stop1Phi);
+        tr.registerDerivedVar("stop1Pt"+myVarSuffix_,stop1Pt);
+        tr.registerDerivedVar("stop2Mass"+myVarSuffix_,stop2Mass);
+        tr.registerDerivedVar("stop2Eta"+myVarSuffix_,stop2Eta);
+        tr.registerDerivedVar("stop2Phi"+myVarSuffix_,stop2Phi);
+        tr.registerDerivedVar("stop2Pt"+myVarSuffix_,stop2Pt);
+        tr.registerDerivedVar("dR_stop1stop2"+myVarSuffix_,dR_stop1stop2);
+        tr.registerDerivedVar("dPhi_stop1stop2"+myVarSuffix_,dPhi_stop1stop2);
+        tr.registerDerivedVar("stop1Mass_PtRank"+myVarSuffix_,stop1Mass_PtRank);
+        tr.registerDerivedVar("stop2Mass_PtRank"+myVarSuffix_,stop2Mass_PtRank);
+        tr.registerDerivedVar("stop1Mass_MassRank"+myVarSuffix_,stop1Mass_MassRank);
+        tr.registerDerivedVar("stop2Mass_MassRank"+myVarSuffix_,stop2Mass_MassRank);
+        tr.registerDerivedVar("difference_stopMasses"+myVarSuffix_,difference_stopMasses);
+        tr.registerDerivedVar("average_stopMasses"+myVarSuffix_,average_stopMasses);
+        tr.registerDerivedVar("relativeDiff_stopMasses"+myVarSuffix_,relativeDiff_stopMasses);
     }
 
 public:    
