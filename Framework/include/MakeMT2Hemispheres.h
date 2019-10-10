@@ -17,20 +17,24 @@ private:
         // these variables values the same as  MT2
         const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
 
-        const auto& met            = tr.getVar<double>("MET");
-        const auto& metPhi         = tr.getVar<double>("METPhi");
-        const auto& Jets           = tr.getVec<TLorentzVector>("Jets");
-        const auto& GoodJets       = tr.getVec<bool>(jetMaskName_);
-        const auto& NGoodJets      = tr.getVar<int>(nJetName_);
-        const auto& GoodLeptons    = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
+        const auto& met                = tr.getVar<double>("MET");
+        const auto& metPhi             = tr.getVar<double>("METPhi");
+        const auto& Jets               = tr.getVec<TLorentzVector>("Jets");
+        const auto& GoodJets           = tr.getVec<bool>(jetMaskName_);
+        const auto& NGoodJets          = tr.getVar<int>(nJetName_);
+        const auto& GoodLeptons        = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
 
-        double MT2                 = 0.0;
-        double stop1Mass           = -9999.9, stop1Eta = -9999.9, stop1Phi = -9999.9, stop1Pt = -9999.9;
-        double stop2Mass           = -9999.9, stop2Eta = -9999.9, stop2Phi = -9999.9, stop2Pt = -9999.9;
-        double stop1Mass_PtRank    = -9999.9, stop2Mass_PtRank   = -9999.9; 
-        double stop1Mass_MassRank  = -9999.9, stop2Mass_MassRank = -9999.9;
-        double dR_stop1stop2       = -1;
-        double dPhi_stop1stop2     = -1;
+        double MT2                     = 0.0;
+        double stop1Mass               = -9999.9, stop1Eta = -9999.9, stop1Phi = -9999.9, stop1Pt = -9999.9;
+        double stop2Mass               = -9999.9, stop2Eta = -9999.9, stop2Phi = -9999.9, stop2Pt = -9999.9;
+        double dR_stop1stop2           = -1;
+        double dPhi_stop1stop2         = -1;
+        double stop1Mass_PtRank        = -9999.9, stop2Mass_PtRank   = -9999.9; 
+        double stop1Mass_MassRank      = -9999.9, stop2Mass_MassRank = -9999.9;
+        double difference_stopMasses   = -9999.9;
+        double average_stopMasses      = -9999.9;
+        double relativeDiff_stopMasses = -9999.9;
+        
         if(NGoodJets >= 2)
         {
             TLorentzVector MET;
@@ -93,7 +97,6 @@ private:
             dPhi_stop1stop2 = pseudojet1.DeltaPhi(pseudojet2);
             
             // stopMass Pt rank
-            std::cout << "Pt1 : " << pseudojet1.Pt() << ", " << "Pt2 : " << pseudojet2.Pt() << std::endl;
             if (pseudojet1.Pt() > pseudojet2.Pt()) 
             {
                 stop1Mass_PtRank = pseudojet1.M();
@@ -106,7 +109,6 @@ private:
             }
     
             // stopMass Mass rank
-            std::cout << "Mass1 : " << pseudojet1.M() << ", " << "Mass2 : " << pseudojet2.M() << std::endl;
             if (pseudojet1.M() > pseudojet2.M())
             {
                 stop1Mass_MassRank = pseudojet1.M();
@@ -117,9 +119,13 @@ private:
                 stop1Mass_MassRank = pseudojet2.M();
                 stop2Mass_MassRank = pseudojet1.M();
             }
+        
+            // stop Masses difference & average & relative difference
+            difference_stopMasses   = ( pseudojet1.M() - pseudojet2.M() );
+            average_stopMasses      = ( 0.5 * ( pseudojet1.M() + pseudojet2.M() ) );
+            relativeDiff_stopMasses = ( pseudojet1.M() - pseudojet2.M() ) / ( 0.5 * ( pseudojet1.M() + pseudojet2.M() ) );
 
         }
-
         tr.registerDerivedVar("MT2"+myVarSuffix_,MT2);
         tr.registerDerivedVar("stop1Mass"+myVarSuffix_,stop1Mass);
         tr.registerDerivedVar("stop1Eta"+myVarSuffix_,stop1Eta);
@@ -135,7 +141,9 @@ private:
         tr.registerDerivedVar("stop2Mass_PtRank"+myVarSuffix_,stop2Mass_PtRank);
         tr.registerDerivedVar("stop1Mass_MassRank"+myVarSuffix_,stop1Mass_MassRank);
         tr.registerDerivedVar("stop2Mass_MassRank"+myVarSuffix_,stop2Mass_MassRank);
-
+        tr.registerDerivedVar("difference_stopMasses"+myVarSuffix_,difference_stopMasses);
+        tr.registerDerivedVar("average_stopMasses"+myVarSuffix_,average_stopMasses);
+        tr.registerDerivedVar("relativeDiff_stopMasses"+myVarSuffix_,relativeDiff_stopMasses);
     }
 
 public:    
