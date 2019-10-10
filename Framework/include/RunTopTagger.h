@@ -242,18 +242,18 @@ private:
         bool bestTopMassGenMatchCand       = false;
         bool bestTopMassTopTagCand         = false;
         for(int iTop = 0; iTop < candidateTops.size(); ++iTop)
+        {
+            auto& top = candidateTops[iTop];
+
+            highestDisc = (top.getDiscriminator() > highestDisc ? top.getDiscriminator() : highestDisc);
+
+            if(fabs(top.p().M() - 173.5) < fabs(bestTopMassCand - 173.5) && top.getNConstituents() == 3)
             {
-                auto& top = candidateTops[iTop];
-
-                highestDisc = (top.getDiscriminator() > highestDisc ? top.getDiscriminator() : highestDisc);
-
-                if(fabs(top.p().M() - 173.5) < fabs(bestTopMassCand - 173.5) && top.getNConstituents() == 3)
-                {
-                    bestTopMassCand = top.p().M();
-                    bestTopEtaCand = top.p().Eta();
-                    bestTopMassLVCand = &top;
-                    bestTopMassTopTagDisc = top.getDiscriminator();
-                }
+                bestTopMassCand   = top.p().M();
+                bestTopEtaCand    = top.p().Eta();
+                bestTopMassLVCand = &top;
+                bestTopMassTopTagDisc = top.getDiscriminator();
+            }
         }
         bestTopMassGenMatchCand = (bestTopMassLVCand)?(bestTopMassLVCand->getBestGenTopMatch(0.6) != nullptr):(false);
 
