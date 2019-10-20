@@ -189,6 +189,7 @@ private:
                                          passMadHT                &&
                                          passNonIsoTrigger        &&
                                          passNonIsoTriggerMC      &&
+                                         (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
                                          NNonIsoMuons == 1        &&
                                          NGoodMuons == 0          &&
                                          NGoodElectrons == 0      &&
