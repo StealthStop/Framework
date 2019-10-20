@@ -109,8 +109,8 @@ private:
             } 
             else
             {
-                stop1Mass_PtRank = pseudojet2.M();
-                stop2Mass_PtRank = pseudojet1.M();
+                stop1Mass_PtRank               = pseudojet2.M();
+                stop2Mass_PtRank               = pseudojet1.M();
                 difference_stopMasses_PtRank   = ( pseudojet2.M() - pseudojet1.M() );
                 relativeDiff_stopMasses_PtRank = ( pseudojet2.M() - pseudojet1.M() ) / ( 0.5 * ( pseudojet1.M() + pseudojet2.M() ) );
 

@@ -10,9 +10,9 @@ using std::endl;
 // constructor specifying the seed and association methods
 Hemisphere::Hemisphere(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector,
                        vector<float> E_vector, int seed_method, int hemisphere_association_method) : 
-                      Object_Px(Px_vector), Object_Py(Py_vector), Object_Pz(Pz_vector), Object_E(E_vector), seed_meth(seed_method),
-                      hemi_meth(hemisphere_association_method), status(0), dRminSeed1(0.5), nItermax(100),
-                      rejectISR(0), rejectISRPt(0), rejectISRPtmax(10000.), rejectISRDR(0), rejectISRDRmax(100.), dbg(0)  
+                       Object_Px(Px_vector), Object_Py(Py_vector), Object_Pz(Pz_vector), Object_E(E_vector), seed_meth(seed_method),
+                       hemi_meth(hemisphere_association_method), status(0), dRminSeed1(0.5), nItermax(100),
+                       rejectISR(0), rejectISRPt(0), rejectISRPtmax(10000.), rejectISRDR(0), rejectISRDRmax(100.), dbg(0)  
 {	
     for(int i = 0; i < (int) Object_Px.size(); i++)
     {
@@ -25,9 +25,9 @@ Hemisphere::Hemisphere(vector<float> Px_vector, vector<float> Py_vector, vector<
 // constructor without specification of the seed and association methods
 // in this case, the latter must be given by calling SetMethod before invoking reconstruct()
 Hemisphere::Hemisphere(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector, vector<float> E_vector) : 
-                      Object_Px(Px_vector), Object_Py(Py_vector), Object_Pz(Pz_vector), Object_E(E_vector), 
-                      seed_meth(0), hemi_meth(0), status(0), dRminSeed1(0.5), nItermax(100), 
-                      rejectISR(0), rejectISRPt(0), rejectISRPtmax(10000.), rejectISRDR(0), rejectISRDRmax(100.), dbg(0)  
+                       Object_Px(Px_vector), Object_Py(Py_vector), Object_Pz(Pz_vector), Object_E(E_vector), 
+                       seed_meth(0), hemi_meth(0), status(0), dRminSeed1(0.5), nItermax(100), 
+                       rejectISR(0), rejectISRPt(0), rejectISRPtmax(10000.), rejectISRDR(0), rejectISRDRmax(100.), dbg(0)  
 {	
     for(int i = 0; i < (int) Object_Px.size(); i++)
     {
@@ -261,7 +261,7 @@ int Hemisphere::Reconstruct()
             cout << " Axis 2 is Object = " << J_Max << endl;
         }
 
-        // -------------------------------------------------- 
+    // -------------------------------------------------- 
 	// -- determine the seeds for seed methods 2 and 3
 	// -------------------------------------------------- 
     } 
@@ -469,7 +469,7 @@ int Hemisphere::Reconstruct()
                 }
             }
 
-            // -----------------------------------------------
+        // -----------------------------------------------
 	    // -- associate the objects for methods 2 and 3
 	    // -----------------------------------------------
         } 
@@ -743,11 +743,11 @@ int Hemisphere::RejectISR()
         float newAxis1_Px = Axis1[0] * Axis1[3];
         float newAxis1_Py = Axis1[1] * Axis1[3];
         float newAxis1_Pz = Axis1[2] * Axis1[3];
-        float newAxis1_E = Axis1[4];
+        float newAxis1_E  = Axis1[4];
         float newAxis2_Px = Axis2[0] * Axis2[3];
         float newAxis2_Py = Axis2[1] * Axis2[3];
         float newAxis2_Pz = Axis2[2] * Axis2[3];
-        float newAxis2_E = Axis2[4];
+        float newAxis2_E  = Axis2[4];
 
         // loop over all objects associated to a hemisphere
         int vsize = (int) Object_Px.size();
