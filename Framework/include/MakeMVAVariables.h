@@ -111,7 +111,12 @@ private:
 
         //--- Sum all jets
         TLorentzVector rlv_all;
-        for(auto jlv : Jets) rlv_all += jlv;
+        TLorentzVector rlv_pt20;
+        for(auto jlv : Jets)
+        {
+            rlv_all += jlv;
+            if (jlv.Pt() > 20.) rlv_pt20 += jlv;
+        }
 
         //--- Fill vector of jet momenta in CM frame.
         //    Boost to the CM frame
@@ -120,8 +125,10 @@ private:
 
         //    Boost to the CM frame (only in z)
         double event_beta_z = -9.0;
+        double event_beta_z_pt20 = -9.0;
         double reco_jets_beta = rlv_all.Pz() / rlv_all.E();
         event_beta_z = reco_jets_beta;
+        event_beta_z_pt20 = rlv_pt20.Pz() / rlv_pt20.E();
         TVector3 rec_boost_beta_vec( 0.0, 0.0, -reco_jets_beta );
         auto& cm_jets = tr.createDerivedVec<math::RThetaPhiVector>(ESVarName_+"cm_jets"+myVarSuffix_);
         auto& Jets_cm = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_cm"+myVarSuffix_);
@@ -239,6 +246,7 @@ private:
         tr.registerDerivedVar(ESVarName_+"jmt_ev1_top6"+myVarSuffix_, jmt_ev1_top6);
         tr.registerDerivedVar(ESVarName_+"jmt_ev2_top6"+myVarSuffix_, jmt_ev2_top6);
         tr.registerDerivedVar(ESVarName_+"event_beta_z"+myVarSuffix_, event_beta_z);
+        tr.registerDerivedVar(ESVarName_+"event_beta_z_pt20"+myVarSuffix_, event_beta_z_pt20);
 
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
         std::pair<TLorentzVector, TLorentzVector> BestCombo, genBestCombo;
