@@ -121,8 +121,8 @@ private:
         tr.registerDerivedVar("stop2_MassRank"+myVarSuffix_,stop2_MassRank);
         tr.registerDerivedVar("stop1_ScalarPtRank"+myVarSuffix_,stop1_ScalarPtRank);
         tr.registerDerivedVar("stop2_ScalarPtRank"+myVarSuffix_,stop2_ScalarPtRank);
-        tr.registerDerivedVar("stop1ScalarPt_ScalarPtRank"+myVarSuffix_,stop1_ScalarPtRank);
-        tr.registerDerivedVar("stop2ScalarPt_ScalarPtRank"+myVarSuffix_,stop2_ScalarPtRank);        
+        tr.registerDerivedVar("stop1ScalarPt_ScalarPtRank"+myVarSuffix_,stop1ScalarPt_ScalarPtRank);
+        tr.registerDerivedVar("stop2ScalarPt_ScalarPtRank"+myVarSuffix_,stop1ScalarPt_ScalarPtRank);        
         tr.registerDerivedVar("MT2"+myVarSuffix_,MT2);
         tr.registerDerivedVar("dR_stop1stop2"+myVarSuffix_,dR_stop1stop2);
         tr.registerDerivedVar("dPhi_stop1stop2"+myVarSuffix_,dPhi_stop1stop2);
