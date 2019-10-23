@@ -36,6 +36,7 @@ echo "============================"
 cd ${CMSSW_BASE}/src/Analyzer/Analyzer/test
 source ${CMSSW_BASE}/src/TopTagger/TopTagger/test/taggerSetup.sh
 export PATH=$PATH:${CMSSW_BASE}/src/Framework/Framework/scripts
+./configure
 make -j4
 echo "============================"
 echo "Testing BackgroundMVA"
