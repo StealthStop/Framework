@@ -2,7 +2,7 @@
 #define MAKEMVAVARIABLES_H 
 
 #include "Framework/Framework/include/EventShapeVariables.h"
-#include "Framework/Framework/src/get_cmframe_jets.c"
+#include "Framework/Framework/include/Utility.h"
 
 class MakeMVAVariables
 {
@@ -158,7 +158,7 @@ private:
         //--- Try using only the 7 highest-P jets in the CM frame in the event shape vars.
         //    First, need to make a new input vector of jets containing only those jets.
         auto cm_jets_psort = cm_jets ;
-        std::sort( cm_jets_psort.begin(), cm_jets_psort.end(), compare_p ) ;
+        std::sort( cm_jets_psort.begin(), cm_jets_psort.end(), utility::compare_p ) ;
         std::vector<math::RThetaPhiVector> cm_jets_top6 ;
 
         auto Jets_cm_psort = Jets_cm;
