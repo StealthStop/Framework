@@ -14,7 +14,7 @@ private:
     std::string myVarSuffix_;
     std::map<int, const std::vector<pairListInt>> comboMap;
     
-    const std::vector<std::pair< std::vector<int>, std::vector<int>>> getCombineList(const int N = 3, const int MinNJetsTotal = 2, const int MinNJetsPerCombo = 1) //outputs possible combos of any number up to N jets into two megajets 
+    const std::vector<std::pair< std::vector<int>, std::vector<int>>> getCombineList(const int N = 3, const int MinNJetsTotal = 2, const unsigned int MinNJetsPerCombo = 1) //outputs possible combos of any number up to N jets into two megajets 
     {
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -32,23 +32,23 @@ private:
                 {
                     std::vector<int> firstOfPair, secOfPair;
                     // std::cout << "{ {"; //these comments out std::cout options will print out the combinations in a more readable way
-                    bool  sepHere = false;
+                    //bool  sepHere = false;
                     for (int d = 0; d < len; d++)
                     {
                         if ( (k&(1<<d)) ) 
                         { 
-                            sepHere = true;
+                            //sepHere = true;
                             firstOfPair.emplace_back(pairedCombo[d]);
                             // std::cout << pairedCombo[d] << " ";
                         }
                     }
                     // std::cout << ",";
-                    sepHere = false;
+                    //sepHere = false;
                     for (int d = 0; d< len; d++)
                     {  
                         if ( (k&(1<<d)) == 0)
                         {
-                            sepHere = true;
+                            //sepHere = true;
                             secOfPair.emplace_back(pairedCombo[d]);
                             // std::cout << pairedCombo[d] <<" ";
                         }                
@@ -71,17 +71,15 @@ private:
     
     void megaJetCombine(NTupleReader& tr) //Main function for using the list of combos to compute megajets
     {
-        const auto& NGoodJets_pt30       = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
+        //const auto& NGoodJets_pt30       = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         const auto& Jets                 = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
         const auto& GoodJets_pt30        = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
         const auto& GoodLeptons          = tr.getVec<std::pair<std::string,TLorentzVector>>("GoodLeptons"+myVarSuffix_);
         const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
-        const auto& GoodBJets_pt30       = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
-        const auto& NGoodBJets_pt30      = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
-        
-        const auto& TwoLep_Mbl1_Idx      = tr.getVar<std::pair<int,int>>("TwoLep_Mbl1_Idx"+myVarSuffix_);
-        const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<int,int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
-
+        //const auto& GoodBJets_pt30       = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
+        //const auto& NGoodBJets_pt30      = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
+        const auto& TwoLep_Mbl1_Idx      = tr.getVar<std::pair<unsigned int, unsigned int>>("TwoLep_Mbl1_Idx"+myVarSuffix_);
+        const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<unsigned int, unsigned int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
         const auto& MET                  = tr.getVar<double>("MET"+myVarSuffix_);
         const auto& METPhi               = tr.getVar<double>("METPhi"+myVarSuffix_);
 
@@ -104,34 +102,28 @@ private:
         {
             TLorentzVector BLVec_1 = Jets[TwoLep_Mbl1_Idx.first] + GoodLeptons[TwoLep_Mbl1_Idx.second].second;
             TLorentzVector BLVec_2 = Jets[TwoLep_Mbl2_Idx.first] + GoodLeptons[TwoLep_Mbl2_Idx.second].second;
-            double StopDiff = 9999;
+            //double StopDiff = 9999;
             
             std::vector<TLorentzVector> JetsToCombine;
             
-            for (int j =0; j < Jets.size(); j++)
+            for (unsigned int j =0; j < Jets.size(); j++)
             {
                 if (GoodJets_pt30[j] && j != TwoLep_Mbl1_Idx.first && j != TwoLep_Mbl2_Idx.first) JetsToCombine.emplace_back(Jets[j]);
             }
-            
-            
-            
+                                    
             if( comboMap.find(JetsToCombine.size()) == comboMap.end() ) //fills a map with the combo possibliites and checks to see if the combos corresponding to NJets already exist before computing
             {
                 comboMap.insert( std::move(std::pair<int, const std::vector<pairListInt>>( JetsToCombine.size(), std::move(getCombineList(JetsToCombine.size(), 4, 2)))) );
             }
-
-
-            
-            
-            
-            for (int c=0; c < comboMap[JetsToCombine.size()].size(); c++)
+                                   
+            for (unsigned int c=0; c < comboMap[JetsToCombine.size()].size(); c++)
             {
                 TLorentzVector FirstOfPairSum = BLVec_1, SecOfPairSum = BLVec_2;
-                for (int j=0; j < comboMap[JetsToCombine.size()][c].first.size(); j++)
+                for (unsigned int j=0; j < comboMap[JetsToCombine.size()][c].first.size(); j++)
                 {
                     FirstOfPairSum +=  JetsToCombine[comboMap[JetsToCombine.size()][c].first[j]];
                 }
-                for (int j=0; j < comboMap[JetsToCombine.size()][c].second.size(); j++)
+                for (unsigned int j=0; j < comboMap[JetsToCombine.size()][c].second.size(); j++)
                 {
                     SecOfPairSum += JetsToCombine[comboMap[JetsToCombine.size()][c].second[j]];
                 }
@@ -145,7 +137,7 @@ private:
 
             std::vector<double> TotalStopCandMassSums; //some extra variables are defined for neural network input
         
-           for (int p=0; p < RecoStopCands.first.size(); p++)
+           for (unsigned int p=0; p < RecoStopCands.first.size(); p++)
            {
                FirstStopMassSums.emplace_back(RecoStopCands.first[p].M());
                SecStopMassSums.emplace_back(RecoStopCands.second[p].M());
@@ -159,7 +151,7 @@ private:
                RecoStop2 = RecoStopCands.second[std::distance(TotalStopCandMassSums.begin(), Max_mass)];
            }
            
-           for (int s=0; s < FirstStopMassSums.size(); s++)
+           for (unsigned int s=0; s < FirstStopMassSums.size(); s++)
            {
                StopMassDiffs.emplace_back(abs(FirstStopMassSums[s] - SecStopMassSums[s]));
             

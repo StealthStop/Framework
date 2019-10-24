@@ -34,12 +34,13 @@ private:
         const std::vector<double>& Jets_jerFactorDown;
 
     public:
-        const double factor(const std::string& name, const int i, const int j) const
+        double factor(const std::string& name, const int i, const int j) const
         {            
             if     (name == "JECup")   return (1./Jets_jerFactor.at(i))*(1+Jets_jecUnc.at(i))*JetsJECup_jerFactor.at(j);
             else if(name == "JECdown") return (1./Jets_jerFactor.at(i))*(1-Jets_jecUnc.at(i))*JetsJECdown_jerFactor.at(j);
             else if(name == "JERup")   return (1./Jets_jerFactor.at(i))*Jets_jerFactorUp.at(i);
             else if(name == "JERdown") return (1./Jets_jerFactor.at(i))*Jets_jerFactorDown.at(i);                
+            else                       return -9999.9;
         }
         
         Factor(const NTupleReader& tr) 

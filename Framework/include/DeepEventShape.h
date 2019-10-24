@@ -447,7 +447,7 @@ private:
         }
     }
 
-    static void free_buffer(void* data, size_t length) 
+    static void free_buffer(void* data, size_t) 
     {
         free(data);
     }

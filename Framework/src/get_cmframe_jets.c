@@ -22,27 +22,16 @@ static void get_cmframe_jets(const std::vector<TLorentzVector>* lab_frame_jets,
       }
 
        //--- Find boost to CM frame.  Use all jets to get best estimate.
-
       TLorentzVector rlv_all_jets ;
-
       for ( unsigned int rji=0; rji < lab_frame_jets->size() ; rji++ ) {
-
          rlv_all_jets += lab_frame_jets->at(rji) ;
-
       } // rji
 
-
-
       double reco_jets_beta = rlv_all_jets.Pz() / rlv_all_jets.E() ;
-
       TVector3 rec_boost_beta_vec( 0., 0., -1.*reco_jets_beta ) ;
 
-
-
-     //--- Fill vector of jet momenta in CM frame.
-
+      //--- Fill vector of jet momenta in CM frame.
       std::vector<math::RThetaPhiVector> cm_jets ;
-
       for ( unsigned int rji=0; rji < lab_frame_jets->size() ; rji++ ) {
 
          TLorentzVector jlvcm( lab_frame_jets->at(rji) ) ;
@@ -50,7 +39,6 @@ static void get_cmframe_jets(const std::vector<TLorentzVector>* lab_frame_jets,
 
          math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() ) ;
          cm_jets.push_back( cmvec ) ;
-
       } // rji
 
       if ( max_number_of_jets < 0 ) {
@@ -58,10 +46,8 @@ static void get_cmframe_jets(const std::vector<TLorentzVector>* lab_frame_jets,
          return ;
       }
 
-
-     //--- If requesting only the top N jets, figure out which those are.
-     //--- This sorting is by the CM frame momentum (vector magnitude), not Pt.
-
+      //--- If requesting only the top N jets, figure out which those are.
+      //--- This sorting is by the CM frame momentum (vector magnitude), not Pt.
       std::vector<math::RThetaPhiVector> cm_jets_psort = cm_jets ;
       std::sort( cm_jets_psort.begin(), cm_jets_psort.end(), compare_p ) ;
       std::vector<math::RThetaPhiVector> cm_jets_topn ;
@@ -71,15 +57,7 @@ static void get_cmframe_jets(const std::vector<TLorentzVector>* lab_frame_jets,
             cm_jets_topn.push_back( cm_jets_psort.at(ji) ) ;
          }
       } // ji
-
       cm_frame_jets = cm_jets_topn ;
-
-
-
    } // get_cmframe_jets
 
-
-
 #endif
-
-

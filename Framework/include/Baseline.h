@@ -25,7 +25,6 @@ private:
         const auto& NGoodMinusElectrons  = tr.getVar<int>("NGoodMinusElectrons"+myVarSuffix_);
         const auto& HT_trigger           = tr.getVar<double>("HT_trigger"+myVarSuffix_);
         const auto& HT_trigger_pt30      = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
-        const auto& HT_trigger_pt45      = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
         const auto& HT_NonIsoMuon_pt30   = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);
         const auto& onZ                  = tr.getVar<bool>("onZ"+myVarSuffix_); 
         const auto& JetID                = tr.getVar<bool>("JetID"+myVarSuffix_); 
@@ -41,8 +40,8 @@ private:
         // ------------------------------
         // -- Data dependent stuff
         // ------------------------------
-        bool passTriggerPhoton   = PassTriggerPhoton(TriggerNames, TriggerPass);
-        bool passTriggerAllHad, passTriggerMuon, passTriggerElectron, passTriggerNonIsoMuon;
+        bool passTriggerPhoton = PassTriggerPhoton(TriggerNames, TriggerPass);
+        bool passTriggerAllHad = false, passTriggerMuon = false, passTriggerElectron = false, passTriggerNonIsoMuon = false;
         if (runYear == "2016")
         {
             passTriggerAllHad = PassTriggerAllHad2016(TriggerNames, TriggerPass);

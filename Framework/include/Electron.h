@@ -27,7 +27,7 @@ private:
         int NGoodElectrons = 0;
         int NGoodPlusElectrons = 0;
         int NGoodMinusElectrons = 0;
-        double ptCut;
+        double ptCut = 0.0;
         if      (runYear == "2016") ptCut = 30.0;
         else if (runYear == "2017") ptCut = 37.0; 
         else if (runYear == "2018pre" || runYear == "2018post") ptCut = 37.0; 

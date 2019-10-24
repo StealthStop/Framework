@@ -6,6 +6,7 @@
 class RunTopTagger
 {
 private:
+    std::string taggerCfg_;
     std::string myVarSuffix_;
 
     std::unique_ptr<TopTagger> tt_;
@@ -16,7 +17,6 @@ private:
     std::vector<TLorentzVector>* singlinos_;
     std::vector<TLorentzVector>* singlets_;
     std::vector<int>* hadtops_idx_;
-    std::string taggerCfg_;
     int ntops_;
     int ntops_3jet_;
     int ntops_2jet_;
@@ -92,7 +92,7 @@ private:
                 {
                     //printf(" topIdx: %i particle: %i\n", topIdx, pdgid); fflush(stdout);
                     
-                    int position = 0;
+                    unsigned int position = 0;
                     for(;position < hadtops_idx_->size() && (*hadtops_idx_)[position] != topIdx; ++position);
                     if( position < hadtops_idx_->size() )
                     {
@@ -207,7 +207,7 @@ private:
         const TopObject* bestTopMassLV = nullptr;
         bool bestTopMassGenMatch       = false;
         bool bestTopMassTopTag         = false;
-        for(int iTop = 0; iTop < tops.size(); ++iTop)
+        for(unsigned int iTop = 0; iTop < tops.size(); ++iTop)
         {
             auto* top = tops[iTop];
 
@@ -241,7 +241,7 @@ private:
         float bestTopMassTopTagDisc        = -999.9;
         bool bestTopMassGenMatchCand       = false;
         bool bestTopMassTopTagCand         = false;
-        for(int iTop = 0; iTop < candidateTops.size(); ++iTop)
+        for(unsigned int iTop = 0; iTop < candidateTops.size(); ++iTop)
         {
             auto& top = candidateTops[iTop];
 
@@ -271,7 +271,7 @@ private:
         const auto& Photons_fullID = tr.getVec<bool>("Photons_fullID");
 
         auto& tightPhotons = tr.createDerivedVec<TLorentzVector>("tightPhotons"+myVarSuffix_);
-        for(int i = 0; i < Photons.size(); ++i)
+        for(unsigned int i = 0; i < Photons.size(); ++i)
         {
             if(Photons_fullID[i])
             {
