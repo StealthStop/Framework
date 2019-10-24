@@ -2,7 +2,7 @@
 #define MAKEMVAVARIABLES_H 
 
 #include "Framework/Framework/include/EventShapeVariables.h"
-#include "Framework/Framework/src/get_cmframe_jets.c"
+#include "Framework/Framework/include/Utility.h"
 
 class MakeMVAVariables
 {
@@ -18,7 +18,7 @@ private:
     bool verb_;
     std::string myVarSuffix_;
     bool doGenMatch_;
-    int nTopJets_, nLeptons_;
+    unsigned int nTopJets_, nLeptons_;
     std::string GoodJetsName_, NGoodJetsName_, GoodLeptonsName_, NGoodLeptonsName_, MVAJetName_, MVALeptonName_, ESVarName_;
 
     std::vector<int> decToBinary(int n, int max) const
@@ -41,7 +41,6 @@ private:
         if(runtype != "Data" && jetCombo.size() > 0)
         {
             const auto& hadtopdaughters = tr.getVec<std::vector<const TLorentzVector*>>("hadtopdaughters"+myVarSuffix_);
-            const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
 
             bool genMatched = true;
             int topID = 1, megaJetID = -1;
@@ -50,7 +49,7 @@ private:
                 int numMatchedJets = 1;
                 for(const auto* d : daughters)
                 {
-                    for(int ijet = 0; ijet < lv_all.size(); ijet++)
+                    for(unsigned int ijet = 0; ijet < lv_all.size(); ijet++)
                     {
                         double deltaR = d->DeltaR( lv_all.at(ijet) );
                         if(deltaR < 0.4)
@@ -99,7 +98,7 @@ private:
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
         const auto& GoodJets = tr.getVec<bool>(GoodJetsName_+myVarSuffix_);
-        const auto& NGoodJets = tr.getVar<int>(NGoodJetsName_+myVarSuffix_);
+        //const auto& NGoodJets = tr.getVar<int>(NGoodJetsName_+myVarSuffix_);
         const auto& GoodLeptons = tr.getVec<std::pair<std::string, TLorentzVector>>(GoodLeptonsName_+myVarSuffix_);
         const auto& NGoodLeptons = tr.getVar<int>(NGoodLeptonsName_+myVarSuffix_);
         const auto& MET = tr.getVar<double>("MET"); 
@@ -135,7 +134,7 @@ private:
         std::vector<TLorentzVector> Jets_;
 
         //--- Boost the GoodJets, Goodleptons, and the MET in the event 
-        for(int j = 0; j < Jets.size(); j++)
+        for(unsigned int j = 0; j < Jets.size(); j++)
         {
             if(!GoodJets[j]) continue;
             TLorentzVector jlvcm = Jets.at(j);            
@@ -159,7 +158,7 @@ private:
         //--- Try using only the 7 highest-P jets in the CM frame in the event shape vars.
         //    First, need to make a new input vector of jets containing only those jets.
         auto cm_jets_psort = cm_jets ;
-        std::sort( cm_jets_psort.begin(), cm_jets_psort.end(), compare_p ) ;
+        std::sort( cm_jets_psort.begin(), cm_jets_psort.end(), utility::compare_p ) ;
         std::vector<math::RThetaPhiVector> cm_jets_top6 ;
 
         auto Jets_cm_psort = Jets_cm;
@@ -169,7 +168,7 @@ private:
         auto& Jets_cm_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_cm_top6"+myVarSuffix_);
         auto& Jets_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_top6"+myVarSuffix_);
 
-        for( unsigned int ji=0; ji<cm_jets.size(); ji++ ) 
+        for(unsigned int ji=0; ji<cm_jets.size(); ji++ ) 
         {
             if ( ji < nTopJets_ ) 
             {
@@ -255,7 +254,7 @@ private:
         {
             //--- Making a vector of all Jets, leptons, and MET
             std::vector<TLorentzVector> lv_all;
-            for(int j = 0; j < Jets.size(); j++)
+            for(unsigned int j = 0; j < Jets.size(); j++)
             {
                 if(!GoodJets[j]) continue;
                 lv_all.push_back( Jets.at(j) );
@@ -277,7 +276,7 @@ private:
                 std::vector<int> jetCombo = decToBinary( i, NAll);
                 TLorentzVector v1, v2;
                 int tempCount1 = 0, tempCount2 = 0;
-                for(int ijet = 0; ijet < lv_all.size(); ijet++)
+                for(unsigned int ijet = 0; ijet < lv_all.size(); ijet++)
                 {
                     if(jetCombo[ijet] == 0) 
                     {

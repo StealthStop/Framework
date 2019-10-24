@@ -38,7 +38,7 @@ private:
         return h;
     }
 
-    template<typename Th, typename Tb> const int findBin(const std::shared_ptr<Th>& h, const Tb v, const std::string& axis, const std::string& message = "")
+    template<typename Th, typename Tb> int findBin(const std::shared_ptr<Th>& h, const Tb v, const std::string& axis, const std::string& message = "")
     {
         int bin = -1;
         if(h)
@@ -62,7 +62,7 @@ private:
         return bin;
     }
 
-    const double htScaleFactor(const int nJets, const double HT, const std::string& runYear) const
+    double htScaleFactor(const int nJets, const double HT, const std::string& runYear) const
     {
         //All values updated for v1.0 on October 4, 2019. Commented out values are from the old setup (just 2016 and 2017).
         double norm = 1.0;
@@ -94,12 +94,12 @@ private:
         return norm*exp( expo*HT ); 
     }
 
-    const double htScaleFactorFlat2000(const int nJets, const double HT, const std::string& runYear) const
+    double htScaleFactorFlat2000(const int nJets, const double HT, const std::string& runYear) const
     {
         return ( HT > 2000.0 ) ? htScaleFactor(nJets,2000.0,runYear) : htScaleFactor(nJets,HT,runYear);
     }
 
-    const double htScaleFactorNJet8(const double HT, const std::string& runYear) const
+    double htScaleFactorNJet8(const double HT, const std::string& runYear) const
     {
         double norm = 1.0;
         double expo = 0.0;      
@@ -130,7 +130,7 @@ private:
         return norm*exp( expo*HT );
     }
 
-    const double htScaleFactorMG(const int nJets, const double HT, const std::string& runYear) const
+    double htScaleFactorMG(const int nJets, const double HT, const std::string& runYear) const
     {
         double norm = 1.0;
         double expo = 0.0;
@@ -157,7 +157,7 @@ private:
         return norm*exp( expo*HT );
     }
 
-    const double htScaleFactorNJet8MG(const double HT, const std::string& runYear) const
+    double htScaleFactorNJet8MG(const double HT, const std::string& runYear) const
     {
         double norm = 1.0;
         double expo = 0.0;
@@ -184,7 +184,7 @@ private:
         return norm*exp( expo*HT );
     }
 
-    const double getMean(const std::string& name)
+    double getMean(const std::string& name)
     {
         if( sfMeanMap_[name] == 0.0 )
         {
@@ -297,12 +297,11 @@ private:
             std::sort( sortedPDFWeights.begin() + 1, sortedPDFWeights.end() );
         
             const int upper = std::round( 0.5*(1 + reqCL)*100.0 );
-            const int lower = 1 + std::round( 0.5*(1 - reqCL)*100.0 );
+            //const int lower = 1 + std::round( 0.5*(1 - reqCL)*100.0 );
 
             central  = 0.5*( sortedPDFWeights[50] + sortedPDFWeights[51] ); //Exactly 100 entries
-            const double errminus = abs(central - sortedPDFWeights[lower]);
+            //const double errminus = abs(central - sortedPDFWeights[lower]);
             const double errplus  = abs(central - sortedPDFWeights[upper]);
-            double errsymm  = 0.5*( errplus + errminus );
 
             NNPDF_from_median_up   = central + errplus;
             NNPDF_from_median_down = central - errplus;
@@ -389,8 +388,6 @@ private:
                 const double eleTotSF         = eleNoTrigSF*eleTrigSF; 
                 const double eleNoTrigPErr    = utility::addInQuad( eleTightPErr, eleIsoPErr, eleRecoPErr );
                 const double eleTotPErr       = utility::addInQuad( eleNoTrigPErr, eleTrigPErr );
-                const double eleTotSFErr      = eleTotPErr*eleTotSF;
-                const double eleNoTrigSFErr   = eleNoTrigPErr*eleNoTrigSF;
 
                 totGoodElectronSF       *= eleTotSF; 
                 noTrigGoodElectronSF    *= eleNoTrigSF;
@@ -615,7 +612,6 @@ private:
             
             const auto& GenParticles        = tr.getVec<TLorentzVector>("GenParticles");
             const auto& GenParticles_PdgId  = tr.getVec<int>("GenParticles_PdgId");
-            const auto& GenParticles_Status = tr.getVec<int>("GenParticles_Status"); 
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++)
             {
@@ -671,7 +667,8 @@ private:
             totalEventWeight = Weight*bTagWeight*totGoodMuonSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
             totalEventWeightMG = Weight*bTagWeight*totGoodMuonSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
         }
-        if( NNonIsoMuons == 1 ) {
+        if( NNonIsoMuons == 1 ) 
+        {
             totalEventWeightNIM = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr;
             totalEventWeightNIM_ht = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr*htDerivedweight;
         }
@@ -679,6 +676,7 @@ private:
         tr.registerDerivedVar( "totalEventWeight"+myVarSuffix_, totalEventWeight );
         tr.registerDerivedVar( "totalEventWeightMG"+myVarSuffix_, totalEventWeightMG );
         tr.registerDerivedVar( "totalEventWeightNIM"+myVarSuffix_, totalEventWeightNIM );
+        tr.registerDerivedVar( "totalEventWeightNIM_ht"+myVarSuffix_, totalEventWeightNIM_ht );
 
         if(printGetBinError_) firstPrint_ = false;
     }
@@ -761,7 +759,7 @@ public:
         TFile SFMeanRootFile( meanFileName.c_str() );
         TIter next(SFMeanRootFile.GetListOfKeys());
         TKey* key;
-        while(key = static_cast<TKey*>(next()))
+        while((key = static_cast<TKey*>(next())))
         {
             std::shared_ptr<TH1> h( static_cast<TH1*>(key->ReadObj()) );
             std::string name( h->GetTitle() );

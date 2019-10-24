@@ -27,12 +27,12 @@ private:
         tr.registerDerivedVar("used_gen_bjet_for_mbl"+myVarSuffix_, used_gen_bjet_for_mbl);
     }
     void getJetMatch(const std::vector<TLorentzVector>& JetVectors, const std::vector<bool>& GoodJets_pt30, const std::vector<bool>& GoodBJets_pt30, 
-                     double& twoLep_mbldiff, int& used_jet , int other_used_jet, double& TwoLep_Mbl, const TLorentzVector& lep,  std::pair<int,int>& TwoLep_Mbl_Idx, const bool checkB)
+                     double& twoLep_mbldiff, int& used_jet, unsigned int other_used_jet, double& TwoLep_Mbl, const TLorentzVector& lep,  std::pair<int,int>& TwoLep_Mbl_Idx, const bool checkB)
     {
-        for (int j=0; j < JetVectors.size(); j++)
+        for(unsigned int j=0; j < JetVectors.size(); j++)
         {
             bool pass_b = checkB ? GoodBJets_pt30.at(j):GoodJets_pt30.at(j);
-            if (pass_b && j != other_used_jet)
+            if(pass_b && j != other_used_jet)
             {
                 double twoLep_mbl = (lep + JetVectors.at(j)).M();
                 if (abs(twoLep_mbl - 105) < twoLep_mbldiff)
@@ -46,7 +46,7 @@ private:
         }
     }
     
-    const bool objectInHEM(std::vector<TLorentzVector> objects, const double etalow, const double etahigh, const double philow, const double phihigh, const double ptcut, const std::string& runYear) const
+    bool objectInHEM(std::vector<TLorentzVector> objects, const double etalow, const double etahigh, const double philow, const double phihigh, const double ptcut, const std::string& runYear) const
     {
         bool inHEM = false;
         if(runYear == "2018post")
@@ -73,17 +73,14 @@ private:
         const auto& NonIsoMuonJets_pt30 = tr.getVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
         const auto& Muons = tr.getVec<TLorentzVector>("Muons");
         const auto& MuonsCharge = tr.getVec<int>("Muons_charge");
-        const auto& MuonsMTW = tr.getVec<double>("MuonsMTW"+myVarSuffix_);
         const auto& GoodMuons = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& NGoodMuons = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& Electrons = tr.getVec<TLorentzVector>("Electrons");
         const auto& ElectronsCharge = tr.getVec<int>("Electrons_charge");
-        const auto& ElectronsMTW = tr.getVec<double>("ElectronsMTW"+myVarSuffix_);
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
-        const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
         const auto& GoodBJets_pt45  = tr.getVec<bool>("GoodBJets_pt45"+myVarSuffix_);
         
@@ -166,14 +163,12 @@ private:
         
         //Find single lepton for HistoContainer
         TLorentzVector singleLepton;
-        double mTLep = 999.9;
         for(unsigned int i = 0; i < Muons.size(); ++i)
         {
             if(!GoodMuons[i]) continue;
             if(Muons[i].Pt() > 20)
             {
                 singleLepton = Muons[i];
-                mTLep = MuonsMTW[i];
                 break;
             }
         }
@@ -183,7 +178,6 @@ private:
             if(Electrons[i].Pt() > 20)
             {
                 singleLepton = Electrons[i];
-                mTLep = ElectronsMTW[i];
                 break;
             }
         }
@@ -192,7 +186,7 @@ private:
         // 2 lepton onZ selection variables
         bool onZ = false;
         double mll = 0;
-        if ( GoodLeptons->size() == 2 )
+        if( GoodLeptons->size() == 2 )
         {
             if( (NGoodMuons == 2 || NGoodElectrons == 2) && (GoodLeptonsCharge->at(0) != GoodLeptonsCharge->at(1)) )
             {
@@ -205,21 +199,18 @@ private:
         tr.registerDerivedVar("mll"+myVarSuffix_, mll);        
 
 
-        //Two Lepton Mbl definiton
-
+        // Two Lepton Mbl definiton
         TLorentzVector lep1, lep2;
         int  used_jet1 = -1, used_jet2 =-1;
         double TwoLep_Mbl1=-1, TwoLep_Mbl2=-1;
         double twoLep_mbl1diff=999, twoLep_mbl2diff=999;
-        int use = -1;
-
         std::pair<int,int> TwoLep_Mbl1_Idx, TwoLep_Mbl2_Idx;
        
-        if (NGoodLeptons==2)
+        if(NGoodLeptons==2)
         {
             std::vector<std::pair<TLorentzVector,int>> GoodBJetsVec_pt30;
 
-            if (GoodLeptons->at(0).second.Pt() >= GoodLeptons->at(1).second.Pt())
+            if(GoodLeptons->at(0).second.Pt() >= GoodLeptons->at(1).second.Pt())
             {
                 lep1 = GoodLeptons->at(0).second;
                 lep2 = GoodLeptons->at(1).second;
@@ -233,28 +224,28 @@ private:
                 TwoLep_Mbl1_Idx.second  = 1;
                 TwoLep_Mbl2_Idx.second  = 0;
             }
-            for (int j=0 ; j < Jets.size(); j++)
+            for(unsigned int j=0 ; j < Jets.size(); j++)
             {
-                if (GoodBJets_pt30.at(j)) GoodBJetsVec_pt30.push_back(std::make_pair(Jets.at(j), j));
+                if(GoodBJets_pt30.at(j)) GoodBJetsVec_pt30.push_back(std::make_pair(Jets.at(j), j));
             }
-            if (NGoodBJets_pt30 >= 2) //need three cases: N bjets >= 2, Nbjets == 1, Nbjets = 0. for Nbjets >=2 matches each lepton with best bjet
+            if(NGoodBJets_pt30 >= 2) //need three cases: N bjets >= 2, Nbjets == 1, Nbjets = 0. for Nbjets >=2 matches each lepton with best bjet
             {
                 getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl1diff, used_jet1, -1,  TwoLep_Mbl1, lep1, TwoLep_Mbl1_Idx, true);
                 getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl2diff, used_jet2, -1,  TwoLep_Mbl2, lep2, TwoLep_Mbl2_Idx, true);
-                if (used_jet1 == used_jet2 && twoLep_mbl1diff > twoLep_mbl2diff) //if leptons are matched to same bjet, keep better one and rematch the other lepton
+                if(used_jet1 == used_jet2 && twoLep_mbl1diff > twoLep_mbl2diff) //if leptons are matched to same bjet, keep better one and rematch the other lepton
                 {
                     twoLep_mbl1diff = 999;
                     getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl1diff, used_jet1, used_jet2, TwoLep_Mbl1, lep1, TwoLep_Mbl1_Idx, true);
                 }
-                else if (used_jet1 == used_jet2 && twoLep_mbl1diff <= twoLep_mbl2diff) 
+                else if(used_jet1 == used_jet2 && twoLep_mbl1diff <= twoLep_mbl2diff) 
                 {
                     twoLep_mbl2diff = 999;
                     getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl2diff, used_jet2, used_jet1, TwoLep_Mbl2, lep2, TwoLep_Mbl2_Idx, true);
                 }
             }
-            else if (NGoodBJets_pt30 == 1) //in this case the better Mbl pair is made of the leptons, then the other lepton is paired with best goodjet
+            else if(NGoodBJets_pt30 == 1) //in this case the better Mbl pair is made of the leptons, then the other lepton is paired with best goodjet
             {
-                if ( abs((lep1 + GoodBJetsVec_pt30.at(0).first).M() - 105) <= abs((lep2 + GoodBJetsVec_pt30.at(0).first).M() - 105) )
+                if( abs((lep1 + GoodBJetsVec_pt30.at(0).first).M() - 105) <= abs((lep2 + GoodBJetsVec_pt30.at(0).first).M() - 105) )
                 {
                     TwoLep_Mbl1 = (lep1 + GoodBJetsVec_pt30.at(0).first).M();
                     TwoLep_Mbl1_Idx.first = GoodBJetsVec_pt30.at(0).second;
@@ -274,12 +265,12 @@ private:
                 getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl1diff, used_jet1, -1, TwoLep_Mbl1, lep1, TwoLep_Mbl1_Idx, false);
                 getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl2diff, used_jet2, -1, TwoLep_Mbl2, lep2, TwoLep_Mbl2_Idx, false);
 
-                if (used_jet1 == used_jet2 && twoLep_mbl1diff >=  twoLep_mbl2diff) //if leptons are matched to same jet, keep better one and find a new match for other
+                if(used_jet1 == used_jet2 && twoLep_mbl1diff >=  twoLep_mbl2diff) //if leptons are matched to same jet, keep better one and find a new match for other
                 {
                     twoLep_mbl1diff = 999;
                     getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl1diff, used_jet1, used_jet2, TwoLep_Mbl1, lep1, TwoLep_Mbl1_Idx, false);
                 }
-                else if (used_jet1 == used_jet2 && twoLep_mbl1diff <  twoLep_mbl2diff)
+                else if(used_jet1 == used_jet2 && twoLep_mbl1diff <  twoLep_mbl2diff)
                 {
                     twoLep_mbl2diff = 999;
                     getJetMatch(Jets, GoodJets_pt30, GoodBJets_pt30, twoLep_mbl2diff, used_jet2, used_jet1, TwoLep_Mbl2, lep2, TwoLep_Mbl2_Idx, false);
@@ -296,19 +287,19 @@ private:
         // -- Calculate DeltaR between 2 bjets for 0 lepton
         // ---------------------------------------------------
         double dR_bjets = -1;
-        if (NGoodBJets_pt45 >= 2)
+        if(NGoodBJets_pt45 >= 2)
         {
             std::vector<TLorentzVector> bjets;
-            for(int ijet = 0; ijet < Jets.size(); ijet++)
+            for(unsigned int ijet = 0; ijet < Jets.size(); ijet++)
             {
                 if(!GoodBJets_pt45[ijet]) continue;
                 bjets.push_back(Jets.at(ijet));
             }
             int n = bjets.size();
             std::vector<double> deltaRs( n*(n - 1)/2, 0.0 );
-            for (int i = 0; i < n; i++) 
+            for(int i = 0; i < n; i++) 
             {
-                for (int j = i+1; j < n; j++) 
+                for(int j = i+1; j < n; j++) 
                 {
                     deltaRs[i+j-1] = bjets[i].DeltaR(bjets[j]);
                 }

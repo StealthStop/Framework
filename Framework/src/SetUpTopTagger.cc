@@ -53,7 +53,7 @@ std::vector<double>* SetUpTopTagger::intVecTodoubleVec(NTupleReader& tr, const s
 {
     const auto& vI = tr.getVec<int>(name);
     std::vector<double>* vD = new std::vector<double>(vI.size());
-    for(int i = 0; i < vI.size(); i++)
+    for(unsigned int i = 0; i < vI.size(); i++)
     {
         (*vD)[i] = vI[i];
     }
@@ -65,10 +65,10 @@ std::vector<std::vector<double>>* SetUpTopTagger::VecVecintToVecVecdouble(NTuple
 {
     const auto& vvI = tr.getVec<std::vector<int>>(name);
     std::vector<std::vector<double>>* vvD = new std::vector<std::vector<double>>();
-    for(int i = 0; i < vvI.size(); i++)
+    for(unsigned int i = 0; i < vvI.size(); i++)
     {
         std::vector<double> vD;
-        for(int j = 0; j < vvI[i].size(); j++)
+        for(unsigned int j = 0; j < vvI[i].size(); j++)
         {
             vD.push_back(vvI[i][j]);
         }

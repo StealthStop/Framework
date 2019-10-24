@@ -24,8 +24,8 @@ class BTagCorrector
 public:
     //constructor
     BTagCorrector(std::string file, std::string CSVFilePath, std::string CSVFile, std::string suffix = "") 
-    : inFileName(file), debug(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0)
-    , h_eff_b(nullptr), h_eff_c(nullptr), h_eff_udsg(nullptr), MCBranch(""), JetsVec(""), JetMask(""), BJetsVec(""), JetsFlavor(""), myVarSuffix_("")
+    : debug(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0)
+    , h_eff_b(nullptr), h_eff_c(nullptr), h_eff_udsg(nullptr), inFileName(file), MCBranch(""), JetsVec(""), JetMask(""), BJetsVec(""), JetsFlavor(""), myVarSuffix_("")
     {
         std::cout<<"Setting up BTagCorrector"<<std::endl;
         
@@ -264,9 +264,6 @@ public:
         
         sfEffList = std::vector<double>(3,1.0); //eff, sf (central, up, or down), cf (central, up, or down)
         
-        const double max_btagSF_pt = 1000.0;
-        const double max_ctagSF_pt = 1000.0;
-        const double max_udsgSF_pt = 1000.0;
         if(flav==5)
         { //b-tag
             // data_t Uncertainty are now taken care automaticall with method eval_auto_bounds
@@ -427,10 +424,10 @@ public:
     bool debug;
     int btagSFunc, mistagSFunc;
     int btagCFunc, ctagCFunc, mistagCFunc;
-    BTagCalibration calib;
-    BTagCalibrationReader reader, readerUp, readerDown;
     std::shared_ptr<TH2F> h_eff_b, h_eff_c, h_eff_udsg;
     std::string inFileName, MCBranch, JetsVec, JetMask, BJetsVec, JetsFlavor, myVarSuffix_;
+    BTagCalibration calib;
+    BTagCalibrationReader reader, readerUp, readerDown;
 };
 
 #endif
