@@ -3,7 +3,6 @@
 
 #include "Framework/Framework/include/MT2Hemispheres.h"
 #include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
-#include "Framework/Framework/include/StealthHemisphereJets.h" 
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -35,7 +34,7 @@ private:
         const auto& GoodJets           = tr.getVec<bool>(jetMaskName_);
         const auto& NGoodJets          = tr.getVar<int>(nJetName_);
         const auto& GoodLeptons        = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
-        const auto& hemiJets           = tr.getVec<TLorentzVector>("hemiJets");
+        //const auto& hemiJets           = tr.getVec<TLorentzVector>("hemiJets");
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
         TLorentzVector stop1_PtRank,       stop2_PtRank;
