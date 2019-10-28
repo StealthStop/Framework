@@ -2,7 +2,8 @@
 #define MakeMT2Hemispheres_h
 
 #include "Framework/Framework/include/MT2Hemispheres.h"
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h" 
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
+#include "Framework/Framework/include/StealthHemisphereJets.h" 
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -34,6 +35,7 @@ private:
         const auto& GoodJets           = tr.getVec<bool>(jetMaskName_);
         const auto& NGoodJets          = tr.getVar<int>(nJetName_);
         const auto& GoodLeptons        = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
+        const auto& hemiJets           = tr.getVec<TLorentzVector>("hemiJets");
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
         TLorentzVector stop1_PtRank,       stop2_PtRank;
@@ -71,7 +73,7 @@ private:
 
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
-            Hemisphere hemi(px, py, pz, E, 2, hemi_association);
+            Hemisphere hemi(px, py, pz, E, 2, hemi_association); // to get MT2 hemisphere jets
             vector<int> grouping = hemi.getGrouping();
             TLorentzVector pseudojet1, pseudojet2;
             double pseudojet1ScalarPt = 0.0, pseudojet2ScalarPt = 0.0;
