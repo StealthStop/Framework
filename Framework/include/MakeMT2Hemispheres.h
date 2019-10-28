@@ -54,8 +54,8 @@ private:
             TLorentzVector MET;
             MET.SetPtEtaPhiM(met, 0.0, metPhi, 0.0);
 
-            vector<float> px, py, pz, E;
-            for(int i=0; i < Jets.size(); ++i)
+            std::vector<float> px, py, pz, E;
+            for(unsigned int i=0; i < Jets.size(); ++i)
             {
                 if(!GoodJets[i]) continue;
                 px.push_back(Jets[i].Px());
@@ -74,12 +74,12 @@ private:
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
             Hemisphere hemi(px, py, pz, E, 2, hemi_association); // to get MT2 hemisphere jets
-            vector<int> grouping = hemi.getGrouping();
+            std::vector<int> grouping = hemi.getGrouping();
             TLorentzVector pseudojet1, pseudojet2;
             double pseudojet1ScalarPt = 0.0, pseudojet2ScalarPt = 0.0;
 
             // Perform vector and scalar sum of mega jets
-            for(int i=0; i < px.size(); ++i)
+            for(unsigned int i=0; i < px.size(); ++i)
             {
                 TLorentzVector obj;
                 obj.SetPxPyPzE(px[i], py[i], pz[i], E[i]);

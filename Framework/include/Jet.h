@@ -43,7 +43,7 @@ private:
                 TLorentzVector myMuon = Muons.at(imu);
                 double         tempDeltaR = 10.0;
                 int            tempJetIt  = -1;                
-                for( int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
+                for(unsigned int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
                 {                    
                     TLorentzVector myJet = Jets.at(myJetIt);
                     //First check pT matching between Jet and Muon
@@ -72,7 +72,7 @@ private:
                 TLorentzVector myElectron = Electrons.at(iel);
                 double         tempDeltaR = 10.0;
                 int            tempJetIt  = -1;                
-                for( int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
+                for(unsigned int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
                 {               
                     TLorentzVector myJet = Jets.at(myJetIt);
                     //Check pT matching between Jet and Electron
@@ -109,7 +109,7 @@ private:
         auto& nonIsoMuonjets_pt45_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt45"+myVarSuffix_);
         int NNonIsoMuonJets = 0, NNonIsoMuonJets_pt30 = 0, NNonIsoMuonJets_pt40 = 0, NNonIsoMuonJets_pt45 = 0;
 
-        for( int i = 0; i < Jets.size(); ++i ) 
+        for(unsigned int i = 0; i < Jets.size(); ++i ) 
         {               
             TLorentzVector lv = Jets.at(i);
             

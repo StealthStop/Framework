@@ -4,7 +4,7 @@
 class PartialUnBlinding
 {
 private:
-    const std::map<std::string, std::vector<std::pair<int,int>> > map2017BCDE = {
+    const std::map<std::string, std::vector<std::pair<unsigned int,unsigned int>> > map2017BCDE = {
         {"297050", {{12, 137}, {193, 776}}},
         {"297056", {{12, 203}}},
         {"297057", {{1, 4}, {14, 105}, {112, 377}, {385, 418}, {424, 509}, {516, 906}}},
@@ -92,7 +92,7 @@ private:
         {"299370", {{1, 7}, {47, 442}}},
     };
 
-    const std::map<std::string, std::vector<std::pair<int,int>> > map2017F = {
+    const std::map<std::string, std::vector<std::pair<unsigned int,unsigned int>> > map2017F = {
         {"305044", {{3, 203}, {302, 306}, {309, 310}, {313, 313}, {318, 330}}},
         {"305045", {{1, 873}}},
         {"305046", {{1, 667}, {671, 686}}},
@@ -140,7 +140,7 @@ private:
         {"305365", {{1, 273}}},
     };
 
-    const bool checkEvent(const std::map<std::string, std::vector<std::pair<int,int>> >& map, const std::string& RunNum, const UInt_t LumiBlockNum)
+    bool checkEvent(const std::map<std::string, std::vector<std::pair<unsigned int,unsigned int>> >& map, const std::string& RunNum, const UInt_t LumiBlockNum)
     {
         bool pass = false;
         if( map.find(RunNum) != map.end() )

@@ -23,8 +23,11 @@ private:
             return findParent(p, GenParticles_ParentIdx[idx], GenParticles_ParentId, GenParticles_ParentIdx);
         }
     }
-//function to match all reco particles with all appropriate gen particles
-    inline std::vector<std::tuple< int , int , double>> findAllDR(const std::vector<TLorentzVector>& GenParticles, const std::vector<TLorentzVector>& RecoParticles, const std::vector<bool>& GoodGenParticles, const int& resPartID, const std::vector<int>& GenParticles_ParentId, const std::vector<int>& GenParticles_ParentIdx,const int& nlino1_Idx,const int& nlino2_Idx) const
+
+    //function to match all reco particles with all appropriate gen particles
+    inline std::vector<std::tuple< int , int , double>> findAllDR(const std::vector<TLorentzVector>& GenParticles, const std::vector<TLorentzVector>& RecoParticles, 
+                                                                  const std::vector<bool>& GoodGenParticles, int resPartID, const std::vector<int>& GenParticles_ParentId, 
+                                                                  const std::vector<int>& GenParticles_ParentIdx, int nlino1_Idx, int nlino2_Idx) const
     {
         bool check_neutralinos = true;
         std::vector<std::tuple< int , int, double>> AllDR;
@@ -54,6 +57,7 @@ private:
         }
         return AllDR;
     }       
+
     //function to sort for best matches and construct stop mass
     inline std::pair<std::vector<TLorentzVector>,int> getMatchedSum(const std::vector<std::tuple< int , int , double>>& AllDR, const std::vector<TLorentzVector>& RecoParticles, TLorentzVector& MatchedSum, std::vector<bool> availableDR, TLorentzVector& GenMatchedSum,const std::vector<TLorentzVector>& GenParticles, int NGenMatched = 0) const
     {
@@ -98,9 +102,9 @@ private:
             return Sums;
         }
     }
+
     void genMatch(NTupleReader& tr)
     {
-
         const auto& runtype = tr.getVar<std::string>("runtype");
 
         if(runtype != "Data")
@@ -113,7 +117,6 @@ private:
             const auto& GoodJets_pt30           = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
             const auto& GoodLeptons             = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons"+myVarSuffix_);
             const auto& Jets                    = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-            
             const auto& MET                     = tr.getVar<double>("MET"+myVarSuffix_);
             const auto& METPhi                  = tr.getVar<double>("METPhi"+myVarSuffix_);
             const auto& GenMET                  = tr.getVar<double>("GenMET"+myVarSuffix_);
@@ -126,22 +129,23 @@ private:
             lvGenMET.SetPtEtaPhiM(GenMET, 0.0, GenMETPhi, 0.0);
 
             std::vector<TLorentzVector> RecoParticles;
-            for (int j=0; j < Jets.size(); j++)
+            for(unsigned int j=0; j < Jets.size(); j++)
             {
                 if(GoodJets_pt30.at(j)) RecoParticles.push_back(Jets.at(j));
             }
-            for (const auto& l : GoodLeptons)
+            for(const auto& l : GoodLeptons)
             {
                 RecoParticles.push_back(l.second);
             }
             std::vector<int> neutralinos_Idx;
-            int nlino1_Idx, nlino2_Idx;
-            int nUsedGen = 0;
-            int totalGens = 0;
+            int nlino1_Idx = -1, nlino2_Idx = -1;
+            //int nUsedGen = 0;
+            //int totalGens = 0;
 
             //Define OkayParticles, which allows leptons/jets by status code and parent
             std::vector<bool> OkayGenParticles(GenParticles.size(), false);
-            int WJetCounter = 0, WPlusLepCounter = 0, WMinusLepCounter = 0,  TauLepCounter = 0;
+            //int WJetCounter = 0, WPlusLepCounter = 0, WMinusLepCounter = 0;
+            int TauLepCounter = 0;
             std::vector<int> WPlusLeps, WMinusLeps;
             for (unsigned int p=0; p < GenParticles.size(); p++)
             {
@@ -210,7 +214,7 @@ private:
             {
                 if (abs(GenParticles_PdgId.at(g)) == 15 && GenParticles_Status.at(g) == 2 && keepTau && findParent(1000006, g, GenParticles_ParentId, GenParticles_ParentIdx) != -1) GoodGenParticles.at(g) = true;
             }
-            int counter = 0;
+            //int counter = 0;
             for (unsigned int g=0; g < GenParticles.size();g++)
             {
                 if (abs(GenParticles_PdgId.at(g)) == 1000022 && findParent(1000006, g, GenParticles_ParentId, GenParticles_ParentIdx) != -1)
@@ -240,11 +244,11 @@ private:
             std::vector<int> NMatched(2,0);
             float NGenTotal = 0;
             double fracGenMatched = -1.0;
-            for (int g=0; g < GenParticles.size(); g++)
+            for(unsigned int g=0; g < GenParticles.size(); g++)
             {
                 if (GoodGenParticles[g]) NGenTotal += 1;
             }
-            for (int p=0; p < resParticleList.size(); p++)
+            for(unsigned int p=0; p < resParticleList.size(); p++)
             {
                 TLorentzVector initMatchedSum;
                 TLorentzVector GenMatchedSum;

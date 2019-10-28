@@ -14,7 +14,8 @@ class SetUpTopTagger
 private:
     NTupleReader& tr_;
     std::string myVarSuffix_;
-
+    ttUtility::ConstAK4Inputs<double>* AK4Inputs_;
+    ttUtility::ConstAK8Inputs<double>* AK8Inputs_;
     const std::vector<TLorentzVector>& Jets_;                      
     const std::vector<double>& Jets_bJetTagDeepCSVtotb_;
     const std::vector<double>& Jets_qgLikelihood_;         
@@ -25,10 +26,7 @@ private:
     const std::vector<std::vector<TLorentzVector>>& JetsAK8_subjets_;           
     const std::vector<TLorentzVector>& hadtops_;                   
     const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters_;           
-    
-    ttUtility::ConstAK4Inputs<double>* AK4Inputs_;
-    ttUtility::ConstAK8Inputs<double>* AK8Inputs_;
-    
+        
     std::vector<double>* intVecTodoubleVec(NTupleReader& tr, const std::string& vType);
     std::vector<std::vector<double>>* VecVecintToVecVecdouble(NTupleReader& tr, const std::string& name);
 
@@ -37,7 +35,7 @@ private:
         const auto& vec1 = tr.getVec<I>(name1);
         const auto& vec2 = tr.getVec<I>(name2);
         std::vector<I>* sumVec = new std::vector<I>(vec1.size());
-        for(int i = 0; i < vec1.size(); i++)
+        for(unsigned int i = 0; i < vec1.size(); i++)
         {
             (*sumVec)[i] = vec1[i] + vec2[i];
         }
