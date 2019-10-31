@@ -10,7 +10,7 @@
 class MakeMT2Hemispheres
 {
 private:
-    std::string jetMaskName_, nJetName_, myVarSuffix_;
+    std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_;
 
     template<typename T> void orderVars(T& stop1, T& stop2, const T pseudo1, const T pseudo2, const bool pseudo1Tostop1) const
     {
@@ -133,8 +133,9 @@ private:
     }
 
 public:    
-    MakeMT2Hemispheres(const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "")
-        : jetMaskName_(jetMaskName)
+    MakeMT2Hemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "")
+        : jetName_(jetName) 
+        , jetMaskName_(jetMaskName)
         , nJetName_(nJetName)
         , myVarSuffix_(myVarSuffix)
     {
