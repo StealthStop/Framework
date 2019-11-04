@@ -16,8 +16,8 @@ private:
 
     void getMT2Jets(NTupleReader& tr) const
     {
-        const auto* ttr       = tr.getVar<TopTaggerResults*>("ttr");
-        const auto& Jets      = tr.getVec<TLorentzVector>("Jets");
+        const auto* ttr           = tr.getVar<TopTaggerResults*>("ttr");
+        const auto& Jets          = tr.getVec<TLorentzVector>("Jets");
 
         // create an index for resolved tops
         std::vector<TLorentzVector> topJets;
@@ -40,7 +40,7 @@ private:
         std::vector<TLorentzVector> notTopJets;
         for(unsigned int i = 0; i < Jets.size(); ++i)
         {
-            if( std::find(usedIndex.begin(), usedIndex.end(), i) == usedIndex.end() ) 
+            if( std::find(usedIndex.begin(), usedIndex.end(), i) != usedIndex.end() ) 
             {
                 notTopJets.push_back(Jets[i]);
             }
@@ -50,7 +50,7 @@ private:
         auto& MT2Jets = tr.createDerivedVec<TLorentzVector>("MT2Jets"+myVarSuffix_, notTopJets);
         MT2Jets.insert(MT2Jets.end(), topJets.begin(), topJets.end());
         auto& GoodMT2Jets = tr.createDerivedVec<bool>("GoodMT2Jets"+myVarSuffix_, MT2Jets.size(), true);        
-        tr.createDerivedVar<int>("NGoodMT2Jets"+myVarSuffix_, GoodMT2Jets.size());
+        tr.createDerivedVar<int>("NGoodMT2Jets"+myVarSuffix_, GoodMT2Jets.size()); 
     }
     
 public:    
