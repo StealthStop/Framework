@@ -18,6 +18,7 @@ private:
     {
         const auto* ttr           = tr.getVar<TopTaggerResults*>("ttr");
         const auto& Jets          = tr.getVec<TLorentzVector>("Jets");
+        const auto& GoodJets_pt45 = tr.getVec<bool>("GoodJets_pt45");
 
         // create an index for resolved tops
         std::vector<TLorentzVector> topJets;
@@ -40,17 +41,18 @@ private:
         std::vector<TLorentzVector> notTopJets;
         for(unsigned int i = 0; i < Jets.size(); ++i)
         {
-            if( std::find(usedIndex.begin(), usedIndex.end(), i) != usedIndex.end() ) 
+            if(!GoodJets_pt45[i]) continue;
+            if ( std::find(usedIndex.begin(), usedIndex.end(), i) == usedIndex.end() ) 
             {
                 notTopJets.push_back(Jets[i]);
             }
         }
     
         // Get the MT2Jets : add tops and not tops jets to each other
-        auto& MT2Jets = tr.createDerivedVec<TLorentzVector>("MT2Jets"+myVarSuffix_, notTopJets);
-        MT2Jets.insert(MT2Jets.end(), topJets.begin(), topJets.end());
-        auto& GoodMT2Jets = tr.createDerivedVec<bool>("GoodMT2Jets"+myVarSuffix_, MT2Jets.size(), true);        
-        tr.createDerivedVar<int>("NGoodMT2Jets"+myVarSuffix_, GoodMT2Jets.size()); 
+        auto& MT2Jets = tr.createDerivedVec<TLorentzVector>("MT2Jets"+myVarSuffix_, topJets);
+        MT2Jets.insert(MT2Jets.end(), notTopJets.begin(), notTopJets.end());
+        auto& GoodMT2Jets = tr.createDerivedVec<bool>("GoodMT2Jets"+myVarSuffix_, MT2Jets.size(), true);      
+        tr.createDerivedVar<int>("NGoodMT2Jets"+myVarSuffix_, GoodMT2Jets.size());
     }
     
 public:    
