@@ -28,13 +28,12 @@ private:
 
     void getHemispheres(NTupleReader& tr) const
     {
-        const auto& met                = tr.getVar<double>("MET");
-        const auto& metPhi             = tr.getVar<double>("METPhi");
-        const auto& Jets               = tr.getVec<TLorentzVector>("Jets");
-        const auto& GoodJets           = tr.getVec<bool>(jetMaskName_);
-        const auto& NGoodJets          = tr.getVar<int>(nJetName_);
-        const auto& GoodLeptons        = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
-        //const auto& hemiJets           = tr.getVec<TLorentzVector>("hemiJets");
+        const auto& met                   = tr.getVar<double>("MET");
+        const auto& metPhi                = tr.getVar<double>("METPhi");
+        const auto& Jets                  = tr.getVec<TLorentzVector>("Jets");
+        const auto& GoodJets              = tr.getVec<bool>(jetMaskName_);
+        const auto& NGoodJets             = tr.getVar<int>(nJetName_);
+        const auto& GoodLeptons           = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
         TLorentzVector stop1_PtRank,       stop2_PtRank;
