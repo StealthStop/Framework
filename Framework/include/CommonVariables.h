@@ -84,10 +84,13 @@ private:
         const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
         const auto& GoodBJets_pt45  = tr.getVec<bool>("GoodBJets_pt45"+myVarSuffix_);
         
-        // Define HEM15/16 veto
-        bool passHEMVeto = !(objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear) ||
-                             objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear) || 
-                             objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
+        // Define Loose HEM15/16 veto
+        bool passHEMVetoLoose = !(objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear) ||
+                                  objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
+        tr.registerDerivedVar("passHEMVetoLoose"+myVarSuffix_, passHEMVetoLoose);
+
+        // Define full HEM15/16 veto
+        bool passHEMVeto = !objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear) && passHEMVetoLoose; 
         tr.registerDerivedVar("passHEMVeto"+myVarSuffix_, passHEMVeto);
 
         // HT of jets
