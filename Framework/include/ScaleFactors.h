@@ -553,16 +553,15 @@ private:
 
         //-----------------------------------------------------------------------------
         // Adding a scale factor for pileup 
-        // For 2016: Grab the individual pileup weight from the histogram found in PileupHistograms_0121_69p2mb_pm4p6.root
-        // For 2017: Grab the ratio from the histogram file and multiply this with the original weight 
-        // ----------------------------------------------------------------------------
-        
+        // For 2016 and 2018: Grab the individual pileup weight from the histogram found in PileupHistograms_*.root
+        // For 2017: Using the puWeight stored in the nTuples
+        // ----------------------------------------------------------------------------        
         const auto& puWeight  = tr.getVar<double>("puWeight");
         const auto& puSysUp   = tr.getVar<double>("puSysUp");
         const auto& puSysDown = tr.getVar<double>("puSysDown");
         const auto& tru_npv   = tr.getVar<double>("TrueNumInteractions");
-        double puWeightUnCorr = 1.0, puSysUpUnCorr = 1.0, puSysDownUnCorr = 1.0;
 
+        double puWeightUnCorr = 1.0, puSysUpUnCorr = 1.0, puSysDownUnCorr = 1.0;
         if( runYear == "2016" || runYear == "2018pre" || runYear == "2018post") 
         {
             puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X", "nom pu") );
@@ -571,11 +570,10 @@ private:
         }
         else if( runYear == "2017") 
         {
-            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X", "nom pu") )*puWeight; 
-            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X", "up pu") )*puWeight;
-            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X", "down pu") )*puWeight;
-        }
-        
+            puWeightUnCorr = puWeight; 
+            puSysUpUnCorr = puSysUp;
+            puSysDownUnCorr = puSysDown;
+        }        
         tr.registerDerivedVar( "puWeightUnCorr"+myVarSuffix_,  puWeightUnCorr);
         tr.registerDerivedVar( "puSysUpUnCorr"+myVarSuffix_,   puSysUpUnCorr);
         tr.registerDerivedVar( "puSysDownUnCorr"+myVarSuffix_, puSysDownUnCorr);
@@ -586,14 +584,13 @@ private:
         double puSysDownCorr = puSysDown;
         if( sfMeanMap_.find(filetag+"_pu") != sfMeanMap_.end() && !isSignal )
         {
-            const double mean = getMean(filetag+"_pu");
-            puWeightCorr     = (1/mean)*puWeightUnCorr;
-            const double meanUp = getMean(filetag+"_pu_Up");
-            puSysUpCorr      = (1/meanUp)*puSysUpUnCorr;
+            const double mean     = getMean(filetag+"_pu");
+            const double meanUp   = getMean(filetag+"_pu_Up");
             const double meanDown = getMean(filetag+"_pu_Down");
-            puSysDownCorr    = (1/meanDown)*puSysDownUnCorr;
+            puWeightCorr = (1.0/mean)*puWeightUnCorr;
+            puSysUpCorr  = (1.0/meanUp)*puSysUpUnCorr;
+            puSysDownCorr= (1.0/meanDown)*puSysDownUnCorr;
         }
-
         tr.registerDerivedVar( "puWeightCorr"+myVarSuffix_, puWeightCorr);
         tr.registerDerivedVar( "puSysUpCorr"+myVarSuffix_, puSysUpCorr);
         tr.registerDerivedVar( "puSysDownCorr"+myVarSuffix_, puSysDownCorr);
