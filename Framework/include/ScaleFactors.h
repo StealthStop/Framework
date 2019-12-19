@@ -628,7 +628,7 @@ private:
         // Adding reweighting recipe to emulate Level 1 ECAL prefiring
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
         // --------------------------------------------------------------------------------------
-        double prefiringScaleFactor = 1.0;
+        double prefiringScaleFactor = 1.0, prefiringScaleFactorUp = 1.0, prefiringScaleFactorDown = 1.0;
         if( runYear == "2017" )
         {
             const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);            
@@ -637,13 +637,23 @@ private:
             {            
                 if(!GoodJets_pt30[ijet]) continue;
                 const TLorentzVector& jet = Jets.at(ijet);
-                const double weight = L1Prefireing_->GetBinContent(L1Prefireing_->FindBin(jet.Eta(), jet.Pt()));
+                int bin = L1Prefireing_->FindBin(jet.Eta(), jet.Pt());
+                const double weight = L1Prefireing_->GetBinContent(bin);
+                const double weightErr = std::max(0.2*weight, L1Prefireing_->GetBinError(bin));
+                const double weightUp = weight + weightErr;
+                const double weightDown = weight - weightErr;
                 prefiringScaleFactor *= 1 - weight;
+                prefiringScaleFactorUp *= 1 - weightDown;
+                prefiringScaleFactorDown *= 1 - weightUp;
             }
         }
         tr.registerDerivedVar( "prefiringScaleFactor"+myVarSuffix_, prefiringScaleFactor);                    
+        tr.registerDerivedVar( "prefiringScaleFactorUp"+myVarSuffix_, prefiringScaleFactorUp);                    
+        tr.registerDerivedVar( "prefiringScaleFactorDown"+myVarSuffix_, prefiringScaleFactorDown);                    
 
+        // --------------------------------------------------------------------------------------
         // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
+        // --------------------------------------------------------------------------------------
         const auto& Weight         = tr.getVar<double>("Weight");
         const auto& bTagWeight     = tr.getVar<double>("bTagSF_EventWeightSimple_Central"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
@@ -782,7 +792,12 @@ public:
 
         // Get the L1prefiring scale factor histogram
         TFile L1PrefiringFile("L1prefiring_jetpt_2017BtoF.root");
-        getHisto(L1PrefiringFile, L1Prefireing_, "L1prefiring_jetpt_2017BtoF");
+        TString prefireHistoName = "L1prefiring_jetpt_2017BtoF";
+        if(runYear == "2016")
+        {
+            prefireHistoName = "L1prefiring_jetpt_2016BtoH";
+        }        
+        getHisto(L1PrefiringFile, L1Prefireing_, prefireHistoName);
         L1PrefiringFile.Close();
     }
 
