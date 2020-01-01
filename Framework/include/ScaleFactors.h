@@ -69,27 +69,27 @@ private:
         double expo = 0.0;
         if( runYear == "2016" ) 
         {
-            norm = 0.04214*nJets + 0.8908;
-            expo = (-0.02387*nJets - 0.08999)/1000;
+            norm = 0.04176*nJets + 0.8915;
+            expo = (-0.02358*nJets - 0.08940)/1000;
             //norm = 0.03422*nJets + 0.9367;
             //expo = (-0.02310*nJets - 0.0940 )/1000;
         }
         else if( runYear == "2017" ) 
         {
-            norm = 0.02486*nJets + 0.9919;
-            expo = (-0.01448*nJets - 0.1221)/1000;
+            norm = 0.03952*nJets + 0.9171;
+            expo = (-0.03275*nJets - 0.03795)/1000;
             //norm = 0.02565*nJets + 0.9635;
             //expo = (-0.01418*nJets - 0.1101 )/1000;
         }
         else if( runYear == "2018pre" ) 
         {
-            norm = 0.03951*nJets + 0.8940;
-            expo = (-0.03819*nJets + 0.009471)/1000;
+            norm = 0.03953*nJets + 0.8934;
+            expo = (-0.03832*nJets + 0.01108)/1000;
         }
         else if( runYear == "2018post" ) 
         {
-            norm = 0.01952*nJets + 1.0160;
-            expo = (-0.01392*nJets - 0.1343)/1000;
+            norm = 0.01953*nJets + 1.0150;
+            expo = (-0.01409*nJets - 0.1325)/1000;
         }
         return norm*exp( expo*HT ); 
     }
@@ -105,27 +105,27 @@ private:
         double expo = 0.0;      
         if( runYear == "2016" ) 
         {
-            norm = 1.317;
-            expo = -0.0003481;
+            norm = 1.318;
+            expo = -0.000349;
             //norm = 1.307;
             //expo = -0.0003416;
         }
         else if( runYear == "2017" )
         {
-            norm = 1.210;
-            expo = -0.0002564;
+            norm = 1.216;
+            expo = -0.0003109;
             //norm = 1.215;
             //expo = -0.0002613;
         }
         else if( runYear == "2018pre" )
         {
-            norm = 1.230;
-            expo = -0.0002754;
+            norm = 1.229;
+            expo = -0.0002752;
         }
         else if( runYear == "2018post" )
         {
-            norm = 1.300;
-            expo = -0.0003486;
+            norm = 1.299;
+            expo = -0.0003484;
         }
         return norm*exp( expo*HT );
     }
@@ -136,23 +136,23 @@ private:
         double expo = 0.0;
         if( runYear == "2016" ) 
         {
-            norm = 0.01802*nJets + 0.9762;
-            expo = (-0.003885*nJets - 0.1074)/1000;
+            norm = -0.002429*nJets + 1.044;
+            expo = (0.01214*nJets - 0.1198)/1000;
         }
         else if( runYear == "2017" ) 
         {
-            norm = 0.01818*nJets + 1.0535;
-            expo = (0.00425*nJets - 0.3170)/1000;
+            norm = 0.1086*nJets + 0.5567;
+            expo = (-0.8978*nJets + 0.2198)/1000;
         }
         else if( runYear == "2018pre" ) 
         {
-            norm = 1.0;
-            expo = 0.0;
+            norm = 0.03349*nJets + 0.9464;
+            expo = (-0.02058*nJets - 0.1488)/1000;
         }
         else if( runYear == "2018post" ) 
         {
-            norm = 1.0;
-            expo = 0.0;
+            norm = 0.02729*nJets + 0.9632;
+            expo = (-0.01304*nJets - 0.1637)/1000;
         }
         return norm*exp( expo*HT );
     }
@@ -163,23 +163,23 @@ private:
         double expo = 0.0;
         if( runYear == "2016" ) 
         {
-            norm = 1.151;
-            expo = -0.0001730;
+            norm = 1.073;
+            expo = -0.00009169;
         }
         else if( runYear == "2017" )
         {
-            norm = 1.192;
-            expo = -0.0002465;
+            norm = 1.236;
+            expo = -0.0002949;
         }
         else if( runYear == "2018pre" )
         {
-            norm = 1.0;
-            expo = 0.0;
+            norm = 1.2;
+            expo = -0.0002516;
         }
         else if( runYear == "2018post" )
         {
-            norm = 1.0;
-            expo = 0.0;
+            norm = 1.273;
+            expo = -0.0003242;
         }
         return norm*exp( expo*HT );
     }
@@ -628,7 +628,7 @@ private:
         // Adding reweighting recipe to emulate Level 1 ECAL prefiring
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
         // --------------------------------------------------------------------------------------
-        double prefiringScaleFactor = 1.0;
+        double prefiringScaleFactor = 1.0, prefiringScaleFactorUp = 1.0, prefiringScaleFactorDown = 1.0;
         if( runYear == "2017" )
         {
             const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);            
@@ -637,13 +637,23 @@ private:
             {            
                 if(!GoodJets_pt30[ijet]) continue;
                 const TLorentzVector& jet = Jets.at(ijet);
-                const double weight = L1Prefireing_->GetBinContent(L1Prefireing_->FindBin(jet.Eta(), jet.Pt()));
+                int bin = L1Prefireing_->FindBin(jet.Eta(), jet.Pt());
+                const double weight = L1Prefireing_->GetBinContent(bin);
+                const double weightErr = std::max(0.2*weight, L1Prefireing_->GetBinError(bin));
+                const double weightUp = weight + weightErr;
+                const double weightDown = weight - weightErr;
                 prefiringScaleFactor *= 1 - weight;
+                prefiringScaleFactorUp *= 1 - weightDown;
+                prefiringScaleFactorDown *= 1 - weightUp;
             }
         }
         tr.registerDerivedVar( "prefiringScaleFactor"+myVarSuffix_, prefiringScaleFactor);                    
+        tr.registerDerivedVar( "prefiringScaleFactorUp"+myVarSuffix_, prefiringScaleFactorUp);                    
+        tr.registerDerivedVar( "prefiringScaleFactorDown"+myVarSuffix_, prefiringScaleFactorDown);                    
 
+        // --------------------------------------------------------------------------------------
         // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
+        // --------------------------------------------------------------------------------------
         const auto& Weight         = tr.getVar<double>("Weight");
         const auto& bTagWeight     = tr.getVar<double>("bTagSF_EventWeightSimple_Central"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
@@ -782,7 +792,12 @@ public:
 
         // Get the L1prefiring scale factor histogram
         TFile L1PrefiringFile("L1prefiring_jetpt_2017BtoF.root");
-        getHisto(L1PrefiringFile, L1Prefireing_, "L1prefiring_jetpt_2017BtoF");
+        TString prefireHistoName = "L1prefiring_jetpt_2017BtoF";
+        if(runYear == "2016")
+        {
+            prefireHistoName = "L1prefiring_jetpt_2016BtoH";
+        }        
+        getHisto(L1PrefiringFile, L1Prefireing_, prefireHistoName);
         L1PrefiringFile.Close();
     }
 
