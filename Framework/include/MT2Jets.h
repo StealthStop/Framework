@@ -1,9 +1,15 @@
 #ifndef MT2Jets_h
 #define MT2Jets_h
 
+// for top-tagged jets
 #include "TopTagger/TopTagger/interface/TopTaggerResults.h"
 #include "TopTagger/TopTagger/interface/TopObject.h"
 #include "TopTagger/TopTagger/interface/Constituent.h"
+
+// for gen level study
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
+#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
+
 #include "TLorentzVector.h"
 #include <iostream> 
 #include <vector>
@@ -14,17 +20,19 @@ class MT2Jets
 private:
     std::string myVarSuffix_;
 
+    // -------------------------------------
+    // -- Top-Tagged Jets for hemispheres
+    // -------------------------------------
     void getMT2Jets(NTupleReader& tr) const
     {
         const auto* ttr           = tr.getVar<TopTaggerResults*>("ttr");
         const auto& Jets          = tr.getVec<TLorentzVector>("Jets");
         const auto& GoodJets_pt45 = tr.getVec<bool>("GoodJets_pt45");
-        //const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30");  
 
         // create an index for resolved tops
         std::vector<TLorentzVector> topJets;
-        //std::set<unsigned int> usedIndex;
-        auto& usedIndex = tr.createDerivedVec<unsigned int>("usedIndex"+myVarSuffix_);
+        std::set<unsigned int> usedIndex;
+        //auto& usedIndex = tr.createDerivedVec<unsigned int>("usedIndex"+myVarSuffix_);
         const std::vector<TopObject*>& taggedObjects = ttr->getTops();
         for(auto* t : taggedObjects)
         {
@@ -36,10 +44,10 @@ private:
                 for(const auto& c : constituents)
                 {
                     unsigned int index = c->getIndex(); 
-                    //usedIndex.insert(index);
-                    usedIndex.push_back(index);
-                    if(GoodJets_pt45[index]) top += c->P();
-                    //if(GoodJets_pt30[index]) top += c->P();
+                    usedIndex.insert(index);
+                    //usedIndex.push_back(index);
+                    //if(GoodJets_pt45[index]) 
+                    top += c->P();
                 }
             
                 topJets.push_back(top);
@@ -62,24 +70,24 @@ private:
         for(unsigned int i = 0; i < Jets.size(); ++i)
         {
             if(!GoodJets_pt45[i]) continue;
-            //if(!GoodJets_pt30[i]) continue;
             if ( std::find(usedIndex.begin(), usedIndex.end(), i) == usedIndex.end() ) 
             {
                 notTopJets.push_back(Jets[i]);
             }
         }
     
-        // Get the MT2Jets : add tops and not tops jets to each other
+        // get the MT2Jets : add tops and not tops jets to each other
         auto& MT2Jets = tr.createDerivedVec<TLorentzVector>("MT2Jets"+myVarSuffix_, topJets);
         MT2Jets.insert(MT2Jets.end(), notTopJets.begin(), notTopJets.end());
         auto& GoodMT2Jets = tr.createDerivedVec<bool>("GoodMT2Jets"+myVarSuffix_, MT2Jets.size(), true);      
         tr.createDerivedVar<int>("NGoodMT2Jets"+myVarSuffix_, GoodMT2Jets.size());
+        
         tr.registerDerivedVar("resolvedMass"+myVarSuffix_, resolvedMass);
         tr.registerDerivedVar("resolvedEta"+myVarSuffix_, resolvedEta);
         tr.registerDerivedVar("resolvedPhi"+myVarSuffix_, resolvedPhi);
         tr.registerDerivedVar("resolvedPt"+myVarSuffix_, resolvedPt);   
     }
-    
+
 public:    
     MT2Jets(const std::string& myVarSuffix = "")
         :myVarSuffix_(myVarSuffix)

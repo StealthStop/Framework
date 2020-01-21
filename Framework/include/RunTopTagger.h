@@ -188,12 +188,14 @@ private:
         // -------------------------------------------------------------
         auto& topsMass = tr.createDerivedVec<double>("topsMass"+myVarSuffix_);
         auto& topsEta  = tr.createDerivedVec<double>("topsEta"+myVarSuffix_);
+        auto& topsPhi  = tr.createDerivedVec<double>("topsPhi"+myVarSuffix_);
         auto& topsPt   = tr.createDerivedVec<double>("topsPt"+myVarSuffix_);
         auto& topsLV   = tr.createDerivedVec<TLorentzVector>("topsLV"+myVarSuffix_);
         for(const auto* t : tops)
         {
             topsMass.push_back(t->p().M());
             topsEta.push_back(t->p().Eta());
+            topsPhi.push_back(t->p().Phi());
             topsPt.push_back(t->p().Pt());
             topsLV.push_back(t->p());
         }
