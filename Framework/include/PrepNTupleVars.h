@@ -15,6 +15,7 @@ private:
         const std::vector<double>& Jets_bJetTagDeepCSVprobb;
         const std::vector<double>& Jets_bJetTagDeepCSVprobbb;
         const std::vector<bool>& Jets_ID;
+        const bool& JetID;
         const std::vector<int>& Jets_partonFlavor;
         
         JetCollection(const NTupleReader& tr) 
@@ -22,6 +23,7 @@ private:
             , Jets_bJetTagDeepCSVprobb(tr.getVec<double>("Jets_bJetTagDeepCSVprobb"))
             , Jets_bJetTagDeepCSVprobbb(tr.getVec<double>("Jets_bJetTagDeepCSVprobbb"))
             , Jets_ID(tr.getVec<bool>("Jets_ID"))
+            , JetID(tr.getVar<bool>("JetID"))
             , Jets_partonFlavor(tr.getVec<int>("Jets_partonFlavor"))
         {
         }
@@ -58,6 +60,16 @@ private:
         }
     };
 
+    template<typename T> T* scaleJetPt(const T& Jets, double scale)
+    {
+        auto* jets = new T(Jets.size());
+        for(unsigned int i = 0; i < Jets.size(); i++)
+        {                
+            (*jets)[i].SetPtEtaPhiM( scale*Jets[i].Pt(), Jets[i].Eta(), Jets[i].Phi(), Jets[i].M() );
+        }
+        return jets;
+    }
+
     void deriveJetCollection(NTupleReader& tr, const JetCollection& jc, const Factor& f, const std::vector<int>& newIndex, const std::string& name)
     {
         const auto& newJets_origIndex = tr.getVec<int>("Jets"+name+"_origIndex");
@@ -81,22 +93,45 @@ private:
         }
     }
 
+    void derivePtScaledJetCollection(NTupleReader& tr, const JetCollection& jc, const std::string& name, double scale)
+    {
+        auto* jets = scaleJetPt(jc.Jets, scale);
+        tr.registerDerivedVec("Jets"+name,jets);
+                
+        auto& newJets_bJetTagDeepCSVprobb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobb");
+        auto& newJets_bJetTagDeepCSVprobbb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobbb");
+        auto& newJets_bJetTagDeepCSVtotb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVtotb");
+        auto& newJets_ID = tr.createDerivedVec<bool>("Jets"+name+"_ID");
+        tr.registerDerivedVar("JetID"+name, jc.JetID);
+        auto& newJets_partonFlavor = tr.createDerivedVec<int>("Jets"+name+"_partonFlavor");
+        
+        for(unsigned j = 0; j < jc.Jets.size(); ++j)
+        {
+            newJets_bJetTagDeepCSVprobb.emplace_back( jc.Jets_bJetTagDeepCSVprobb.at(j) );
+            newJets_bJetTagDeepCSVprobbb.emplace_back( jc.Jets_bJetTagDeepCSVprobbb.at(j) );
+            newJets_bJetTagDeepCSVtotb.emplace_back( jc.Jets_bJetTagDeepCSVprobb.at(j) + jc.Jets_bJetTagDeepCSVprobbb.at(j) );
+            newJets_ID.emplace_back( jc.Jets_ID.at(j) );
+            newJets_partonFlavor.emplace_back( jc.Jets_partonFlavor.at(j) );
+        }
+    }
+
     void prepNTupleVars(NTupleReader& tr)
     {
-        // Reweigting the jet collection
+        // Reweighting the nominal jet collection (needs to be done first if doing it this way)
+        double scale = 0.95;
         const auto& runtype = tr.getVar<std::string>("runtype");
         const auto& scaleJetpT = tr.getVar<bool>("scaleJetpT");
         if(runtype == "MC" && scaleJetpT)
         {
             printJetpTScaled = true;
             auto& Jets = tr.getVec<TLorentzVector>("Jets");
-            auto* jets = new std::vector<TLorentzVector>(Jets.size());
-            for(unsigned int i = 0; i < Jets.size(); i++)
-            {                
-                (*jets)[i].SetPtEtaPhiM( 0.95*Jets[i].Pt(), Jets[i].Eta(), Jets[i].Phi(), Jets[i].M() );
-            }
+            auto* jets = scaleJetPt(Jets, scale);
             tr.registerDerivedVec("Jets",jets);
         }
+
+        // Creating the jet pT scaled collection
+        JetCollection jc(tr);
+        derivePtScaledJetCollection(tr, jc, "pTScaled", scale);
 
         // Create DeepCSV b-jet discriminator vector
         const auto& Jets_bJetTagDeepCSVprobb  = tr.getVec<double>("Jets_bJetTagDeepCSVprobb");
@@ -117,13 +152,12 @@ private:
                 newIndex[Jets_origIndex.at(j)] = j;
             }
 
-            JetCollection jc(tr);
             Factor f(tr);
             deriveJetCollection(tr, jc, f, newIndex, "JECup");
             deriveJetCollection(tr, jc, f, newIndex, "JECdown");
             deriveJetCollection(tr, jc, f, newIndex, "JERup");
             deriveJetCollection(tr, jc, f, newIndex, "JERdown");
-        }
+        }        
 
         // Create the eventCounter variable to keep track of processed events
         int w = 1;
