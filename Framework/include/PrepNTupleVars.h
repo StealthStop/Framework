@@ -1,6 +1,8 @@
 #ifndef PREPNTUPLEVARS_H
 #define PREPNTUPLEVARS_H
 
+#include "Framework/Framework/include/Utility.h"
+
 class PrepNTupleVars
 {
 private:
@@ -11,6 +13,7 @@ private:
         const std::vector<double>& Jets_bJetTagDeepCSVprobb;
         const std::vector<double>& Jets_bJetTagDeepCSVprobbb;
         const std::vector<bool>& Jets_ID;
+        const bool& JetID;
         const std::vector<int>& Jets_partonFlavor;
         
         JetCollection(const NTupleReader& tr) 
@@ -18,6 +21,7 @@ private:
             , Jets_bJetTagDeepCSVprobb(tr.getVec<double>("Jets_bJetTagDeepCSVprobb"))
             , Jets_bJetTagDeepCSVprobbb(tr.getVec<double>("Jets_bJetTagDeepCSVprobbb"))
             , Jets_ID(tr.getVec<bool>("Jets_ID"))
+            , JetID(tr.getVar<bool>("JetID"))
             , Jets_partonFlavor(tr.getVec<int>("Jets_partonFlavor"))
         {
         }
@@ -57,35 +61,61 @@ private:
     void deriveJetCollection(NTupleReader& tr, const JetCollection& jc, const Factor& f, const std::vector<int>& newIndex, const std::string& name)
     {
         const auto& newJets_origIndex = tr.getVec<int>("Jets"+name+"_origIndex");
-            
-        auto& newJets = tr.createDerivedVec<TLorentzVector>("Jets"+name);
-        auto& newJets_bJetTagDeepCSVprobb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobb");
-        auto& newJets_bJetTagDeepCSVprobbb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobbb");
-        auto& newJets_bJetTagDeepCSVtotb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVtotb");
-        auto& newJets_ID = tr.createDerivedVec<bool>("Jets"+name+"_ID");
-        auto& newJets_partonFlavor = tr.createDerivedVec<int>("Jets"+name+"_partonFlavor");
+               
+        auto& newJets = tr.createDerivedVec<TLorentzVector>("Jets"+name, jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobbb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVtotb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
+        auto& newJets_ID = tr.createDerivedVec<bool>("Jets"+name+"_ID", jc.Jets.size());
+        auto& newJets_partonFlavor = tr.createDerivedVec<int>("Jets"+name+"_partonFlavor", jc.Jets.size());
         for(unsigned j = 0; j < newJets_origIndex.size(); ++j)
         {
             int i = newIndex[newJets_origIndex.at(j)];
             
-            newJets.emplace_back( jc.Jets.at(i)*f.factor(name,i,j) );
-            newJets_bJetTagDeepCSVprobb.emplace_back( jc.Jets_bJetTagDeepCSVprobb.at(i) );
-            newJets_bJetTagDeepCSVprobbb.emplace_back( jc.Jets_bJetTagDeepCSVprobbb.at(i) );
-            newJets_bJetTagDeepCSVtotb.emplace_back( jc.Jets_bJetTagDeepCSVprobb.at(i) + jc.Jets_bJetTagDeepCSVprobbb.at(i) );
-            newJets_ID.emplace_back( jc.Jets_ID.at(i) );
-            newJets_partonFlavor.emplace_back( jc.Jets_partonFlavor.at(i) );
+            newJets.at(j) = jc.Jets.at(i)*f.factor(name,i,j);
+            newJets_bJetTagDeepCSVprobb.at(j) = jc.Jets_bJetTagDeepCSVprobb.at(i);
+            newJets_bJetTagDeepCSVprobbb.at(j) = jc.Jets_bJetTagDeepCSVprobbb.at(i);
+            newJets_bJetTagDeepCSVtotb.at(j) = ( jc.Jets_bJetTagDeepCSVprobb.at(i) + jc.Jets_bJetTagDeepCSVprobbb.at(i) );
+            newJets_ID.at(j) = jc.Jets_ID.at(i);
+            newJets_partonFlavor.at(j) = jc.Jets_partonFlavor.at(i);
+        }
+    }
+
+    void derivePtScaledJetCollection(NTupleReader& tr, const JetCollection& jc, const std::string& name, double scale)
+    {
+        tr.registerDerivedVar("JetID"+name, jc.JetID);        
+
+        auto& newJets = tr.createDerivedVec<TLorentzVector>("Jets"+name, jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobbb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVtotb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
+        auto& newJets_ID = tr.createDerivedVec<bool>("Jets"+name+"_ID", jc.Jets.size());
+        auto& newJets_partonFlavor = tr.createDerivedVec<int>("Jets"+name+"_partonFlavor", jc.Jets.size());
+
+        for(unsigned j = 0; j < jc.Jets.size(); ++j)
+        {
+            newJets[j].SetPtEtaPhiM( scale*jc.Jets[j].Pt(), jc.Jets[j].Eta(), jc.Jets[j].Phi(), jc.Jets[j].M() );
+            newJets_bJetTagDeepCSVprobb.at(j) = jc.Jets_bJetTagDeepCSVprobb.at(j);
+            newJets_bJetTagDeepCSVprobbb.at(j) = jc.Jets_bJetTagDeepCSVprobbb.at(j);
+            newJets_bJetTagDeepCSVtotb.at(j) = ( jc.Jets_bJetTagDeepCSVprobb.at(j) + jc.Jets_bJetTagDeepCSVprobbb.at(j) );
+            newJets_ID.at(j) = jc.Jets_ID.at(j);
+            newJets_partonFlavor.at(j) = jc.Jets_partonFlavor.at(j);
         }
     }
 
     void prepNTupleVars(NTupleReader& tr)
     {
+        // Creating the jet pT scaled collection
+        JetCollection jc(tr);
+        derivePtScaledJetCollection(tr, jc, "pTScaled", 0.95);
+
         // Create DeepCSV b-jet discriminator vector
         const auto& Jets_bJetTagDeepCSVprobb  = tr.getVec<double>("Jets_bJetTagDeepCSVprobb");
         const auto& Jets_bJetTagDeepCSVprobbb = tr.getVec<double>("Jets_bJetTagDeepCSVprobbb");
-        auto& Jets_bJetTagDeepCSVtotb = tr.createDerivedVec<double>("Jets_bJetTagDeepCSVtotb");
+        auto& Jets_bJetTagDeepCSVtotb = tr.createDerivedVec<double>("Jets_bJetTagDeepCSVtotb", Jets_bJetTagDeepCSVprobb.size());
         for(unsigned j = 0; j < Jets_bJetTagDeepCSVprobb.size(); ++j)
         {
-            Jets_bJetTagDeepCSVtotb.emplace_back( Jets_bJetTagDeepCSVprobb.at(j) + Jets_bJetTagDeepCSVprobbb.at(j) );
+            Jets_bJetTagDeepCSVtotb.at(j) = ( Jets_bJetTagDeepCSVprobb.at(j) + Jets_bJetTagDeepCSVprobbb.at(j) );
         }
  
         // Create JEC/R variation variables if needed
@@ -99,13 +129,12 @@ private:
                 newIndex[Jets_origIndex.at(j)] = j;
             }
 
-            JetCollection jc(tr);
             Factor f(tr);
             deriveJetCollection(tr, jc, f, newIndex, "JECup");
             deriveJetCollection(tr, jc, f, newIndex, "JECdown");
             deriveJetCollection(tr, jc, f, newIndex, "JERup");
             deriveJetCollection(tr, jc, f, newIndex, "JERdown");
-        }
+        }        
 
         // Create the eventCounter variable to keep track of processed events
         int w = 1;
@@ -114,13 +143,11 @@ private:
             const auto& Weight = tr.getVar<double>("Weight");
             w = (Weight >= 0.0) ? 1 : -1;
         }
-        tr.registerDerivedVar<int>("eventCounter",w);
-
+        tr.registerDerivedVar<int>("eventCounter",w);        
     }
 public:
     PrepNTupleVars()
     {
-        std::cout<<"Preparing variables from the NTuples"<<std::endl;
     }
 
     void operator()(NTupleReader& tr)

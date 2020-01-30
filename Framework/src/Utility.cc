@@ -39,6 +39,14 @@ namespace utility
         return "\033[1;"+c+"m"+ text +"\033[0m";
     }    
 
+    std::string split(const std::string& half, const std::string& s, const std::string& h)
+    {
+        std::string token;
+        if      ("first"==half) token = s.substr(0, s.find(h));
+        else if ("last" ==half) token = s.substr(s.find(h) + h.length(), std::string::npos);
+        return token;
+    } 
+
     bool compare_p( math::RThetaPhiVector v1, math::RThetaPhiVector v2 ) 
     { 
         return ( v1.R() > v2.R() ); 
