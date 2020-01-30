@@ -1,9 +1,13 @@
 #ifndef PREPNTUPLEVARS_H
 #define PREPNTUPLEVARS_H
 
+#include "Framework/Framework/include/Utility.h"
+
 class PrepNTupleVars
 {
 private:
+    bool printJetpTScaled;
+
     class JetCollection
     {
     public:
@@ -79,6 +83,21 @@ private:
 
     void prepNTupleVars(NTupleReader& tr)
     {
+        // Reweigting the jet collection
+        const auto& runtype = tr.getVar<std::string>("runtype");
+        const auto& scaleJetpT = tr.getVar<bool>("scaleJetpT");
+        if(runtype == "MC" && scaleJetpT)
+        {
+            printJetpTScaled = true;
+            auto& Jets = tr.getVec<TLorentzVector>("Jets");
+            auto* jets = new std::vector<TLorentzVector>(Jets.size());
+            for(unsigned int i = 0; i < Jets.size(); i++)
+            {                
+                (*jets)[i].SetPtEtaPhiM( 0.95*Jets[i].Pt(), Jets[i].Eta(), Jets[i].Phi(), Jets[i].M() );
+            }
+            tr.registerDerivedVec("Jets",jets);
+        }
+
         // Create DeepCSV b-jet discriminator vector
         const auto& Jets_bJetTagDeepCSVprobb  = tr.getVec<double>("Jets_bJetTagDeepCSVprobb");
         const auto& Jets_bJetTagDeepCSVprobbb = tr.getVec<double>("Jets_bJetTagDeepCSVprobbb");
@@ -89,7 +108,6 @@ private:
         }
  
         // Create JEC/R variation variables if needed
-        const auto& runtype = tr.getVar<std::string>("runtype");
         if( !tr.checkBranchInTree("JetsJECup") && runtype == "MC")
         {
             const auto& Jets_origIndex = tr.getVec<int>("Jets_origIndex");
@@ -114,15 +132,18 @@ private:
             const auto& Weight = tr.getVar<double>("Weight");
             w = (Weight >= 0.0) ? 1 : -1;
         }
-        tr.registerDerivedVar<int>("eventCounter",w);
-
+        tr.registerDerivedVar<int>("eventCounter",w);        
     }
 public:
-    PrepNTupleVars()
+    PrepNTupleVars() : printJetpTScaled(false)
     {
         std::cout<<"Preparing variables from the NTuples"<<std::endl;
     }
 
+    ~PrepNTupleVars()
+    {
+        if(printJetpTScaled) std::cout<<utility::color("Warning: Scaled all Jet pT by 0.95","red")<<std::endl;
+    }
     void operator()(NTupleReader& tr)
     {
         prepNTupleVars(tr);
