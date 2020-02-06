@@ -27,7 +27,7 @@ private:
         tr.registerDerivedVar("used_gen_bjet_for_mbl"+myVarSuffix_, used_gen_bjet_for_mbl);
     }
     void getJetMatch(const std::vector<TLorentzVector>& JetVectors, const std::vector<bool>& GoodJets_pt30, const std::vector<bool>& GoodBJets_pt30, 
-                     double& twoLep_mbldiff, int& used_jet, unsigned int other_used_jet, double& TwoLep_Mbl, const TLorentzVector& lep,  std::pair<int,int>& TwoLep_Mbl_Idx, const bool checkB)
+                     double& twoLep_mbldiff, int& used_jet, unsigned int other_used_jet, double& TwoLep_Mbl, const TLorentzVector& lep,  std::pair<unsigned int,unsigned int>& TwoLep_Mbl_Idx, const bool checkB)
     {
         for(unsigned int j=0; j < JetVectors.size(); j++)
         {
@@ -84,13 +84,10 @@ private:
         const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
         const auto& GoodBJets_pt45  = tr.getVec<bool>("GoodBJets_pt45"+myVarSuffix_);
         
-        // Define Loose HEM15/16 veto
-        bool passHEMVetoLoose = !(objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear) ||
-                                  objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
-        tr.registerDerivedVar("passHEMVetoLoose"+myVarSuffix_, passHEMVetoLoose);
-
-        // Define full HEM15/16 veto
-        bool passHEMVeto = !objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear) && passHEMVetoLoose; 
+        // Define HEM15/16 veto
+        bool passHEMVeto = !(objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear) ||
+                             objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear) || 
+                             objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
         tr.registerDerivedVar("passHEMVeto"+myVarSuffix_, passHEMVeto);
 
         // HT of jets
@@ -207,7 +204,7 @@ private:
         int  used_jet1 = -1, used_jet2 =-1;
         double TwoLep_Mbl1=-1, TwoLep_Mbl2=-1;
         double twoLep_mbl1diff=999, twoLep_mbl2diff=999;
-        std::pair<int,int> TwoLep_Mbl1_Idx, TwoLep_Mbl2_Idx;
+        std::pair<unsigned int,unsigned int> TwoLep_Mbl1_Idx, TwoLep_Mbl2_Idx;
        
         if(NGoodLeptons==2)
         {

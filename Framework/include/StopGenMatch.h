@@ -156,7 +156,7 @@ private:
                 bool is_jet = ( abs(pdgid) <= 5 || abs(pdgid) == 21);
                 int WId = findParent(24, p, GenParticles_ParentId, GenParticles_ParentIdx);
                 bool pass_lepton = is_lepton ? (status == 1) && (abs(momid) == 24 || abs(momid) == 15): false; //leptons must be status 1 and come from either a W or a tau
-                bool pass_jet = is_jet ? status == 23 : false; //jets must have status 23
+                bool pass_jet = is_jet ? status == 71 : false; //jets must have status 23
                 int stopId = findParent(1000006, p, GenParticles_ParentId, GenParticles_ParentIdx);
                 bool pass_stop = stopId != -1; //all gen particles must come from a stop
                 bool filter = (pass_lepton || pass_jet) && pass_stop;
@@ -242,12 +242,32 @@ private:
             std::vector<TLorentzVector> RecoSumList;
             std::vector<TLorentzVector> GenSumList;
             std::vector<int> NMatched(2,0);
-            float NGenTotal = 0;
+            float NGenTotal = 0, NOkayGenTotal = 0;
             double fracGenMatched = -1.0;
+            TLorentzVector TestGenSum;
             for(unsigned int g=0; g < GenParticles.size(); g++)
             {
-                if (GoodGenParticles[g]) NGenTotal += 1;
+                if (GoodGenParticles[g])
+                {
+                    NGenTotal += 1;
+                    if(GenParticles_PdgId[g] > 0) TestGenSum += GenParticles[g];
+
+                }
+                if (OkayGenParticles[g]) NOkayGenTotal += 1;
+
+//                if (GoodGenParticles[g])  std::cout << GenParticles_PdgId[g] << " " << GenParticles_Status[g] << std::endl;
+
+//                std::cout << GenParticles_PdgId[g] << " " << GenParticles_Status[g] << " "<< GenParticles_ParentId[g] << " "  << GoodGenParticles[g] << " " << OkayGenParticles[g] << std::endl;
+
+
             }
+//            std::cout << "PDG ID   " << "Parent PDG ID" << std::endl;
+            for(unsigned int t=0; t < GenParticles.size(); t++)
+            {
+//                std::cout << GenParticles_PdgId[t] << "    " << GenParticles_ParentId[t] << std::endl;
+//                std::cout << GenParticles_ParentId[g] << std::endl;
+            }
+//            std::cout << "------------------------------" << std::endl;
             for(unsigned int p=0; p < resParticleList.size(); p++)
             {
                 TLorentzVector initMatchedSum;
@@ -264,26 +284,27 @@ private:
             }
             int NTotMatched = NMatched[0] + NMatched[1];
             if (NGenTotal != 0) fracGenMatched = std::round((NTotMatched / NGenTotal)*1000)/1000;
-//            std::cout << NTotMatched << " " << NGenTotal << " " << fracGenMatched << std::endl;
-       
+//            std::cout << NTotMatched << " Good Gen Total: " << NGenTotal << " Frac matched: " << fracGenMatched << " Okay Gen Total: " << NOkayGenTotal << std::endl;
 
-            
+//            std::cout << TestGenSum.M() << std::endl;
+//            std::cout << "------------------------------" << std::endl;
+
             asymm_mt2_lester_bisect::disableCopyrightMessage();
             
             tr.registerDerivedVar("GM_StopMT2"+myVarSuffix_,        ttUtility::coreMT2calc(RecoSumList.at(0),RecoSumList.at(1),lvMET));
             tr.registerDerivedVar("GM_StopGenMT2"+myVarSuffix_,     ttUtility::coreMT2calc(GenSumList.at(0),GenSumList.at(1),lvGenMET));
-            tr.registerDerivedVar("GM_Stop1Mass"+myVarSuffix_,      RecoSumList.at(0).M());
-            tr.registerDerivedVar("GM_Stop2Mass"+myVarSuffix_,      RecoSumList.at(1).M());
-            tr.registerDerivedVar("GM_Stop1GenMass"+myVarSuffix_,   GenSumList.at(0).M());
-            tr.registerDerivedVar("GM_Stop2GenMass"+myVarSuffix_,   GenSumList.at(1).M());            
-            tr.registerDerivedVar("GM_Nlino1Mass"+myVarSuffix_,     RecoSumList.at(2).M());
-            tr.registerDerivedVar("GM_Nlino2Mass"+myVarSuffix_,     RecoSumList.at(3).M());
-            tr.registerDerivedVar("GM_Nlino1GenMass"+myVarSuffix_,  GenSumList.at(2).M());
-            tr.registerDerivedVar("GM_Nlino2GenMass"+myVarSuffix_,  GenSumList.at(3).M());
-            tr.registerDerivedVar("GM_Single1Mass"+myVarSuffix_,    RecoSumList.at(4).M());
-            tr.registerDerivedVar("GM_Single2Mass"+myVarSuffix_,    RecoSumList.at(5).M());
-            tr.registerDerivedVar("GM_Single1GenMass"+myVarSuffix_, GenSumList.at(4).M());
-            tr.registerDerivedVar("GM_Single2GenMass"+myVarSuffix_, GenSumList.at(5).M());
+            tr.registerDerivedVar("GM_Stop1"+myVarSuffix_,      RecoSumList.at(0));
+            tr.registerDerivedVar("GM_Stop2"+myVarSuffix_,      RecoSumList.at(1));
+            tr.registerDerivedVar("GM_Stop1Gen"+myVarSuffix_,   GenSumList.at(0));
+            tr.registerDerivedVar("GM_Stop2Gen"+myVarSuffix_,   GenSumList.at(1));            
+            tr.registerDerivedVar("GM_Nlino1"+myVarSuffix_,     RecoSumList.at(2));
+            tr.registerDerivedVar("GM_Nlino2"+myVarSuffix_,     RecoSumList.at(3));
+            tr.registerDerivedVar("GM_Nlino1Gen"+myVarSuffix_,  GenSumList.at(2));
+            tr.registerDerivedVar("GM_Nlino2Gen"+myVarSuffix_,  GenSumList.at(3));
+            tr.registerDerivedVar("GM_Single1"+myVarSuffix_,    RecoSumList.at(4));
+            tr.registerDerivedVar("GM_Single2"+myVarSuffix_,    RecoSumList.at(5));
+            tr.registerDerivedVar("GM_Single1Gen"+myVarSuffix_, GenSumList.at(4));
+            tr.registerDerivedVar("GM_Single2Gen"+myVarSuffix_, GenSumList.at(5));
 
             tr.registerDerivedVar("fracGenMatched"+myVarSuffix_,  fracGenMatched);
         }
