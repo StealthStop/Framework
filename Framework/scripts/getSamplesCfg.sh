@@ -3,8 +3,11 @@
 cfgDir=${CMSSW_BASE}/src/Framework/Framework/cfg
 
 #Default options
-sampleSCfgFile="sampleSets_v6.cfg"
-sampleCCfgFile="sampleCollections_v6.cfg"
+#sampleSCfgFile="sampleSets_v6.cfg"
+#sampleCCfgFile="sampleCollections_v6.cfg"
+# use v5 for stop gen level study
+sampleSCfgFile="sampleSets_v5.cfg"
+sampleCCfgFile="sampleCollections_v5.cfg"
 
 sampleSCfgFileSkim='sampleSets_v2_skim.cfg'
 sampleCCfgFileSkim='sampleCollections_v2_skim.cfg'
