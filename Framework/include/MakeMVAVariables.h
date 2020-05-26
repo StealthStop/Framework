@@ -340,7 +340,7 @@ public:
         , nTopJets_(nTopJets)
         , nLeptons_(nLeptons)
     {
-        if(printStatus) std::cout<<"Setting up MakeMVAVariables: using the \""<<jetColl<<"\" jet collection"<<std::endl;
+        if(printStatus) std::cout<<"Setting up MakeMVAVariables: using the \""<<jetColl+myVarSuffix<<"\" jet collection"<<std::endl;
         setJetCollection(jetColl);
     }
 
