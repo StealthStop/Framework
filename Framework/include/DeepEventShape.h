@@ -2,8 +2,8 @@
 #define DEEPEVENTSHAPE_H
 
 #include "tensorflow/c/c_api.h"
-#include "TopTagger/CfgParser/include/Context.hh"
-#include "TopTagger/CfgParser/include/CfgDocument.hh"
+#include "TopTagger/CfgParser/interface/Context.hh"
+#include "TopTagger/CfgParser/interface/CfgDocument.hh"
 #include "Framework/Framework/include/Utility.h"
 
 #include "cstdlib"
