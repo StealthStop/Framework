@@ -6,6 +6,8 @@
 class PrepNTupleVars
 {
 private:
+    std::map<std::string, std::pair<double,double>> pTMass_;
+
     class JetCollection
     {
     public:
@@ -107,8 +109,8 @@ private:
     {
         // Creating the jet pT and mass scaled collection
         JetCollection jc(tr);
-        derivePtMassScaledJetCollection(tr, jc, "pTScaled", 0.95, 1.00);
-        derivePtMassScaledJetCollection(tr, jc, "mScaled",  1.00, 0.95);
+        const auto& runYear = tr.getVar<std::string>("runYear");
+        derivePtMassScaledJetCollection(tr, jc, "mpTScaled", pTMass_[runYear].first, pTMass_[runYear].second);
 
         // Create DeepCSV b-jet discriminator vector
         const auto& Jets_bJetTagDeepCSVprobb  = tr.getVec<double>("Jets_bJetTagDeepCSVprobb");
@@ -147,7 +149,7 @@ private:
         tr.registerDerivedVar<int>("eventCounter",w);        
     }
 public:
-    PrepNTupleVars()
+    PrepNTupleVars() : pTMass_({{"2016",{0.95,0.95}},{"2017",{0.95,1.01}},{"2018pre",{0.95,0.98}},{"2018post",{0.95,0.98}}})
     {
     }
 
