@@ -149,6 +149,7 @@ private:
         int NNonIsoMuonJets_pt30_inclusive = NNonIsoMuonJets_pt30 > 12 ? 12 : NNonIsoMuonJets_pt30;
         tr.registerDerivedVar("NNonIsoMuonJets_pt30_inclusive"+myVarSuffix_, NNonIsoMuonJets_pt30_inclusive);
         tr.registerDerivedVar("NNonIsoMuonJets_pt30_inclusive_shift"+myVarSuffix_, NNonIsoMuonJets_pt30_inclusive - 7);
+        tr.createDerivedVec<bool>("AllJets"+myVarSuffix_, Jets.size(), true);
     }
 
 public:
