@@ -6,6 +6,8 @@
 class PrepNTupleVars
 {
 private:
+    std::map<std::string, std::pair<double,double>> pTMass_;
+
     class JetCollection
     {
     public:
@@ -81,7 +83,7 @@ private:
         }
     }
 
-    void derivePtScaledJetCollection(NTupleReader& tr, const JetCollection& jc, const std::string& name, double scale)
+    void derivePtMassScaledJetCollection(NTupleReader& tr, const JetCollection& jc, const std::string& name, double scalePt, double scaleMass)
     {
         tr.registerDerivedVar("JetID"+name, jc.JetID);        
 
@@ -94,7 +96,7 @@ private:
 
         for(unsigned j = 0; j < jc.Jets.size(); ++j)
         {
-            newJets[j].SetPtEtaPhiM( scale*jc.Jets[j].Pt(), jc.Jets[j].Eta(), jc.Jets[j].Phi(), jc.Jets[j].M() );
+            newJets[j].SetPtEtaPhiM( scalePt*jc.Jets[j].Pt(), jc.Jets[j].Eta(), jc.Jets[j].Phi(), scaleMass*jc.Jets[j].M() );
             newJets_bJetTagDeepCSVprobb.at(j) = jc.Jets_bJetTagDeepCSVprobb.at(j);
             newJets_bJetTagDeepCSVprobbb.at(j) = jc.Jets_bJetTagDeepCSVprobbb.at(j);
             newJets_bJetTagDeepCSVtotb.at(j) = ( jc.Jets_bJetTagDeepCSVprobb.at(j) + jc.Jets_bJetTagDeepCSVprobbb.at(j) );
@@ -105,9 +107,10 @@ private:
 
     void prepNTupleVars(NTupleReader& tr)
     {
-        // Creating the jet pT scaled collection
+        // Creating the jet pT and mass scaled collection
         JetCollection jc(tr);
-        derivePtScaledJetCollection(tr, jc, "pTScaled", 0.95);
+        const auto& runYear = tr.getVar<std::string>("runYear");
+        derivePtMassScaledJetCollection(tr, jc, "mpTScaled", pTMass_[runYear].first, pTMass_[runYear].second);
 
         // Create DeepCSV b-jet discriminator vector
         const auto& Jets_bJetTagDeepCSVprobb  = tr.getVec<double>("Jets_bJetTagDeepCSVprobb");
@@ -146,7 +149,7 @@ private:
         tr.registerDerivedVar<int>("eventCounter",w);        
     }
 public:
-    PrepNTupleVars()
+    PrepNTupleVars() : pTMass_({{"2016",{0.95,0.95}},{"2017",{0.95,1.01}},{"2018pre",{0.95,0.98}},{"2018post",{0.95,0.98}}})
     {
     }
 
