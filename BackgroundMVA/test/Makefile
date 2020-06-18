@@ -3,7 +3,7 @@ ODIR    = obj
 IFWDIR  = $(CMSSW_BASE)/src/Framework/Framework/include
 SFWDIR  = $(CMSSW_BASE)/src/Framework/Framework/src
 SSDIR   = $(CMSSW_BASE)/src/SusyAnaTools/Tools
-ITTDir  = $(CMSSW_BASE)/CfgParser/include
+ITTDir  = $(CMSSW_BASE)/CfgParser/interface
 STTDir  = $(CMSSW_BASE)/CfgParser/src
 TDIR    = $(CMSSW_BASE)/src
 

@@ -2,7 +2,7 @@
 #define MakeMT2Hemispheres_h
 
 #include "Framework/Framework/include/MT2Hemispheres.h"
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h" 
+#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -10,7 +10,7 @@
 class MakeMT2Hemispheres
 {
 private:
-    std::string jetMaskName_, nJetName_, myVarSuffix_;
+    std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_;
 
     template<typename T> void orderVars(T& stop1, T& stop2, const T pseudo1, const T pseudo2, const bool pseudo1Tostop1) const
     {
@@ -28,12 +28,12 @@ private:
 
     void getHemispheres(NTupleReader& tr) const
     {
-        const auto& met                = tr.getVar<double>("MET");
-        const auto& metPhi             = tr.getVar<double>("METPhi");
-        const auto& Jets               = tr.getVec<TLorentzVector>("Jets");
-        const auto& GoodJets           = tr.getVec<bool>(jetMaskName_);
-        const auto& NGoodJets          = tr.getVar<int>(nJetName_);
-        const auto& GoodLeptons        = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
+        const auto& met                   = tr.getVar<double>("MET");
+        const auto& metPhi                = tr.getVar<double>("METPhi");
+        const auto& Jets                  = tr.getVec<TLorentzVector>("Jets");
+        const auto& GoodJets              = tr.getVec<bool>(jetMaskName_);
+        const auto& NGoodJets             = tr.getVar<int>(nJetName_);
+        const auto& GoodLeptons           = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
         TLorentzVector stop1_PtRank,       stop2_PtRank;
@@ -71,7 +71,7 @@ private:
 
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
-            Hemisphere hemi(px, py, pz, E, 2, hemi_association);
+            Hemisphere hemi(px, py, pz, E, 2, hemi_association); // to get MT2 hemisphere jets
             std::vector<int> grouping = hemi.getGrouping();
             TLorentzVector pseudojet1, pseudojet2;
             double pseudojet1ScalarPt = 0.0, pseudojet2ScalarPt = 0.0;
@@ -132,8 +132,9 @@ private:
     }
 
 public:    
-    MakeMT2Hemispheres(const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "")
-        : jetMaskName_(jetMaskName)
+    MakeMT2Hemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "")
+        : jetName_(jetName) 
+        , jetMaskName_(jetMaskName)
         , nJetName_(nJetName)
         , myVarSuffix_(myVarSuffix)
     {
