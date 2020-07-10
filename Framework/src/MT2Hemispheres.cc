@@ -389,7 +389,43 @@ int Hemisphere::Reconstruct()
             cout << " Axis 2 is Object = " << J_Max  << " with Pt " << Object_Pt[J_Max]<< endl;
         }
         
-    } 
+    }
+
+    //----------------------------------------
+    //--- Determine axes for seed method 5 ---
+    //--- Takes first two objects	   ---
+    //--- For seeding with tagged tops	   ---
+    //----------------------------------------
+
+    else if ( seed_meth == 5 ) 
+    {
+	I_Max = 0;
+	J_Max = 1;
+
+	if ( Object_Pt[J_Max] > Object_Pt[I_Max] )
+	{
+		std::swap(I_Max, J_Max);	
+	}
+	
+	Axis1[0] = Object_Px[I_Max] /  Object_P[I_Max];
+        Axis1[1] = Object_Py[I_Max] /  Object_P[I_Max];
+        Axis1[2] = Object_Pz[I_Max] /  Object_P[I_Max];
+       	Axis1[3] = Object_P[I_Max];
+       	Axis1[4] = Object_E[I_Max];
+	
+	Axis2[0] = Object_Px[J_Max] /  Object_P[J_Max];
+        Axis2[1] = Object_Py[J_Max] /  Object_P[J_Max];
+        Axis2[2] = Object_Pz[J_Max] /  Object_P[J_Max];
+       	Axis2[3] = Object_P[J_Max];
+       	Axis2[4] = Object_E[J_Max];
+
+	if ( dbg > 0 )
+	{
+            cout << " Axis 1 is Object = " << I_Max  << " with Pt " << Object_Pt[I_Max]<< endl;
+            cout << " Axis 2 is Object = " << J_Max  << " with Pt " << Object_Pt[J_Max]<< endl;
+	}
+
+    }
     else if ( !(seed_meth == 0 && (hemi_meth == 8 || hemi_meth ==9) ) ) 
     {
         cout << "Please give a valid seeding method!" << endl;
