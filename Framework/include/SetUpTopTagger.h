@@ -18,14 +18,16 @@ private:
     ttUtility::ConstAK8Inputs<double>* AK8Inputs_;
     const std::vector<TLorentzVector>& Jets_;                      
     const std::vector<double>& Jets_bJetTagDeepCSVtotb_;
-    const std::vector<double>& Jets_qgLikelihood_;         
+    const std::vector<double>& Jets_qgLikelihood_;        
+    const std::vector<bool>& GoodJets_; 
     const std::vector<TLorentzVector>& JetsAK8_;                   
     const std::vector<double>& JetsAK8_tDiscriminatorDeep_;
     const std::vector<double>& JetsAK8_wDiscriminatorDeep_;
     const std::vector<double>& JetsAK8_softDropMass_;      
     const std::vector<std::vector<TLorentzVector>>& JetsAK8_subjets_;           
     const std::vector<TLorentzVector>& hadtops_;                   
-    const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters_;           
+    const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters_;
+               
         
     std::vector<double>* intVecTodoubleVec(NTupleReader& tr, const std::string& vType);
     std::vector<std::vector<double>>* VecVecintToVecVecdouble(NTupleReader& tr, const std::string& name);
