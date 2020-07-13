@@ -1,5 +1,5 @@
-#include "Framework/Framework/include/MT2Hemispheres.h"
-#include "Framework/Framework/include/MT2HemispheresUtilities.h"
+#include "Framework/Framework/include/Hemispheres.h"
+#include "Framework/Framework/include/HemispheresUtilities.h"
 
 using namespace std;
 

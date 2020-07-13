@@ -1,5 +1,5 @@
-#ifndef MT2HemispheresUtilities_H
-#define MT2HemispheresUtilities_H
+#ifndef HemispheresUtilities_H
+#define HemispheresUtilities_H
 
 #include <stdio.h>
 #include <stdlib.h>
