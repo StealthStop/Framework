@@ -1,13 +1,13 @@
-#ifndef MakeMT2Hemispheres_h
-#define MakeMT2Hemispheres_h
+#ifndef MakeStopHemispheres_h
+#define MakeStopHemispheres_h
 
-#include "Framework/Framework/include/MT2Hemispheres.h"
+#include "Framework/Framework/include/Hemispheres.h"
 #include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
 #include <vector>
 #include <iostream>
 #include <cmath>
 
-class MakeMT2Hemispheres
+class MakeStopHemispheres
 {
 private:
     std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_;
@@ -132,13 +132,13 @@ private:
     }
 
 public:    
-    MakeMT2Hemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "")
+    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "")
         : jetName_(jetName) 
         , jetMaskName_(jetMaskName)
         , nJetName_(nJetName)
         , myVarSuffix_(myVarSuffix)
     {
-        std::cout<<"Setting up MT2Hemispheres with jet collection: \""<<jetMaskName<<"\""<<std::endl;
+        std::cout<<"Setting up StopHemispheres with jet collection: \""<<jetMaskName<<"\""<<std::endl;
     }
 
     void operator()(NTupleReader& tr)
