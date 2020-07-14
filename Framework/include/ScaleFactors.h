@@ -629,7 +629,7 @@ private:
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
         // --------------------------------------------------------------------------------------
         double prefiringScaleFactor = 1.0, prefiringScaleFactorUp = 1.0, prefiringScaleFactorDown = 1.0;
-        if( runYear == "2017" )
+        if( runYear == "2016" || runYear == "2017" )
         {
             const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);            
             const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);            
