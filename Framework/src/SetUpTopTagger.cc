@@ -23,31 +23,28 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     hadtops_                   (hadtops),
     hadtopdaughters_           (hadtopdaughters)
 {
-
     // ------------------------------
-    // -- Filter AK4 and AK8 jets
+    // -- Jet Filter
     // ------------------------------
-    // Select AK4 jets to use in tagger
-    // AK4 jets filter / TRUE: use jet; FALSE: ignore jet
 
-    std::vector<uint8_t> ak4Filter(Jets_.size(), true);
-    for( unsigned int i = 0; i < ak4Filter.size(); ++i)
-    {
+    //std::vector<uint8_t> ak4Filter(Jets_.size(), true);
+    //for( unsigned int i = 0; i < ak4Filter.size(); ++i)
+    //{
     //    // Jet cleaning which is pT < 20, for resolved top candidate: pT > 40, 30, 20 GeV on the three jets respectively
     //    //if(Jets[i].Pt() < 20.0)
     //    //{
     //    //    ak4Filter[i] = false;
     //    //}
-
-        if (GoodJets_[i])
-        {
-            ak4Filter[i] = true;   
-        } 
-        else 
-        {
-            ak4Filter[i] = false;
-        }
-    }
+    //
+    //    if (GoodJets_[i])
+    //    {
+    //        ak4Filter[i] = true;   
+    //    } 
+    //    else 
+    //    {
+    //        ak4Filter[i] = false;
+    //    }
+    //}
 
     // Use helper function to create input list 
     // Create AK4 inputs object
@@ -57,7 +54,7 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
         Jets_qgLikelihood_, 
         hadtops_, 
         hadtopdaughters_);  
-    AK4Inputs_->setFilterVector(ak4Filter); // filter
+    //AK4Inputs_->setFilterVector(ak4Filter); // filter
 
     // Create AK8 inputs object
     AK8Inputs_ = new ttUtility::ConstAK8Inputs<double>(
