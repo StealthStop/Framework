@@ -16,6 +16,7 @@ private:
     std::string myVarSuffix_;
     ttUtility::ConstAK4Inputs<double>* AK4Inputs_;
     ttUtility::ConstAK8Inputs<double>* AK8Inputs_;
+    std::vector<uint8_t>* ak4Filter_;
     const std::vector<TLorentzVector>& Jets_;                      
     const std::vector<double>& Jets_bJetTagDeepCSVtotb_;
     const std::vector<double>& Jets_qgLikelihood_;        
