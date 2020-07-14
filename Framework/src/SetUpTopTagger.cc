@@ -11,6 +11,7 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     myVarSuffix_               (myVarSuffix),
     AK4Inputs_                 (nullptr),
     AK8Inputs_                 (nullptr),
+    ak4Filter_                 (nullptr),
     Jets_                      (tr.getVec<TLorentzVector>("Jets")),
     Jets_bJetTagDeepCSVtotb_   (tr.getVec<double>("Jets_bJetTagDeepCSVtotb")),
     Jets_qgLikelihood_         (tr.getVec<double>("Jets_qgLikelihood")),
@@ -26,25 +27,24 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     // ------------------------------
     // -- Jet Filter
     // ------------------------------
-
-    //std::vector<uint8_t> ak4Filter(Jets_.size(), true);
-    //for( unsigned int i = 0; i < ak4Filter.size(); ++i)
-    //{
-    //    // Jet cleaning which is pT < 20, for resolved top candidate: pT > 40, 30, 20 GeV on the three jets respectively
-    //    //if(Jets[i].Pt() < 20.0)
-    //    //{
-    //    //    ak4Filter[i] = false;
-    //    //}
-    //
-    //    if (GoodJets_[i])
-    //    {
-    //        ak4Filter[i] = true;   
-    //    } 
-    //    else 
-    //    {
-    //        ak4Filter[i] = false;
-    //    }
-    //}
+    std::vector<uint8_t>* ak4Filter_ = new std::vector<uint8_t>(Jets_.size(), true);
+    for( unsigned int i = 0; i < ak4Filter_->size(); ++i)
+    {
+        // Jet cleaning which is pT < 20, for resolved top candidate: pT > 40, 30, 20 GeV on the three jets respectively
+        //if(Jets[i].Pt() < 20.0)
+        //{
+        //    ak4Filter_[i] = false;
+        //}
+    
+        if (GoodJets_[i])
+        {
+            (*ak4Filter_)[i] = true;   
+        } 
+        else 
+        {
+            (*ak4Filter_)[i] = false;
+        }
+    }
 
     // Use helper function to create input list 
     // Create AK4 inputs object
@@ -54,7 +54,7 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
         Jets_qgLikelihood_, 
         hadtops_, 
         hadtopdaughters_);  
-    //AK4Inputs_->setFilterVector(ak4Filter); // filter
+    AK4Inputs_->setFilterVector(*ak4Filter_); // filter
 
     // Create AK8 inputs object
     AK8Inputs_ = new ttUtility::ConstAK8Inputs<double>(
@@ -68,13 +68,13 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     
     //Add variables that are not passed to the constructor
     addVariables();      
-
 }
 
 SetUpTopTagger::~SetUpTopTagger()
 {
     delete AK4Inputs_;
     delete AK8Inputs_;
+    delete ak4Filter_;
 }
 
 std::vector<double>* SetUpTopTagger::intVecTodoubleVec(NTupleReader& tr, const std::string& name)
@@ -136,6 +136,5 @@ void SetUpTopTagger::addVariables()
 // The vector of input constituents can also be constructed "by hand"    
 std::vector<Constituent> SetUpTopTagger::getConstituents() const
 {
-    //return ttUtility::packageConstituents(*AK4Inputs_, *AK8Inputs_);
     return ttUtility::packageConstituents(*AK4Inputs_, *AK8Inputs_);
 }
