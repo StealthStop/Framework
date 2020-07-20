@@ -30,7 +30,7 @@ private:
         const auto& GoodJets_pt20 = tr.getVec<bool>("GoodJets_pt20");
 
         // create an index for resolved tops
-        std::vector<TLorentzVector> StopJets_;
+        auto& StopJets = tr.createDerivedVec<TLorentzVector>("StopJets"+myVarSuffix_);
         std::set<unsigned int> usedIndex;
         const std::vector<TopObject*>& taggedObjects = ttr->getTops();
         for(auto* t : taggedObjects)
@@ -46,7 +46,7 @@ private:
                     top += c->P();
                 }
             
-                StopJets_.push_back(top);
+                StopJets.push_back(top);
             }
         }
 
@@ -68,12 +68,11 @@ private:
             if(!GoodJets_pt20[i]) continue;
             if ( std::find(usedIndex.begin(), usedIndex.end(), i) == usedIndex.end() ) 
             {
-                StopJets_.push_back(Jets[i]);
+                StopJets.push_back(Jets[i]);
             }
         }
     
         // get the StopJets : add tops and not tops jets to each other
-        auto& StopJets = tr.createDerivedVec<TLorentzVector>("StopJets"+myVarSuffix_, StopJets_);
         auto& GoodStopJets = tr.createDerivedVec<bool>("GoodStopJets"+myVarSuffix_, StopJets.size(), true);      
         tr.createDerivedVar<int>("NGoodStopJets"+myVarSuffix_, GoodStopJets.size());
         
