@@ -50,16 +50,8 @@ private:
             }
         }
 
-        // get the resolved jets' Mass, Eta, Phi, Pt
-        double resolvedMass = -9999.9, resolvedEta = -9999.9, resolvedPhi = -9999.9, resolvedPt = -9999.9;
-        for(auto& i : usedIndex)
-        {
-            TLorentzVector resolved = Jets[i];
-            resolvedMass = resolved.M();
-            resolvedEta  = resolved.Eta();
-            resolvedPhi  = resolved.Phi();
-            resolvedPt   = resolved.Pt();
-        }
+        std::sort(StopJets.begin(), StopJets.end(),
+            [] (TLorentzVector const& a, TLorentzVector const& b ){return a.Pt() > b.Pt();});
 
         // get the notTopJets by using 'usedIndex' 
         std::vector<TLorentzVector> notTopJets;
@@ -76,10 +68,6 @@ private:
         auto& GoodStopJets = tr.createDerivedVec<bool>("GoodStopJets"+myVarSuffix_, StopJets.size(), true);      
         tr.createDerivedVar<int>("NGoodStopJets"+myVarSuffix_, GoodStopJets.size());
         
-        tr.registerDerivedVar("resolvedMass"+myVarSuffix_, resolvedMass);
-        tr.registerDerivedVar("resolvedEta"+myVarSuffix_, resolvedEta);
-        tr.registerDerivedVar("resolvedPhi"+myVarSuffix_, resolvedPhi);
-        tr.registerDerivedVar("resolvedPt"+myVarSuffix_, resolvedPt);   
     }
 
 public:    
