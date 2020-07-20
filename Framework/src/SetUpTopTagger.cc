@@ -15,7 +15,8 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     Jets_                      (tr.getVec<TLorentzVector>("Jets")),
     Jets_bJetTagDeepCSVtotb_   (tr.getVec<double>("Jets_bJetTagDeepCSVtotb")),
     Jets_qgLikelihood_         (tr.getVec<double>("Jets_qgLikelihood")),
-    GoodJets_                  (tr.getVec<bool>("GoodJets")), 
+    GoodJets_                  (tr.getVec<bool>("GoodJets")),
+    GoodJets_pt20_             (tr.getVec<bool>("GoodJets_pt20")), 
     JetsAK8_                   (tr.getVec<TLorentzVector>("JetsAK8")),
     JetsAK8_tDiscriminatorDeep_(tr.getVec<double>("JetsAK8_tDiscriminatorDeep")),
     JetsAK8_wDiscriminatorDeep_(tr.getVec<double>("JetsAK8_wDiscriminatorDeep")),
@@ -36,7 +37,7 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
         //    ak4Filter_[i] = false;
         //}
     
-        if (GoodJets_[i])
+        if (GoodJets_pt20_[i])
         {
             (*ak4Filter_)[i] = true;   
         } 

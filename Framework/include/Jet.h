@@ -92,16 +92,18 @@ private:
             }//END of looping through electrons
         }//END of NElectrons if statement
 
+        auto& jets_pt20_ = tr.createDerivedVec<bool>("Jets_pt20"+myVarSuffix_);
         auto& jets_pt30_ = tr.createDerivedVec<bool>("Jets_pt30"+myVarSuffix_);
         auto& jets_pt40_ = tr.createDerivedVec<bool>("Jets_pt40"+myVarSuffix_);
         auto& jets_pt45_ = tr.createDerivedVec<bool>("Jets_pt45"+myVarSuffix_);
-        int NJets_pt30 = 0, NJets_pt40 = 0, NJets_pt45 = 0;
+        int NJets_pt20 = 0, NJets_pt30 = 0, NJets_pt40 = 0, NJets_pt45 = 0;
 
         auto& goodjets_      = tr.createDerivedVec<bool>("GoodJets"+myVarSuffix_);
+        auto& goodjets_pt20_ = tr.createDerivedVec<bool>("GoodJets_pt20"+myVarSuffix_);
         auto& goodjets_pt30_ = tr.createDerivedVec<bool>("GoodJets_pt30"+myVarSuffix_);
         auto& goodjets_pt40_ = tr.createDerivedVec<bool>("GoodJets_pt40"+myVarSuffix_);
         auto& goodjets_pt45_ = tr.createDerivedVec<bool>("GoodJets_pt45"+myVarSuffix_);
-        int NGoodJets = 0, NGoodJets_pt30 = 0, NGoodJets_pt40 = 0, NGoodJets_pt45 = 0;
+        int NGoodJets = 0, NGoodJets_pt20, NGoodJets_pt30 = 0, NGoodJets_pt40 = 0, NGoodJets_pt45 = 0;
 
         auto& nonIsoMuonjets_      = tr.createDerivedVec<bool>("NonIsoMuonJets"+myVarSuffix_);
         auto& nonIsoMuonjets_pt30_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
@@ -112,12 +114,14 @@ private:
         for(unsigned int i = 0; i < Jets.size(); ++i ) 
         {               
             TLorentzVector lv = Jets.at(i);
-            
+           
+            setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 20, jets_pt20_, NJets_pt20); 
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 30, jets_pt30_, NJets_pt30);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 40, jets_pt40_, NJets_pt40);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 45, jets_pt45_, NJets_pt45);
 
             setJetVar( abs(lv.Eta()) < etaCut &&             tempGoodJets->at(i), goodjets_,      NGoodJets     );
+            setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 20 && goodjets_.at(i), goodjets_pt20_, NGoodJets_pt20);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 30 && goodjets_.at(i), goodjets_pt30_, NGoodJets_pt30);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 40 && goodjets_.at(i), goodjets_pt40_, NGoodJets_pt40);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 45 && goodjets_.at(i), goodjets_pt45_, NGoodJets_pt45);
@@ -128,11 +132,13 @@ private:
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 45 && nonIsoMuonjets_.at(i), nonIsoMuonjets_pt45_, NNonIsoMuonJets_pt45);
         }
 
+        tr.registerDerivedVar("NJets_pt20"+myVarSuffix_,  NJets_pt20);
         tr.registerDerivedVar("NJets_pt30"+myVarSuffix_,  NJets_pt30);
         tr.registerDerivedVar("NJets_pt40"+myVarSuffix_,  NJets_pt40);
         tr.registerDerivedVar("NJets_pt45"+myVarSuffix_,  NJets_pt45);
 
-        tr.registerDerivedVar("NGoodJets"     +myVarSuffix_, NGoodJets);        
+        tr.registerDerivedVar("NGoodJets"     +myVarSuffix_, NGoodJets);       
+        tr.registerDerivedVar("NGoodJets_pt20"+myVarSuffix_, NGoodJets_pt20); 
         tr.registerDerivedVar("NGoodJets_pt30"+myVarSuffix_, NGoodJets_pt30);
         tr.registerDerivedVar("NGoodJets_pt40"+myVarSuffix_, NGoodJets_pt40);
         tr.registerDerivedVar("NGoodJets_pt45"+myVarSuffix_, NGoodJets_pt45);
