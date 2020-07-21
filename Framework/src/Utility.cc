@@ -47,12 +47,12 @@ namespace utility
         return token;
     } 
 
-    bool compare_p( math::RThetaPhiVector v1, math::RThetaPhiVector v2 ) 
+    bool compare_p(const math::RThetaPhiVector& v1, const math::RThetaPhiVector& v2 ) 
     { 
         return ( v1.R() > v2.R() ); 
     }
 
-    bool compare_pt_TLV( const TLorentzVector v1, const TLorentzVector v2 )
+    bool compare_pt_TLV( const TLorentzVector& v1, const TLorentzVector& v2 )
     {
         return ( v1.Pt() > v2.Pt() );
     }
