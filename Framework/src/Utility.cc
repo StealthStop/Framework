@@ -52,6 +52,11 @@ namespace utility
         return ( v1.R() > v2.R() ); 
     }
 
+    bool compare_pt_TLV( const TLorentzVector v1, const TLorentzVector v2 )
+    {
+        return ( v1.Pt() > v2.Pt() );
+    }
+
     void get_cmframe_jets(const std::vector<TLorentzVector>* lab_frame_jets, std::vector<math::RThetaPhiVector>& cm_frame_jets, int max_number_of_jets ) 
     {
       if( lab_frame_jets == nullptr ) 

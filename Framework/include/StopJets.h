@@ -1,6 +1,8 @@
 #ifndef StopJets_h
 #define StopJets_h
 
+#include "Framework/Framework/include/Utility.h"
+
 // for top-tagged jets
 #include "TopTagger/TopTagger/interface/TopTaggerResults.h"
 #include "TopTagger/TopTagger/interface/TopObject.h"
@@ -50,8 +52,7 @@ private:
             }
         }
 
-        std::sort(StopJets.begin(), StopJets.end(),
-            [] (TLorentzVector const& a, TLorentzVector const& b ){return a.Pt() > b.Pt();});
+        std::sort(StopJets.begin(), StopJets.end(), utility::compare_pt_TLV);
 
         // get the notTopJets by using 'usedIndex' 
         std::vector<TLorentzVector> notTopJets;
