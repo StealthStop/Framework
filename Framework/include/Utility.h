@@ -12,7 +12,8 @@ namespace utility
     double calcMT(const TLorentzVector& lepton, const TLorentzVector& met);
     const std::string color(const std::string& text, const std::string& color);
     std::string split(const std::string& half, const std::string& s, const std::string& h);
-    bool compare_p( math::RThetaPhiVector v1, math::RThetaPhiVector v2 );
+    bool compare_p(const math::RThetaPhiVector& v1, const math::RThetaPhiVector& v2);
+    bool compare_pt_TLV(const TLorentzVector& v1, const TLorentzVector& v2);
     void get_cmframe_jets(const std::vector<TLorentzVector>* lab_frame_jets, std::vector<math::RThetaPhiVector>& cm_frame_jets, int max_number_of_jets = -1 );
 
     template<typename T> T sum2(T v) { return v*v; }

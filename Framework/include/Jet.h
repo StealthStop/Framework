@@ -103,7 +103,7 @@ private:
         auto& goodjets_pt30_ = tr.createDerivedVec<bool>("GoodJets_pt30"+myVarSuffix_);
         auto& goodjets_pt40_ = tr.createDerivedVec<bool>("GoodJets_pt40"+myVarSuffix_);
         auto& goodjets_pt45_ = tr.createDerivedVec<bool>("GoodJets_pt45"+myVarSuffix_);
-        int NGoodJets = 0, NGoodJets_pt20, NGoodJets_pt30 = 0, NGoodJets_pt40 = 0, NGoodJets_pt45 = 0;
+        int NGoodJets = 0, NGoodJets_pt20 = 0, NGoodJets_pt30 = 0, NGoodJets_pt40 = 0, NGoodJets_pt45 = 0;
 
         auto& nonIsoMuonjets_      = tr.createDerivedVec<bool>("NonIsoMuonJets"+myVarSuffix_);
         auto& nonIsoMuonjets_pt30_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);

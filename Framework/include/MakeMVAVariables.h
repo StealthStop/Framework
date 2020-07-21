@@ -164,7 +164,7 @@ private:
         auto Jets_cm_psort = Jets_cm;
         auto Jets_psort = Jets_;
         std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.P() > v2.P();} );
-        std::sort( Jets_psort.begin(), Jets_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.Pt() > v2.Pt();} );
+        std::sort( Jets_psort.begin(), Jets_psort.end(), utility::compare_pt_TLV );
         auto& Jets_cm_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_cm_top6"+myVarSuffix_);
         auto& Jets_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_top6"+myVarSuffix_);
 

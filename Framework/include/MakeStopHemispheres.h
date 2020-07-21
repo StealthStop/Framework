@@ -30,12 +30,13 @@ private:
     {
         const auto& met                   = tr.getVar<double>("MET");
         const auto& metPhi                = tr.getVar<double>("METPhi");
-        const auto& Jets                  = tr.getVec<TLorentzVector>("Jets");
+        const auto& Jets                  = tr.getVec<TLorentzVector>(jetName_);
         const auto& GoodJets              = tr.getVec<bool>(jetMaskName_);
         const auto& NGoodJets             = tr.getVar<int>(nJetName_);
         const auto& GoodLeptons           = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
+        static const int seed_method      = 5; // 2: Largest invariant mass; 5: Top seed method
         TLorentzVector stop1_PtRank,       stop2_PtRank;
         TLorentzVector stop1_MassRank,     stop2_MassRank;
         TLorentzVector stop1_ScalarPtRank, stop2_ScalarPtRank;
@@ -71,7 +72,7 @@ private:
 
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
-            Hemisphere hemi(px, py, pz, E, 2, hemi_association); // to get MT2 hemisphere jets
+            Hemisphere hemi(px, py, pz, E, seed_method, hemi_association); // to get MT2 hemisphere jets
             std::vector<int> grouping = hemi.getGrouping();
             TLorentzVector pseudojet1, pseudojet2;
             double pseudojet1ScalarPt = 0.0, pseudojet2ScalarPt = 0.0;
