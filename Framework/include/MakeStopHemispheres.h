@@ -10,7 +10,7 @@
 class MakeStopHemispheres
 {
 private:
-    std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_;
+    std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_, seedMethod_;
 
     template<typename T> void orderVars(T& stop1, T& stop2, const T pseudo1, const T pseudo2, const bool pseudo1Tostop1) const
     {
@@ -36,12 +36,7 @@ private:
         const auto& GoodLeptons           = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
-        int seed_method;
-        if ( myVarSuffix_ == "_TaggedTop" ) {
-            seed_method = 5; // 5: Top seed method for StopJets collection
-        } else { 
-            seed_method = 2; // 2: Largest invariant mass for other jet collecitons
-        }        
+        static const int seed_method      = (seedMethod_ == "TopSeed") ? 5 : 2;
         TLorentzVector stop1_PtRank,       stop2_PtRank;
         TLorentzVector stop1_MassRank,     stop2_MassRank;
         TLorentzVector stop1_ScalarPtRank, stop2_ScalarPtRank;
@@ -138,11 +133,12 @@ private:
     }
 
 public:    
-    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "")
+    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "", const std::string& seedMethod = "InvMass")
         : jetName_(jetName) 
         , jetMaskName_(jetMaskName)
         , nJetName_(nJetName)
         , myVarSuffix_(myVarSuffix)
+        , seedMethod_(seedMethod)
     {
         std::cout<<"Setting up StopHemispheres with jet collection: \""<<jetMaskName<<"\""<<std::endl;
     }
