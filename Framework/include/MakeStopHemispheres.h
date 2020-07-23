@@ -36,7 +36,12 @@ private:
         const auto& GoodLeptons           = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
-        static const int seed_method      = 5; // 2: Largest invariant mass; 5: Top seed method
+        int seed_method;
+        if ( myVarSuffix_ == "_TaggedTop" ) {
+            seed_method = 5; // 5: Top seed method for StopJets collection
+        } else { 
+            seed_method = 2; // 2: Largest invariant mass for other jet collecitons
+        }        
         TLorentzVector stop1_PtRank,       stop2_PtRank;
         TLorentzVector stop1_MassRank,     stop2_MassRank;
         TLorentzVector stop1_ScalarPtRank, stop2_ScalarPtRank;
