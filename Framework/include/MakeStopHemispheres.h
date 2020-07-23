@@ -10,7 +10,8 @@
 class MakeStopHemispheres
 {
 private:
-    std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_, seedMethod_;
+    std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_;
+    int seedMethod_;
 
     template<typename T> void orderVars(T& stop1, T& stop2, const T pseudo1, const T pseudo2, const bool pseudo1Tostop1) const
     {
@@ -36,7 +37,6 @@ private:
         const auto& GoodLeptons           = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
-        static const int seed_method      = (seedMethod_ == "TopSeed") ? 5 : 2;
         TLorentzVector stop1_PtRank,       stop2_PtRank;
         TLorentzVector stop1_MassRank,     stop2_MassRank;
         TLorentzVector stop1_ScalarPtRank, stop2_ScalarPtRank;
@@ -72,7 +72,7 @@ private:
 
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
-            Hemisphere hemi(px, py, pz, E, seed_method, hemi_association); // to get MT2 hemisphere jets
+            Hemisphere hemi(px, py, pz, E, seedMethod_, hemi_association); // to get MT2 hemisphere jets
             std::vector<int> grouping = hemi.getGrouping();
             TLorentzVector pseudojet1, pseudojet2;
             double pseudojet1ScalarPt = 0.0, pseudojet2ScalarPt = 0.0;
@@ -133,7 +133,7 @@ private:
     }
 
 public:    
-    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "", const std::string& seedMethod = "InvMass")
+    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "", const int seedMethod = 2)
         : jetName_(jetName) 
         , jetMaskName_(jetMaskName)
         , nJetName_(nJetName)
