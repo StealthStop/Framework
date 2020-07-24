@@ -11,7 +11,7 @@ class MakeStopHemispheres
 {
 private:
     std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_;
-    int seedMethod_;
+    Hemisphere::SeedMethod seedMethod_;
 
     template<typename T> void orderVars(T& stop1, T& stop2, const T pseudo1, const T pseudo2, const bool pseudo1Tostop1) const
     {
@@ -133,7 +133,7 @@ private:
     }
 
 public:    
-    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "", const int seedMethod = 2)
+    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "", const Hemisphere::SeedMethod& seedMethod = Hemisphere::InvMassSeed)
         : jetName_(jetName) 
         , jetMaskName_(jetMaskName)
         , nJetName_(nJetName)
