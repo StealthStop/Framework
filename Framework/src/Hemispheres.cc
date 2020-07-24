@@ -189,7 +189,7 @@ int Hemisphere::Reconstruct()
     // -------------------------------------------
     // -- determine the seeds for seed method 1
     // -------------------------------------------
-    if (seed_meth == 1) 
+    if (seed_meth == PtTimesDeltaRSeed) 
     {
         float P_Max = 0.;
         float DeltaRP_Max = 0.;
@@ -265,7 +265,7 @@ int Hemisphere::Reconstruct()
 	// -- determine the seeds for seed methods 2 and 3
 	// -------------------------------------------------- 
     } 
-    else if (seed_meth == 2 || seed_meth == 3) 
+    else if (seed_meth == InvMassSeed || seed_meth == TransMassSeed) 
     {
         float Mass_Max = 0.;
         float InvariantMass = 0.;
@@ -281,7 +281,7 @@ int Hemisphere::Reconstruct()
                     if (Object_Noseed[j] == 0)
                     {
                         // either the invariant mass
-                        if (seed_meth == 2)
+                        if (seed_meth == InvMassSeed)
                         {
                             InvariantMass = (Object_E[i] + Object_E[j]) * (Object_E[i] + Object_E[j])
                                 - (Object_Px[i] + Object_Px[j]) * (Object_Px[i] + Object_Px[j])
@@ -289,7 +289,7 @@ int Hemisphere::Reconstruct()
                                 - (Object_Pz[i] + Object_Pz[j]) * (Object_Pz[i] + Object_Pz[j]);
                         }
                         // or the transverse mass
-                        else if (seed_meth == 3)
+                        else if (seed_meth == TransMassSeed)
                         {
                             float pti = sqrt( (Object_Px[i] * Object_Px[i]) + (Object_Py[i] * Object_Py[i]) );
                             float ptj = sqrt( (Object_Px[j] * Object_Px[j]) + (Object_Py[j] * Object_Py[j]) );
@@ -333,7 +333,7 @@ int Hemisphere::Reconstruct()
             cout << " Axis 2 is Object = " << J_Max << endl;
         }
     } 
-    else if (seed_meth == 4) 
+    else if (seed_meth == PtMinDeltaRSeed) 
     {
         float P_Max1 = 0.;
         float P_Max2 = 0.;
@@ -397,7 +397,7 @@ int Hemisphere::Reconstruct()
     //--- For seeding with tagged tops     ---
     //----------------------------------------
 
-    else if ( seed_meth == 5 ) 
+    else if ( seed_meth == TopSeed ) 
     {
         I_Max = 0;
         J_Max = 1;
@@ -426,7 +426,7 @@ int Hemisphere::Reconstruct()
         }
 
     }
-    else if ( !(seed_meth == 0 && (hemi_meth == 8 || hemi_meth ==9) ) ) 
+    else if ( !(seed_meth == NoSeed && (hemi_meth == 8 || hemi_meth ==9) ) ) 
     {
         cout << "Please give a valid seeding method!" << endl;
         return 0;
