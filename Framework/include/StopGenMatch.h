@@ -210,7 +210,7 @@ private:
             {
                 if (abs(GenParticles_PdgId.at(g)) == 15 && GenParticles_Status.at(g) == 2 && keepTau && findParent(1000006, g, GenParticles_ParentId, GenParticles_ParentIdx) != -1) GoodGenParticles.at(g) = true;
             }
-            //int counter = 0;
+
             for (unsigned int g=0; g < GenParticles.size();g++)
             {
                 if (abs(GenParticles_PdgId.at(g)) == 1000022 && findParent(1000006, g, GenParticles_ParentId, GenParticles_ParentIdx) != -1)
@@ -238,10 +238,14 @@ private:
             std::vector<TLorentzVector> RecoSumList;
             std::vector<TLorentzVector> GenSumList;
             std::vector<std::pair<std::vector<double>, std::vector<double>>> DRandPTSumList;
-            std::vector<int> NMatched(2,0);
 
             TLorentzVector AllGenSum,AllGenSumNlino;
-            std::vector<TLorentzVector> NlinoDaughts;
+            
+            for (unsigned int g = 0; g < GenParticles.size(); g++)
+            {
+                if (GoodGenParticles.at(g) && findParent(1000006, g, GenParticles_ParentId, GenParticles_ParentIdx) == 1000006) AllGenSum += GenParticles.at(g);
+                if (GoodGenParticles.at(g) && GenParticles_ParentIdx.at(g) == nlino1_Idx) AllGenSumNlino += GenParticles.at(g);
+            }
 
 //     For tracking the DR and pT of matched particles to check matching
 
