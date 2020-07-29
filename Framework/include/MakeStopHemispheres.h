@@ -11,6 +11,7 @@ class MakeStopHemispheres
 {
 private:
     std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_;
+    Hemisphere::SeedMethod seedMethod_;
 
     template<typename T> void orderVars(T& stop1, T& stop2, const T pseudo1, const T pseudo2, const bool pseudo1Tostop1) const
     {
@@ -30,7 +31,7 @@ private:
     {
         const auto& met                   = tr.getVar<double>("MET");
         const auto& metPhi                = tr.getVar<double>("METPhi");
-        const auto& Jets                  = tr.getVec<TLorentzVector>("Jets");
+        const auto& Jets                  = tr.getVec<TLorentzVector>(jetName_);
         const auto& GoodJets              = tr.getVec<bool>(jetMaskName_);
         const auto& NGoodJets             = tr.getVar<int>(nJetName_);
         const auto& GoodLeptons           = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
@@ -71,7 +72,7 @@ private:
 
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
-            Hemisphere hemi(px, py, pz, E, 2, hemi_association); // to get MT2 hemisphere jets
+            Hemisphere hemi(px, py, pz, E, seedMethod_, hemi_association); // to get MT2 hemisphere jets
             std::vector<int> grouping = hemi.getGrouping();
             TLorentzVector pseudojet1, pseudojet2;
             double pseudojet1ScalarPt = 0.0, pseudojet2ScalarPt = 0.0;
@@ -132,11 +133,12 @@ private:
     }
 
 public:    
-    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "")
+    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "", const Hemisphere::SeedMethod& seedMethod = Hemisphere::InvMassSeed)
         : jetName_(jetName) 
         , jetMaskName_(jetMaskName)
         , nJetName_(nJetName)
         , myVarSuffix_(myVarSuffix)
+        , seedMethod_(seedMethod)
     {
         std::cout<<"Setting up StopHemispheres with jet collection: \""<<jetMaskName<<"\""<<std::endl;
     }

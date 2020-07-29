@@ -42,8 +42,9 @@ public:
 //   Only 1 cut can be used at the time (a new declaration overwrites the previous one).
 //   RejectISRPtmax() max Pt w.r.t. the hemisphere below which objects can be included (default = 10000. GeV)
 //   RejectISRDRmax() max DeltaR below which objects can be included (default = 10.)
+    enum SeedMethod {NoSeed = 0, PtTimesDeltaRSeed = 1, InvMassSeed = 2, TransMassSeed = 3, PtMinDeltaRSeed = 4, TopSeed = 5};
 
-    Hemisphere(std::vector<float> Px_vector, std::vector<float> Py_vector, std::vector<float> Pz_vector, std::vector<float> E_vector, int seed_method, int hemisphere_association_method);
+    Hemisphere(std::vector<float> Px_vector, std::vector<float> Py_vector, std::vector<float> Pz_vector, std::vector<float> E_vector, SeedMethod seed_method, int hemisphere_association_method);
     Hemisphere(std::vector<float> Px_vector, std::vector<float> Py_vector, std::vector<float> Pz_vector, std::vector<float> E_vector);
 
     // Destructor
@@ -61,7 +62,7 @@ public:
     std::vector<int> getGrouping();
 
     // set or overwrite the seed and association methods
-    void SetMethod(int seed_method, int hemisphere_association_method) 
+    void SetMethod(SeedMethod seed_method, int hemisphere_association_method) 
     {
         seed_meth = seed_method;
         hemi_meth = hemisphere_association_method;
@@ -151,7 +152,7 @@ private:
     std::vector<float> Axis2;
 
     //static const float hemivsn = 1.01;
-    int seed_meth;
+    SeedMethod seed_meth;
     int hemi_meth;
     int status;
     float dRminSeed1;
