@@ -24,10 +24,10 @@ private:
         }
     }
 
-    //function to match all reco particles with all appropriate gen particles
+    //function to generate all possible matches between gen and reco particles if they pass DR and pT cut
     inline std::vector<std::tuple< int , int , double>> findAllDR(const std::vector<TLorentzVector>& GenParticles, const std::vector<TLorentzVector>& RecoParticles, 
-                                                                  const std::vector<bool>& GoodGenParticles, int resPartID, const std::vector<int>& GenParticles_ParentId, 
-                                                                  const std::vector<int>& GenParticles_ParentIdx, int nlino1_Idx, int nlino2_Idx) const
+                                                                  const std::vector<bool>& GoodGenParticles, const int resPartID, const std::vector<int>& GenParticles_ParentId, 
+                                                                  const std::vector<int>& GenParticles_ParentIdx, const int& nlino1_Idx, const int& nlino2_Idx, const double maxDR,const double maxPTratio) const
     {
         bool check_neutralinos = true;
         std::vector<std::tuple< int , int, double>> AllDR;
@@ -46,7 +46,9 @@ private:
             }
             for (unsigned int r=0; r < RecoParticles.size(); r++)
             {
-                if (findParent(abs(check_resPartID), g, GenParticles_ParentId, GenParticles_ParentIdx) == check_resPartID && GoodGenParticles.at(g) && check_neutralinos)
+                bool passDR = GenParticles.at(g).DeltaR(RecoParticles.at(r)) < maxDR;
+                bool passPT = abs(1 - RecoParticles.at(r).Pt()/GenParticles.at(g).Pt()) < maxPTratio;
+                if (findParent(abs(check_resPartID), g, GenParticles_ParentId, GenParticles_ParentIdx) == check_resPartID && GoodGenParticles.at(g) && check_neutralinos && passDR && passPT)
                 {
                     std::get<0>(DRtup) = g;
                     std::get<1>(DRtup) = r;
@@ -58,8 +60,8 @@ private:
         return AllDR;
     }       
 
-    //function to sort for best matches and construct stop mass
-    void getMatchedSum(const std::vector<std::tuple< int , int , double>>& AllDR, const std::vector<TLorentzVector>& RecoParticles, TLorentzVector& MatchedSum, std::vector<bool> availableDR, TLorentzVector& GenMatchedSum,const std::vector<TLorentzVector>& GenParticles,  std::vector<double>& DRvec, std::vector<double>& PTvec) const
+    //function to sort for best matches
+    void getMatches(const std::vector<std::tuple< int , int , double>>& AllDR, std::vector<std::pair<int,int>>& Matches, std::vector<bool> availableDR) const
     {
         double minDR = 999;
         std::tuple< int, int, double> bestDR;
@@ -78,16 +80,7 @@ private:
         }
         if (!allgone)
         {
-            TLorentzVector currentReco = RecoParticles.at(std::get<1>(bestDR));
-            TLorentzVector currentGen = GenParticles.at(std::get<0>(bestDR));
-            double relativePt = 1 - currentReco.Pt()/ currentGen.Pt();
-            if (std::get<2>(bestDR) < 0.1 && abs(relativePt) < 0.5) //set cuts for DR and pT ratio here
-            {
-                MatchedSum +=  RecoParticles.at(std::get<1>(bestDR));
-                GenMatchedSum += GenParticles.at(std::get<0>(bestDR));
-                DRvec.push_back(std::get<2>(bestDR));
-                PTvec.push_back(currentReco.Pt()/ currentGen.Pt());
-            }
+            Matches.push_back(std::make_pair(std::get<0>(bestDR), std::get<1>(bestDR)));
             for (unsigned int d=0;  d < AllDR.size(); d++)
             {
                 if (std::get<0>(AllDR.at(d)) == std::get<0>(bestDR) || std::get<1>(AllDR.at(d)) == std::get<1>(bestDR))
@@ -95,7 +88,7 @@ private:
                     availableDR.at(d) = false;
                 }
             }
-            getMatchedSum( AllDR, RecoParticles, MatchedSum, availableDR, GenMatchedSum, GenParticles, DRvec, PTvec);
+            getMatches( AllDR, Matches, availableDR);
         }
     }
 
@@ -240,7 +233,6 @@ private:
             std::vector<std::pair<std::vector<double>, std::vector<double>>> DRandPTSumList;
 
             TLorentzVector AllGenSum,AllGenSumNlino;
-            
             for (unsigned int g = 0; g < GenParticles.size(); g++)
             {
                 if (GoodGenParticles.at(g) && findParent(1000006, g, GenParticles_ParentId, GenParticles_ParentIdx) == 1000006) AllGenSum += GenParticles.at(g);
@@ -257,25 +249,36 @@ private:
             auto& GM_Nlino1_PT     = tr.createDerivedVec<double>("GM_Nlino1_PT"+myVarSuffix_);
             auto& GM_Nlino2_DR     = tr.createDerivedVec<double>("GM_Nlino2_DR"+myVarSuffix_);
             auto& GM_Nlino2_PT     = tr.createDerivedVec<double>("GM_Nlino2_PT"+myVarSuffix_);
-
+//begin matching
             for(unsigned int p=0; p < resParticleList.size(); p++)
             {
+                std::vector<std::pair<int, int>> Matches;
+                double maxDR = 0.1; //set max DR allowed for matching
+                double maxPTratio = 0.5; // set max pT allowed for matching
+                
+                std::vector<std::tuple< int , int , double>> AllDR = findAllDR(GenParticles, RecoParticles, GoodGenParticles, resParticleList[p], GenParticles_ParentId, GenParticles_ParentIdx, nlino1_Idx, nlino2_Idx, maxDR, maxPTratio);
+
+                std::vector<bool> availableDR(AllDR.size(), true);
+
+                getMatches( AllDR, Matches, availableDR);
+
                 TLorentzVector RecoMatchedSum;
                 TLorentzVector GenMatchedSum;
                 std::vector<double> DRvec;
                 std::vector<double> PTvec;
-                
-                std::vector<std::tuple< int , int , double>> AllDR = findAllDR(GenParticles, RecoParticles, GoodGenParticles, resParticleList[p], GenParticles_ParentId, GenParticles_ParentIdx, nlino1_Idx, nlino2_Idx);
-
-                std::vector<bool> availableDR(AllDR.size(), true);
-
-                getMatchedSum( AllDR, RecoParticles, RecoMatchedSum, availableDR, GenMatchedSum, GenParticles, DRvec, PTvec);
-
+                for (unsigned int match = 0; match < Matches.size(); match++) //track whatever info about matches is needed
+                {
+                    GenMatchedSum  += GenParticles.at(Matches.at(match).first);
+                    RecoMatchedSum += RecoParticles.at(Matches.at(match).second);
+                    DRvec.push_back(GenParticles.at(Matches.at(match).first).DeltaR(RecoParticles.at(Matches.at(match).second)));
+                    PTvec.push_back(abs(1 - GenParticles.at(Matches.at(match).first).Pt()/RecoParticles.at(Matches.at(match).second).Pt()));
+                }
+                //save info for all resonance particles in vector         
                 RecoSumList.push_back(RecoMatchedSum);
                 GenSumList.push_back(GenMatchedSum);
                 DRandPTSumList.push_back(std::make_pair(DRvec, PTvec));
-            }                
-
+            }
+            
             GM_Stop1_DR = DRandPTSumList.at(0).first;
             GM_Stop1_PT = DRandPTSumList.at(0).second;
             GM_Stop2_DR = DRandPTSumList.at(1).first;
