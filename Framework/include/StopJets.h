@@ -53,7 +53,9 @@ private:
         }
 
         std::sort(StopJets.begin(), StopJets.end(), utility::compare_pt_TLV);
-
+        if( StopJets.size() > 2 ) {
+            std::sort(StopJets.begin()+1, StopJets.end(), [StopJets](const TLorentzVector& v1, const TLorentzVector& v2) {return v1.Pt()*v1.DeltaR(StopJets[0]) > v2.Pt()*v2.DeltaR(StopJets[0]);});
+        }
         // get the notTopJets by using 'usedIndex' 
         std::vector<TLorentzVector> notTopJets;
         for(unsigned int i = 0; i < Jets.size(); ++i)
