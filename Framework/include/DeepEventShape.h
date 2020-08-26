@@ -333,6 +333,11 @@ private:
         TF_ImportGraphDefOptions* graph_opts = TF_NewImportGraphDefOptions();
         TF_GraphImportGraphDef(graph, graph_def, graph_opts, status);
         TF_DeleteImportGraphDefOptions(graph_opts);
+        if(TF_GetCode(status) != TF_OK) 
+        {
+            //fprintf(stderr, "ERROR: Unable to import graph %s", TF_Message(status));        
+            std::cout<<"ERROR: Unable to import graph "<<TF_Message(status)<<std::endl;
+        } 
         TF_DeleteBuffer(graph_def);
         
         //Create tensorflow session from imported graph
@@ -344,13 +349,19 @@ private:
         
         TF_Operation* op_x = TF_GraphOperationByName(graph, inputOp_.c_str());
         TF_Operation* op_y = TF_GraphOperationByName(graph, outputOp_.c_str());
+        TF_Operation* op_y2 = TF_GraphOperationByName(graph, "Identity_1");
+        TF_Operation* op_y3 = TF_GraphOperationByName(graph, "Identity_4");
         
         //Clean up graph
         TF_DeleteGraph(graph);
         
         inputs_ .emplace_back(TF_Output({op_x, 0}));
         outputs_.emplace_back(TF_Output({op_y, 0}));
+        outputs_.emplace_back(TF_Output({op_y2, 0}));
+        outputs_.emplace_back(TF_Output({op_y3, 0}));
         targets_.emplace_back(op_y);
+        targets_.emplace_back(op_y2);
+        targets_.emplace_back(op_y3);
         
         TF_DeleteStatus(status);
 
@@ -396,7 +407,6 @@ private:
         
         input_values = { input_values_0 };
         varCalculator_->setPtr(static_cast<float*>(TF_TensorData(input_values_0)));
-
         varCalculator_->calculateVars(tr);
 
         //predict values
@@ -415,10 +425,22 @@ private:
                       status);
         
         //Get output discriminators 
-        auto discriminators = static_cast<float*>(TF_TensorData(output_values[0]));                
+        auto discriminators = static_cast<float*>(TF_TensorData(output_values[0]));
+        auto discriminators2 = static_cast<float*>(TF_TensorData(output_values[1]));
+        auto discriminators3 = static_cast<float*>(TF_TensorData(output_values[2]));
         
         //discriminators is a 2D array, we only want the first entry of every array
-        double discriminator = static_cast<double>(discriminators[0]);
+        double discriminator  = static_cast<double>(discriminators[0]);
+        double discriminator2 = static_cast<double>(discriminators[1]);
+        std::cout<<discriminator<<" + "<<discriminator2<<" = "<<discriminator+discriminator2<<std::endl;
+
+        double discriminator12  = static_cast<double>(discriminators2[0]);
+        double discriminator22 = static_cast<double>(discriminators2[1]);
+        std::cout<<discriminator12<<" + "<<discriminator22<<" = "<<discriminator12+discriminator22<<std::endl;
+
+        double discriminator3  = static_cast<double>(discriminators3[0]);
+        std::cout<<discriminator3<<std::endl;
+        std::cout<<"--------------------------"<<std::endl;
 
         for(auto* tensor : input_values)  TF_DeleteTensor(tensor);
         for(auto* tensor : output_values) TF_DeleteTensor(tensor);
