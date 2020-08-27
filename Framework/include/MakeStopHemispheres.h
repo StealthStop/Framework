@@ -47,6 +47,7 @@ private:
         double difference_stopMasses      = -9999.9;
         double average_stopMasses         = -9999.9;
         double relativeDiff_stopMasses    = -9999.9;
+        TLorentzVector seed1, seed2;
  
         if(NGoodJets >= 2)
         {
@@ -76,6 +77,8 @@ private:
             std::vector<int> grouping = hemi.getGrouping();
             TLorentzVector pseudojet1, pseudojet2;
             double pseudojet1ScalarPt = 0.0, pseudojet2ScalarPt = 0.0;
+            unsigned int i_seed1 = hemi.GetSeed1();
+            unsigned int i_seed2 = hemi.GetSeed2();
 
             // Perform vector and scalar sum of mega jets
             for(unsigned int i=0; i < px.size(); ++i)
@@ -83,6 +86,16 @@ private:
                 TLorentzVector obj;
                 obj.SetPxPyPzE(px[i], py[i], pz[i], E[i]);
 
+                //Find seed TLorentz vectors
+                if( i == i_seed1 )
+                {
+                    seed1 = obj;
+                }
+                else if ( i == i_seed2 )
+                {
+                    seed2 = obj;
+                }
+                
                 if(grouping[i] == 1)
                 {
                     //vector sum
@@ -130,6 +143,8 @@ private:
         tr.registerDerivedVar("difference_stopMasses"+myVarSuffix_,difference_stopMasses);
         tr.registerDerivedVar("average_stopMasses"+myVarSuffix_,average_stopMasses);
         tr.registerDerivedVar("relativeDiff_stopMasses"+myVarSuffix_,relativeDiff_stopMasses);
+        tr.registerDerivedVar("seed1"+myVarSuffix_,seed1);
+        tr.registerDerivedVar("seed2"+myVarSuffix_,seed2);
     }
 
 public:    

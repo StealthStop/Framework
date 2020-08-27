@@ -131,6 +131,16 @@ public:
     void SetDebug(int debug) { dbg = debug; } 
     int  GetNumLoop()        {return numLoop; }
 
+    int GetSeed1()
+    {
+        return imax;
+    }
+
+    int GetSeed2()
+    {
+        return jmax;
+    }
+
 private:
     // the hemisphere separation algorithm
     int Reconstruct();
@@ -164,6 +174,8 @@ private:
     float rejectISRDRmax;
     int dbg;
     int numLoop;
+    int imax;
+    int jmax;
 };
 
 #endif

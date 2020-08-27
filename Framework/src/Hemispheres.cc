@@ -431,7 +431,10 @@ int Hemisphere::Reconstruct()
         cout << "Please give a valid seeding method!" << endl;
         return 0;
     }
-	    
+
+	imax = I_Max;
+    jmax = J_Max;
+    
     // ------------------------------------------------------------------------------------
     // (2) HEMISPHERE ASSOCIATION METHOD
     // ------------------------------------------------------------------------------------
