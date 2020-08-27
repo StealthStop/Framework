@@ -150,7 +150,6 @@ private:
                 RecoISR.push_back(Jets.at(j));
                 nRecoISR++;
             }
-            //std::cout << "Reco ISR size: " << RecoISR.size() << std::endl;   
  
             // -----------------------------------------
             // loop over the GenParticles to get Gen ISR 
@@ -204,7 +203,6 @@ private:
                 std::vector<double> PtVec;
                 TLorentzVector isrGenMatched;
                 TLorentzVector isrRecoMatched;
-                //std::cout << "Jets size: " << Jets.size() << std::endl;
                 for (unsigned int match = 0; match < Matches.size(); match++)
                 {
                     isrGenMatched  = GenParticles.at(Matches.at(match).first);
@@ -214,10 +212,6 @@ private:
                     GM_ISRmatching_Pt.push_back( abs( 1 - GenParticles.at(Matches.at(match).first).Pt() / RecoISR.at(Matches.at(match).second).Pt() ) );                    
 
                     // getting ISRmatched jets
-                    //std::cout << "Matches size   : " <<  Matches.size() << std::endl;
-                    //std::cout << "Matches index  : " << Matches.at(match).second << std::endl;
-                    //std::cout << "Good Jets size : " << GoodJets_pt20.size() << std::endl;
-                    //std::cout << "ISRmatched size: " << ISRmatched.size() << std::endl;
                     ISRmatched.at(Matches.at(match).second) = true;
                     nISRJets++;
                     
@@ -234,10 +228,6 @@ private:
             tr.registerDerivedVar("nISRJets"+myVarSuffix_, nISRJets);       
             //tr.registerDerivedVec("ISRmatched"+myVarSuffix_, ISRmatched);
  
-            // create ISRJets
-            //auto& ISRJets = tr.createDerivedVec<bool>("ISRJets"+myVarSuffix_, isrRecoMatched.size(), true);           
-            //tr.createDerivedVar<int>("nISRJets"+myVarSuffix_, ISRJets.size());
-        
         }
     }
 
