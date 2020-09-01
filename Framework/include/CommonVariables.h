@@ -27,7 +27,7 @@ private:
         tr.registerDerivedVar("used_gen_bjet_for_mbl"+myVarSuffix_, used_gen_bjet_for_mbl);
     }
     void getJetMatch(const std::vector<TLorentzVector>& JetVectors, const std::vector<bool>& GoodJets_pt30, const std::vector<bool>& GoodBJets_pt30, 
-                     double& twoLep_mbldiff, int& used_jet, unsigned int other_used_jet, double& TwoLep_Mbl, const TLorentzVector& lep,  std::pair<unsigned int, unsigned int>& TwoLep_Mbl_Idx, const bool checkB)
+                     double& twoLep_mbldiff, int& used_jet, unsigned int other_used_jet, double& TwoLep_Mbl, const TLorentzVector& lep,  std::pair<int, int>& TwoLep_Mbl_Idx, const bool checkB)
     {
         for(unsigned int j=0; j < JetVectors.size(); j++)
         {
@@ -207,7 +207,7 @@ private:
         int  used_jet1 = -1, used_jet2 =-1;
         double TwoLep_Mbl1=-1, TwoLep_Mbl2=-1;
         double twoLep_mbl1diff=999, twoLep_mbl2diff=999;
-        std::pair<unsigned int,unsigned int> TwoLep_Mbl1_Idx, TwoLep_Mbl2_Idx;
+        std::pair<int, int> TwoLep_Mbl1_Idx(-1, -1), TwoLep_Mbl2_Idx(-1, -1);
        
         if(NGoodLeptons==2)
         {
