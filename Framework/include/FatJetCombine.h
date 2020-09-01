@@ -24,6 +24,7 @@ private:
 //        const auto& GoodElectrons         = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NMuons                = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& NElectrons            = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
+        const auto& GoodBJets_pt30        = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
 
         const auto& TwoLep_Mbl1_Idx      = tr.getVar<std::pair<int, int>>("TwoLep_Mbl1_Idx"+myVarSuffix_);
         const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<int, int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
@@ -113,6 +114,25 @@ private:
             bottom1 = Jets[TwoLep_Mbl1_Idx.first];
             bottom2 = Jets[TwoLep_Mbl2_Idx.first];
         }
+        else
+        {
+            int b1_idx = -1, b2_idx = -1;
+            for (unsigned int j = 0; j < Jets.size(); j++)
+            {
+                if (GoodBJets_pt30.at(j) && b1_idx == -1)
+                {
+                    b1_idx = j;
+                }
+                else if (GoodBJets_pt30.at(j) && b1_idx != -1 && b2_idx == -1)
+                {
+                    b2_idx = j;
+                }
+
+            }
+            if (b1_idx != -1) bottom1 = Jets.at(b1_idx);
+            if (b2_idx != -1) bottom2 = Jets.at(b2_idx);
+        }
+
         
         int NCandidateLSP = 0;
         bool bottom1Found = false;
