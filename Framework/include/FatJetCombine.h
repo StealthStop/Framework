@@ -17,33 +17,31 @@ private:
         const auto& Tau2                  = tr.getVec<double>("JetsAK8_NsubjettinessTau2");
         const auto& Tau3                  = tr.getVec<double>("JetsAK8_NsubjettinessTau3");
         const auto& softDropMass          = tr.getVec<double>("JetsAK8_softDropMass");
+        const auto& prunedMass            = tr.getVec<double>("JetsAK8_prunedMass");
         const auto& Muons                 = tr.getVec<TLorentzVector>("Muons");
-        const auto& GoodMuons             = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
+//        const auto& GoodMuons             = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& Electrons             = tr.getVec<TLorentzVector>("Electrons");
-        const auto& GoodElectrons         = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
+//        const auto& GoodElectrons         = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NMuons                = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& NElectrons            = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
+        const auto& GoodBJets_pt30        = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
 
-        const auto& TwoLep_Mbl1_Idx      = tr.getVar<std::pair<unsigned int, unsigned int>>("TwoLep_Mbl1_Idx"+myVarSuffix_);
-        const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<unsigned int, unsigned int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
+        const auto& TwoLep_Mbl1_Idx      = tr.getVar<std::pair<int, int>>("TwoLep_Mbl1_Idx"+myVarSuffix_);
+        const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<int, int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
         
         const auto& Jets                 = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-        const auto& GoodLeptons          = tr.getVec<std::pair<std::string,TLorentzVector>>("GoodLeptons"+myVarSuffix_);
+//        const auto& GoodLeptons          = tr.getVec<std::pair<std::string,TLorentzVector>>("GoodLeptons"+myVarSuffix_);
         const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
 
         const auto& subjets              = tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets"+myVarSuffix_);
-        const auto& subjets_CSV          = tr.getVec<std::vector<double>>("JetsAK8_subjets_bDiscriminatorCSV"+myVarSuffix_);
-//        const auto& medium_CSV           = tr.getVar<double>("deepCSV_WP_medium"+myVarSuffix_);
-//        const auto& loose_CSV           = tr.getVar<double>("deepCSV_WP_loose"+myVarSuffix_);
 
-        const auto& MET                  = tr.getVar<double>("MET"+myVarSuffix_);
-        const auto& METPhi               = tr.getVar<double>("METPhi"+myVarSuffix_);
-        
         //First clean out leptons from JetsAK8 collection
 
-        std::vector<bool> initGoodJets(JetsAK8.size(), true);
         auto& GoodJetsAK8         = tr.createDerivedVec<bool>("GoodJetsAK8"+myVarSuffix_);
-        GoodJetsAK8 = initGoodJets;
+        for (unsigned int j = 0; j < JetsAK8.size(); j++)
+        {
+            GoodJetsAK8.push_back(true);
+        }                
         
         if(NMuons > 0)
         {
@@ -55,13 +53,14 @@ private:
                 for(unsigned int j=0; j < JetsAK8.size(); j++)
                 {
                     TLorentzVector myJet = JetsAK8.at(j);
-                    if( std::fabs(myMuon.Pt() - myJet.Pt()) / myMuon.Pt() < 1 && myMuon.DeltaR(myJet) < minDeltaR)
+//                    if( std::fabs(myMuon.Pt() - myJet.Pt()) / myMuon.Pt() < 1 && myMuon.DeltaR(myJet) < minDeltaR)
+                    if(myMuon.DeltaR(myJet) < minDeltaR)
                     {
                         minDeltaR = myMuon.DeltaR(myJet);
                         muonCand = j;
                     }
                 }
-                if(GoodMuons.at(mu) && muonCand != -1) GoodJetsAK8.at(muonCand) = false;
+                if(muonCand != -1) GoodJetsAK8.at(muonCand) = false;
             }
         }
 
@@ -75,236 +74,121 @@ private:
                 for(unsigned int j=0; j < JetsAK8.size(); j++)
                 {
                     TLorentzVector myJet = JetsAK8.at(j);
-                    if( std::fabs(myElec.Pt() - myJet.Pt()) / myElec.Pt() < 1 && myElec.DeltaR(myJet) < minDeltaR)
+                    // if( std::fabs(myElec.Pt() - myJet.Pt()) / myElec.Pt() < 1 && myElec.DeltaR(myJet) < minDeltaR)
+                    if(myElec.DeltaR(myJet) < minDeltaR)
                     {
                         minDeltaR = myElec.DeltaR(myJet);
                         elecCand = j;                  
                     }
                 }
-                if(GoodElectrons.at(el) && elecCand != -1) GoodJetsAK8.at(elecCand) = false;
+                if(elecCand != -1) GoodJetsAK8.at(elecCand) = false;
             }
         }
         int NGoodJetsAK8 = 0;
 
-        //Now apply eta and pt cuts
+        //Now apply eta, pt, SDM cuts
         for(unsigned int j=0; j < JetsAK8.size(); j++)
         {
             if(abs(JetsAK8.at(j).Eta()) > 2.4) GoodJetsAK8.at(j) = false;
             if(JetsAK8.at(j).Pt() < 30) GoodJetsAK8.at(j) = false;
+            if(softDropMass.at(j) < 20) GoodJetsAK8.at(j) = false;
             if(GoodJetsAK8.at(j)) NGoodJetsAK8 += 1;
         }
+
+        auto& candidateLSP         = tr.createDerivedVec<bool>("candidateLSP"+myVarSuffix_);
+        auto& candidateLSP_TLV     = tr.createDerivedVec<TLorentzVector>("candidateLSP_TLV"+myVarSuffix_);
+        auto& candidateLSP_Idx     = tr.createDerivedVec<int>("candidateLSP_Idx"+myVarSuffix_);
+        auto& candidateLSP_T21     = tr.createDerivedVec<double>("candidateLSP_T21"+myVarSuffix_);
+        auto& candidateLSP_T32     = tr.createDerivedVec<double>("candidateLSP_T32"+myVarSuffix_);
+        auto& candidateLSP_Pruned  = tr.createDerivedVec<double>("candidateLSP_Pruned"+myVarSuffix_);
+        auto& candidateLSP_SDM     = tr.createDerivedVec<double>("candidateLSP_SDM"+myVarSuffix_);
         
-        //Begin fat jet reconstruction for 2L
-        TLorentzVector CombinedJet1,CombinedJet2;
-        double CombinedJet1_T3T1=0,CombinedJet1_T2T1=0,CombinedJet1_SDM=0;
-        double CombinedJet2_T3T1=0,CombinedJet2_T2T1=0,CombinedJet2_SDM=0;
+            
+        candidateLSP = GoodJetsAK8;
 
-        TLorentzVector NlinoJet1,NlinoJet2;
+        TLorentzVector bottom1;
+        TLorentzVector bottom2;
 
-        bool B1Found = false, B2Found = false;
-        bool B1_Ovl = false, B2_Ovl = false;
-        int nBottom1Ovl=0,nBottom2Ovl=0;
-        int nNlinoCand = 0;
-        TLorentzVector lvMET;
-        lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
-
-
-        auto& BOvlDeltaR        = tr.createDerivedVec<double>("BOvlDeltaR"+myVarSuffix_);
-        auto& BOvlPt            = tr.createDerivedVec<double>("BOvlPt"+myVarSuffix_);
-        auto& BOvlDCSV          = tr.createDerivedVec<double>("BOvlDCSV"+myVarSuffix_);
-         
-        if (NGoodLeptons == 2 && NGoodJetsAK8 <= 4 )
+        if (NGoodLeptons == 2)
         {
-            TLorentzVector Bottom1 = Jets[TwoLep_Mbl1_Idx.first];
-            TLorentzVector Bottom2 = Jets[TwoLep_Mbl2_Idx.first];
-            TLorentzVector BLVec_1 = Bottom1 + GoodLeptons[TwoLep_Mbl1_Idx.second].second;
-            TLorentzVector BLVec_2 = Bottom2 + GoodLeptons[TwoLep_Mbl2_Idx.second].second;
-            std::vector<TLorentzVector> GoodJetsAK8Vec;
-            std::vector<double> GoodJetsAK8SDM,GoodJetsAK8T3T1,GoodJetsAK8T2T1;
-            std::vector<bool> NlinoCandidate = GoodJetsAK8;
-
-            int Bottom1AK8Cand,Bottom2AK8Cand;
-            
-            if (NGoodJetsAK8 > 2)
+            bottom1 = Jets[TwoLep_Mbl1_Idx.first];
+            bottom2 = Jets[TwoLep_Mbl2_Idx.first];
+        }
+        else
+        {
+            int b1_idx = -1, b2_idx = -1;
+            for (unsigned int j = 0; j < Jets.size(); j++)
             {
-                double minDR1 = 0.2,minDR2 = 0.2;
-                for (unsigned int j=0; j < JetsAK8.size(); j++)
+                if (GoodBJets_pt30.at(j) && b1_idx == -1)
                 {
-                    if (GoodJetsAK8.at(j) && JetsAK8.at(j).DeltaR(Bottom1) < minDR1 && abs(1 - JetsAK8.at(j).Pt()/Bottom1.Pt()) < 0.2)
-                    {
-                        Bottom1AK8Cand = j;
-                        minDR1 = JetsAK8.at(j).DeltaR(Bottom1);
-                        B1Found = true;
-                    }
-                    else if (GoodJetsAK8.at(j) && JetsAK8.at(j).DeltaR(Bottom2) < minDR2 && abs(1 - JetsAK8.at(j).Pt()/Bottom2.Pt()) < 0.2)
-                    {
-                        Bottom2AK8Cand = j;
-                        minDR2 = JetsAK8.at(j).DeltaR(Bottom2);
-                        B2Found = true;
-                    }
+                    b1_idx = j;
                 }
-                if (B1Found) NlinoCandidate.at(Bottom1AK8Cand) = false;
-                if (B2Found) NlinoCandidate.at(Bottom2AK8Cand) = false;
+                else if (GoodBJets_pt30.at(j) && b1_idx != -1 && b2_idx == -1)
+                {
+                    b2_idx = j;
+                }
+
             }
-            
-            for (unsigned int n = 0; n < NlinoCandidate.size(); n++)
+            if (b1_idx != -1) bottom1 = Jets.at(b1_idx);
+            if (b2_idx != -1) bottom2 = Jets.at(b2_idx);
+        }
+
+        
+        int NCandidateLSP = 0;
+        bool bottom1Found = false;
+        bool bottom2Found = false;
+
+        for(unsigned int j=0; j < GoodJetsAK8.size(); j++)
+        {
+            if (candidateLSP.at(j))
             {
-                if (NlinoCandidate.at(n)) nNlinoCand += 1;
-            }
-
-            if (nNlinoCand == 2)
-            {
-                double minDR1 = 0.2, minDR2 = 0.2;
-                std::pair<int, int> likelyB1 (-1, -1) , likelyB2 (-1, -1);            
-             
-                for(unsigned int j=0; j < JetsAK8.size(); j++)
+                if(bottom1.DeltaR(JetsAK8.at(j)) < 0.2 && abs(1 - bottom1.Pt()/JetsAK8.at(j).Pt()) < 0.2)
                 {
-                    if(NlinoCandidate.at(j))
-                    {
-                        GoodJetsAK8Vec.push_back(JetsAK8.at(j));
-                        GoodJetsAK8SDM.push_back(softDropMass.at(j));
-                        double Tau3Tau1 = Tau3.at(j) / Tau1.at(j);
-                        double Tau2Tau1 = Tau2.at(j) / Tau1.at(j);
-                        GoodJetsAK8T3T1.push_back(Tau3Tau1);
-                        GoodJetsAK8T2T1.push_back(Tau2Tau1);
-                        
-                        for(unsigned int s=0; s < subjets.at(j).size(); s++)
-                        {
-                            TLorentzVector sj = subjets.at(j).at(s);
-                            if (!B1Found && sj.DeltaR(Bottom1) < minDR1 && abs( 1 - sj.Pt()/Bottom1.Pt()) < 0.2 && subjets_CSV.at(j).at(s) > 0) 
-                            {
-                                nBottom1Ovl += 1;
-                                likelyB1.first = j;
-                                likelyB1.second = s;
-                                minDR1 = sj.DeltaR(Bottom1);
-                            }
-                            if (!B2Found && sj.DeltaR(Bottom2) < 0.2 && abs( 1 - sj.Pt()/Bottom2.Pt()) < 0.2 && subjets_CSV.at(j).at(s) > 0)
-                            {
-                                likelyB2.first = j;
-                                likelyB2.second = s;
-                                nBottom2Ovl += 1;
-                                minDR2 = sj.DeltaR(Bottom2);
-                            }                                                 
-                        }
-                        
-                        if (likelyB1.first != -1)
-                        {
-                            B1Found = true;
-                            BOvlDeltaR.push_back(minDR1);                      
-                            BOvlPt.push_back( subjets.at(likelyB1.first).at(likelyB1.second).Pt() / Bottom1.Pt());
-                            BOvlDCSV.push_back( subjets_CSV.at(likelyB1.first).at(likelyB1.second));
-                        }
-                        if (likelyB2.first != -1)
-                        {
-                            B2Found = true;
-                            BOvlDeltaR.push_back(minDR2);                      
-                            BOvlPt.push_back( subjets.at(likelyB2.first).at(likelyB2.second).Pt() / Bottom2.Pt());
-                            BOvlDCSV.push_back( subjets_CSV.at(likelyB2.first).at(likelyB2.second));
-                        }
-                    }
+                    bottom1Found = true;
+                    candidateLSP.at(j) = false;
                 }
-                if (likelyB1.first != -1)
+                else if(bottom2.DeltaR(JetsAK8.at(j)) < 0.2 && abs(1 - bottom2.Pt()/JetsAK8.at(j).Pt()) < 0.2)
                 {
-                    B1_Ovl = true;                
-                    BOvlDeltaR.push_back(minDR1);                      
-                    BOvlPt.push_back( subjets.at(likelyB1.first).at(likelyB1.second).Pt() / Bottom1.Pt());
-                    BOvlDCSV.push_back( subjets_CSV.at(likelyB1.first).at(likelyB1.second));
-                }
-                if (likelyB2.first != -1)
-                {
-                    B2_Ovl = true;
-                    BOvlDeltaR.push_back(minDR2);                      
-                    BOvlPt.push_back( subjets.at(likelyB2.first).at(likelyB2.second).Pt() / Bottom2.Pt());
-                    BOvlDCSV.push_back( subjets_CSV.at(likelyB2.first).at(likelyB2.second));
-                }
-            
-                TLorentzVector poss1_CombinedJet1 = BLVec_1 + GoodJetsAK8Vec.at(0);
-                TLorentzVector poss1_CombinedJet2 = BLVec_2 + GoodJetsAK8Vec.at(1);
-                TLorentzVector poss2_CombinedJet1 = BLVec_1 + GoodJetsAK8Vec.at(1);
-                TLorentzVector poss2_CombinedJet2 = BLVec_2 + GoodJetsAK8Vec.at(0);
-                
-                TLorentzVector poss1_NlinoJet1 = GoodJetsAK8Vec.at(0);
-                TLorentzVector poss1_NlinoJet2 = GoodJetsAK8Vec.at(1);
-                TLorentzVector poss2_NlinoJet1 = GoodJetsAK8Vec.at(1);
-                TLorentzVector poss2_NlinoJet2 = GoodJetsAK8Vec.at(0);
-                
-                if (B1_Ovl)
-                {
-                    poss1_CombinedJet1 = GoodLeptons[TwoLep_Mbl1_Idx.second].second + GoodJetsAK8Vec.at(0);
-                    poss2_CombinedJet1 =  GoodLeptons[TwoLep_Mbl1_Idx.second].second + GoodJetsAK8Vec.at(1);
-                    poss1_NlinoJet1 = GoodJetsAK8Vec.at(0) - Bottom1;
-                    poss2_NlinoJet1 = GoodJetsAK8Vec.at(1) - Bottom1;
-                }
-                if (B2_Ovl)
-                {
-                    poss1_CombinedJet2 = GoodLeptons[TwoLep_Mbl2_Idx.second].second + GoodJetsAK8Vec.at(1);
-                    poss2_CombinedJet2 = GoodLeptons[TwoLep_Mbl2_Idx.second].second + GoodJetsAK8Vec.at(0);
-                    poss1_NlinoJet2 = GoodJetsAK8Vec.at(1) - Bottom2;
-                    poss2_NlinoJet2 = GoodJetsAK8Vec.at(0) - Bottom2;                    
-                }
-
-                if(abs(poss1_CombinedJet1.M() - poss1_CombinedJet2.M()) < abs(poss2_CombinedJet1.M() - poss2_CombinedJet2.M()))
-                {
-                    CombinedJet1 = poss1_CombinedJet1;
-                    CombinedJet1_T3T1 = GoodJetsAK8T3T1.at(0);
-                    CombinedJet1_T2T1 = GoodJetsAK8T2T1.at(0);
-                    CombinedJet1_SDM = GoodJetsAK8SDM.at(0);
-                    
-                    NlinoJet1 = poss1_NlinoJet1;
-
-                    CombinedJet2 = poss1_CombinedJet2;
-                    CombinedJet2_T3T1 = GoodJetsAK8T3T1.at(1);
-                    CombinedJet2_T2T1 = GoodJetsAK8T2T1.at(1);
-                    CombinedJet2_SDM = GoodJetsAK8SDM.at(1);
-                    
-                    NlinoJet2 = poss1_NlinoJet2;
-            
-                }
-                else
-                {
-                    CombinedJet1 = poss2_CombinedJet1;
-                    CombinedJet1_T3T1 = GoodJetsAK8T3T1.at(1);
-                    CombinedJet1_T2T1 = GoodJetsAK8T2T1.at(1);
-                    CombinedJet1_SDM = GoodJetsAK8SDM.at(1);
-                    
-                    NlinoJet1 = poss2_NlinoJet1;
-                    
-                    CombinedJet2 = poss2_CombinedJet2;
-                    CombinedJet2_T3T1 = GoodJetsAK8T3T1.at(0);
-                    CombinedJet2_T2T1 = GoodJetsAK8T2T1.at(0);
-                    CombinedJet2_SDM = GoodJetsAK8SDM.at(0);
-                    
-                    NlinoJet2 = poss2_NlinoJet2;
-
+                    bottom2Found = true;
+                    candidateLSP.at(j) = false;
                 }
             }
         }
         
+        for(unsigned int j = 0; j < GoodJetsAK8.size(); j++)
+        {
+            if(candidateLSP.at(j))
+            {
+                NCandidateLSP++;
+                TLorentzVector myJetAK8 = JetsAK8.at(j);
+                candidateLSP_Idx.push_back(j);
+                candidateLSP_T21.push_back(Tau2.at(j) / Tau1.at(j));
+                candidateLSP_T32.push_back(Tau3.at(j) / Tau2.at(j));
+                candidateLSP_Pruned.push_back(prunedMass.at(j));
+                candidateLSP_SDM.push_back(softDropMass.at(j));
+                for(unsigned int s = 0; s < subjets.at(j).size(); s++)
+                {
+                    TLorentzVector mySJ = subjets.at(j).at(s);
+                    if(!bottom1Found && bottom1.DeltaR(mySJ) < 0.2 && abs(1 - bottom1.Pt()/mySJ.Pt()) < 0.5)
+                    {
+                        candidateLSP_TLV.push_back(myJetAK8 - mySJ);
+                    }
+                    else if(!bottom2Found && bottom2.DeltaR(mySJ) < 0.2 && abs(1 - bottom2.Pt()/mySJ.Pt()) < 0.5)
+                    {
+                        candidateLSP_TLV.push_back(myJetAK8 - mySJ);
+                    }
+                    else
+                    {
+                        candidateLSP_TLV.push_back(myJetAK8);
+                    }
+                }
+            }
+        }       
         asymm_mt2_lester_bisect::disableCopyrightMessage();
-        
-        tr.registerDerivedVar("FatJetCombined1"+myVarSuffix_, CombinedJet1);
-        tr.registerDerivedVar("FatJetCombined2"+myVarSuffix_, CombinedJet2);
-        tr.registerDerivedVar("FatJetMT2"+myVarSuffix_, ttUtility::coreMT2calc(CombinedJet1,CombinedJet2,lvMET));
-        tr.registerDerivedVar("FatJetCombined1_SDM"+myVarSuffix_, CombinedJet1_SDM);
-        tr.registerDerivedVar("FatJetCombined2_SDM"+myVarSuffix_, CombinedJet2_SDM);
-        tr.registerDerivedVar("FatJetCombined1_T3T1"+myVarSuffix_, CombinedJet1_T3T1);
-        tr.registerDerivedVar("FatJetCombined2_T3T1"+myVarSuffix_, CombinedJet2_T3T1);
-        tr.registerDerivedVar("FatJetCombined1_T2T1"+myVarSuffix_, CombinedJet1_T2T1);
-        tr.registerDerivedVar("FatJetCombined2_T2T1"+myVarSuffix_, CombinedJet2_T2T1);
-
-        tr.registerDerivedVar("FatJetNlino1"+myVarSuffix_, NlinoJet1);
-        tr.registerDerivedVar("FatJetNlino2"+myVarSuffix_, NlinoJet2);
-
-        tr.registerDerivedVar("nNlinoCand"+myVarSuffix_, nNlinoCand);
-        
-        tr.registerDerivedVar("BOvl_B1Filter"+myVarSuffix_, B1Found);
-        tr.registerDerivedVar("BOvl_B2Filter"+myVarSuffix_, B2Found);
-        
         tr.registerDerivedVar("NGoodJetsAK8"+myVarSuffix_, NGoodJetsAK8);
-        tr.registerDerivedVar("nBottom1Ovl"+myVarSuffix_, nBottom1Ovl);
-        tr.registerDerivedVar("nBottom2Ovl"+myVarSuffix_, nBottom2Ovl);
+        tr.registerDerivedVar("NCandidateLSP"+myVarSuffix_, NCandidateLSP);
         
-    }
+        }
     
 
 public:
