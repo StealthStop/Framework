@@ -22,10 +22,14 @@ private:
         lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
 
         auto* good_muons_ = new std::vector<bool>();
+        auto* good_muons_pt20 = new std::vector<bool>();
         auto* muons_mtw_ = new std::vector<double>;
         int NGoodMuons = 0;
         int NGoodPlusMuons = 0;
         int NGoodMinusMuons = 0;
+        int NGoodMuons_pt20 = 0;
+        int NGoodPlusMuons_pt20 = 0;
+        int NGoodMinusMuons_pt20 = 0;
         
         auto* noniso_muons_ = new std::vector<bool>();
         auto* GoodNonIsoMuons = new std::vector<std::pair<std::string, TLorentzVector>>();
@@ -52,7 +56,22 @@ private:
             {
                 good_muons_->push_back(false);
             }
-            
+            if( abs(lvmu.Eta()) < etaCut &&
+                     lvmu.Pt() > 20 &&
+                     allMuons_passIso.at(imu) &&
+                     allMuons_medID.at(imu)
+                )
+            {
+                good_muons_pt20->push_back(true);
+                NGoodMuons_pt20 ++;
+                if( allMuons_charge.at(imu) ==  1 ) NGoodPlusMuons_pt20++;
+                else if( allMuons_charge.at(imu) == -1 ) NGoodMinusMuons_pt20++;
+                else std::cout<<utility::color("Charge values in nTuples are different", "red")<<std::endl;
+            }
+            else
+            {
+                good_muons_pt20->push_back(false);
+            }
             if( abs(lvmu.Eta()) < etaCut &&
                 lvmu.Pt() > 55.0 &&
                 !allMuons_passIso.at(imu) &&
@@ -75,6 +94,9 @@ private:
         tr.registerDerivedVar("NGoodPlusMuons"+myVarSuffix_, NGoodPlusMuons );
         tr.registerDerivedVar("NGoodMinusMuons"+myVarSuffix_, NGoodMinusMuons );
         tr.registerDerivedVec("MuonsMTW"+myVarSuffix_,   muons_mtw_ );
+
+        tr.registerDerivedVec("GoodMuons_pt20"+myVarSuffix_,  good_muons_pt20);
+        tr.registerDerivedVar("NGoodMuons_pt20"+myVarSuffix_, NGoodMuons_pt20 );
 
         tr.registerDerivedVec("NonIsoMuons"+myVarSuffix_, noniso_muons_ );
         tr.registerDerivedVar("NNonIsoMuons"+myVarSuffix_, NNonIsoMuons );
