@@ -44,19 +44,22 @@ private:
     // -----------------------------------------------------------------------------------------------------
     // function to generate all possible matches between gen particles and gen jets if pass DR and pt cut
     // -----------------------------------------------------------------------------------------------------
-    inline std::vector<std::tuple<int, int, double>> findAllDR(const std::vector<TLorentzVector>& GenParticles, 
-                                                               const std::vector<TLorentzVector>& Jets,
-                                                               const std::vector<bool>& GoodGenParticles,
-                                                               const int resPartID,
-                                                               const std::vector<int>& GenParticles_ParentId,
-                                                               const std::vector<int>& GenParticles_ParentIdx,
-                                                               const int& ISR_Idx, 
-                                                               const double maxDR, const double maxPtRatio) const
+    inline void findBestDR(const std::vector<TLorentzVector>& GenParticles, 
+                           const std::vector<TLorentzVector>& Jets,
+                           const std::vector<bool>& GoodGenParticles,
+                           const int resPartID,
+                           const std::vector<int>& GenParticles_ParentId,
+                           const std::vector<int>& GenParticles_ParentIdx,
+                           const int& ISR_Idx, 
+                           const double maxDR, const double maxPtRatio,
+                           std::vector<std::tuple<int, int, double>>& allDR,
+                           std::vector<std::tuple<int, int, double>>& bestAllDR,
+                           std::vector<std::tuple<int, int, double>>& justDR,
+                           std::vector<std::tuple<int, int, double>>& justPtRatio) const
     {
         bool check_ISR      = true;
         int check_resPartID = resPartID;
-
-        std::vector<std::tuple<int, int, double>> AllDR;
+ 
         std::tuple<int, int, double> DRtup;
        
         for (unsigned int g = 0; g < GenParticles.size(); g++)
@@ -68,35 +71,64 @@ private:
             
             for (unsigned int j = 0; j < Jets.size(); j++)
             {
-                bool passDR = GenParticles.at(g).DeltaR(Jets.at(j)) < maxDR;
-                bool passPt = abs( 1 - Jets.at(j).Pt() / GenParticles.at(g).Pt() ) < maxPtRatio;
-                if (findParent(check_resPartID, g, GenParticles_ParentId, GenParticles_ParentIdx) == check_resPartID && GoodGenParticles.at(g) && check_ISR && passDR && passPt)
+                bool passBestDR  = GenParticles.at(g).DeltaR(Jets.at(j)) < maxDR;
+                bool passBestPt  = abs( 1 - Jets.at(j).Pt() / GenParticles.at(g).Pt() ) < maxPtRatio;
+                bool findParents = (findParent(check_resPartID, g, GenParticles_ParentId, GenParticles_ParentIdx) == check_resPartID && GoodGenParticles.at(g) && check_ISR);
+
+                if (findParents)
                 {
+                    // all possible matching
                     std::get<0>(DRtup) = g;
                     std::get<1>(DRtup) = j;
                     std::get<2>(DRtup) = GenParticles.at(g).DeltaR(Jets.at(j));
-                    AllDR.push_back(DRtup);
+                    allDR.push_back(DRtup);
+
+                    // best matching
+                    if (passBestDR && passBestPt)
+                    {
+                        std::get<0>(DRtup) = g;
+                        std::get<1>(DRtup) = j;
+                        std::get<2>(DRtup) = GenParticles.at(g).DeltaR(Jets.at(j));
+                        bestAllDR.push_back(DRtup);
+                    }
+                    
+                    // matching with cutting on deltaR
+                    if (passBestDR) 
+                    {
+                        std::get<0>(DRtup) = g;
+                        std::get<1>(DRtup) = j;
+                        std::get<2>(DRtup) = GenParticles.at(g).DeltaR(Jets.at(j));
+                        justDR.push_back(DRtup);                  
+                    }
+
+                    // matching with cutting on pt ratio
+                    if (passBestPt)
+                    {
+                        std::get<0>(DRtup) = g;
+                        std::get<1>(DRtup) = j;
+                        std::get<2>(DRtup) = GenParticles.at(g).DeltaR(Jets.at(j));
+                        justPtRatio.push_back(DRtup);
+                    }    
                 }
             }
         }
-        return AllDR;      
     }
 
-    // ------------------------------------------------------------
-    // fuction to sort the best GenParticles and Jets matches
-    // ------------------------------------------------------------
-    void getMatches(const std::vector<std::tuple<int, int, double>>& AllDR, 
-                    std::vector<std::pair<int, int>>& Matches, 
+    // -------------------------------------------------------------
+    // function to sort the best GenParticles and Jets matches
+    // -------------------------------------------------------------
+    void getMatches(const std::vector<std::tuple<int, int, double>>& bestAllDR, 
+                    std::vector<std::pair<int, int>>& bestMathches, 
                     std::vector<bool> availableDR) const
     {
         std::tuple<int, int, double> bestDR;
         double minDR = 999;
-        for ( unsigned int d = 0; d < AllDR.size(); d++ )
+        for ( unsigned int d = 0; d < bestAllDR.size(); d++ )
         {
-            if ( std::get<2>(AllDR.at(d)) < minDR && availableDR.at(d) )
+            if ( std::get<2>(bestAllDR.at(d)) < minDR && availableDR.at(d) )
             {
-                bestDR = AllDR.at(d);
-                minDR  = std::get<2>(AllDR.at(d));
+                bestDR = bestAllDR.at(d);
+                minDR  = std::get<2>(bestAllDR.at(d));
             }
         }
 
@@ -108,19 +140,18 @@ private:
 
         if (!allgone)
         {
-            Matches.push_back( std::make_pair( std::get<0>(bestDR), std::get<1>(bestDR) ) );
+            bestMathches.push_back( std::make_pair( std::get<0>(bestDR), std::get<1>(bestDR) ) );
         
-            for ( unsigned int d = 0; d < AllDR.size(); d++ )
+            for ( unsigned int d = 0; d < bestAllDR.size(); d++ )
             {
-                if ( std::get<0>(AllDR.at(d)) == std::get<0>(bestDR) || std::get<1>(AllDR.at(d)) == std::get<1>(bestDR) )
+                if ( std::get<0>(bestAllDR.at(d)) == std::get<0>(bestDR) || std::get<1>(bestAllDR.at(d)) == std::get<1>(bestDR) )
                 {
                     availableDR.at(d) = false;
                 }
             } 
-            getMatches(AllDR, Matches, availableDR);
+            getMatches(bestAllDR, bestMathches, availableDR);
         }
      }
-
 
     // ----------------------
     // Remove the ISR jets
@@ -131,7 +162,7 @@ private:
 
         if(runtype != "Data")
         {
-            const auto& Jets                   = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+            const auto& GenJets                = tr.getVec<TLorentzVector>("GenJets"+myVarSuffix_);
             const auto& GoodJets_pt20          = tr.getVec<bool>("GoodJets_pt20"+myVarSuffix_);
             const auto& GenParticles           = tr.getVec<TLorentzVector>("GenParticles"+myVarSuffix_);
             const auto& GenParticles_PdgId     = tr.getVec<int>("GenParticles_PdgId"+myVarSuffix_);
@@ -139,15 +170,17 @@ private:
             const auto& GenParticles_ParentIdx = tr.getVec<int>("GenParticles_ParentIdx"+myVarSuffix_);
             const auto& GenParticles_Status    = tr.getVec<int>("GenParticles_Status"+myVarSuffix_); 
         
-            // ---------------------------
-            // loop over the RecoParticles
-            // ---------------------------
+            // ---------------------------------------------
+            // loop over the GenJets
+            // Genjets are reco AK4 under the assumption 
+            // that all gen jets pass acceptance of detector
+            // ---------------------------------------------
             std::vector<TLorentzVector> RecoISR;
             int nRecoISR = 0;
-            for (unsigned int j = 0; j < Jets.size(); j++)
+            for (unsigned int j = 0; j < GenJets.size(); j++)
             {
-                //if (!GoodJets_pt20[j]) continue;
-                RecoISR.push_back(Jets.at(j));
+                if (!GoodJets_pt20[j]) continue;
+                RecoISR.push_back(GenJets.at(j));
                 nRecoISR++;
             }
  
@@ -161,14 +194,13 @@ private:
                 int pdgId  = GenParticles_PdgId.at(g);
                 int momId  = GenParticles_ParentId.at(g);
                 int status = GenParticles_Status.at(g);
-                
                 //std::cout << "pdgId: " << pdgId  << " --- " << "momId: " << momId << " --- " << "status code: " << status << std::endl;                           
 
                 bool is_jet   = (abs(pdgId) <= 6 || abs(pdgId) == 21);
-                bool pass_isr = is_jet ? status == 23 && (abs(momId) == 2212) : false;  
-                //bool filter   = GenParticles.at(g).Pt() > 20 && abs(GenParticles.at(g).Eta()) < 2.4;           
+                bool pass_isr = is_jet ? status == 71 && (abs(momId) == 2212) : false;  
+                bool filter   = GenParticles.at(g).Pt() > 20 && abs(GenParticles.at(g).Eta()) < 2.4;           
 
-                if (pass_isr)
+                if (pass_isr && filter)
                 {
                     GenISR.at(g) = true;
                     nGenISR++;
@@ -178,9 +210,16 @@ private:
             // ----------------
             // ISR Gen matching
             // ----------------
-            auto& GM_ISRmatching_DR = tr.createDerivedVec<double>("GM_ISRmatching_DR"+myVarSuffix_);              
-            auto& GM_ISRmatching_Pt = tr.createDerivedVec<double>("GM_ISRmatching_Pt"+myVarSuffix_);
-            auto& ISRmatched        = tr.createDerivedVec<bool>("ISRmatched"+myVarSuffix_, RecoISR.size());
+            auto& GM_ISRmatching_allDR                    = tr.createDerivedVec<double>("GM_ISRmatching_allDR"+myVarSuffix_); 
+            auto& GM_ISRmatching_bestDR                   = tr.createDerivedVec<double>("GM_ISRmatching_bestDR"+myVarSuffix_);
+            auto& GM_ISRmatching_justCutOnDR_DR           = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnDR_DR"+myVarSuffix_);
+            auto& GM_ISRmatching_justCutOnPtRatio_DR      = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnPtRatio_DR"+myVarSuffix_);
+            auto& GM_ISRmatching_allPtRatio               = tr.createDerivedVec<double>("GM_ISRmatching_allPtRatio"+myVarSuffix_);
+            auto& GM_ISRmatching_bestPtRatio              = tr.createDerivedVec<double>("GM_ISRmatching_bestPtRatio"+myVarSuffix_);
+            auto& GM_ISRmatching_justCutOnDR_PtRatio      = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnDR_PtRatio"+myVarSuffix_);
+            auto& GM_ISRmatching_justCutOnPtRatio_PtRatio = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnPtRatio_PtRatio"+myVarSuffix_);
+
+            auto& ISRmatched                              = tr.createDerivedVec<bool>("ISRmatched"+myVarSuffix_, RecoISR.size());
 
             std::vector<int> ListParticles{1, 2, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6, 2212};
             std::vector<TLorentzVector> isrGenList;
@@ -188,45 +227,74 @@ private:
             int ISR_Idx  = -1;
             int nISRJets = 0;
 
-            // matching
+            // --------------
+            // matching loops
+            // --------------
             for (unsigned int m = 0; m < ListParticles.size(); m++)            
             {
-                std::vector<std::pair<int, int>> Matches;
+                std::vector<std::tuple<int, int, double>> allMatches;               
+                std::vector<std::tuple<int, int, double>> bestMatches;
+                std::vector<std::tuple<int, int, double>> justDRMatches;
+                std::vector<std::tuple<int, int, double>> justPtRatioMatches;
                 double maxDR      = 0.1; // set max DR allowed for matching
                 double maxPtRatio = 0.5; // set max pT allowed for matching
-                std::vector<std::tuple<int, int, double>> AllDR = findAllDR(GenParticles, RecoISR, GenISR, ListParticles[m], GenParticles_ParentId, GenParticles_ParentIdx, ISR_Idx, maxDR, maxPtRatio);
-                std::vector<bool> availableDR(AllDR.size(), true);
+                findBestDR(GenParticles, RecoISR, GenISR, ListParticles[m], GenParticles_ParentId, GenParticles_ParentIdx,     ISR_Idx, maxDR, maxPtRatio, allMatches, bestMatches, justDRMatches, justPtRatioMatches);
 
-                getMatches(AllDR, Matches, availableDR);   
-                
+                // --------------------
+                // all possible matches
+                // --------------------
+                for (unsigned int match = 0; match < allMatches.size(); match++)
+                {
+                    GM_ISRmatching_allDR.push_back( GenParticles.at(std::get<0>(allMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(allMatches.at(match)))) );
+                    GM_ISRmatching_allPtRatio.push_back( abs( 1 - GenParticles.at(std::get<0>(allMatches.at(match))).Pt() / RecoISR.at(std::get<1>(allMatches.at(match))).Pt() ) );
+                }       
+
+                // ------------
+                // best matches
+                // ------------
                 std::vector<double> DRvec;
                 std::vector<double> PtVec;
                 TLorentzVector isrGenMatched;
                 TLorentzVector isrRecoMatched;
-                for (unsigned int match = 0; match < Matches.size(); match++)
+                for (unsigned int match = 0; match < bestMatches.size(); match++)
                 {
-                    isrGenMatched  = GenParticles.at(Matches.at(match).first);
-                    isrRecoMatched = RecoISR.at(Matches.at(match).second);
-                    
-                    GM_ISRmatching_DR.push_back( GenParticles.at(Matches.at(match).first).DeltaR(RecoISR.at(Matches.at(match).second)) );
-                    GM_ISRmatching_Pt.push_back( abs( 1 - GenParticles.at(Matches.at(match).first).Pt() / RecoISR.at(Matches.at(match).second).Pt() ) );                    
+                    isrGenMatched  = GenParticles.at(std::get<0>(bestMatches.at(match)));
+                    isrRecoMatched = RecoISR.at(std::get<1>(bestMatches.at(match)));
+
+                    GM_ISRmatching_bestDR.push_back( GenParticles.at(std::get<0>(bestMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(bestMatches.at(match)))) );
+                    GM_ISRmatching_bestPtRatio.push_back( abs( 1 - GenParticles.at(std::get<0>(bestMatches.at(match))).Pt() / RecoISR.at(std::get<1>(bestMatches.at(match))).Pt() ) );
 
                     // getting ISRmatched jets
-                    ISRmatched.at(Matches.at(match).second) = true;
+                    ISRmatched.at(std::get<1>(bestMatches.at(match))) = true;
                     nISRJets++;
-                    
                 }
                 //isrGenList.push_back(isrGenMatched);
                 //isrRecoList.push_back(isrRecoMatched);
+
+               // ------------------------------
+               // matches with cutting on deltaR
+               // ------------------------------
+               for (unsigned int match = 0; match < justDRMatches.size(); match++)
+               {
+                   GM_ISRmatching_justCutOnDR_DR.push_back( GenParticles.at(std::get<0>(justDRMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(justDRMatches.at(match)))) );
+                   GM_ISRmatching_justCutOnDR_PtRatio.push_back( abs( 1 - GenParticles.at(std::get<0>(justDRMatches.at(match))).Pt() / RecoISR.at(std::get<1>(justDRMatches.at(match))).Pt() ) );
+               }   
+
+               // --------------------------------
+               // matches with cutting on pt ratio
+               // --------------------------------
+               for (unsigned int match = 0; match < justPtRatioMatches.size(); match++)
+               {
+                   GM_ISRmatching_justCutOnPtRatio_DR.push_back( GenParticles.at(std::get<0>(justPtRatioMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(justPtRatioMatches.at(match)))) );
+                   GM_ISRmatching_justCutOnPtRatio_PtRatio.push_back( abs( 1 - GenParticles.at(std::get<0>(justPtRatioMatches.at(match))).Pt() / RecoISR.at(std::get<1>(justPtRatioMatches.at(match))).Pt() ) );
+               }       
+            
+                //tr.registerDerivedVar("GM_genISR"+myVarSuffix_, isrGenList.at(0));
+                //tr.registerDerivedVar("GM_recoISR"+myVarSuffix_, isrRecoList.at(0));
+                tr.registerDerivedVar("nGenISR"+myVarSuffix_, nGenISR); 
+                tr.registerDerivedVar("nRecoISR"+myVarSuffix_, nRecoISR);
+                tr.registerDerivedVar("nISRJets"+myVarSuffix_, nISRJets);       
             }
-          
-             
-            tr.registerDerivedVar("nGenISR"+myVarSuffix_, nGenISR); 
-            //tr.registerDerivedVar("GM_genISR"+myVarSuffix_, isrGenList.at(0));
-            tr.registerDerivedVar("nRecoISR"+myVarSuffix_, nRecoISR);
-            //tr.registerDerivedVar("GM_recoISR"+myVarSuffix_, isrRecoList.at(0));
-            tr.registerDerivedVar("nISRJets"+myVarSuffix_, nISRJets);       
-            //tr.registerDerivedVec("ISRmatched"+myVarSuffix_, ISRmatched);
  
         }
     }
