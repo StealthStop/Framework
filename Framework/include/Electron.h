@@ -23,10 +23,14 @@ private:
         lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
 
         auto* good_electrons_ = new std::vector<bool>();
+        auto* good_electrons_pt20 = new std::vector<bool>();
         auto* electrons_mtw_ = new std::vector<double>();
         int NGoodElectrons = 0;
         int NGoodPlusElectrons = 0;
         int NGoodMinusElectrons = 0;
+        int NGoodElectrons_pt20 = 0;
+        int NGoodPlusElectrons_pt20 = 0;
+        int NGoodMinusElectrons_pt20 = 0;
         double ptCut = 0.0;
         if      (runYear == "2016") ptCut = 30.0;
         else if (runYear == "2017") ptCut = 37.0; 
@@ -52,12 +56,33 @@ private:
             {
                 good_electrons_->push_back(false);
             }
+            if ( abs(lvel.Eta()) < etaCut && 
+                lvel.Pt() > 20 && 
+                allElectrons_passIso.at(iel) &&
+                allElectrons_tightID.at(iel) 
+                )
+            {
+                good_electrons_pt20->push_back(true);
+                NGoodElectrons_pt20++;
+                if( allElectrons_charge.at(iel) ==  1 ) NGoodPlusElectrons_pt20++;
+                else if( allElectrons_charge.at(iel) == -1 ) NGoodMinusElectrons_pt20++;
+                else std::cout<<utility::color("Charge values in nTuples are different", "red")<<std::endl;
+            }
+            else
+            {
+                good_electrons_pt20->push_back(false);
+            }
         }
 
         tr.registerDerivedVec("GoodElectrons"+myVarSuffix_, good_electrons_);
         tr.registerDerivedVar("NGoodElectrons"+myVarSuffix_, NGoodElectrons);
         tr.registerDerivedVar("NGoodPlusElectrons"+myVarSuffix_, NGoodPlusElectrons);
         tr.registerDerivedVar("NGoodMinusElectrons"+myVarSuffix_, NGoodMinusElectrons);
+        tr.registerDerivedVec("GoodElectrons_pt20"+myVarSuffix_, good_electrons_pt20);
+        tr.registerDerivedVar("NGoodElectrons_pt20"+myVarSuffix_, NGoodElectrons_pt20);
+        tr.registerDerivedVar("NGoodPlusElectrons_pt20"+myVarSuffix_, NGoodPlusElectrons_pt20);
+        tr.registerDerivedVar("NGoodMinusElectrons_pt20"+myVarSuffix_, NGoodMinusElectrons_pt20);
+
         tr.registerDerivedVec("ElectronsMTW"+myVarSuffix_, electrons_mtw_);
     }
 
