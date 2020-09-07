@@ -72,7 +72,9 @@ private:
             for (unsigned int j = 0; j < Jets.size(); j++)
             {
                 bool passBestDR  = GenParticles.at(g).DeltaR(Jets.at(j)) < maxDR;
-                bool passBestPt  = abs( 1 - Jets.at(j).Pt() / GenParticles.at(g).Pt() ) < maxPtRatio;
+                //bool passBestPt  = abs( 1 - Jets.at(j).Pt() / GenParticles.at(g).Pt() ) < maxPtRatio;
+                //bool passBestPt  = abs ( 1 - ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) ) < maxPtRatio;
+                bool passBestPt  = ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) < maxPtRatio;
                 bool findParents = (findParent(check_resPartID, g, GenParticles_ParentId, GenParticles_ParentIdx) == check_resPartID && GoodGenParticles.at(g) && check_ISR);
 
                 if (findParents)
@@ -218,7 +220,6 @@ private:
             auto& GM_ISRmatching_bestPtRatio              = tr.createDerivedVec<double>("GM_ISRmatching_bestPtRatio"+myVarSuffix_);
             auto& GM_ISRmatching_justCutOnDR_PtRatio      = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnDR_PtRatio"+myVarSuffix_);
             auto& GM_ISRmatching_justCutOnPtRatio_PtRatio = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnPtRatio_PtRatio"+myVarSuffix_);
-
             auto& ISRmatched                              = tr.createDerivedVec<bool>("ISRmatched"+myVarSuffix_, RecoISR.size());
 
             std::vector<int> ListParticles{1, 2, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6, 2212};
@@ -238,7 +239,7 @@ private:
                 std::vector<std::tuple<int, int, double>> justPtRatioMatches;
                 double maxDR      = 0.1; // set max DR allowed for matching
                 double maxPtRatio = 0.5; // set max pT allowed for matching
-                findBestDR(GenParticles, RecoISR, GenISR, ListParticles[m], GenParticles_ParentId, GenParticles_ParentIdx,     ISR_Idx, maxDR, maxPtRatio, allMatches, bestMatches, justDRMatches, justPtRatioMatches);
+                findBestDR(GenParticles, RecoISR, GenISR, ListParticles[m], GenParticles_ParentId, GenParticles_ParentIdx, ISR_Idx, maxDR, maxPtRatio, allMatches, bestMatches, justDRMatches, justPtRatioMatches);
 
                 // --------------------
                 // all possible matches
@@ -246,7 +247,8 @@ private:
                 for (unsigned int match = 0; match < allMatches.size(); match++)
                 {
                     GM_ISRmatching_allDR.push_back( GenParticles.at(std::get<0>(allMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(allMatches.at(match)))) );
-                    GM_ISRmatching_allPtRatio.push_back( abs( 1 - GenParticles.at(std::get<0>(allMatches.at(match))).Pt() / RecoISR.at(std::get<1>(allMatches.at(match))).Pt() ) );
+                    //GM_ISRmatching_allPtRatio.push_back( abs( 1 - (RecoISR.at(std::get<1>(allMatches.at(match))).Pt() / GenParticles.at(std::get<0>(allMatches.at(match))).Pt()) ) );
+                    GM_ISRmatching_allPtRatio.push_back( RecoISR.at(std::get<1>(allMatches.at(match))).Pt() / GenParticles.at(std::get<0>(allMatches.at(match))).Pt() );
                 }       
 
                 // ------------
@@ -262,7 +264,8 @@ private:
                     isrRecoMatched = RecoISR.at(std::get<1>(bestMatches.at(match)));
 
                     GM_ISRmatching_bestDR.push_back( GenParticles.at(std::get<0>(bestMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(bestMatches.at(match)))) );
-                    GM_ISRmatching_bestPtRatio.push_back( abs( 1 - GenParticles.at(std::get<0>(bestMatches.at(match))).Pt() / RecoISR.at(std::get<1>(bestMatches.at(match))).Pt() ) );
+                    //GM_ISRmatching_bestPtRatio.push_back( abs( 1 - (RecoISR.at(std::get<1>(bestMatches.at(match))).Pt() / GenParticles.at(std::get<0>(bestMatches.at(match))).Pt()) ) );
+                    GM_ISRmatching_bestPtRatio.push_back( RecoISR.at(std::get<1>(bestMatches.at(match))).Pt() / GenParticles.at(std::get<0>(bestMatches.at(match))).Pt() );
 
                     // getting ISRmatched jets
                     ISRmatched.at(std::get<1>(bestMatches.at(match))) = true;
@@ -276,8 +279,9 @@ private:
                // ------------------------------
                for (unsigned int match = 0; match < justDRMatches.size(); match++)
                {
-                   GM_ISRmatching_justCutOnDR_DR.push_back( GenParticles.at(std::get<0>(justDRMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(justDRMatches.at(match)))) );
-                   GM_ISRmatching_justCutOnDR_PtRatio.push_back( abs( 1 - GenParticles.at(std::get<0>(justDRMatches.at(match))).Pt() / RecoISR.at(std::get<1>(justDRMatches.at(match))).Pt() ) );
+                    GM_ISRmatching_justCutOnDR_DR.push_back( GenParticles.at(std::get<0>(justDRMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(justDRMatches.at(match)))) );
+                    //GM_ISRmatching_justCutOnDR_PtRatio.push_back( abs( 1 - (RecoISR.at(std::get<1>(justDRMatches.at(match))).Pt() / GenParticles.at(std::get<0>(justDRMatches.at(match))).Pt()) ) );
+                    GM_ISRmatching_justCutOnDR_PtRatio.push_back( RecoISR.at(std::get<1>(justDRMatches.at(match))).Pt() / GenParticles.at(std::get<0>(justDRMatches.at(match))).Pt() ); 
                }   
 
                // --------------------------------
@@ -285,8 +289,9 @@ private:
                // --------------------------------
                for (unsigned int match = 0; match < justPtRatioMatches.size(); match++)
                {
-                   GM_ISRmatching_justCutOnPtRatio_DR.push_back( GenParticles.at(std::get<0>(justPtRatioMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(justPtRatioMatches.at(match)))) );
-                   GM_ISRmatching_justCutOnPtRatio_PtRatio.push_back( abs( 1 - GenParticles.at(std::get<0>(justPtRatioMatches.at(match))).Pt() / RecoISR.at(std::get<1>(justPtRatioMatches.at(match))).Pt() ) );
+                    GM_ISRmatching_justCutOnPtRatio_DR.push_back( GenParticles.at(std::get<0>(justPtRatioMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(justPtRatioMatches.at(match)))) );
+                    //GM_ISRmatching_justCutOnPtRatio_PtRatio.push_back( abs( 1 - (RecoISR.at(std::get<1>(justPtRatioMatches.at(match))).Pt() / GenParticles.at(std::get<0>(justPtRatioMatches.at(match))).Pt()) ) );
+                    GM_ISRmatching_justCutOnPtRatio_PtRatio.push_back( RecoISR.at(std::get<1>(justPtRatioMatches.at(match))).Pt() / GenParticles.at(std::get<0>(justPtRatioMatches.at(match))).Pt() );
                }       
             
                 //tr.registerDerivedVar("GM_genISR"+myVarSuffix_, isrGenList.at(0));
