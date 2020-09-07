@@ -89,6 +89,16 @@ private:
             MVALeptonName_ ="GoodNonIsoMuons";
             ESVarName_ = "NonIsoMuons_";
         }
+        else if (jetColl == "GoodJets_pt30_GoodLeptons_pt20")
+        {
+            GoodJetsName_ = "GoodJets_pt30";
+            NGoodJetsName_ = "NGoodJets_pt30";
+            GoodLeptonsName_ = "GoodLeptons_pt20";
+            NGoodLeptonsName_ = "NGoodLeptons_pt20";
+            MVAJetName_ = "Jet";
+            MVALeptonName_ ="GoodLeptons";
+            ESVarName_ = "";
+        }
         else
         {
             GoodJetsName_ = "GoodJets_pt30";
@@ -211,7 +221,7 @@ private:
             } // ji
             printf("\n\n") ;
         }
-
+        
         //--- Make and get the event shape variables for the 6 highest-P jets in the CM frame
         EventShapeVariables esv_top6( cm_jets_top6 ) ;
         TVectorD eigen_vals_norm_top6 = esv_top6.getEigenValues() ;
@@ -229,6 +239,50 @@ private:
         double jmt_ev1_top6 = eigen_vals_norm_top6[1] ;
         double jmt_ev2_top6 = eigen_vals_norm_top6[2] ;
 
+        //AK8 jet variables
+        
+        const auto& candidateLSP_TLV = tr.getVec<TLorentzVector>("candidateLSP_TLV"+myVarSuffix_);
+        const auto& candidateLSP_SDM = tr.getVec<double>("candidateLSP_SDM"+myVarSuffix_);
+        const auto& candidateLSP_Pruned = tr.getVec<double>("candidateLSP_Pruned"+myVarSuffix_);
+        const auto& candidateLSP_T21 = tr.getVec<double>("candidateLSP_T21"+myVarSuffix_);
+
+        std::vector<TLorentzVector> JetsAK8Cands_cm;
+        for (unsigned int j = 0; j < candidateLSP_TLV.size(); j++)
+        {
+            TLorentzVector myjet = candidateLSP_TLV.at(j);
+            myjet.Boost(rec_boost_beta_vec);
+            JetsAK8Cands_cm.push_back(myjet);            
+        }
+        //need to zip up vectors sort they are sorted simultaneously
+        std::vector<std::tuple<TLorentzVector, double, double, double>> zipped_CandsAK8;
+        for (unsigned int j = 0; j < JetsAK8Cands_cm.size(); j++)
+        {
+            zipped_CandsAK8.push_back(std::make_tuple(JetsAK8Cands_cm.at(j), candidateLSP_SDM.at(j), candidateLSP_Pruned.at(j), candidateLSP_T21.at(j)));
+        }
+        std::sort(std::begin(zipped_CandsAK8), std::end(zipped_CandsAK8), 
+                  [&](const auto& a, const auto& b)
+                  {
+                      return std::get<0>(a).M() > std::get<0>(b).M();
+                  });
+                  //now unzip
+        std::vector<double> JetsAK8Cands_SDM, JetsAK8Cands_Pruned, JetsAK8Cands_T21;
+        for (unsigned int j = 0; j < JetsAK8Cands_cm.size(); j++)
+        {
+            JetsAK8Cands_cm.at(j) = std::get<0>(zipped_CandsAK8.at(j));
+            JetsAK8Cands_SDM.push_back(std::get<1>(zipped_CandsAK8.at(j)));
+            JetsAK8Cands_Pruned.push_back(std::get<2>(zipped_CandsAK8.at(j)));
+            JetsAK8Cands_T21.push_back(std::get<3>(zipped_CandsAK8.at(j)));
+        }
+        if (JetsAK8Cands_cm.size() > 0)
+        {
+            TLorentzVector justphi;
+            justphi.SetPtEtaPhiM(0.0, 0.0, JetsAK8Cands_cm.at(0).Phi(), 0.0);
+            for (unsigned int j = 0; j < JetsAK8Cands_cm.size(); j++)
+            {
+                JetsAK8Cands_cm.at(j) = JetsAK8Cands_cm.at(j) - justphi;
+            }
+        }
+        const auto& passBaseline2l_pt20 = tr.getVar<bool>("passBaseline2l_pt20"+myVarSuffix_);
 
         //--- register Variables
         //
@@ -239,6 +293,16 @@ private:
             tr.registerDerivedVar(MVAJetName_+"_phi_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Phi() : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_m_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).M()   : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_dcsv_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_dcsv.at(i)  : 0.0));
+        }
+        for(unsigned int i = 0; i < 3; i++)
+        {
+            tr.registerDerivedVar("JetsAK8Cands_pt_"+std::to_string(i+1)+myVarSuffix_,     static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).Pt()   : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_eta_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).Eta() : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_phi_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).Phi() : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_m_"+std::to_string(i+1)+myVarSuffix_,      static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).M()   : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_SDM_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_SDM.at(i)      : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_Pruned_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_Pruned.at(i)   : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_T21_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_T21.at(i)      : 0.0));
         }
         for(unsigned int i = 0; i < nLeptons_; i++)
         {
