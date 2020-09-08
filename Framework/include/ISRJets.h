@@ -186,7 +186,8 @@ private:
             // -----------------------------------------
             // loop over the GenParticles to get Gen ISR 
             // ----------------------------------------- 
-            std::vector<bool> GenISR(GenParticles.size(), false);
+            auto& GenISR = tr.createDerivedVec<bool>("GenISR"+myVarSuffix_, GenParticles.size());
+            //std::vector<bool> GenISR(GenParticles.size(), false);
             int nGenISR = 0;
             for (unsigned int g = 0; g < GenParticles.size(); g++)
             {
