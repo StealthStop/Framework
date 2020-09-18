@@ -31,7 +31,7 @@ private:
         
         const auto& Jets                 = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
 //        const auto& GoodLeptons          = tr.getVec<std::pair<std::string,TLorentzVector>>("GoodLeptons"+myVarSuffix_);
-        const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
+        const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons_pt20"+myVarSuffix_);
 
         const auto& subjets              = tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets"+myVarSuffix_);
 
@@ -164,26 +164,30 @@ private:
                 candidateLSP_Idx.push_back(j);
                 candidateLSP_T21.push_back(Tau2.at(j) / Tau1.at(j));
                 candidateLSP_T32.push_back(Tau3.at(j) / Tau2.at(j));
-                candidateLSP_Pruned.push_back(prunedMass.at(j));
+                candidateLSP_Pruned.push_back(prunedMass.at(j) >= 0 ? prunedMass.at(j): 0.0);
                 candidateLSP_SDM.push_back(softDropMass.at(j));
+
+                int b1_sj_idx = -1, b2_sj_idx = -1;
                 for(unsigned int s = 0; s < subjets.at(j).size(); s++)
                 {
                     TLorentzVector mySJ = subjets.at(j).at(s);
                     if(!bottom1Found && bottom1.DeltaR(mySJ) < 0.2 && abs(1 - bottom1.Pt()/mySJ.Pt()) < 0.5)
                     {
-                        candidateLSP_TLV.push_back(myJetAK8 - mySJ);
+                        b1_sj_idx = s;
+                        bottom1Found = true;
                     }
                     else if(!bottom2Found && bottom2.DeltaR(mySJ) < 0.2 && abs(1 - bottom2.Pt()/mySJ.Pt()) < 0.5)
                     {
-                        candidateLSP_TLV.push_back(myJetAK8 - mySJ);
-                    }
-                    else
-                    {
-                        candidateLSP_TLV.push_back(myJetAK8);
+                        b2_sj_idx = s;
+                        bottom2Found = true;
                     }
                 }
+                if (b1_sj_idx != -1) candidateLSP_TLV.push_back(myJetAK8 - subjets.at(j).at(b1_sj_idx));
+                else if (b2_sj_idx != -1) candidateLSP_TLV.push_back(myJetAK8 - subjets.at(j).at(b2_sj_idx));
+                else candidateLSP_TLV.push_back(myJetAK8);
             }
-        }       
+        } 
+
         asymm_mt2_lester_bisect::disableCopyrightMessage();
         tr.registerDerivedVar("NGoodJetsAK8"+myVarSuffix_, NGoodJetsAK8);
         tr.registerDerivedVar("NCandidateLSP"+myVarSuffix_, NCandidateLSP);
