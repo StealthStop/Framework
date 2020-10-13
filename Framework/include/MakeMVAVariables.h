@@ -20,6 +20,10 @@ private:
     public:
         TLorentzVector tlv;
         double dcsv;
+        double ptD;
+        double axismajor;
+        double axisminor;
+        double multiplicity;
     };
 
     bool verb_;
@@ -115,6 +119,10 @@ private:
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
         const auto& Jets_bJetTagDeepCSVtotb = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb");
+        const auto& Jets_ptD = tr.getVec<double>("Jets"+myVarSuffix_+"_ptD");
+        const auto& Jets_axismajor = tr.getVec<double>("Jets"+myVarSuffix_+"_axismajor");
+        const auto& Jets_axisminor = tr.getVec<double>("Jets"+myVarSuffix_+"_axisminor");
+        const auto& Jets_multiplicity = tr.getVec<int>("Jets"+myVarSuffix_+"_multiplicity");
         const auto& GoodJets = tr.getVec<bool>(GoodJetsName_+myVarSuffix_);
         const auto& NGoodJets = tr.getVar<int>(NGoodJetsName_+myVarSuffix_);
         const auto& GoodLeptons = tr.getVec<std::pair<std::string, TLorentzVector>>(GoodLeptonsName_+myVarSuffix_);
@@ -159,7 +167,7 @@ private:
             Jets_.push_back( jlvcm );
             
             jlvcm.Boost( rec_boost_beta_vec );
-            Jets_cm.push_back( {jlvcm, Jets_bJetTagDeepCSVtotb.at(j)} );
+            Jets_cm.push_back( {jlvcm, Jets_bJetTagDeepCSVtotb.at(j), Jets_ptD.at(j), Jets_axismajor.at(j), Jets_axisminor.at(j), static_cast<double>(Jets_multiplicity.at(j))} );
 
             math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() );
             cm_jets.push_back( cmvec );
@@ -184,7 +192,7 @@ private:
         std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLV v1, TLV v2){return v1.tlv.P() > v2.tlv.P();} );
         std::sort( Jets_psort.begin(), Jets_psort.end(), utility::compare_pt_TLV );
         auto& Jets_cm_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_cm_top6"+myVarSuffix_);
-        std::vector<double> Jets_cm_top6_dcsv;
+        std::vector<double> Jets_cm_top6_dcsv, Jets_cm_top6_ptD, Jets_cm_top6_axismajor, Jets_cm_top6_axisminor, Jets_cm_top6_multiplicity;
         auto& Jets_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_top6"+myVarSuffix_);
 
         double phiMax = (NGoodJets > 0) ? Jets_cm_psort[0].tlv.Phi() : 0.0;
@@ -201,7 +209,10 @@ private:
                     Jet_cm_psort.RotateZ(-phiMax);                
                 Jets_cm_top6.push_back( Jet_cm_psort ) ;
                 Jets_cm_top6_dcsv.push_back( Jets_cm_psort.at(ji).dcsv );
-
+                Jets_cm_top6_ptD.push_back( Jets_cm_psort.at(ji).ptD );
+                Jets_cm_top6_axismajor.push_back( Jets_cm_psort.at(ji).axismajor );
+                Jets_cm_top6_axisminor.push_back( Jets_cm_psort.at(ji).axisminor );
+                Jets_cm_top6_multiplicity.push_back( Jets_cm_psort.at(ji).multiplicity );
                 Jets_top6.push_back( Jets_psort.at(ji) ) ;
             }
         } // ji
@@ -273,16 +284,15 @@ private:
             JetsAK8Cands_Pruned.push_back(std::get<2>(zipped_CandsAK8.at(j)));
             JetsAK8Cands_T21.push_back(std::get<3>(zipped_CandsAK8.at(j)));
         }
-        if (JetsAK8Cands_cm.size() > 0)
+
+        double phiMaxAK8 = (JetsAK8Cands_cm.size() > 0) ? JetsAK8Cands_cm.at(0).Phi() : 0.0;
+        for(unsigned int j = 0; j < JetsAK8Cands_cm.size(); j++)
         {
-            TLorentzVector justphi;
-            justphi.SetPtEtaPhiM(0.0, 0.0, JetsAK8Cands_cm.at(0).Phi(), 0.0);
-            for (unsigned int j = 0; j < JetsAK8Cands_cm.size(); j++)
-            {
-                JetsAK8Cands_cm.at(j) = JetsAK8Cands_cm.at(j) - justphi;
-            }
+            if(j == 0)
+                JetsAK8Cands_cm.at(j).SetPhi(0.0);
+            else
+                JetsAK8Cands_cm.at(j).RotateZ(-phiMaxAK8);
         }
-        const auto& passBaseline2l_pt20 = tr.getVar<bool>("passBaseline2l_pt20"+myVarSuffix_);
 
         //--- register Variables
         //
@@ -293,10 +303,14 @@ private:
             tr.registerDerivedVar(MVAJetName_+"_phi_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Phi() : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_m_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).M()   : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_dcsv_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_dcsv.at(i)  : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_ptD_"+std::to_string(i+1)+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_ptD.at(i)          : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_axismajor_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_axismajor.at(i)    : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_axisminor_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_axisminor.at(i)    : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_multiplicity_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_multiplicity.at(i) : 0.0));
         }
-        for(unsigned int i = 0; i < 3; i++)
+        for(unsigned int i = 0; i < 5; i++)
         {
-            tr.registerDerivedVar("JetsAK8Cands_pt_"+std::to_string(i+1)+myVarSuffix_,     static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).Pt()   : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_pt_"+std::to_string(i+1)+myVarSuffix_,     static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).Pt()  : 0.0));
             tr.registerDerivedVar("JetsAK8Cands_eta_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).Eta() : 0.0));
             tr.registerDerivedVar("JetsAK8Cands_phi_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).Phi() : 0.0));
             tr.registerDerivedVar("JetsAK8Cands_m_"+std::to_string(i+1)+myVarSuffix_,      static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).M()   : 0.0));

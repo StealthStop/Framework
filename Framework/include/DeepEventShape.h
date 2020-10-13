@@ -136,7 +136,7 @@ private:
         TF_ImportGraphDefOptions* graph_opts = TF_NewImportGraphDefOptions();
         TF_GraphImportGraphDef(graph, graph_def, graph_opts, status);
         TF_DeleteImportGraphDefOptions(graph_opts);
-        if(TF_GetCode(status) != TF_OK) std::cerr<<utility::color("ERROR: Unable to import graph "+std::string(TF_Message(status)), "red")<<std::endl;
+        if(TF_GetCode(status) != TF_OK) std::cerr<<utility::color("ERROR: Unable to import graph: "+std::string(TF_Message(status)), "red")<<std::endl;
         TF_DeleteBuffer(graph_def);
         
         //Create tensorflow session from imported graph
@@ -220,6 +220,7 @@ private:
                       nullptr,
                       // Output status
                       status);
+        if(TF_GetCode(status) != TF_OK) std::cerr<<utility::color("ERROR: Unable to run graph: "+std::string(TF_Message(status)), "red")<<std::endl;
         
         //Get output discriminators 
         std::vector<std::vector<double>> discriminators(outputs_.size());
@@ -304,6 +305,7 @@ public:
         , maxNJet_(husk.maxNJet_)
         , firstEvent_(husk.firstEvent_)
         , session_(husk.session_)
+        , outputOpVec_(husk.outputOpVec_)
         , vars_(husk.vars_)
         , binEdges_(husk.binEdges_)
         , inputs_(husk.inputs_)
