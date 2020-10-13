@@ -54,7 +54,7 @@ function print_ok {
 
 # Initialize our own variables:
 
-while getopts "h?d:f:t:l:s:nov" opt; do
+while getopts "h?d:f:F:t:l:s:nov" opt; do
     case "$opt" in
     h|\?)
         print_help
@@ -63,6 +63,8 @@ while getopts "h?d:f:t:l:s:nov" opt; do
     d)  CFG_DIRECTORY=$OPTARG
         ;;
     f)  SOFTLINK_NAME=$OPTARG
+        ;;
+    F)  SOFTLINK_NAME_2=$OPTARG
         ;;
     t)  TAG=$OPTARG
         ;;
