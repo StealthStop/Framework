@@ -14,45 +14,20 @@ class EventShapeCalculator
 {
 private:
     float* basePtr_;
+    std::vector<int> varIndex_;
+    std::vector<std::string> vars_;
     std::string myVarSuffix_;
-
-    int fwm2_top6_, fwm3_top6_, fwm4_top6_, fwm5_top6_, fwm6_top6_, fwm7_top6_, fwm8_top6_, fwm9_top6_, fwm10_top6_, jmt_ev0_top6_, jmt_ev1_top6_, jmt_ev2_top6_;
-    int NGoodJets_double_;
-    int Jet_pt_1_, Jet_pt_2_, Jet_pt_3_, Jet_pt_4_, Jet_pt_5_, Jet_pt_6_, Jet_pt_7_;
-    int Jet_eta_1_, Jet_eta_2_, Jet_eta_3_, Jet_eta_4_, Jet_eta_5_, Jet_eta_6_, Jet_eta_7_;
-    int Jet_phi_1_, Jet_phi_2_, Jet_phi_3_, Jet_phi_4_, Jet_phi_5_, Jet_phi_6_, Jet_phi_7_;
-    int Jet_m_1_, Jet_m_2_, Jet_m_3_, Jet_m_4_, Jet_m_5_, Jet_m_6_, Jet_m_7_;
-    int GoodLeptons_pt_1_, GoodLeptons_eta_1_, GoodLeptons_phi_1_, GoodLeptons_m_1_;
-    int BestComboAvgMass_;
-    int NonIsoMuons_fwm2_top6_, NonIsoMuons_fwm3_top6_, NonIsoMuons_fwm4_top6_, NonIsoMuons_fwm5_top6_, NonIsoMuons_fwm6_top6_, NonIsoMuons_fwm7_top6_, NonIsoMuons_fwm8_top6_, NonIsoMuons_fwm9_top6_;
-    int NonIsoMuons_fwm10_top6_, NonIsoMuons_jmt_ev0_top6_, NonIsoMuons_jmt_ev1_top6_, NonIsoMuons_jmt_ev2_top6_;
-    int JetNonIsoMuons_pt_1_, JetNonIsoMuons_pt_2_, JetNonIsoMuons_pt_3_, JetNonIsoMuons_pt_4_, JetNonIsoMuons_pt_5_, JetNonIsoMuons_pt_6_, JetNonIsoMuons_pt_7_;
-    int JetNonIsoMuons_eta_1_, JetNonIsoMuons_eta_2_, JetNonIsoMuons_eta_3_, JetNonIsoMuons_eta_4_, JetNonIsoMuons_eta_5_, JetNonIsoMuons_eta_6_, JetNonIsoMuons_eta_7_;
-    int JetNonIsoMuons_phi_1_, JetNonIsoMuons_phi_2_, JetNonIsoMuons_phi_3_, JetNonIsoMuons_phi_4_, JetNonIsoMuons_phi_5_, JetNonIsoMuons_phi_6_, JetNonIsoMuons_phi_7_;
-    int JetNonIsoMuons_m_1_, JetNonIsoMuons_m_2_, JetNonIsoMuons_m_3_, JetNonIsoMuons_m_4_, JetNonIsoMuons_m_5_, JetNonIsoMuons_m_6_, JetNonIsoMuons_m_7_;
-    int GoodNonIsoMuons_pt_1_, GoodNonIsoMuons_eta_1_, GoodNonIsoMuons_phi_1_, GoodNonIsoMuons_m_1_;
+    std::vector<std::pair<std::string, int>> varPairs_;
 
 public:
-    EventShapeCalculator(std::string myVarSuffix = "")
-        : myVarSuffix_(myVarSuffix)
+EventShapeCalculator(const std::vector<std::string>& vars, std::string myVarSuffix = "")
+    : vars_(vars), myVarSuffix_(myVarSuffix)
     {
-        fwm2_top6_ = fwm3_top6_ = fwm4_top6_ = fwm5_top6_ = fwm6_top6_ = fwm7_top6_ = fwm8_top6_ = fwm9_top6_ = fwm10_top6_ = jmt_ev0_top6_ = jmt_ev1_top6_ = jmt_ev2_top6_ = -1; 
-        NGoodJets_double_ = -1;
-        Jet_pt_1_ = Jet_pt_2_ = Jet_pt_3_ = Jet_pt_4_ = Jet_pt_5_ = Jet_pt_6_ = Jet_pt_7_ = -1;
-        Jet_eta_1_ = Jet_eta_2_ = Jet_eta_3_ = Jet_eta_4_ = Jet_eta_5_ = Jet_eta_6_ = Jet_eta_7_ = -1;
-        Jet_phi_1_ = Jet_phi_2_ = Jet_phi_3_ = Jet_phi_4_ = Jet_phi_5_ = Jet_phi_6_ = Jet_phi_7_ = -1;
-        Jet_m_1_ = Jet_m_2_ = Jet_m_3_ = Jet_m_4_ = Jet_m_5_ = Jet_m_6_ = Jet_m_7_ = -1;
-        GoodLeptons_pt_1_ = GoodLeptons_eta_1_ = GoodLeptons_phi_1_ = GoodLeptons_m_1_ = -1;
-        BestComboAvgMass_ = -1;
-        NonIsoMuons_fwm2_top6_ = NonIsoMuons_fwm3_top6_ = NonIsoMuons_fwm4_top6_ = NonIsoMuons_fwm5_top6_ = NonIsoMuons_fwm6_top6_ = NonIsoMuons_fwm7_top6_ = NonIsoMuons_fwm8_top6_ = NonIsoMuons_fwm9_top6_ = -1;
-        NonIsoMuons_fwm10_top6_ = NonIsoMuons_jmt_ev0_top6_ = NonIsoMuons_jmt_ev1_top6_ = NonIsoMuons_jmt_ev2_top6_ = -1;
-        JetNonIsoMuons_pt_1_ = JetNonIsoMuons_pt_2_ = JetNonIsoMuons_pt_3_ = JetNonIsoMuons_pt_4_ = JetNonIsoMuons_pt_5_ = JetNonIsoMuons_pt_6_ = JetNonIsoMuons_pt_7_ = -1;
-        JetNonIsoMuons_eta_1_ = JetNonIsoMuons_eta_2_ = JetNonIsoMuons_eta_3_ = JetNonIsoMuons_eta_4_ = JetNonIsoMuons_eta_5_ = JetNonIsoMuons_eta_6_ = JetNonIsoMuons_eta_7_ = -1;
-        JetNonIsoMuons_phi_1_ = JetNonIsoMuons_phi_2_ = JetNonIsoMuons_phi_3_ = JetNonIsoMuons_phi_4_ = JetNonIsoMuons_phi_5_ = JetNonIsoMuons_phi_6_ = JetNonIsoMuons_phi_7_ = -1;
-        JetNonIsoMuons_m_1_ = JetNonIsoMuons_m_2_ = JetNonIsoMuons_m_3_ = JetNonIsoMuons_m_4_ = JetNonIsoMuons_m_5_ = JetNonIsoMuons_m_6_ = JetNonIsoMuons_m_7_ = -1;
-        GoodNonIsoMuons_pt_1_ = GoodNonIsoMuons_eta_1_ = GoodNonIsoMuons_phi_1_ = GoodNonIsoMuons_m_1_ = -1;
+        for(const auto& v : vars_)
+        {
+            varPairs_.emplace_back(v, -1);
+        }
     }
-
     /**
      *The job of mapVars is to populate the internal offests for all variables in the input variable list with their memory location in the data array.  To be called only once.
      */
@@ -60,96 +35,7 @@ public:
     {
         for(unsigned int i = 0; i < vars.size(); ++i)
         {
-            if(     vars[i].compare("fwm2_top6") == 0)  fwm2_top6_ = i;
-            else if(vars[i].compare("fwm3_top6") == 0)  fwm3_top6_ = i;
-            else if(vars[i].compare("fwm4_top6") == 0)  fwm4_top6_ = i;
-            else if(vars[i].compare("fwm5_top6") == 0)  fwm5_top6_ = i;
-            else if(vars[i].compare("fwm6_top6") == 0)  fwm6_top6_ = i;
-            else if(vars[i].compare("fwm7_top6") == 0)  fwm7_top6_ = i;
-            else if(vars[i].compare("fwm8_top6") == 0)  fwm8_top6_ = i;
-            else if(vars[i].compare("fwm9_top6") == 0)  fwm9_top6_ = i;
-            else if(vars[i].compare("fwm10_top6") == 0) fwm10_top6_ = i;
-            else if(vars[i].compare("jmt_ev0_top6") == 0) jmt_ev0_top6_ = i;
-            else if(vars[i].compare("jmt_ev1_top6") == 0) jmt_ev1_top6_ = i;
-            else if(vars[i].compare("jmt_ev2_top6") == 0) jmt_ev2_top6_ = i;
-            else if(vars[i].compare("NGoodJets_double") == 0) NGoodJets_double_ = i;
-            else if(vars[i].compare("Jet_pt_1") == 0) Jet_pt_1_ = i;
-            else if(vars[i].compare("Jet_pt_2") == 0) Jet_pt_2_ = i;
-            else if(vars[i].compare("Jet_pt_3") == 0) Jet_pt_3_ = i;
-            else if(vars[i].compare("Jet_pt_4") == 0) Jet_pt_4_ = i;
-            else if(vars[i].compare("Jet_pt_5") == 0) Jet_pt_5_ = i;
-            else if(vars[i].compare("Jet_pt_6") == 0) Jet_pt_6_ = i;
-            else if(vars[i].compare("Jet_pt_7") == 0) Jet_pt_7_ = i;
-            else if(vars[i].compare("Jet_eta_1") == 0) Jet_eta_1_ = i;
-            else if(vars[i].compare("Jet_eta_2") == 0) Jet_eta_2_ = i;
-            else if(vars[i].compare("Jet_eta_3") == 0) Jet_eta_3_ = i;
-            else if(vars[i].compare("Jet_eta_4") == 0) Jet_eta_4_ = i;
-            else if(vars[i].compare("Jet_eta_5") == 0) Jet_eta_5_ = i;
-            else if(vars[i].compare("Jet_eta_6") == 0) Jet_eta_6_ = i;
-            else if(vars[i].compare("Jet_eta_7") == 0) Jet_eta_7_ = i;
-            else if(vars[i].compare("Jet_phi_1") == 0) Jet_phi_1_ = i;
-            else if(vars[i].compare("Jet_phi_2") == 0) Jet_phi_2_ = i;
-            else if(vars[i].compare("Jet_phi_3") == 0) Jet_phi_3_ = i;
-            else if(vars[i].compare("Jet_phi_4") == 0) Jet_phi_4_ = i;
-            else if(vars[i].compare("Jet_phi_5") == 0) Jet_phi_5_ = i;
-            else if(vars[i].compare("Jet_phi_6") == 0) Jet_phi_6_ = i;
-            else if(vars[i].compare("Jet_phi_7") == 0) Jet_phi_7_ = i;
-            else if(vars[i].compare("Jet_m_1") == 0) Jet_m_1_ = i;
-            else if(vars[i].compare("Jet_m_2") == 0) Jet_m_2_ = i;
-            else if(vars[i].compare("Jet_m_3") == 0) Jet_m_3_ = i;
-            else if(vars[i].compare("Jet_m_4") == 0) Jet_m_4_ = i;
-            else if(vars[i].compare("Jet_m_5") == 0) Jet_m_5_ = i;
-            else if(vars[i].compare("Jet_m_6") == 0) Jet_m_6_ = i;
-            else if(vars[i].compare("Jet_m_7") == 0) Jet_m_7_ = i;
-            else if(vars[i].compare("GoodLeptons_pt_1") == 0) GoodLeptons_pt_1_ = i;
-            else if(vars[i].compare("GoodLeptons_eta_1") == 0) GoodLeptons_eta_1_ = i;
-            else if(vars[i].compare("GoodLeptons_phi_1") == 0) GoodLeptons_phi_1_ = i;
-            else if(vars[i].compare("GoodLeptons_m_1") == 0) GoodLeptons_m_1_ = i;
-            else if(vars[i].compare("BestComboAvgMass") == 0) BestComboAvgMass_ = i;
-            else if(vars[i].compare("NonIsoMuons_fwm2_top6") == 0)  NonIsoMuons_fwm2_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_fwm3_top6") == 0)  NonIsoMuons_fwm3_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_fwm4_top6") == 0)  NonIsoMuons_fwm4_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_fwm5_top6") == 0)  NonIsoMuons_fwm5_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_fwm6_top6") == 0)  NonIsoMuons_fwm6_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_fwm7_top6") == 0)  NonIsoMuons_fwm7_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_fwm8_top6") == 0)  NonIsoMuons_fwm8_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_fwm9_top6") == 0)  NonIsoMuons_fwm9_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_fwm10_top6") == 0) NonIsoMuons_fwm10_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_jmt_ev0_top6") == 0) NonIsoMuons_jmt_ev0_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_jmt_ev1_top6") == 0) NonIsoMuons_jmt_ev1_top6_ = i;
-            else if(vars[i].compare("NonIsoMuons_jmt_ev2_top6") == 0) NonIsoMuons_jmt_ev2_top6_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_pt_1") == 0) JetNonIsoMuons_pt_1_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_pt_2") == 0) JetNonIsoMuons_pt_2_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_pt_3") == 0) JetNonIsoMuons_pt_3_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_pt_4") == 0) JetNonIsoMuons_pt_4_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_pt_5") == 0) JetNonIsoMuons_pt_5_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_pt_6") == 0) JetNonIsoMuons_pt_6_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_pt_7") == 0) JetNonIsoMuons_pt_7_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_eta_1") == 0) JetNonIsoMuons_eta_1_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_eta_2") == 0) JetNonIsoMuons_eta_2_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_eta_3") == 0) JetNonIsoMuons_eta_3_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_eta_4") == 0) JetNonIsoMuons_eta_4_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_eta_5") == 0) JetNonIsoMuons_eta_5_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_eta_6") == 0) JetNonIsoMuons_eta_6_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_eta_7") == 0) JetNonIsoMuons_eta_7_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_phi_1") == 0) JetNonIsoMuons_phi_1_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_phi_2") == 0) JetNonIsoMuons_phi_2_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_phi_3") == 0) JetNonIsoMuons_phi_3_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_phi_4") == 0) JetNonIsoMuons_phi_4_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_phi_5") == 0) JetNonIsoMuons_phi_5_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_phi_6") == 0) JetNonIsoMuons_phi_6_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_phi_7") == 0) JetNonIsoMuons_phi_7_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_m_1") == 0) JetNonIsoMuons_m_1_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_m_2") == 0) JetNonIsoMuons_m_2_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_m_3") == 0) JetNonIsoMuons_m_3_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_m_4") == 0) JetNonIsoMuons_m_4_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_m_5") == 0) JetNonIsoMuons_m_5_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_m_6") == 0) JetNonIsoMuons_m_6_ = i;
-            else if(vars[i].compare("JetNonIsoMuons_m_7") == 0) JetNonIsoMuons_m_7_ = i;
-            else if(vars[i].compare("GoodNonIsoMuons_pt_1") == 0) GoodNonIsoMuons_pt_1_ = i;
-            else if(vars[i].compare("GoodNonIsoMuons_eta_1") == 0) GoodNonIsoMuons_eta_1_ = i;
-            else if(vars[i].compare("GoodNonIsoMuons_phi_1") == 0) GoodNonIsoMuons_phi_1_ = i;
-            else if(vars[i].compare("GoodNonIsoMuons_m_1") == 0) GoodNonIsoMuons_m_1_ = i;
+            varPairs_[i].second = i;
         }
     }
     /**
@@ -166,96 +52,10 @@ public:
 
     void calculateVars(const NTupleReader& tr)
     {
-        calculateVar<double, int>(tr, NGoodJets_double_, "NGoodJets_double_"+myVarSuffix_);
-        calculateVar<double>(tr, fwm2_top6_,    "fwm2_top6"+myVarSuffix_);
-        calculateVar<double>(tr, fwm3_top6_,    "fwm3_top6"+myVarSuffix_);
-        calculateVar<double>(tr, fwm4_top6_,    "fwm4_top6"+myVarSuffix_);
-        calculateVar<double>(tr, fwm5_top6_,    "fwm5_top6"+myVarSuffix_);
-        calculateVar<double>(tr, fwm6_top6_,    "fwm6_top6"+myVarSuffix_);
-        calculateVar<double>(tr, fwm7_top6_,    "fwm7_top6"+myVarSuffix_);
-        calculateVar<double>(tr, fwm8_top6_,    "fwm8_top6"+myVarSuffix_);
-        calculateVar<double>(tr, fwm9_top6_,    "fwm9_top6"+myVarSuffix_);
-        calculateVar<double>(tr, fwm10_top6_,   "fwm10_top6"+myVarSuffix_);
-        calculateVar<double>(tr, jmt_ev0_top6_, "jmt_ev0_top6"+myVarSuffix_);
-        calculateVar<double>(tr, jmt_ev1_top6_, "jmt_ev1_top6"+myVarSuffix_);
-        calculateVar<double>(tr, jmt_ev2_top6_, "jmt_ev2_top6"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_pt_1_,  "Jet_pt_1"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_pt_2_,  "Jet_pt_2"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_pt_3_,  "Jet_pt_3"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_pt_4_,  "Jet_pt_4"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_pt_5_,  "Jet_pt_5"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_pt_6_,  "Jet_pt_6"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_pt_7_,  "Jet_pt_7"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_eta_1_, "Jet_eta_1"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_eta_2_, "Jet_eta_2"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_eta_3_, "Jet_eta_3"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_eta_4_, "Jet_eta_4"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_eta_5_, "Jet_eta_5"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_eta_6_, "Jet_eta_6"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_eta_7_, "Jet_eta_7"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_phi_1_, "Jet_phi_1"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_phi_2_, "Jet_phi_2"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_phi_3_, "Jet_phi_3"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_phi_4_, "Jet_phi_4"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_phi_5_, "Jet_phi_5"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_phi_6_, "Jet_phi_6"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_phi_7_, "Jet_phi_7"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_m_1_,   "Jet_m_1"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_m_2_,   "Jet_m_2"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_m_3_,   "Jet_m_3"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_m_4_,   "Jet_m_4"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_m_5_,   "Jet_m_5"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_m_6_,   "Jet_m_6"+myVarSuffix_);
-        calculateVar<double>(tr, Jet_m_7_,   "Jet_m_7"+myVarSuffix_);
-        calculateVar<double>(tr, GoodLeptons_pt_1_,  "GoodLeptons_pt_1"+myVarSuffix_);
-        calculateVar<double>(tr, GoodLeptons_eta_1_, "GoodLeptons_eta_1"+myVarSuffix_);
-        calculateVar<double>(tr, GoodLeptons_phi_1_, "GoodLeptons_phi_1"+myVarSuffix_);
-        calculateVar<double>(tr, GoodLeptons_m_1_,   "GoodLeptons_m_1"+myVarSuffix_);
-        calculateVar<double>(tr, BestComboAvgMass_,  "BestComboAvgMass"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_fwm2_top6_,    "NonIsoMuons_fwm2_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_fwm3_top6_,    "NonIsoMuons_fwm3_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_fwm4_top6_,    "NonIsoMuons_fwm4_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_fwm5_top6_,    "NonIsoMuons_fwm5_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_fwm6_top6_,    "NonIsoMuons_fwm6_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_fwm7_top6_,    "NonIsoMuons_fwm7_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_fwm8_top6_,    "NonIsoMuons_fwm8_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_fwm9_top6_,    "NonIsoMuons_fwm9_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_fwm10_top6_,   "NonIsoMuons_fwm10_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_jmt_ev0_top6_, "NonIsoMuons_jmt_ev0_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_jmt_ev1_top6_, "NonIsoMuons_jmt_ev1_top6"+myVarSuffix_);
-        calculateVar<double>(tr, NonIsoMuons_jmt_ev2_top6_, "NonIsoMuons_jmt_ev2_top6"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_pt_1_,  "JetNonIsoMuons_pt_1"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_pt_2_,  "JetNonIsoMuons_pt_2"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_pt_3_,  "JetNonIsoMuons_pt_3"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_pt_4_,  "JetNonIsoMuons_pt_4"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_pt_5_,  "JetNonIsoMuons_pt_5"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_pt_6_,  "JetNonIsoMuons_pt_6"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_pt_7_,  "JetNonIsoMuons_pt_7"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_eta_1_, "JetNonIsoMuons_eta_1"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_eta_2_, "JetNonIsoMuons_eta_2"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_eta_3_, "JetNonIsoMuons_eta_3"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_eta_4_, "JetNonIsoMuons_eta_4"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_eta_5_, "JetNonIsoMuons_eta_5"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_eta_6_, "JetNonIsoMuons_eta_6"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_eta_7_, "JetNonIsoMuons_eta_7"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_phi_1_, "JetNonIsoMuons_phi_1"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_phi_2_, "JetNonIsoMuons_phi_2"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_phi_3_, "JetNonIsoMuons_phi_3"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_phi_4_, "JetNonIsoMuons_phi_4"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_phi_5_, "JetNonIsoMuons_phi_5"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_phi_6_, "JetNonIsoMuons_phi_6"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_phi_7_, "JetNonIsoMuons_phi_7"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_m_1_,   "JetNonIsoMuons_m_1"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_m_2_,   "JetNonIsoMuons_m_2"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_m_3_,   "JetNonIsoMuons_m_3"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_m_4_,   "JetNonIsoMuons_m_4"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_m_5_,   "JetNonIsoMuons_m_5"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_m_6_,   "JetNonIsoMuons_m_6"+myVarSuffix_);
-        calculateVar<double>(tr, JetNonIsoMuons_m_7_,   "JetNonIsoMuons_m_7"+myVarSuffix_);
-        calculateVar<double>(tr, GoodNonIsoMuons_pt_1_,  "GoodNonIsoMuons_pt_1"+myVarSuffix_);
-        calculateVar<double>(tr, GoodNonIsoMuons_eta_1_, "GoodNonIsoMuons_eta_1"+myVarSuffix_);
-        calculateVar<double>(tr, GoodNonIsoMuons_phi_1_, "GoodNonIsoMuons_phi_1"+myVarSuffix_);
-        calculateVar<double>(tr, GoodNonIsoMuons_m_1_,   "GoodNonIsoMuons_m_1"+myVarSuffix_);
+        for(const auto& pair : varPairs_)
+        {
+            calculateVar<double>(tr, pair.second, pair.first+myVarSuffix_);
+        }
     }
 };
 
@@ -271,6 +71,7 @@ private:
     TF_Session* session_;
 
     //Input variable names 
+    std::vector<std::string> outputOpVec_;
     std::vector<std::string> vars_;
     std::vector<double> binEdges_;
 
@@ -313,7 +114,8 @@ private:
         cfg::Context localCxt(localContextName);
 
         inputOp_     = cfgDoc->get("inputOp",   localCxt, "main_input");
-        outputOp_    = cfgDoc->get("outputOp",  localCxt, "first_output/Softmax");
+        outputOp_    = cfgDoc->get("outputOp",  localCxt, "");
+        outputOpVec_ = getVecFromCfg<std::string>(cfgDoc, "outputOpVec", localCxt, "");       
         year_        = cfgDoc->get("year",      localCxt, "");
         name_        = cfgDoc->get("name",      localCxt, "");
         nJetVar_     = cfgDoc->get("nJetVar",   localCxt, "NGoodJets_pt30");
@@ -321,6 +123,7 @@ private:
         maxNJet_     = cfgDoc->get("maxNJet",   localCxt, 7);
         vars_        = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
         binEdges_    = getVecFromCfg<double>(cfgDoc, "binEdges", localCxt, -1);
+        if(!outputOp_.empty()) outputOpVec_.push_back(outputOp_);
         
         //Variable to hold tensorflow status
         TF_Status* status = TF_NewStatus();
@@ -333,6 +136,7 @@ private:
         TF_ImportGraphDefOptions* graph_opts = TF_NewImportGraphDefOptions();
         TF_GraphImportGraphDef(graph, graph_def, graph_opts, status);
         TF_DeleteImportGraphDefOptions(graph_opts);
+        if(TF_GetCode(status) != TF_OK) std::cerr<<utility::color("ERROR: Unable to import graph: "+std::string(TF_Message(status)), "red")<<std::endl;
         TF_DeleteBuffer(graph_def);
         
         //Create tensorflow session from imported graph
@@ -341,21 +145,25 @@ private:
         TF_SetConfig(sess_opts, static_cast<void*>(config), 2, status);
         session_ = TF_NewSession(graph, sess_opts, status);
         TF_DeleteSessionOptions(sess_opts);
-        
-        TF_Operation* op_x = TF_GraphOperationByName(graph, inputOp_.c_str());
-        TF_Operation* op_y = TF_GraphOperationByName(graph, outputOp_.c_str());
+
+        //Specify the name of the input layer
+        TF_Operation* op_x  = TF_GraphOperationByName(graph, inputOp_.c_str());
+        inputs_ .emplace_back(TF_Output({op_x, 0}));
+
+        //Specify the names of the output layers
+        for(const auto& outName : outputOpVec_)
+        {
+            TF_Operation* op_y = TF_GraphOperationByName(graph, outName.c_str());
+            outputs_.emplace_back(TF_Output({op_y, 0}));
+            targets_.emplace_back(op_y);
+        }
         
         //Clean up graph
         TF_DeleteGraph(graph);
-        
-        inputs_ .emplace_back(TF_Output({op_x, 0}));
-        outputs_.emplace_back(TF_Output({op_y, 0}));
-        targets_.emplace_back(op_y);
-        
         TF_DeleteStatus(status);
 
         //map variables
-        varCalculator_.reset(new EventShapeCalculator(myVarSuffix_));
+        varCalculator_.reset(new EventShapeCalculator(vars_, myVarSuffix_));
         varCalculator_->mapVars(vars_);
     }
 
@@ -384,7 +192,7 @@ private:
         TF_Status* status = TF_NewStatus();
         
         //Create place to store the output vectors 
-        std::vector<TF_Tensor*>    output_values(1);
+        std::vector<TF_Tensor*> output_values(outputs_.size());
         
         //Construct tensorflow input tensor
         std::vector<TF_Tensor*> input_values;
@@ -396,7 +204,6 @@ private:
         
         input_values = { input_values_0 };
         varCalculator_->setPtr(static_cast<float*>(TF_TensorData(input_values_0)));
-
         varCalculator_->calculateVars(tr);
 
         //predict values
@@ -413,21 +220,34 @@ private:
                       nullptr,
                       // Output status
                       status);
+        if(TF_GetCode(status) != TF_OK) std::cerr<<utility::color("ERROR: Unable to run graph: "+std::string(TF_Message(status)), "red")<<std::endl;
         
         //Get output discriminators 
-        auto discriminators = static_cast<float*>(TF_TensorData(output_values[0]));                
-        
-        //discriminators is a 2D array, we only want the first entry of every array
-        double discriminator = static_cast<double>(discriminators[0]);
+        std::vector<std::vector<double>> discriminators(outputs_.size());
+        for(unsigned int i = 0; i < output_values.size(); i++)
+        {            
+            auto* tensor = output_values[i];
+            auto disc = static_cast<float*>(TF_TensorData(tensor));
+            for(int j = 0; j < TF_NumDims(tensor); j++)
+            {
+                discriminators[i].emplace_back(static_cast<double>(disc[j]));
+            }
+        }
 
         for(auto* tensor : input_values)  TF_DeleteTensor(tensor);
-        for(auto* tensor : output_values) TF_DeleteTensor(tensor);
-        
+        for(auto* tensor : output_values) TF_DeleteTensor(tensor);        
         TF_DeleteStatus(status);
 
         // Register Variables
+        double discriminator = discriminators[0][0];
         tr.registerDerivedVar("deepESM_val"+name_+myVarSuffix_, discriminator);
-
+        if(outputs_.size() > 1)
+        {
+            tr.registerDerivedVar("deepESM_val1"+name_+myVarSuffix_, discriminators[0][0]);
+            tr.registerDerivedVar("deepESM_val2"+name_+myVarSuffix_, discriminators[1][0]);
+            tr.registerDerivedVar("deepESM_val3"+name_+myVarSuffix_, discriminators[2][0]);
+        }
+        
         // Define and register deepESM bins
         const auto& NGoodJets_pt30 = tr.getVar<int>(nJetVar_+myVarSuffix_);
         int nMVABin = (binEdges_.size() / (maxNJet_ - minNJet_ + 1)) - 1;
@@ -485,6 +305,7 @@ public:
         , maxNJet_(husk.maxNJet_)
         , firstEvent_(husk.firstEvent_)
         , session_(husk.session_)
+        , outputOpVec_(husk.outputOpVec_)
         , vars_(husk.vars_)
         , binEdges_(husk.binEdges_)
         , inputs_(husk.inputs_)

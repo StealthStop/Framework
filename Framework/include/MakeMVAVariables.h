@@ -15,6 +15,17 @@ private:
         std::vector<int> jetCombo;
     };
 
+    class TLV
+    {
+    public:
+        TLorentzVector tlv;
+        double dcsv;
+        double ptD;
+        double axismajor;
+        double axisminor;
+        double multiplicity;
+    };
+
     bool verb_;
     std::string myVarSuffix_;
     bool doGenMatch_;
@@ -82,6 +93,16 @@ private:
             MVALeptonName_ ="GoodNonIsoMuons";
             ESVarName_ = "NonIsoMuons_";
         }
+        else if (jetColl == "GoodJets_pt30_GoodLeptons_pt20")
+        {
+            GoodJetsName_ = "GoodJets_pt30";
+            NGoodJetsName_ = "NGoodJets_pt30";
+            GoodLeptonsName_ = "GoodLeptons_pt20";
+            NGoodLeptonsName_ = "NGoodLeptons_pt20";
+            MVAJetName_ = "Jet";
+            MVALeptonName_ ="GoodLeptons";
+            ESVarName_ = "";
+        }
         else
         {
             GoodJetsName_ = "GoodJets_pt30";
@@ -97,8 +118,13 @@ private:
     void makeMVAVariables(NTupleReader& tr)
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+        const auto& Jets_bJetTagDeepCSVtotb = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb");
+        const auto& Jets_ptD = tr.getVec<double>("Jets"+myVarSuffix_+"_ptD");
+        const auto& Jets_axismajor = tr.getVec<double>("Jets"+myVarSuffix_+"_axismajor");
+        const auto& Jets_axisminor = tr.getVec<double>("Jets"+myVarSuffix_+"_axisminor");
+        const auto& Jets_multiplicity = tr.getVec<int>("Jets"+myVarSuffix_+"_multiplicity");
         const auto& GoodJets = tr.getVec<bool>(GoodJetsName_+myVarSuffix_);
-        //const auto& NGoodJets = tr.getVar<int>(NGoodJetsName_+myVarSuffix_);
+        const auto& NGoodJets = tr.getVar<int>(NGoodJetsName_+myVarSuffix_);
         const auto& GoodLeptons = tr.getVec<std::pair<std::string, TLorentzVector>>(GoodLeptonsName_+myVarSuffix_);
         const auto& NGoodLeptons = tr.getVar<int>(NGoodLeptonsName_+myVarSuffix_);
         const auto& MET = tr.getVar<double>("MET"); 
@@ -130,7 +156,7 @@ private:
         event_beta_z_pt20 = rlv_pt20.Pz() / rlv_pt20.E();
         TVector3 rec_boost_beta_vec( 0.0, 0.0, -reco_jets_beta );
         auto& cm_jets = tr.createDerivedVec<math::RThetaPhiVector>(ESVarName_+"cm_jets"+myVarSuffix_);
-        auto& Jets_cm = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_cm"+myVarSuffix_);
+        std::vector<TLV> Jets_cm;
         std::vector<TLorentzVector> Jets_;
 
         //--- Boost the GoodJets, Goodleptons, and the MET in the event 
@@ -141,7 +167,7 @@ private:
             Jets_.push_back( jlvcm );
             
             jlvcm.Boost( rec_boost_beta_vec );
-            Jets_cm.push_back( jlvcm );
+            Jets_cm.push_back( {jlvcm, Jets_bJetTagDeepCSVtotb.at(j), Jets_ptD.at(j), Jets_axismajor.at(j), Jets_axisminor.at(j), static_cast<double>(Jets_multiplicity.at(j))} );
 
             math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() );
             cm_jets.push_back( cmvec );
@@ -163,17 +189,30 @@ private:
 
         auto Jets_cm_psort = Jets_cm;
         auto Jets_psort = Jets_;
-        std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLorentzVector v1, TLorentzVector v2){return v1.P() > v2.P();} );
+        std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLV v1, TLV v2){return v1.tlv.P() > v2.tlv.P();} );
         std::sort( Jets_psort.begin(), Jets_psort.end(), utility::compare_pt_TLV );
         auto& Jets_cm_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_cm_top6"+myVarSuffix_);
+        std::vector<double> Jets_cm_top6_dcsv, Jets_cm_top6_ptD, Jets_cm_top6_axismajor, Jets_cm_top6_axisminor, Jets_cm_top6_multiplicity;
         auto& Jets_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_top6"+myVarSuffix_);
 
+        double phiMax = (NGoodJets > 0) ? Jets_cm_psort[0].tlv.Phi() : 0.0;
         for(unsigned int ji=0; ji<cm_jets.size(); ji++ ) 
         {
             if ( ji < nTopJets_ ) 
             {
                 cm_jets_top6.push_back( cm_jets_psort.at(ji) ) ;
-                Jets_cm_top6.push_back( Jets_cm_psort.at(ji) ) ;
+
+                TLorentzVector Jet_cm_psort = Jets_cm_psort.at(ji).tlv;                
+                if(ji == 0)
+                    Jet_cm_psort.SetPhi(0.0);
+                else
+                    Jet_cm_psort.RotateZ(-phiMax);                
+                Jets_cm_top6.push_back( Jet_cm_psort ) ;
+                Jets_cm_top6_dcsv.push_back( Jets_cm_psort.at(ji).dcsv );
+                Jets_cm_top6_ptD.push_back( Jets_cm_psort.at(ji).ptD );
+                Jets_cm_top6_axismajor.push_back( Jets_cm_psort.at(ji).axismajor );
+                Jets_cm_top6_axisminor.push_back( Jets_cm_psort.at(ji).axisminor );
+                Jets_cm_top6_multiplicity.push_back( Jets_cm_psort.at(ji).multiplicity );
                 Jets_top6.push_back( Jets_psort.at(ji) ) ;
             }
         } // ji
@@ -183,17 +222,17 @@ private:
             printf("\n\n Unsorted and sorted CM jet lists.\n") ;
             for ( unsigned int ji=0; ji<cm_jets.size(); ji++ ) 
             {
-                printf("  %2d :  (%7.1f, %7.3f, %7.3f) | (%7.1f, %7.3f, %7.3f)\n", ji,
-                       cm_jets.at(ji).R(), cm_jets.at(ji).Theta(), cm_jets.at(ji).Phi(),
-                       cm_jets_psort.at(ji).R(), cm_jets_psort.at(ji).Theta(), cm_jets_psort.at(ji).Phi() ) ;
+                //printf("  %2d :  (%7.1f, %7.3f, %7.3f) | (%7.1f, %7.3f, %7.3f)\n", ji,
+                //       cm_jets.at(ji).R(), cm_jets.at(ji).Theta(), cm_jets.at(ji).Phi(),
+                //       cm_jets_psort.at(ji).R(), cm_jets_psort.at(ji).Theta(), cm_jets_psort.at(ji).Phi() ) ;
                 
                 printf("  %2d :  (%7.1f, %7.3f, %7.3f) | (%7.1f, %7.3f, %7.3f)\n", ji,
-                       Jets_cm.at(ji).P(), Jets_cm.at(ji).Theta(), Jets_cm.at(ji).Phi(),
+                       Jets_cm.at(ji).tlv.P(), Jets_cm.at(ji).tlv.Theta(), Jets_cm.at(ji).tlv.Phi(),
                        Jets_cm_top6.at(ji).P(), Jets_cm_top6.at(ji).Theta(), Jets_cm_top6.at(ji).Phi() ) ;
             } // ji
             printf("\n\n") ;
         }
-
+        
         //--- Make and get the event shape variables for the 6 highest-P jets in the CM frame
         EventShapeVariables esv_top6( cm_jets_top6 ) ;
         TVectorD eigen_vals_norm_top6 = esv_top6.getEigenValues() ;
@@ -211,6 +250,50 @@ private:
         double jmt_ev1_top6 = eigen_vals_norm_top6[1] ;
         double jmt_ev2_top6 = eigen_vals_norm_top6[2] ;
 
+        //AK8 jet variables
+        
+        const auto& candidateLSP_TLV = tr.getVec<TLorentzVector>("candidateLSP_TLV"+myVarSuffix_);
+        const auto& candidateLSP_SDM = tr.getVec<double>("candidateLSP_SDM"+myVarSuffix_);
+        const auto& candidateLSP_Pruned = tr.getVec<double>("candidateLSP_Pruned"+myVarSuffix_);
+        const auto& candidateLSP_T21 = tr.getVec<double>("candidateLSP_T21"+myVarSuffix_);
+
+        std::vector<TLorentzVector> JetsAK8Cands_cm;
+        for (unsigned int j = 0; j < candidateLSP_TLV.size(); j++)
+        {
+            TLorentzVector myjet = candidateLSP_TLV.at(j);
+            myjet.Boost(rec_boost_beta_vec);
+            JetsAK8Cands_cm.push_back(myjet);            
+        }
+        //need to zip up vectors sort they are sorted simultaneously
+        std::vector<std::tuple<TLorentzVector, double, double, double>> zipped_CandsAK8;
+        for (unsigned int j = 0; j < JetsAK8Cands_cm.size(); j++)
+        {
+            zipped_CandsAK8.push_back(std::make_tuple(JetsAK8Cands_cm.at(j), candidateLSP_SDM.at(j), candidateLSP_Pruned.at(j), candidateLSP_T21.at(j)));
+        }
+        std::sort(std::begin(zipped_CandsAK8), std::end(zipped_CandsAK8), 
+                  [&](const auto& a, const auto& b)
+                  {
+                      return std::get<0>(a).M() > std::get<0>(b).M();
+                  });
+                  //now unzip
+        std::vector<double> JetsAK8Cands_SDM, JetsAK8Cands_Pruned, JetsAK8Cands_T21;
+        for (unsigned int j = 0; j < JetsAK8Cands_cm.size(); j++)
+        {
+            JetsAK8Cands_cm.at(j) = std::get<0>(zipped_CandsAK8.at(j));
+            JetsAK8Cands_SDM.push_back(std::get<1>(zipped_CandsAK8.at(j)));
+            JetsAK8Cands_Pruned.push_back(std::get<2>(zipped_CandsAK8.at(j)));
+            JetsAK8Cands_T21.push_back(std::get<3>(zipped_CandsAK8.at(j)));
+        }
+
+        double phiMaxAK8 = (JetsAK8Cands_cm.size() > 0) ? JetsAK8Cands_cm.at(0).Phi() : 0.0;
+        for(unsigned int j = 0; j < JetsAK8Cands_cm.size(); j++)
+        {
+            if(j == 0)
+                JetsAK8Cands_cm.at(j).SetPhi(0.0);
+            else
+                JetsAK8Cands_cm.at(j).RotateZ(-phiMaxAK8);
+        }
+
         //--- register Variables
         //
         for(unsigned int i = 0; i < nTopJets_; i++)
@@ -219,6 +302,21 @@ private:
             tr.registerDerivedVar(MVAJetName_+"_eta_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Eta() : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_phi_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Phi() : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_m_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).M()   : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_dcsv_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_dcsv.at(i)  : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_ptD_"+std::to_string(i+1)+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_ptD.at(i)          : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_axismajor_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_axismajor.at(i)    : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_axisminor_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_axisminor.at(i)    : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_multiplicity_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_multiplicity.at(i) : 0.0));
+        }
+        for(unsigned int i = 0; i < 5; i++)
+        {
+            tr.registerDerivedVar("JetsAK8Cands_pt_"+std::to_string(i+1)+myVarSuffix_,     static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).Pt()  : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_eta_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).Eta() : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_phi_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).Phi() : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_m_"+std::to_string(i+1)+myVarSuffix_,      static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_cm.at(i).M()   : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_SDM_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_SDM.at(i)      : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_Pruned_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_Pruned.at(i)   : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_T21_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_T21.at(i)      : 0.0));
         }
         for(unsigned int i = 0; i < nLeptons_; i++)
         {
@@ -333,7 +431,7 @@ private:
     }
     
 public:
-    MakeMVAVariables(const bool verb = false, const std::string& myVarSuffix = "", const std::string& jetColl = "GoodJets_pt30", bool doGenMatch = false, bool printStatus = true, int nTopJets = 7, int nLeptons = 1)
+    MakeMVAVariables(const bool verb = false, const std::string& myVarSuffix = "", const std::string& jetColl = "GoodJets_pt30", bool doGenMatch = false, bool printStatus = true, int nTopJets = 12, int nLeptons = 2)
         : verb_(verb)
         , myVarSuffix_(myVarSuffix)
         , doGenMatch_(doGenMatch)

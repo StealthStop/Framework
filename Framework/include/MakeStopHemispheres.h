@@ -118,6 +118,8 @@ private:
         }
         tr.registerDerivedVar("stop1_PtRank"+myVarSuffix_,stop1_PtRank);
         tr.registerDerivedVar("stop2_PtRank"+myVarSuffix_,stop2_PtRank);
+        tr.registerDerivedVar("stop1_PtRank"+myVarSuffix_+"_mass",stop1_PtRank.M());
+        tr.registerDerivedVar("stop2_PtRank"+myVarSuffix_+"_mass",stop2_PtRank.M());
         tr.registerDerivedVar("stop1_MassRank"+myVarSuffix_,stop1_MassRank);
         tr.registerDerivedVar("stop2_MassRank"+myVarSuffix_,stop2_MassRank);
         tr.registerDerivedVar("stop1_ScalarPtRank"+myVarSuffix_,stop1_ScalarPtRank);
