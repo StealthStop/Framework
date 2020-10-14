@@ -33,7 +33,7 @@ private:
 //        const auto& GoodLeptons          = tr.getVec<std::pair<std::string,TLorentzVector>>("GoodLeptons"+myVarSuffix_);
         const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons_pt20"+myVarSuffix_);
 
-        const auto& subjets              = tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets"+myVarSuffix_);
+        const auto& subjets              = tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets");
 
         //First clean out leptons from JetsAK8 collection
 
