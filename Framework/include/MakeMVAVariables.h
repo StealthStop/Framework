@@ -119,10 +119,14 @@ private:
     {
         const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
         const auto& Jets_bJetTagDeepCSVtotb = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb");
-        const auto& Jets_ptD = tr.getVec<double>("Jets"+myVarSuffix_+"_ptD");
-        const auto& Jets_axismajor = tr.getVec<double>("Jets"+myVarSuffix_+"_axismajor");
-        const auto& Jets_axisminor = tr.getVec<double>("Jets"+myVarSuffix_+"_axisminor");
-        const auto& Jets_multiplicity = tr.getVec<int>("Jets"+myVarSuffix_+"_multiplicity");
+
+        // These four variables do not have any varied versions...
+        // So just use the nominal version
+        const auto& Jets_ptD = tr.getVec<double>("Jets_ptD");
+        const auto& Jets_axismajor = tr.getVec<double>("Jets_axismajor");
+        const auto& Jets_axisminor = tr.getVec<double>("Jets_axisminor");
+        const auto& Jets_multiplicity = tr.getVec<int>("Jets_multiplicity");
+
         const auto& GoodJets = tr.getVec<bool>(GoodJetsName_+myVarSuffix_);
         const auto& NGoodJets = tr.getVar<int>(NGoodJetsName_+myVarSuffix_);
         const auto& GoodLeptons = tr.getVec<std::pair<std::string, TLorentzVector>>(GoodLeptonsName_+myVarSuffix_);
@@ -344,6 +348,8 @@ private:
         tr.registerDerivedVar(ESVarName_+"jmt_ev2_top6"+myVarSuffix_, jmt_ev2_top6);
         tr.registerDerivedVar(ESVarName_+"event_beta_z"+myVarSuffix_, event_beta_z);
         tr.registerDerivedVar(ESVarName_+"event_beta_z_pt20"+myVarSuffix_, event_beta_z_pt20);
+
+        tr.registerDerivedVar("nMVAJets"+myVarSuffix_, nTopJets_);
 
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
         std::pair<TLorentzVector, TLorentzVector> BestCombo, genBestCombo;
