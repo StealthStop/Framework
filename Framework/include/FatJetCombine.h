@@ -90,7 +90,7 @@ private:
         for(unsigned int j=0; j < JetsAK8.size(); j++)
         {
             if(abs(JetsAK8.at(j).Eta()) > 2.4) GoodJetsAK8.at(j) = false;
-            if(JetsAK8.at(j).Pt() < 30) GoodJetsAK8.at(j) = false;
+            if(JetsAK8.at(j).Pt() < 170) GoodJetsAK8.at(j) = false;
             if(softDropMass.at(j) < 20) GoodJetsAK8.at(j) = false;
             if(GoodJetsAK8.at(j)) NGoodJetsAK8 += 1;
         }

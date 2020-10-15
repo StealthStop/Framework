@@ -260,6 +260,7 @@ private:
         const auto& candidateLSP_SDM = tr.getVec<double>("candidateLSP_SDM"+myVarSuffix_);
         const auto& candidateLSP_Pruned = tr.getVec<double>("candidateLSP_Pruned"+myVarSuffix_);
         const auto& candidateLSP_T21 = tr.getVec<double>("candidateLSP_T21"+myVarSuffix_);
+        const auto& candidateLSP_T32 = tr.getVec<double>("candidateLSP_T32"+myVarSuffix_);
 
         std::vector<TLorentzVector> JetsAK8Cands_cm;
         for (unsigned int j = 0; j < candidateLSP_TLV.size(); j++)
@@ -269,10 +270,10 @@ private:
             JetsAK8Cands_cm.push_back(myjet);            
         }
         //need to zip up vectors sort they are sorted simultaneously
-        std::vector<std::tuple<TLorentzVector, double, double, double>> zipped_CandsAK8;
+        std::vector<std::tuple<TLorentzVector, double, double, double, double>> zipped_CandsAK8;
         for (unsigned int j = 0; j < JetsAK8Cands_cm.size(); j++)
         {
-            zipped_CandsAK8.push_back(std::make_tuple(JetsAK8Cands_cm.at(j), candidateLSP_SDM.at(j), candidateLSP_Pruned.at(j), candidateLSP_T21.at(j)));
+            zipped_CandsAK8.push_back(std::make_tuple(JetsAK8Cands_cm.at(j), candidateLSP_SDM.at(j), candidateLSP_Pruned.at(j), candidateLSP_T21.at(j), candidateLSP_T32.at(j)));
         }
         std::sort(std::begin(zipped_CandsAK8), std::end(zipped_CandsAK8), 
                   [&](const auto& a, const auto& b)
@@ -280,13 +281,14 @@ private:
                       return std::get<0>(a).M() > std::get<0>(b).M();
                   });
                   //now unzip
-        std::vector<double> JetsAK8Cands_SDM, JetsAK8Cands_Pruned, JetsAK8Cands_T21;
+        std::vector<double> JetsAK8Cands_SDM, JetsAK8Cands_Pruned, JetsAK8Cands_T21, JetsAK8Cands_T32;
         for (unsigned int j = 0; j < JetsAK8Cands_cm.size(); j++)
         {
             JetsAK8Cands_cm.at(j) = std::get<0>(zipped_CandsAK8.at(j));
             JetsAK8Cands_SDM.push_back(std::get<1>(zipped_CandsAK8.at(j)));
             JetsAK8Cands_Pruned.push_back(std::get<2>(zipped_CandsAK8.at(j)));
             JetsAK8Cands_T21.push_back(std::get<3>(zipped_CandsAK8.at(j)));
+            JetsAK8Cands_T32.push_back(std::get<4>(zipped_CandsAK8.at(j)));
         }
 
         double phiMaxAK8 = (JetsAK8Cands_cm.size() > 0) ? JetsAK8Cands_cm.at(0).Phi() : 0.0;
@@ -321,6 +323,7 @@ private:
             tr.registerDerivedVar("JetsAK8Cands_SDM_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_SDM.at(i)      : 0.0));
             tr.registerDerivedVar("JetsAK8Cands_Pruned_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_Pruned.at(i)   : 0.0));
             tr.registerDerivedVar("JetsAK8Cands_T21_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_T21.at(i)      : 0.0));
+            tr.registerDerivedVar("JetsAK8Cands_T32_"+std::to_string(i+1)+myVarSuffix_,    static_cast<double>( (JetsAK8Cands_cm.size() >= i+1) ? JetsAK8Cands_T32.at(i)      : 0.0));
         }
         for(unsigned int i = 0; i < nLeptons_; i++)
         {

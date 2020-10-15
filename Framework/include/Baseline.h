@@ -206,12 +206,13 @@ private:
                                       passMadHT          &&
                                       passTrigger        &&
                                       passTriggerMC      &&
-                                      NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false &&
+                                     
                                       onZ                &&
                                       (runtype != "Data" || (NGoodMuons == 2 && filetag.find("Data_SingleMuon") != std::string::npos ) 
                                                          || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
-                                      NGoodJets_pt30 >= 7; 
-        
+                                      NGoodJets_pt30 >= 7 && 
+                                      NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false;
+
         // -----------------------------------
         // -- Define 2 Lepton offZ Baseline
         // -----------------------------------
@@ -220,13 +221,13 @@ private:
                                    passMadHT            &&
                                    passTrigger          &&
                                    passTriggerMC        &&
-                                   passBlindLep_Good    &&
-                                   NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false && 
+                                   passBlindLep_Good    &&                                  
                                    !onZ                 &&
                                    (runtype != "Data"  || (NGoodMuons >= 1 && filetag.find("Data_SingleMuon") != std::string::npos ) 
                                                        || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
                                    NGoodBJets_pt30 >= 1 &&
-                                   NGoodJets_pt30 >= 4;
+                                   NGoodJets_pt30 >= 4 &&
+                                   NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false;
 
         // -----------------------------------
         // -- Define 2 Lepton pt20 Baseline
@@ -237,12 +238,11 @@ private:
                                       passMadHT          &&
             //passTrigger        &&
             //                          passTriggerMC      &&
-                                      NGoodLeptons_pt20 == 2 ? GoodLeptonsCharge_pt20[0]!=GoodLeptonsCharge_pt20[1] : false &&
                                       (runtype != "Data" || (NGoodMuons == 2 && filetag.find("Data_SingleMuon") != std::string::npos ) 
                                                          || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
                                       NGoodJets_pt30 >= 6 &&
-                                      NGoodBJets_pt30 >= 1; 
-
+                                      NGoodBJets_pt30 >= 1 && 
+                                      NGoodLeptons_pt20 == 2 ? GoodLeptonsCharge_pt20[0]!=GoodLeptonsCharge_pt20[1] : false;
         // -----------------------------------
         // -- Define 2 Lepton pt30 Baseline
         // -----------------------------------
@@ -252,12 +252,12 @@ private:
                                       passMadHT          &&
             //passTrigger        &&
             //                          passTriggerMC      &&
-                                      NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false &&
+
                                       (runtype != "Data" || (NGoodMuons == 2 && filetag.find("Data_SingleMuon") != std::string::npos ) 
                                                          || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
                                       NGoodJets_pt30  >= 4 &&
-                                      NGoodBJets_pt30 >= 1; 
-
+                                      NGoodBJets_pt30 >= 1 &&
+                                      NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false;
 
         // -----------------------------------
         // -- Define 1 e and 1 m Baseline
