@@ -265,7 +265,12 @@ private:
         const auto& axismajor_AK8         = tr.getVec<double>("JetsAK8_axismajor"+myVarSuffix_);
         const auto& axisminor_AK8         = tr.getVec<double>("JetsAK8_axisminor"+myVarSuffix_);
         const auto& subjets               = tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets"+myVarSuffix_);
+        const auto& tDiscriminator_AK8    = tr.getVec<double>("JetsAK8_tDiscriminatorDeep"+myVarSuffix_);
+        const auto& wDiscriminator_AK8    = tr.getVec<double>("JetsAK8_wDiscriminatorDeep"+myVarSuffix_);
+        const auto& hDiscriminator_AK8    = tr.getVec<double>("JetsAK8_hDiscriminatorDeep"+myVarSuffix_);
+        const auto& multiplicity_AK8      = tr.getVec<int>("JetsAK8_multiplicity"+myVarSuffix_);
         
+
         TLorentzVector rlvAK8_all;
         for (unsigned int j = 0; j < JetsAK8.size(); j++)
         {
@@ -275,8 +280,8 @@ private:
         TVector3 rec_boostAK8_beta_vec( 0.0, 0.0, -reco_jetsAK8_beta);        
         
         std::vector<TLorentzVector> JetsAK8_TLV_cm;
-        std::vector<double> JetsAK8_SDM, JetsAK8_Pruned, JetsAK8_Tau1, JetsAK8_Tau2, JetsAK8_Tau3, JetsAK8_axismajor, JetsAK8_axisminor; 
-        std::vector<int> JetsAK8_nsubjets;
+        std::vector<double> JetsAK8_SDM, JetsAK8_Pruned, JetsAK8_Tau1, JetsAK8_Tau2, JetsAK8_Tau3, JetsAK8_axismajor, JetsAK8_axisminor, JetsAK8_tDiscriminator, JetsAK8_wDiscriminator, JetsAK8_hDiscriminator; 
+        std::vector<int> JetsAK8_nsubjets, JetsAK8_multiplicity;
         for (unsigned int j = 0; j < JetsAK8.size(); j++)
         {
             TLorentzVector ijet = JetsAK8.at(j);
@@ -292,14 +297,17 @@ private:
                 JetsAK8_axismajor.push_back(axismajor_AK8.at(j));
                 JetsAK8_axisminor.push_back(axisminor_AK8.at(j));
                 JetsAK8_nsubjets.push_back(subjets.at(j).size());
+                JetsAK8_tDiscriminator.push_back(tDiscriminator_AK8.at(j));
+                JetsAK8_wDiscriminator.push_back(wDiscriminator_AK8.at(j));
+                JetsAK8_hDiscriminator.push_back(hDiscriminator_AK8.at(j));
+                JetsAK8_multiplicity.push_back(multiplicity_AK8.at(j));
             }
         }
-//        std::cout << JetsAK8_TLV_cm.size() << " " << JetsAK8_SDM.size() << " " << JetsAK8.size() << std::endl;
         //need to zip up vectors so they are sorted simultaneously
-        std::vector<std::tuple<TLorentzVector, double, double, double, double, double, double, double, int>> zipped_JetsAK8;
+        std::vector<std::tuple<TLorentzVector, double, double, double, double, double, double, double, int, double, double, double, int>> zipped_JetsAK8;
         for (unsigned int j = 0; j < JetsAK8_TLV_cm.size(); j++)
         {
-            zipped_JetsAK8.push_back(std::make_tuple(JetsAK8_TLV_cm.at(j), JetsAK8_SDM.at(j), JetsAK8_Pruned.at(j), JetsAK8_Tau1.at(j), JetsAK8_Tau2.at(j), JetsAK8_Tau3.at(j), JetsAK8_axismajor.at(j), JetsAK8_axisminor.at(j), JetsAK8_nsubjets.at(j)));
+            zipped_JetsAK8.push_back(std::make_tuple(JetsAK8_TLV_cm.at(j), JetsAK8_SDM.at(j), JetsAK8_Pruned.at(j), JetsAK8_Tau1.at(j), JetsAK8_Tau2.at(j), JetsAK8_Tau3.at(j), JetsAK8_axismajor.at(j), JetsAK8_axisminor.at(j), JetsAK8_nsubjets.at(j), JetsAK8_tDiscriminator.at(j), JetsAK8_wDiscriminator.at(j), JetsAK8_hDiscriminator.at(j), JetsAK8_multiplicity.at(j)));
         }
         std::sort(std::begin(zipped_JetsAK8), std::end(zipped_JetsAK8), 
                   [&](const auto& a, const auto& b)
@@ -308,8 +316,8 @@ private:
                   });
                   //now unzip
         std::vector<TLorentzVector> JetsAK8_sorted_TLV_cm;
-        std::vector<double> JetsAK8_sorted_SDM, JetsAK8_sorted_Pruned, JetsAK8_sorted_Tau1, JetsAK8_sorted_Tau2, JetsAK8_sorted_Tau3, JetsAK8_sorted_axismajor, JetsAK8_sorted_axisminor;
-        std::vector<int> JetsAK8_sorted_nsubjets;
+        std::vector<double> JetsAK8_sorted_SDM, JetsAK8_sorted_Pruned, JetsAK8_sorted_Tau1, JetsAK8_sorted_Tau2, JetsAK8_sorted_Tau3, JetsAK8_sorted_axismajor, JetsAK8_sorted_axisminor, JetsAK8_sorted_tDiscriminator, JetsAK8_sorted_wDiscriminator, JetsAK8_sorted_hDiscriminator;
+        std::vector<int> JetsAK8_sorted_nsubjets, JetsAK8_sorted_multiplicity;
         for (unsigned int j = 0; j < zipped_JetsAK8.size(); j++)
         {
             JetsAK8_sorted_TLV_cm.push_back(std::get<0>(zipped_JetsAK8.at(j)));
@@ -321,6 +329,10 @@ private:
             JetsAK8_sorted_axisminor.push_back(std::get<6>(zipped_JetsAK8.at(j)));
             JetsAK8_sorted_axismajor.push_back(std::get<7>(zipped_JetsAK8.at(j)));
             JetsAK8_sorted_nsubjets.push_back(std::get<8>(zipped_JetsAK8.at(j)));
+            JetsAK8_sorted_tDiscriminator.push_back(std::get<9>(zipped_JetsAK8.at(j)));
+            JetsAK8_sorted_wDiscriminator.push_back(std::get<10>(zipped_JetsAK8.at(j)));
+            JetsAK8_sorted_hDiscriminator.push_back(std::get<11>(zipped_JetsAK8.at(j)));
+            JetsAK8_sorted_multiplicity.push_back(std::get<12>(zipped_JetsAK8.at(j)));
         }
 
         double phiMaxAK8 = (JetsAK8_sorted_TLV_cm.size() > 0) ? JetsAK8_sorted_TLV_cm.at(0).Phi() : 0.0;
@@ -360,6 +372,10 @@ private:
             tr.registerDerivedVar("JetsAK8_axismajor_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_axismajor.at(i)      : 0.0));
             tr.registerDerivedVar("JetsAK8_axisminor_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_axisminor.at(i)      : 0.0));
             tr.registerDerivedVar("JetsAK8_nsubjets_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_nsubjets.at(i)      : 0.0));
+            tr.registerDerivedVar("JetsAK8_tDiscriminator_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_tDiscriminator.at(i)      : 0.0));
+            tr.registerDerivedVar("JetsAK8_wDiscriminator_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_wDiscriminator.at(i)      : 0.0));
+            tr.registerDerivedVar("JetsAK8_hDiscriminator_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_hDiscriminator.at(i)      : 0.0));
+            tr.registerDerivedVar("JetsAK8_multiplicity_"+std::to_string(i+1)+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_multiplicity.at(i)      : 0.0));
         }
         for(unsigned int i = 0; i < nLeptons_; i++)
         {
