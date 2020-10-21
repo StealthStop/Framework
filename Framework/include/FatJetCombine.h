@@ -53,8 +53,8 @@ private:
                 for(unsigned int j=0; j < JetsAK8.size(); j++)
                 {
                     TLorentzVector myJet = JetsAK8.at(j);
-//                    if( std::fabs(myMuon.Pt() - myJet.Pt()) / myMuon.Pt() < 1 && myMuon.DeltaR(myJet) < minDeltaR)
-                    if(myMuon.DeltaR(myJet) < minDeltaR)
+                    if( std::fabs(myMuon.Pt() - myJet.Pt()) / myMuon.Pt() < 1 && myMuon.DeltaR(myJet) < minDeltaR)
+//                    if(myMuon.DeltaR(myJet) < minDeltaR)
                     {
                         minDeltaR = myMuon.DeltaR(myJet);
                         muonCand = j;
@@ -74,8 +74,8 @@ private:
                 for(unsigned int j=0; j < JetsAK8.size(); j++)
                 {
                     TLorentzVector myJet = JetsAK8.at(j);
-                    // if( std::fabs(myElec.Pt() - myJet.Pt()) / myElec.Pt() < 1 && myElec.DeltaR(myJet) < minDeltaR)
-                    if(myElec.DeltaR(myJet) < minDeltaR)
+                    if( std::fabs(myElec.Pt() - myJet.Pt()) / myElec.Pt() < 1 && myElec.DeltaR(myJet) < minDeltaR)
+                        //if(myElec.DeltaR(myJet) < minDeltaR)
                     {
                         minDeltaR = myElec.DeltaR(myJet);
                         elecCand = j;                  
@@ -91,7 +91,7 @@ private:
         {
             if(abs(JetsAK8.at(j).Eta()) > 2.4) GoodJetsAK8.at(j) = false;
             if(JetsAK8.at(j).Pt() < 170) GoodJetsAK8.at(j) = false;
-            if(softDropMass.at(j) < 20) GoodJetsAK8.at(j) = false;
+//            if(softDropMass.at(j) < 20) GoodJetsAK8.at(j) = false;
             if(GoodJetsAK8.at(j)) NGoodJetsAK8 += 1;
         }
 
