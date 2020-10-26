@@ -64,7 +64,7 @@ private:
        
         for (unsigned int g = 0; g < GenParticles.size(); g++)
         {
-            if (resPartID == 2212 )
+            if (resPartID <= 6 || resPartID == 21) 
             {
                 check_ISR = GenParticles_ParentIdx.at(g) == ISR_Idx;
             }
@@ -72,7 +72,6 @@ private:
             for (unsigned int j = 0; j < Jets.size(); j++)
             {
                 bool passBestDR  = GenParticles.at(g).DeltaR(Jets.at(j)) < maxDR;
-                //bool passBestPt  = abs( 1 - Jets.at(j).Pt() / GenParticles.at(g).Pt() ) < maxPtRatio;
                 bool passBestPt  = abs ( 1 - ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) ) < maxPtRatio;
                 bool findParents = (findParent(check_resPartID, g, GenParticles_ParentId, GenParticles_ParentIdx) == check_resPartID && GoodGenParticles.at(g) && check_ISR);
 
@@ -115,9 +114,9 @@ private:
         }
     }
 
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------
     // function to sort the best GenParticles and Jets matches
-    // -------------------------------------------------------------
+    // ----------------------------------------------------------
     void getMatches(const std::vector<std::tuple<int, int, double>>& bestAllDR, 
                     std::vector<std::pair<int, int>>& bestMathches, 
                     std::vector<bool> availableDR) const
@@ -154,9 +153,9 @@ private:
         }
      }
 
-    // ----------------------
-    // Remove the ISR jets
-    // ----------------------
+    // -------------------------
+    // -- Remove the ISR jets
+    // -------------------------
     void removeISRJets(NTupleReader& tr) const
     {
         const auto& runtype = tr.getVar<std::string>("runtype");
@@ -171,9 +170,9 @@ private:
             const auto& GenParticles_ParentIdx = tr.getVec<int>("GenParticles_ParentIdx"+myVarSuffix_);
             const auto& GenParticles_Status    = tr.getVec<int>("GenParticles_Status"+myVarSuffix_); 
         
-            // ------------------
+            // ---------------------
             // loop over the Jets
-            // ------------------
+            // ---------------------
             std::vector<TLorentzVector> RecoISR;
             int nRecoISR = 0;
             for (unsigned int j = 0; j < Jets.size(); j++)
@@ -183,34 +182,42 @@ private:
                 nRecoISR++;
             }
  
-            // -----------------------------------------
+            // --------------------------------------------
             // loop over the GenParticles to get Gen ISR 
-            // ----------------------------------------- 
-            auto& GenISR = tr.createDerivedVec<bool>("GenISR"+myVarSuffix_, GenParticles.size());
-            //std::vector<bool> GenISR(GenParticles.size(), false);
-            int nGenISR = 0;
+            // -------------------------------------------- 
+            auto& GenISR  = tr.createDerivedVec<bool>("GenISR"+myVarSuffix_, GenParticles.size(), false);
+            int   nGenISR = 0;
+            
             for (unsigned int g = 0; g < GenParticles.size(); g++)
             {
-                int pdgId  = GenParticles_PdgId.at(g);
-                int momId  = GenParticles_ParentId.at(g);
-                int status = GenParticles_Status.at(g);
-                //std::cout << "pdgId: " << pdgId  << " --- " << "momId: " << momId << " --- " << "status code: " << status << std::endl;                           
+                int pdgId    = GenParticles_PdgId.at(g);
+                int momPdgId = GenParticles_ParentId.at(g);
+                int status   = GenParticles_Status.at(g);
 
-                bool is_jet   = (abs(pdgId) <= 6 || abs(pdgId) == 21);
-                bool pass_isr = is_jet ? status == 71 && (abs(momId) == 2212) : false;  
-                bool filter   = GenParticles.at(g).Pt() > 20 && abs(GenParticles.at(g).Eta()) < 2.4;           
+                //if ( ( abs(pdgId) <= 6 || abs(pdgId) == 21 )
+                //       && ( abs(momPdgId) <= 6 || abs(momPdgId) == 21 )
+                //       && ( status == 23 ))
+                //{
+                //    std::cout << "momPdgId: " <<  momPdgId << " || " << "pdgId : " << pdgId  << " || " << "status: " << status << std::endl; 
+                //}
 
-                if (pass_isr && filter)
+                // mom-dau: qg, gq, gg
+                bool pass_ISR = ( abs(pdgId) <= 6  && abs(momPdgId) == 21 && status == 23 ) ||
+                                ( abs(pdgId) == 21 && abs(momPdgId) <= 6  && status == 23 ) || 
+                                ( abs(pdgId) == 21 && abs(momPdgId) == 21 && status == 23 ) ; 
+                bool filter   = GenParticles.at(g).Pt() > 20 && abs(GenParticles.at(g).Eta()) < 2.4;
+
+                if (pass_ISR && filter)
                 {
                     GenISR.at(g) = true;
                     nGenISR++;
                 }
             }  
 
-            // ----------------
-            // ISR Gen matching
-            // ----------------
-            auto& GM_ISRmatching_allDR                    = tr.createDerivedVec<double>("GM_ISRmatching_allDR"+myVarSuffix_); 
+            // ---------------------------------------
+            // ISR filter by truth definition of it  
+            // ---------------------------------------
+            auto& GM_ISRmatching_allDR                    = tr.createDerivedVec<double>("GM_ISRmatching_allDR"+myVarSuffix_);
             auto& GM_ISRmatching_bestDR                   = tr.createDerivedVec<double>("GM_ISRmatching_bestDR"+myVarSuffix_);
             auto& GM_ISRmatching_justCutOnDR_DR           = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnDR_DR"+myVarSuffix_);
             auto& GM_ISRmatching_justCutOnPtRatio_DR      = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnPtRatio_DR"+myVarSuffix_);
@@ -218,19 +225,14 @@ private:
             auto& GM_ISRmatching_bestPtRatio              = tr.createDerivedVec<double>("GM_ISRmatching_bestPtRatio"+myVarSuffix_);
             auto& GM_ISRmatching_justCutOnDR_PtRatio      = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnDR_PtRatio"+myVarSuffix_);
             auto& GM_ISRmatching_justCutOnPtRatio_PtRatio = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnPtRatio_PtRatio"+myVarSuffix_);
-            auto& ISRmatched_dr_ptr                       = tr.createDerivedVec<bool>("ISRmatched_dr_ptr"+myVarSuffix_, RecoISR.size());
-            auto& ISRmatched_dr                           = tr.createDerivedVec<bool>("ISRmatched_dr"+myVarSuffix_, RecoISR.size());
+            auto& ISRmatched_dr_ptr                       = tr.createDerivedVec<bool>("ISRmatched_dr_ptr"+myVarSuffix_, RecoISR.size(), false);
+            auto& ISRmatched_dr                           = tr.createDerivedVec<bool>("ISRmatched_dr"+myVarSuffix_, RecoISR.size(), false);
 
             std::vector<int> ListParticles{1, 2, 3, 4, 5, 6, -1, -2, -3, -4, -5, -6, 2212};
-            std::vector<TLorentzVector> isrGenList;
-            std::vector<TLorentzVector> isrRecoList;
-            int ISR_Idx         = -1;
+            int ISR_Idx            = -1;
             int nISRJets_dr_ptr = 0;
             int nISRJets_dr     = 0;
 
-            // --------------
-            // matching loops
-            // --------------
             for (unsigned int m = 0; m < ListParticles.size(); m++)            
             {
                 std::vector<std::tuple<int, int, double>> allMatches;               
@@ -239,6 +241,7 @@ private:
                 std::vector<std::tuple<int, int, double>> justPtRatioMatches;
                 double maxDR      = 0.1; // set max DR allowed for matching
                 double maxPtRatio = 0.5; // set max pT allowed for matching
+                
                 findBestDR(GenParticles, RecoISR, GenISR, ListParticles[m], GenParticles_ParentId, GenParticles_ParentIdx, ISR_Idx, maxDR, maxPtRatio, allMatches, bestMatches, justDRMatches, justPtRatioMatches);
 
                 // --------------------
@@ -250,18 +253,11 @@ private:
                     GM_ISRmatching_allPtRatio.push_back( abs( 1 - (RecoISR.at(std::get<1>(allMatches.at(match))).Pt() / GenParticles.at(std::get<0>(allMatches.at(match))).Pt()) ) );
                 }       
 
-                // ------------
-                // best matches
-                // ------------
-                std::vector<double> DRvec;
-                std::vector<double> PtVec;
-                TLorentzVector isrGenMatched;
-                TLorentzVector isrRecoMatched;
+                // -------------------------------------------
+                // matches with cutting on deltaR and pt ratio
+                // -------------------------------------------
                 for (unsigned int match = 0; match < bestMatches.size(); match++)
                 {
-                    isrGenMatched  = GenParticles.at(std::get<0>(bestMatches.at(match)));
-                    isrRecoMatched = RecoISR.at(std::get<1>(bestMatches.at(match)));
-
                     GM_ISRmatching_bestDR.push_back( GenParticles.at(std::get<0>(bestMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(bestMatches.at(match)))) );
                     GM_ISRmatching_bestPtRatio.push_back( abs( 1 - (RecoISR.at(std::get<1>(bestMatches.at(match))).Pt() / GenParticles.at(std::get<0>(bestMatches.at(match))).Pt()) ) );
 
@@ -269,42 +265,83 @@ private:
                     ISRmatched_dr_ptr.at(std::get<1>(bestMatches.at(match))) = true;
                     nISRJets_dr_ptr++;
                 }
-                //isrGenList.push_back(isrGenMatched);
-                //isrRecoList.push_back(isrRecoMatched);
 
-               // ------------------------------
-               // matches with cutting on deltaR
-               // ------------------------------
-               for (unsigned int match = 0; match < justDRMatches.size(); match++)
-               {
+                // ------------------------------
+                // matches with cutting on deltaR
+                // ------------------------------
+                for (unsigned int match = 0; match < justDRMatches.size(); match++)
+                {
                     GM_ISRmatching_justCutOnDR_DR.push_back( GenParticles.at(std::get<0>(justDRMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(justDRMatches.at(match)))) );
                     GM_ISRmatching_justCutOnDR_PtRatio.push_back( abs( 1 - (RecoISR.at(std::get<1>(justDRMatches.at(match))).Pt() / GenParticles.at(std::get<0>(justDRMatches.at(match))).Pt()) ) );
         
                     // getting ISRmatched_dr jets
                     ISRmatched_dr.at(std::get<1>(justDRMatches.at(match))) = true;
                     nISRJets_dr++;
- 
-               }   
+                }   
 
-               // --------------------------------
-               // matches with cutting on pt ratio
-               // --------------------------------
-               for (unsigned int match = 0; match < justPtRatioMatches.size(); match++)
-               {
+                // --------------------------------
+                // matches with cutting on pt ratio
+                // --------------------------------
+                for (unsigned int match = 0; match < justPtRatioMatches.size(); match++)
+                {
                     GM_ISRmatching_justCutOnPtRatio_DR.push_back( GenParticles.at(std::get<0>(justPtRatioMatches.at(match))).DeltaR(RecoISR.at(std::get<1>(justPtRatioMatches.at(match)))) );
                     GM_ISRmatching_justCutOnPtRatio_PtRatio.push_back( abs( 1 - (RecoISR.at(std::get<1>(justPtRatioMatches.at(match))).Pt() / GenParticles.at(std::get<0>(justPtRatioMatches.at(match))).Pt()) ) );
-               }       
-            
-                //tr.registerDerivedVar("GM_genISR"+myVarSuffix_, isrGenList.at(0));
-                //tr.registerDerivedVar("GM_recoISR"+myVarSuffix_, isrRecoList.at(0));
-                tr.registerDerivedVar("nGenISR"+myVarSuffix_, nGenISR); 
+                }       
+
+                tr.registerDerivedVar("nGenISR"+myVarSuffix_, nGenISR);
                 tr.registerDerivedVar("nRecoISR"+myVarSuffix_, nRecoISR);
                 tr.registerDerivedVar("nISRJets_dr_ptr"+myVarSuffix_, nISRJets_dr_ptr);      
                 tr.registerDerivedVar("nISRJets_dr"+myVarSuffix_, nISRJets_dr); 
-            }
+            
+            } // ISR truth level matching loop 
+
+            // ---------------------------------------
+            // ISR filter by using TreeMaker method
+            // ---------------------------------------
+            auto& ISRfilter = tr.createDerivedVec<bool>("ISRfilter"+myVarSuffix_, Jets.size(), false);
+            int nISR = 0;
+
+            for (unsigned int j = 0; j < Jets.size(); j++)
+            {
+                if (!GoodJets_pt20[j]) continue;
+        
+                bool matched = false;
+
+                // gen matching
+                for (unsigned int g = 0; g < GenParticles.size(); g++)
+                {
+                    if (matched) break;
+
+                    int pdgId    = GenParticles_PdgId.at(g);
+                    int momPdgId = GenParticles_ParentId.at(g);
+                    int status   = GenParticles_Status.at(g);
  
-        }
-    }
+                    if (abs(pdgId) > 5 || abs(pdgId) != 21 || status != 23) continue;    
+                    if(!(momPdgId == 6 || momPdgId == 23   || momPdgId == 24 || momPdgId == 25 || momPdgId > 1e6)) continue;            
+                    
+                    // check against daughter in case of hard initial splitting
+                    double dR = GenParticles.at(g).DeltaR(Jets.at(j)); 
+                    if (dR < 0.3)
+                    {
+                        matched = true;
+                        break;
+                    }        
+                } 
+                  
+                // ISRJets filter      
+                if(!matched)
+                {
+                    ISRfilter.at(j) = true;
+                    nISR++;
+                } 
+                
+                tr.registerDerivedVar("nISR"+myVarSuffix_, nISR);
+
+            } // TreeMaker matching loop       
+                
+
+        } // data/MC loop
+    } // event loop
 
 public:    
     ISRJets(const std::string& myVarSuffix = "")
