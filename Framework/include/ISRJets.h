@@ -50,6 +50,8 @@ private:
             auto& GM_ISRmatching_justCutOnPtRatio_PtRatio = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnPtRatio_PtRatio"+myVarSuffix_);
             auto& ISRmatched_dr_ptr                       = tr.createDerivedVec<bool>("ISRmatched_dr_ptr"+myVarSuffix_, Jets.size(), false);
             auto& ISRmatched_dr                           = tr.createDerivedVec<bool>("ISRmatched_dr"+myVarSuffix_, Jets.size(), false);
+            auto& GoodJets_pt20_maskedISR                 = tr.createDerivedVec<bool>("GoodJets_pt20_maskedISR"+myVarSuffix_, Jets.size(), false);
+
 
             // ---------------------------
             // Loop over the gen particles
@@ -64,7 +66,7 @@ private:
                 bool pass_ISR = ( abs(pdgId) <= 6  && abs(momPdgId) == 21 && status == 23 ) ||
                                 ( abs(pdgId) == 21 && abs(momPdgId) <= 6  && status == 23 ) || 
                                 ( abs(pdgId) == 21 && abs(momPdgId) == 21 && status == 23 ) ; 
-       
+ 
                 // ----------------------------
                 // Loop over the reco particles
                 // ----------------------------
@@ -117,7 +119,18 @@ private:
                     {
                         GM_ISRmatching_justCutOnPtRatio_DR.push_back( GenParticles.at(g).DeltaR(Jets.at(j)) );
                         GM_ISRmatching_justCutOnPtRatio_PtRatio.push_back( ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) );                        
-                    }     
+                    }  
+
+                    // -----------------------------------------------
+                    // make filter to use inside hemispheres
+                    //     -- remove the ISR jets inside GoodJets_pt20
+                    // -----------------------------------------------
+                    if ( (GoodJets_pt20[j]) && (!ISRmatched_dr_ptr[j]) )
+                    {
+                        GoodJets_pt20_maskedISR.at(j) = true;
+                    }
+
+                    tr.registerDerivedVar<int>("NGoodJets_pt20_maskedISR"+myVarSuffix_, GoodJets_pt20_maskedISR.size());   
  
                 } // reco particles
             } // Gen particles 
