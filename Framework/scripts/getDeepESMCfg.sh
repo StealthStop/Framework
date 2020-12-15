@@ -11,6 +11,7 @@ TAG=
 NO_SOFTLINK=
 OVERWRITE=
 VERBOSE=
+DO_CR=1
 
 # A POSIX variable
 OPTIND=1    # Reset in case getopts has been used previously in the shell.
@@ -18,6 +19,9 @@ OPTIND=1    # Reset in case getopts has been used previously in the shell.
 SOFTLINK_NAME=DeepEventShape
 SOFTLINK_NAME_2=DeepEventShape_NonIsoMuon
 SOFTLINK_SUFFIX=
+
+CONFIG_NAME=DeepEventShape.cfg
+CONFIG_NAME_2=DeepEventShape_NonIsoMuon.cfg
 
 function print_help {
     echo ""
@@ -27,11 +31,15 @@ function print_help {
     echo "Options:"
     echo "    -t RELEASE_TAG :         This is the github release tag to check out (required option)"
     echo "    -d checkout_directory :  This is the directory where the configuration files will be downloaded to (default: .)"
-    echo "    -f cfg_filename :        Specify this option to name the softlink to the cfg file something other than \"TopTagger.cfg\""
+    echo "    -f link_name :           Specify this option to name the softlink to the cfg file something other than \"DeepEventShape.cfg\""
+    echo "    -F link_name_CR :        Specify this option to name the softlink to the CR cfg file something other than \"DeepEventShape_NonIsoMuon.cfg\""
+    echo "    -m cfg_filename :        Specify this option to name the cfg file something other than \"DeepEventShape.cfg\""
+    echo "    -M cfg_filename_CR :     Specify this option to name the CR cfg file something other than \"DeepEventShape_NonIsoMuon.cfg\""
     echo "    -o :                     Overwrite the softlinks if they already exist"
     echo "    -l checkout location :   Location to check out tagger cfg files (default: .)"
     echo "    -n :                     Download files without producing softlinks"
     echo "    -v :                     increase verbosity: print more stuff... for those who like stuff"
+    echo "    -Q :                     don't make a soft link for the QCD CR"
     echo "    -s softlink_suffix :     Can add a suffix to the softlink name"
     echo ""
     echo "Description:"
@@ -54,7 +62,7 @@ function print_ok {
 
 # Initialize our own variables:
 
-while getopts "h?d:f:F:t:l:s:nov" opt; do
+while getopts "h?d:f:F:m:M:t:l:s:novQ" opt; do
     case "$opt" in
     h|\?)
         print_help
@@ -65,6 +73,10 @@ while getopts "h?d:f:F:t:l:s:nov" opt; do
     f)  SOFTLINK_NAME=$OPTARG
         ;;
     F)  SOFTLINK_NAME_2=$OPTARG
+        ;;
+    m)  CONFIG_NAME=$OPTARG
+        ;;
+    M)  CONFIG_NAME_2=$OPTARG
         ;;
     t)  TAG=$OPTARG
         ;;
@@ -77,6 +89,8 @@ while getopts "h?d:f:F:t:l:s:nov" opt; do
     o)  OVERWRITE="-f"
         ;;
     v)  VERBOSE=1
+        ;;
+    Q)  DO_CR=
         ;;
     esac
 done
@@ -197,9 +211,9 @@ fi
 
 MVAFILES=
 
-if [ -f DeepEventShape.cfg ]
+if [ -f $CONFIG_NAME ]
 then
-    MVAFILES=$(grep "modelFile" DeepEventShape.cfg | sed 's/[^"]*"\([^"]*\)"/\1/')
+    MVAFILES=$(grep "modelFile" $CONFIG_NAME | sed 's/[^"]*"\([^"]*\)"/\1/')
     MISSING=
     if [[ ! -z ${MVAFILES// } ]]
     then
@@ -267,8 +281,15 @@ fi
 if [[ -z $NO_SOFTLINK ]]
 then
     # create softlinks
-    ln $OVERWRITE -s $DOWNLOAD_DIR/DeepEventShape.cfg $CHECKOUT_DIRECTORY/$SOFTLINK_NAME > /dev/null 2>&1 && echo " - Created softlinks to $REPO_NAME config file"
-    ln $OVERWRITE -s $DOWNLOAD_DIR/DeepEventShape_NonIsoMuon.cfg $CHECKOUT_DIRECTORY/$SOFTLINK_NAME_2 > /dev/null 2>&1 && echo " - Created softlinks to $REPO_NAME config file"
+    ln $OVERWRITE -s $DOWNLOAD_DIR/$CONFIG_NAME $CHECKOUT_DIRECTORY/$SOFTLINK_NAME > /dev/null 2>&1 && echo " - Created softlinks to $REPO_NAME config file"
+
+    if [[ ! -z $DO_CR ]] # True if DO_CR is set
+    then
+        ln $OVERWRITE -s $DOWNLOAD_DIR/$CONFIG_NAME_2 $CHECKOUT_DIRECTORY/$SOFTLINK_NAME_2 > /dev/null 2>&1 && echo " - Created softlinks to $REPO_NAME config file"
+    else
+        echo "No QCD control region cfg specified"
+    fi
+
     if [[ ! -z ${MVAFILES// } ]] 
     then
         for MVAFILE in $MVAFILES; do

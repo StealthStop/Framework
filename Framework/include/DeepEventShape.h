@@ -70,8 +70,9 @@ private:
     //Tensoflow session pointer
     TF_Session* session_;
 
-    //Input variable names 
+    //Input variable names
     std::vector<std::string> outputOpVec_;
+    std::vector<int> outputCmVec_;
     std::vector<std::string> vars_;
     std::vector<double> binEdges_;
 
@@ -116,6 +117,7 @@ private:
         inputOp_     = cfgDoc->get("inputOp",   localCxt, "main_input");
         outputOp_    = cfgDoc->get("outputOp",  localCxt, "");
         outputOpVec_ = getVecFromCfg<std::string>(cfgDoc, "outputOpVec", localCxt, "");       
+        outputCmVec_ = getVecFromCfg<int>(        cfgDoc, "outputCmVec", localCxt, -1);       
         year_        = cfgDoc->get("year",      localCxt, "");
         name_        = cfgDoc->get("name",      localCxt, "");
         nJetVar_     = cfgDoc->get("nJetVar",   localCxt, "NGoodJets_pt30");
@@ -123,7 +125,11 @@ private:
         maxNJet_     = cfgDoc->get("maxNJet",   localCxt, 7);
         vars_        = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
         binEdges_    = getVecFromCfg<double>(cfgDoc, "binEdges", localCxt, -1);
-        if(!outputOp_.empty()) outputOpVec_.push_back(outputOp_);
+        if(!outputOp_.empty())
+        {
+            outputOpVec_.push_back(outputOp_);
+            outputCmVec_.push_back(2);
+        }
         
         //Variable to hold tensorflow status
         TF_Status* status = TF_NewStatus();
@@ -148,7 +154,7 @@ private:
 
         //Specify the name of the input layer
         TF_Operation* op_x  = TF_GraphOperationByName(graph, inputOp_.c_str());
-        inputs_ .emplace_back(TF_Output({op_x, 0}));
+        inputs_.emplace_back(TF_Output({op_x, 0}));
 
         //Specify the names of the output layers
         for(const auto& outName : outputOpVec_)
@@ -228,7 +234,7 @@ private:
         {            
             auto* tensor = output_values[i];
             auto disc = static_cast<float*>(TF_TensorData(tensor));
-            for(int j = 0; j < TF_NumDims(tensor); j++)
+            for(int j = 0; j < outputCmVec_[i]; j++)
             {
                 discriminators[i].emplace_back(static_cast<double>(disc[j]));
             }
@@ -244,8 +250,19 @@ private:
         if(outputs_.size() > 1)
         {
             tr.registerDerivedVar("deepESM_val1"+name_+myVarSuffix_, discriminators[0][0]);
-            tr.registerDerivedVar("deepESM_val2"+name_+myVarSuffix_, discriminators[1][0]);
-            tr.registerDerivedVar("deepESM_val3"+name_+myVarSuffix_, discriminators[2][0]);
+            tr.registerDerivedVar("deepESM_val2"+name_+myVarSuffix_, discriminators[0][2]);
+            tr.registerDerivedVar("deepESM_val3"+name_+myVarSuffix_, discriminators[1][0]);
+            
+            //std::cout<<"---------------------------------"<<std::endl;
+            //for(auto v : discriminators)
+            //{
+            //    for(auto d : v)
+            //    {
+            //        std::cout<<d<<std::endl;
+            //    }
+            //    std::cout<<"----"<<std::endl;
+            //}
+            //std::cout<<"DisCo1 = "<<discriminators[0][0]<<" Disco2 = "<<discriminators[0][2]<<" Reg. = "<<discriminators[1][0]<<std::endl;
         }
         
         // Define and register deepESM bins
@@ -306,6 +323,7 @@ public:
         , firstEvent_(husk.firstEvent_)
         , session_(husk.session_)
         , outputOpVec_(husk.outputOpVec_)
+        , outputCmVec_(husk.outputCmVec_)
         , vars_(husk.vars_)
         , binEdges_(husk.binEdges_)
         , inputs_(husk.inputs_)
