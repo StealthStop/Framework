@@ -176,14 +176,6 @@ private:
             math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() );
             cm_jets.push_back( cmvec );
         }
-        auto GoodLeptons_cm = std::make_unique<std::vector<TLorentzVector>>();
-        for(auto pair : GoodLeptons)
-        {
-            pair.second.Boost( rec_boost_beta_vec );
-            GoodLeptons_cm->push_back( pair.second );
-        }
-        TLorentzVector lvMET_cm = lvMET;
-        lvMET_cm.Boost( rec_boost_beta_vec );           
 
         //--- Try using only the 7 highest-P jets in the CM frame in the event shape vars.
         //    First, need to make a new input vector of jets containing only those jets.
@@ -220,6 +212,17 @@ private:
                 Jets_top6.push_back( Jets_psort.at(ji) ) ;
             }
         } // ji
+
+        auto GoodLeptons_cm = std::make_unique<std::vector<TLorentzVector>>();
+        for(auto pair : GoodLeptons)
+        {
+            pair.second.Boost( rec_boost_beta_vec );
+            pair.second.RotateZ( -phiMax );
+            GoodLeptons_cm->push_back( pair.second );
+        }
+        TLorentzVector lvMET_cm = lvMET;
+        lvMET_cm.Boost( rec_boost_beta_vec );           
+        lvMET_cm.RotateZ( -phiMax );           
 
         if( verb_ ) 
         {
