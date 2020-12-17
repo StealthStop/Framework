@@ -262,9 +262,9 @@ private:
             else if (maxNJet_ < NGoodJets_pt30)                                iJet = maxNJet_-minNJet_+1;
 
             bool passBinA = disc1 > binEdges_[iJet-1] && disc2 > binEdges_[iJet];
-            bool passBinB = disc1 < binEdges_[iJet-1] && disc2 > binEdges_[iJet];
-            bool passBinC = disc1 < binEdges_[iJet-1] && disc2 < binEdges_[iJet];
-            bool passBinD = disc1 > binEdges_[iJet-1] && disc2 < binEdges_[iJet];
+            bool passBinB = disc1 > binEdges_[iJet-1] && disc2 < binEdges_[iJet];
+            bool passBinC = disc1 < binEdges_[iJet-1] && disc2 > binEdges_[iJet];
+            bool passBinD = disc1 < binEdges_[iJet-1] && disc2 < binEdges_[iJet];
 
             tr.registerDerivedVar("DoubleDisCo_binA"+myVarSuffix_, passBinA);
             tr.registerDerivedVar("DoubleDisCo_binB"+myVarSuffix_, passBinB);
