@@ -163,7 +163,7 @@ private:
             outputs_.emplace_back(TF_Output({op_y, 0}));
             targets_.emplace_back(op_y);
         }
-        
+
         //Clean up graph
         TF_DeleteGraph(graph);
         TF_DeleteStatus(status);
@@ -245,42 +245,54 @@ private:
         TF_DeleteStatus(status);
 
         // Register Variables
-        double discriminator = discriminators[0][0];
-        tr.registerDerivedVar("deepESM_val"+name_+myVarSuffix_, discriminator);
         if(outputs_.size() > 1)
         {
-            tr.registerDerivedVar("deepESM_val1"+name_+myVarSuffix_, discriminators[0][0]);
-            tr.registerDerivedVar("deepESM_val2"+name_+myVarSuffix_, discriminators[0][2]);
-            tr.registerDerivedVar("deepESM_val3"+name_+myVarSuffix_, discriminators[1][0]);
-            
-            //std::cout<<"---------------------------------"<<std::endl;
-            //for(auto v : discriminators)
-            //{
-            //    for(auto d : v)
-            //    {
-            //        std::cout<<d<<std::endl;
-            //    }
-            //    std::cout<<"----"<<std::endl;
-            //}
-            //std::cout<<"DisCo1 = "<<discriminators[0][0]<<" Disco2 = "<<discriminators[0][2]<<" Reg. = "<<discriminators[1][0]<<std::endl;
-        }
-        
-        // Define and register deepESM bins
-        const auto& NGoodJets_pt30 = tr.getVar<int>(nJetVar_+myVarSuffix_);
-        int nMVABin = (binEdges_.size() / (maxNJet_ - minNJet_ + 1)) - 1;
-        int nJetBinning;
-        if(NGoodJets_pt30 < minNJet_) nJetBinning = 0;
-        else if(minNJet_ <= NGoodJets_pt30 && NGoodJets_pt30 <= maxNJet_) nJetBinning = NGoodJets_pt30-minNJet_;
-        else if(maxNJet_ < NGoodJets_pt30) nJetBinning = maxNJet_-minNJet_;
+            double disc1   = discriminators[0][0];
+            double disc2   = discriminators[0][2];
+            double massReg = discriminators[1][0];
+            tr.registerDerivedVar("DoubleDisCo_disc1"+myVarSuffix_, disc1);
+            tr.registerDerivedVar("DoubleDisCo_disc2"+myVarSuffix_, disc2);
+            tr.registerDerivedVar("DoubleDisCo_massReg"+myVarSuffix_, massReg);
+           
+            // Define and register deepESM bins
+            const auto& NGoodJets_pt30 = tr.getVar<int>(nJetVar_+myVarSuffix_);
+            int iJet;
+            if      (NGoodJets_pt30 < minNJet_)                                iJet = 1;
+            else if (minNJet_ <= NGoodJets_pt30 && NGoodJets_pt30 <= maxNJet_) iJet = NGoodJets_pt30-minNJet_+1;
+            else if (maxNJet_ < NGoodJets_pt30)                                iJet = maxNJet_-minNJet_+1;
 
-        for(int i = (nMVABin+1)*nJetBinning + 1; i < (nMVABin+1)*(nJetBinning+1); i++)
-        {
-            bool passDeepESMBin = discriminator > binEdges_[i-1] && discriminator <= binEdges_[i];
-            int bin = i - (nMVABin+1)*nJetBinning;
-            tr.registerDerivedVar("deepESM_bin"+name_+std::to_string(bin)+myVarSuffix_, passDeepESMBin);
-            if(passDeepESMBin) tr.registerDerivedVar("deepESM_binNum"+name_+myVarSuffix_, bin);
-            //std::cout<<"nMVABin: "<<nMVABin<<" NJets: "<<NGoodJets_pt30<<" nJetBinning: "<<nJetBinning
-            //         <<" i: "<<i<<" lowBinEdge: "<<binEdges_[i-1]<<" highBinEdge: "<<binEdges_[i]<<" MVABinNumber: "<<bin<<std::endl;
+            bool passBinA = disc1 > binEdges_[iJet-1] && disc2 > binEdges_[iJet];
+            bool passBinB = disc1 > binEdges_[iJet-1] && disc2 < binEdges_[iJet];
+            bool passBinC = disc1 < binEdges_[iJet-1] && disc2 > binEdges_[iJet];
+            bool passBinD = disc1 < binEdges_[iJet-1] && disc2 < binEdges_[iJet];
+
+            tr.registerDerivedVar("DoubleDisCo_binA"+myVarSuffix_, passBinA);
+            tr.registerDerivedVar("DoubleDisCo_binB"+myVarSuffix_, passBinB);
+            tr.registerDerivedVar("DoubleDisCo_binC"+myVarSuffix_, passBinC);
+            tr.registerDerivedVar("DoubleDisCo_binD"+myVarSuffix_, passBinD);
+        }
+        else
+        { 
+            // Define and register deepESM bins
+            double discriminator = discriminators[0][0];
+            tr.registerDerivedVar("deepESM_val"+name_+myVarSuffix_, discriminator);
+
+            const auto& NGoodJets_pt30 = tr.getVar<int>(nJetVar_+myVarSuffix_);
+            int nMVABin = (binEdges_.size() / (maxNJet_ - minNJet_ + 1)) - 1;
+            int nJetBinning;
+            if(NGoodJets_pt30 < minNJet_) nJetBinning = 0;
+            else if(minNJet_ <= NGoodJets_pt30 && NGoodJets_pt30 <= maxNJet_) nJetBinning = NGoodJets_pt30-minNJet_;
+            else if(maxNJet_ < NGoodJets_pt30) nJetBinning = maxNJet_-minNJet_;
+
+            for(int i = (nMVABin+1)*nJetBinning + 1; i < (nMVABin+1)*(nJetBinning+1); i++)
+            {
+                bool passDeepESMBin = discriminator > binEdges_[i-1] && discriminator <= binEdges_[i];
+                int bin = i - (nMVABin+1)*nJetBinning;
+                tr.registerDerivedVar("deepESM_bin"+name_+std::to_string(bin)+myVarSuffix_, passDeepESMBin);
+                if(passDeepESMBin) tr.registerDerivedVar("deepESM_binNum"+name_+myVarSuffix_, bin);
+                //std::cout<<"nMVABin: "<<nMVABin<<" NJets: "<<NGoodJets_pt30<<" nJetBinning: "<<nJetBinning
+                //         <<" i: "<<i<<" lowBinEdge: "<<binEdges_[i-1]<<" highBinEdge: "<<binEdges_[i]<<" MVABinNumber: "<<bin<<std::endl;
+            }
         }
     }
 
