@@ -26,21 +26,7 @@ private:
             stop2 = pseudo1;      
         }
     }
-
-    template<typename T> void orderNNvars(T& stop1, T& stop2, const T pseudo1_cm, const T pseudo2_cm, const bool pseudo1Tostop1) const
-    {   
-        if(pseudo1Tostop1)
-        {            
-            stop1 = pseudo1_cm;
-            stop2 = pseudo2_cm;
-        } 
-        else
-        {   
-            stop1 = pseudo2_cm;
-            stop2 = pseudo1_cm;
-        }
-    }
-
+    
     void getHemispheres(NTupleReader& tr) const
     {
         const auto& met                   = tr.getVar<double>("MET");
@@ -50,7 +36,7 @@ private:
         const auto& NGoodJets             = tr.getVar<int>(nJetName_);
         const auto& GoodLeptons           = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
         const auto& event_beta_z          = tr.getVar<double>("event_beta_z"); // for NN
-        const auto& phiMax                = tr.getVar<double>("phiMax"); // for NN      
+        const auto& event_phi_rotate      = tr.getVar<double>("event_phi_rotate"); // for NN      
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
         TLorentzVector stop1_PtRank,       stop2_PtRank;
@@ -147,15 +133,15 @@ private:
             TVector3 boostVec(0.0, 0.0, -event_beta_z);  
     
             pseudojet1_cm.Boost(boostVec);
-            pseudojet1_cm.RotateZ(-phiMax);
+            pseudojet1_cm.RotateZ(-event_phi_rotate);
 
             pseudojet2_cm.Boost(boostVec);
-            pseudojet2_cm.RotateZ(-phiMax); 
+            pseudojet2_cm.RotateZ(-event_phi_rotate); 
 
             // Rank the hemispheres (Mass, Pt, Scalar Pt) 
-            orderNNvars(stop1_PtRank_cm,       stop2_PtRank_cm,       pseudojet1_cm, pseudojet2_cm, pseudojet1_cm.Pt() > pseudojet2_cm.Pt());
-            orderNNvars(stop1_MassRank_cm,     stop2_MassRank_cm,     pseudojet1_cm, pseudojet2_cm, pseudojet1_cm.M()  > pseudojet2_cm.M() );
-            orderNNvars(stop1_ScalarPtRank_cm, stop2_ScalarPtRank_cm, pseudojet1_cm, pseudojet2_cm, pseudojet1ScalarPt > pseudojet2ScalarPt);
+            orderVars(stop1_PtRank_cm,       stop2_PtRank_cm,       pseudojet1_cm, pseudojet2_cm, pseudojet1_cm.Pt() > pseudojet2_cm.Pt());
+            orderVars(stop1_MassRank_cm,     stop2_MassRank_cm,     pseudojet1_cm, pseudojet2_cm, pseudojet1_cm.M()  > pseudojet2_cm.M() );
+            orderVars(stop1_ScalarPtRank_cm, stop2_ScalarPtRank_cm, pseudojet1_cm, pseudojet2_cm, pseudojet1ScalarPt > pseudojet2ScalarPt);
 
         }
         tr.registerDerivedVar("stop1_PtRank"+myVarSuffix_,stop1_PtRank);

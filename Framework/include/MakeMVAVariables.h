@@ -406,7 +406,7 @@ private:
         tr.registerDerivedVar(ESVarName_+"jmt_ev2_top6"+myVarSuffix_, jmt_ev2_top6);
         tr.registerDerivedVar(ESVarName_+"event_beta_z"+myVarSuffix_, event_beta_z);
         tr.registerDerivedVar(ESVarName_+"event_beta_z_pt20"+myVarSuffix_, event_beta_z_pt20);
-        tr.registerDerivedVar(ESVarName_+"phiMax"+myVarSuffix_, phiMax);
+        tr.registerDerivedVar(ESVarName_+"event_phi_rotate"+myVarSuffix_, phiMax);
         tr.registerDerivedVar("nMVAJets"+myVarSuffix_, nTopJets_);
 
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
