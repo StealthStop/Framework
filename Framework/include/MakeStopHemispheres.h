@@ -144,62 +144,42 @@ private:
             orderVars(stop1_ScalarPtRank_cm, stop2_ScalarPtRank_cm, pseudojet1_cm, pseudojet2_cm, pseudojet1ScalarPt > pseudojet2ScalarPt);
 
         }
+        // Pt Rank
         tr.registerDerivedVar("stop1_PtRank"+myVarSuffix_,stop1_PtRank);
         tr.registerDerivedVar("stop2_PtRank"+myVarSuffix_,stop2_PtRank);
-        tr.registerDerivedVar("stop1_PtRank"+myVarSuffix_+"_mass",stop1_PtRank.M()); // for NN
-        tr.registerDerivedVar("stop2_PtRank"+myVarSuffix_+"_mass",stop2_PtRank.M());
-        tr.registerDerivedVar("stop1_PtRank"+myVarSuffix_+"_pt",stop1_PtRank.Pt());
-        tr.registerDerivedVar("stop2_PtRank"+myVarSuffix_+"_pt",stop2_PtRank.Pt());
-        tr.registerDerivedVar("stop1_PtRank"+myVarSuffix_+"_phi",stop1_PtRank.Phi());
-        tr.registerDerivedVar("stop2_PtRank"+myVarSuffix_+"_phi",stop2_PtRank.Phi());
-        tr.registerDerivedVar("stop1_PtRank"+myVarSuffix_+"_eta",stop1_PtRank.Eta());
-        tr.registerDerivedVar("stop2_PtRank"+myVarSuffix_+"_eta",stop2_PtRank.Eta());
-        tr.registerDerivedVar("stop1_PtRank_cm"+myVarSuffix_+"_mass",stop1_PtRank_cm.M()); // for NN
-        tr.registerDerivedVar("stop2_PtRank_cm"+myVarSuffix_+"_mass",stop2_PtRank_cm.M());
-        tr.registerDerivedVar("stop1_PtRank_cm"+myVarSuffix_+"_pt",stop1_PtRank_cm.Pt());
-        tr.registerDerivedVar("stop2_PtRank_cm"+myVarSuffix_+"_pt",stop2_PtRank_cm.Pt());
-        tr.registerDerivedVar("stop1_PtRank_cm"+myVarSuffix_+"_phi",stop1_PtRank_cm.Phi());
-        tr.registerDerivedVar("stop2_PtRank_cm"+myVarSuffix_+"_phi",stop2_PtRank_cm.Phi());
-        tr.registerDerivedVar("stop1_PtRank_cm"+myVarSuffix_+"_eta",stop1_PtRank_cm.Eta());
-        tr.registerDerivedVar("stop2_PtRank_cm"+myVarSuffix_+"_eta",stop2_PtRank_cm.Eta());
+        tr.registerDerivedVar("Mass_stop1_PtRank_cm"+myVarSuffix_,stop1_PtRank_cm.M()); 
+        tr.registerDerivedVar("Mass_stop2_PtRank_cm"+myVarSuffix_,stop2_PtRank_cm.M());
+        tr.registerDerivedVar("Pt_stop1_PtRank_cm"+myVarSuffix_,stop1_PtRank_cm.Pt());
+        tr.registerDerivedVar("Pt_stop2_PtRank_cm"+myVarSuffix_,stop2_PtRank_cm.Pt());
+        tr.registerDerivedVar("Phi_stop1_PtRank_cm"+myVarSuffix_,stop1_PtRank_cm.Phi());
+        tr.registerDerivedVar("Phi_stop2_PtRank_cm"+myVarSuffix_,stop2_PtRank_cm.Phi());
+        tr.registerDerivedVar("Eta_stop1_PtRank_cm"+myVarSuffix_,stop1_PtRank_cm.Eta());
+        tr.registerDerivedVar("Eta_stop2_PtRank_cm"+myVarSuffix_,stop2_PtRank_cm.Eta());
+        // Mask Rank
         tr.registerDerivedVar("stop1_MassRank"+myVarSuffix_,stop1_MassRank);
         tr.registerDerivedVar("stop2_MassRank"+myVarSuffix_,stop2_MassRank);
-        tr.registerDerivedVar("stop1_MassRank"+myVarSuffix_+"_mass",stop1_MassRank.M()); // for NN
-        tr.registerDerivedVar("stop2_MassRank"+myVarSuffix_+"_mass",stop2_MassRank.M());
-        tr.registerDerivedVar("stop1_MassRank"+myVarSuffix_+"_pt",stop1_MassRank.Pt());
-        tr.registerDerivedVar("stop2_MassRank"+myVarSuffix_+"_pt",stop2_MassRank.Pt());
-        tr.registerDerivedVar("stop1_MassRank"+myVarSuffix_+"_phi",stop1_MassRank.Phi());
-        tr.registerDerivedVar("stop2_MassRank"+myVarSuffix_+"_phi",stop2_MassRank.Phi());
-        tr.registerDerivedVar("stop1_MassRank"+myVarSuffix_+"_eta",stop1_MassRank.Eta());
-        tr.registerDerivedVar("stop2_MassRank"+myVarSuffix_+"_eta",stop2_MassRank.Eta());
-        tr.registerDerivedVar("stop1_MassRank_cm"+myVarSuffix_+"_mass",stop1_MassRank_cm.M()); // for NN
-        tr.registerDerivedVar("stop2_MassRank_cm"+myVarSuffix_+"_mass",stop2_MassRank_cm.M());
-        tr.registerDerivedVar("stop1_MassRank_cm"+myVarSuffix_+"_pt",stop1_MassRank_cm.Pt());
-        tr.registerDerivedVar("stop2_MassRank_cm"+myVarSuffix_+"_pt",stop2_MassRank_cm.Pt());
-        tr.registerDerivedVar("stop1_MassRank_cm"+myVarSuffix_+"_phi",stop1_MassRank_cm.Phi());
-        tr.registerDerivedVar("stop2_MassRank_cm"+myVarSuffix_+"_phi",stop2_MassRank_cm.Phi());
-        tr.registerDerivedVar("stop1_MassRank_cm"+myVarSuffix_+"_eta",stop1_MassRank_cm.Eta());
-        tr.registerDerivedVar("stop2_MassRank_cm"+myVarSuffix_+"_eta",stop2_MassRank_cm.Eta());
+        tr.registerDerivedVar("Mass_stop1_MassRank_cm"+myVarSuffix_,stop1_MassRank_cm.M()); 
+        tr.registerDerivedVar("Mass_stop2_MassRank_cm"+myVarSuffix_,stop2_MassRank_cm.M());
+        tr.registerDerivedVar("Pt_stop1_MassRank_cm"+myVarSuffix_,stop1_MassRank_cm.Pt());
+        tr.registerDerivedVar("Pt_stop2_MassRank_cm"+myVarSuffix_,stop2_MassRank_cm.Pt());
+        tr.registerDerivedVar("Phi_stop1_MassRank_cm"+myVarSuffix_,stop1_MassRank_cm.Phi());
+        tr.registerDerivedVar("Phi_stop2_MassRank_cm"+myVarSuffix_,stop2_MassRank_cm.Phi());
+        tr.registerDerivedVar("Eta_stop1_MassRank_cm"+myVarSuffix_,stop1_MassRank_cm.Eta());
+        tr.registerDerivedVar("Eta_stop2_MassRank_cm"+myVarSuffix_,stop2_MassRank_cm.Eta());
+        // ScalarPt Rank
         tr.registerDerivedVar("stop1_ScalarPtRank"+myVarSuffix_,stop1_ScalarPtRank);
         tr.registerDerivedVar("stop2_ScalarPtRank"+myVarSuffix_,stop2_ScalarPtRank);
-        tr.registerDerivedVar("stop1_ScalarPtRank"+myVarSuffix_+"_mass",stop1_ScalarPtRank.M()); // for NN
-        tr.registerDerivedVar("stop2_ScalarPtRank"+myVarSuffix_+"_mass",stop2_ScalarPtRank.M());
-        tr.registerDerivedVar("stop1_ScalarPtRank"+myVarSuffix_+"_pt",stop1_ScalarPtRank.Pt());
-        tr.registerDerivedVar("stop2_ScalarPtRank"+myVarSuffix_+"_pt",stop2_ScalarPtRank.Pt());
-        tr.registerDerivedVar("stop1_ScalarPtRank"+myVarSuffix_+"_phi",stop1_ScalarPtRank.Phi());
-        tr.registerDerivedVar("stop2_ScalarPtRank"+myVarSuffix_+"_phi",stop2_ScalarPtRank.Phi());
-        tr.registerDerivedVar("stop1_ScalarPtRank"+myVarSuffix_+"_eta",stop1_ScalarPtRank.Eta());
-        tr.registerDerivedVar("stop2_ScalarPtRank"+myVarSuffix_+"_eta",stop2_ScalarPtRank.Eta());
-        tr.registerDerivedVar("stop1_ScalarPtRank_cm"+myVarSuffix_+"_mass",stop1_ScalarPtRank_cm.M()); // for NN
-        tr.registerDerivedVar("stop2_ScalarPtRank_cm"+myVarSuffix_+"_mass",stop2_ScalarPtRank_cm.M());
-        tr.registerDerivedVar("stop1_ScalarPtRank_cm"+myVarSuffix_+"_pt",stop1_ScalarPtRank_cm.Pt());
-        tr.registerDerivedVar("stop2_ScalarPtRank_cm"+myVarSuffix_+"_pt",stop2_ScalarPtRank_cm.Pt());
-        tr.registerDerivedVar("stop1_ScalarPtRank_cm"+myVarSuffix_+"_phi",stop1_ScalarPtRank_cm.Phi());
-        tr.registerDerivedVar("stop2_ScalarPtRank_cm"+myVarSuffix_+"_phi",stop2_ScalarPtRank_cm.Phi());
-        tr.registerDerivedVar("stop1_ScalarPtRank_cm"+myVarSuffix_+"_eta",stop1_ScalarPtRank_cm.Eta());
-        tr.registerDerivedVar("stop2_ScalarPtRank_cm"+myVarSuffix_+"_eta",stop2_ScalarPtRank_cm.Eta());
+        tr.registerDerivedVar("Mass_stop1_ScalarPtRank_cm"+myVarSuffix_,stop1_ScalarPtRank_cm.M());
+        tr.registerDerivedVar("Mass_stop2_ScalarPtRank_cm"+myVarSuffix_,stop2_ScalarPtRank_cm.M());
+        tr.registerDerivedVar("Pt_stop1_ScalarPtRank_cm"+myVarSuffix_,stop1_ScalarPtRank_cm.Pt());
+        tr.registerDerivedVar("Pt_stop2_ScalarPtRank_cm"+myVarSuffix_,stop2_ScalarPtRank_cm.Pt());
+        tr.registerDerivedVar("Phi_stop1_ScalarPtRank_cm"+myVarSuffix_,stop1_ScalarPtRank_cm.Phi());
+        tr.registerDerivedVar("Phi_stop2_ScalarPtRank_cm"+myVarSuffix_,stop2_ScalarPtRank_cm.Phi());
+        tr.registerDerivedVar("Eta_stop1_ScalarPtRank_cm"+myVarSuffix_,stop1_ScalarPtRank_cm.Eta());
+        tr.registerDerivedVar("Eta_stop2_ScalarPtRank_cm"+myVarSuffix_,stop2_ScalarPtRank_cm.Eta());
         tr.registerDerivedVar("stop1ScalarPt_ScalarPtRank"+myVarSuffix_,stop1ScalarPt_ScalarPtRank);
         tr.registerDerivedVar("stop2ScalarPt_ScalarPtRank"+myVarSuffix_,stop2ScalarPt_ScalarPtRank); 
+        // others
         tr.registerDerivedVar("MT2"+myVarSuffix_,MT2);
         tr.registerDerivedVar("dR_stop1stop2"+myVarSuffix_,dR_stop1stop2);
         tr.registerDerivedVar("dPhi_stop1stop2"+myVarSuffix_,dPhi_stop1stop2);
