@@ -139,10 +139,12 @@ private:
 
         tr.registerDerivedVar("NGoodJets"     +myVarSuffix_, NGoodJets);       
         tr.registerDerivedVar("NGoodJets_pt20"+myVarSuffix_, NGoodJets_pt20); 
+        tr.registerDerivedVar("NGoodJets_pt20_double"+myVarSuffix_, static_cast<double>(NGoodJets_pt20)); 
         tr.registerDerivedVar("NGoodJets_pt30"+myVarSuffix_, NGoodJets_pt30);
         tr.registerDerivedVar("NGoodJets_pt30_double"+myVarSuffix_, static_cast<double>(NGoodJets_pt30));
         tr.registerDerivedVar("NGoodJets_pt40"+myVarSuffix_, NGoodJets_pt40);
         tr.registerDerivedVar("NGoodJets_pt45"+myVarSuffix_, NGoodJets_pt45);
+        tr.registerDerivedVar("NGoodJets_pt45_double"+myVarSuffix_, static_cast<double>(NGoodJets_pt45));
 
         tr.registerDerivedVar("NNonIsoMuonJets"     +myVarSuffix_, NNonIsoMuonJets);        
         tr.registerDerivedVar("NNonIsoMuonJets_pt30"+myVarSuffix_, NNonIsoMuonJets_pt30);

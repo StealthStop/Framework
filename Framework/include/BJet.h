@@ -107,9 +107,11 @@ private:
 
         tr.registerDerivedVar("NGoodBJets"+myVarSuffix_,       NGoodBJets);
         tr.registerDerivedVar("NGoodBJets_pt30"+myVarSuffix_,  NGoodBJets_pt30);
+        tr.registerDerivedVar("NGoodBJets_pt30_double"+myVarSuffix_,  static_cast<double>(NGoodBJets_pt30));
         tr.registerDerivedVar("NGoodBJets_pt40"+myVarSuffix_,  NGoodBJets_pt40);
         tr.registerDerivedVar("NGoodBJets_pt45"+myVarSuffix_,  NGoodBJets_pt45);
-        
+        tr.registerDerivedVar("NGoodBJets_pt45_double"+myVarSuffix_,  static_cast<double>(NGoodBJets_pt45));
+       
         tr.registerDerivedVar("NGoodBJets_tight"+myVarSuffix_,       NGoodBJets_tight);
         tr.registerDerivedVar("NGoodBJets_pt30_tight"+myVarSuffix_,  NGoodBJets_pt30_tight);
         tr.registerDerivedVar("NGoodBJets_pt45_tight"+myVarSuffix_,  NGoodBJets_pt45_tight);
