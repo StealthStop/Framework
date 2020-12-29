@@ -216,11 +216,15 @@ private:
         auto GoodLeptons_cm = std::make_unique<std::vector<TLorentzVector>>();
         for(auto pair : GoodLeptons)
         {
+            // Boost and rotate the good leptons
+            // into the same frame as the AK4 jets
             pair.second.Boost( rec_boost_beta_vec );
             pair.second.RotateZ( -phiMax );
             GoodLeptons_cm->push_back( pair.second );
         }
         TLorentzVector lvMET_cm = lvMET;
+        // Boost and rotate the MET 4-vector 
+        // into the same frame as the AK4 jets and good leptons
         lvMET_cm.Boost( rec_boost_beta_vec );           
         lvMET_cm.RotateZ( -phiMax );           
 
@@ -273,22 +277,17 @@ private:
         const auto& hDiscriminator_AK8    = tr.getVec<double>("JetsAK8_hDiscriminatorDeep"+myVarSuffix_);
         const auto& multiplicity_AK8      = tr.getVec<int>("JetsAK8_multiplicity"+myVarSuffix_);
         
-
-        TLorentzVector rlvAK8_all;
-        for (unsigned int j = 0; j < JetsAK8.size(); j++)
-        {
-            rlvAK8_all += JetsAK8.at(j);
-        }
-        double reco_jetsAK8_beta = rlvAK8_all.Pz() / rlvAK8_all.E();
-        TVector3 rec_boostAK8_beta_vec( 0.0, 0.0, -reco_jetsAK8_beta);        
-        
         std::vector<TLorentzVector> JetsAK8_TLV_cm;
         std::vector<double> JetsAK8_SDM, JetsAK8_Pruned, JetsAK8_Tau1, JetsAK8_Tau2, JetsAK8_Tau3, JetsAK8_axismajor, JetsAK8_axisminor, JetsAK8_tDiscriminator, JetsAK8_wDiscriminator, JetsAK8_hDiscriminator; 
         std::vector<int> JetsAK8_nsubjets, JetsAK8_multiplicity;
         for (unsigned int j = 0; j < JetsAK8.size(); j++)
         {
             TLorentzVector ijet = JetsAK8.at(j);
-            ijet.Boost(rec_boostAK8_beta_vec);
+
+            // Boost and rotate the AK8 jets
+            // to same frame as the AK4 jets, MET, and leptons
+            ijet.Boost( rec_boost_beta_vec );           
+            ijet.RotateZ( -phiMax );           
             if (GoodJetsAK8.at(j))
             {
                 JetsAK8_TLV_cm.push_back(ijet);
