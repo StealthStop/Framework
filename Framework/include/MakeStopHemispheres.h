@@ -1,7 +1,8 @@
 #ifndef MakeStopHemispheres_h
 #define MakeStopHemispheres_h
 
-#include "Framework/Framework/include/Hemispheres.h"
+//#include "Framework/Framework/include/Hemispheres.h"
+#include "Framework/Framework/include/StopHemispheres.h"
 #include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
 #include <vector>
 #include <iostream>
@@ -11,7 +12,8 @@ class MakeStopHemispheres
 {
 private:
     std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_;
-    Hemisphere::SeedMethod seedMethod_;
+    //Hemisphere::SeedMethod seedMethod_;
+    StopHemispheres::SeedMethod seedMethod_;
 
     template<typename T> void orderVars(T& stop1, T& stop2, const T pseudo1, const T pseudo2, const bool pseudo1Tostop1) const
     {
@@ -79,7 +81,8 @@ private:
 
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
-            Hemisphere hemi(px, py, pz, E, seedMethod_, hemi_association); // to get MT2 hemisphere jets
+            //Hemisphere hemi(px, py, pz, E, seedMethod_, hemi_association); // to get MT2 hemisphere jets
+            StopHemispheres hemi(px, py, pz, E, seedMethod_, hemi_association);
             std::vector<int> grouping = hemi.getGrouping();
             TLorentzVector pseudojet1, pseudojet2;
             TLorentzVector pseudojet1_cm, pseudojet2_cm;
@@ -189,7 +192,10 @@ private:
     }
 
 public:    
-    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "", const Hemisphere::SeedMethod& seedMethod = Hemisphere::InvMassSeed)
+    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", 
+                        const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "", 
+                        //const Hemisphere::SeedMethod& seedMethod = Hemisphere::InvMassSeed)
+                        const StopHemispheres::SeedMethod& seedMethod = StopHemispheres::InvMassSeed)
         : jetName_(jetName) 
         , jetMaskName_(jetMaskName)
         , nJetName_(nJetName)
