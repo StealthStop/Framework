@@ -402,22 +402,29 @@ int Hemisphere::Reconstruct()
         I_Max = 0;
         J_Max = 1;
 
-        if ( Object_Pt[J_Max] > Object_Pt[I_Max] )
+        if (Object_Pt.size() > 1)
         {
-            std::swap(I_Max, J_Max);
+            if ( Object_Pt[J_Max] > Object_Pt[I_Max] )
+            {
+                std::swap(I_Max, J_Max);
+            }
+
+            Axis1[0] = Object_Px[I_Max] /  Object_P[I_Max];
+            Axis1[1] = Object_Py[I_Max] /  Object_P[I_Max];
+            Axis1[2] = Object_Pz[I_Max] /  Object_P[I_Max];
+       	    Axis1[3] = Object_P[I_Max];
+       	    Axis1[4] = Object_E[I_Max];
+
+            Axis2[0] = Object_Px[J_Max] /  Object_P[J_Max];
+            Axis2[1] = Object_Py[J_Max] /  Object_P[J_Max];
+            Axis2[2] = Object_Pz[J_Max] /  Object_P[J_Max];
+       	    Axis2[3] = Object_P[J_Max];
+       	    Axis2[4] = Object_E[J_Max];
+        } else
+        {
+            cout << "Can't get 2 objects for TopSeed Method !!!" << endl;
+            return 0;
         }
-
-        Axis1[0] = Object_Px[I_Max] /  Object_P[I_Max];
-        Axis1[1] = Object_Py[I_Max] /  Object_P[I_Max];
-        Axis1[2] = Object_Pz[I_Max] /  Object_P[I_Max];
-       	Axis1[3] = Object_P[I_Max];
-       	Axis1[4] = Object_E[I_Max];
-
-        Axis2[0] = Object_Px[J_Max] /  Object_P[J_Max];
-        Axis2[1] = Object_Py[J_Max] /  Object_P[J_Max];
-        Axis2[2] = Object_Pz[J_Max] /  Object_P[J_Max];
-       	Axis2[3] = Object_P[J_Max];
-       	Axis2[4] = Object_E[J_Max];
 
         if ( dbg > 0 )
         {
