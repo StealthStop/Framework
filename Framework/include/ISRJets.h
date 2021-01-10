@@ -48,24 +48,65 @@ private:
             auto& GM_ISRmatching_bestPtRatio              = tr.createDerivedVec<double>("GM_ISRmatching_bestPtRatio"+myVarSuffix_);
             auto& GM_ISRmatching_justCutOnDR_PtRatio      = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnDR_PtRatio"+myVarSuffix_);
             auto& GM_ISRmatching_justCutOnPtRatio_PtRatio = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnPtRatio_PtRatio"+myVarSuffix_);
+            auto& GenISR                                  = tr.createDerivedVec<TLorentzVector>("GenISR"+myVarSuffix_);
+            auto& GenISR_qg                               = tr.createDerivedVec<TLorentzVector>("GenISR_qg"+myVarSuffix_);
+            auto& GenISR_gq                               = tr.createDerivedVec<TLorentzVector>("GenISR_gq"+myVarSuffix_);
+            auto& GenISR_gg                               = tr.createDerivedVec<TLorentzVector>("GenISR_gg"+myVarSuffix_);
+            auto& dEta_RecoISR_GenISR                     = tr.createDerivedVec<double>("dEta_RecoISR_GenISR"+myVarSuffix_);
             auto& ISRmatched_dr_ptr                       = tr.createDerivedVec<bool>("ISRmatched_dr_ptr"+myVarSuffix_, Jets.size(), false);
             auto& ISRmatched_dr                           = tr.createDerivedVec<bool>("ISRmatched_dr"+myVarSuffix_, Jets.size(), false);
             auto& GoodJets_pt20_maskedISR                 = tr.createDerivedVec<bool>("GoodJets_pt20_maskedISR"+myVarSuffix_, Jets.size(), false);
 
-
             // ---------------------------
             // Loop over the gen particles
             // --------------------------- 
+            int    nGenISR    = 0;
+            int    nGenISR_qg = 0;
+            int    nGenISR_gq = 0;
+            int    nGenISR_gg = 0;
+
             for (unsigned int g = 0; g < GenParticles.size(); g++)
             {
                 int pdgId    = GenParticles_PdgId.at(g);
                 int momPdgId = GenParticles_ParentId.at(g);
                 int status   = GenParticles_Status.at(g);
 
-                // ISR definition - mom-dau: qg, gq, gg
+                // ISR definition - dau-mom: qg, gq, gg
                 bool pass_ISR = ( abs(pdgId) <= 6  && abs(momPdgId) == 21 && status == 23 ) ||
                                 ( abs(pdgId) == 21 && abs(momPdgId) <= 6  && status == 23 ) || 
                                 ( abs(pdgId) == 21 && abs(momPdgId) == 21 && status == 23 ) ; 
+
+                // Intermediate ISR definitions
+                bool pass_ISR_qg = ( abs(pdgId) <= 6  && abs(momPdgId) == 21 && status == 23 );
+                bool pass_ISR_gq = ( abs(pdgId) == 21 && abs(momPdgId) <= 6  && status == 23 );
+                bool pass_ISR_gg = ( abs(pdgId) == 21 && abs(momPdgId) == 21 && status == 23 );
+
+                // -----------------------------------
+                // Get the Gen ISR kinematic variables
+                // -----------------------------------
+                if (pass_ISR)
+                {
+                    GenISR.push_back(GenParticles.at(g));
+                    nGenISR++;
+                }
+
+                if (pass_ISR_qg) 
+                {
+                    GenISR_qg.push_back(GenParticles.at(g));
+                    nGenISR_qg++;
+                }
+
+                if (pass_ISR_gq)
+                {
+                    GenISR_gq.push_back(GenParticles.at(g));
+                    nGenISR_gq++;
+                }
+
+                if (pass_ISR_gg)
+                {
+                    GenISR_gg.push_back(GenParticles.at(g));
+                    nGenISR_gg++;
+                }
  
                 // ----------------------------
                 // Loop over the reco particles
@@ -98,6 +139,9 @@ private:
 
                         // ISR jet filter
                         ISRmatched_dr_ptr.at(j) = true;
+
+                        // Reco ISR eta for deltaEta(RecoISR,GenISR)
+                        dEta_RecoISR_GenISR.push_back( ( Jets.at(j).Eta() - GenParticles.at(g).Eta() ) );
                     }
 
                     // -------------------------------
@@ -203,7 +247,11 @@ private:
                     OtherJets.at(j) = true;
                     nOtherJets++;
                 } 
-                
+    
+                tr.registerDerivedVar("nGenISR"+myVarSuffix_, nGenISR);
+                tr.registerDerivedVar("nGenISR_qg"+myVarSuffix_, nGenISR_qg);
+                tr.registerDerivedVar("nGenISR_gq"+myVarSuffix_, nGenISR_gq);
+                tr.registerDerivedVar("nGenISR_gg"+myVarSuffix_, nGenISR_gg);
                 tr.registerDerivedVar("nNonISR_dr"+myVarSuffix_, nNonISR_dr);
                 tr.registerDerivedVar("nNonISR_dr_ptr"+myVarSuffix_, nNonISR_dr_ptr);
                 tr.registerDerivedVar("nOtherJets"+myVarSuffix_, nOtherJets);
