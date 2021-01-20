@@ -19,14 +19,16 @@ private:
     {
     public:
         TLorentzVector tlv;
-        double flavb;
-        double flavg;
-        double flavq;
-        double ptD;
         double nEF;
         double cEF;
         double nHF;
         double cHF;
+        double flavb;
+        double flavg;
+        double flavc;
+        double flavuds;
+        double flavq;
+        double ptD;
         double axismajor;
         double axisminor;
         double multiplicity;
@@ -127,6 +129,8 @@ private:
         const auto& Jets_bJetTagDeepFlavourtotb = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotb");
         const auto& Jets_bJetTagDeepFlavourprobg = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobg");
         const auto& Jets_bJetTagDeepFlavourtotq = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotq");
+        const auto& Jets_bJetTagDeepFlavourprobc = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobc");
+        const auto& Jets_bJetTagDeepFlavourprobuds = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobuds");
 
         // These four variables do not have any varied versions...
         // So just use the nominal version
@@ -143,7 +147,7 @@ private:
         const auto& NGoodJets = tr.getVar<int>(NGoodJetsName_+myVarSuffix_);
         const auto& GoodLeptons = tr.getVec<std::pair<std::string, TLorentzVector>>(GoodLeptonsName_+myVarSuffix_);
         const auto& NGoodLeptons = tr.getVar<int>(NGoodLeptonsName_+myVarSuffix_);
-        const auto& GoodLeptonsIso = tr.getVec<double>("GoodLeptonsIso"+myVarSuffix_);
+        const auto& GoodLeptonsMiniIso = tr.getVec<double>("GoodLeptonsMiniIso"+myVarSuffix_);
         const auto& MET = tr.getVar<double>("MET"); 
         const auto& METPhi = tr.getVar<double>("METPhi");
 
@@ -184,7 +188,10 @@ private:
             Jets_.push_back( jlvcm );
             
             jlvcm.Boost( rec_boost_beta_vec );
-            Jets_cm.push_back( {jlvcm, Jets_neutralEmEnergyFraction.at(j), Jets_chargedEmEnergyFraction.at(j), Jets_neutralHadronEnergyFraction.at(j), Jets_chargedHadronEnergyFraction.at(j), Jets_bJetTagDeepFlavourtotb.at(j), Jets_bJetTagDeepFlavourprobg.at(j), Jets_bJetTagDeepFlavourtotq.at(j), Jets_ptD.at(j), Jets_axismajor.at(j), Jets_axisminor.at(j), static_cast<double>(Jets_multiplicity.at(j))} );
+            Jets_cm.push_back( {jlvcm, Jets_neutralEmEnergyFraction.at(j), Jets_chargedEmEnergyFraction.at(j), Jets_neutralHadronEnergyFraction.at(j),
+                                       Jets_chargedHadronEnergyFraction.at(j), Jets_bJetTagDeepFlavourtotb.at(j), Jets_bJetTagDeepFlavourprobg.at(j),
+                                       Jets_bJetTagDeepFlavourprobc.at(j), Jets_bJetTagDeepFlavourprobuds.at(j), Jets_bJetTagDeepFlavourtotq.at(j),
+                                       Jets_ptD.at(j), Jets_axismajor.at(j), Jets_axisminor.at(j), static_cast<double>(Jets_multiplicity.at(j))} );
 
             math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() );
             cm_jets.push_back( cmvec );
@@ -201,7 +208,7 @@ private:
         std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLV v1, TLV v2){return v1.tlv.P() > v2.tlv.P();} );
         std::sort( Jets_psort.begin(), Jets_psort.end(), utility::compare_pt_TLV );
         auto& Jets_cm_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_cm_top6"+myVarSuffix_);
-        std::vector<double> Jets_cm_top6_flavb, Jets_cm_top6_flavg, Jets_cm_top6_flavq, Jets_cm_top6_ptD, Jets_cm_top6_axismajor, Jets_cm_top6_axisminor, Jets_cm_top6_multiplicity;
+        std::vector<double> Jets_cm_top6_flavb, Jets_cm_top6_flavg, Jets_cm_top6_flavc, Jets_cm_top6_flavuds, Jets_cm_top6_flavq, Jets_cm_top6_ptD, Jets_cm_top6_axismajor, Jets_cm_top6_axisminor, Jets_cm_top6_multiplicity;
         std::vector<double> Jets_cm_top6_nEF, Jets_cm_top6_cEF, Jets_cm_top6_nHF, Jets_cm_top6_cHF;
         auto& Jets_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_top6"+myVarSuffix_);
 
@@ -220,6 +227,8 @@ private:
                 Jets_cm_top6.push_back( Jet_cm_psort ) ;
                 Jets_cm_top6_flavb.push_back( Jets_cm_psort.at(ji).flavb );
                 Jets_cm_top6_flavg.push_back( Jets_cm_psort.at(ji).flavg );
+                Jets_cm_top6_flavc.push_back( Jets_cm_psort.at(ji).flavc );
+                Jets_cm_top6_flavuds.push_back( Jets_cm_psort.at(ji).flavuds );
                 Jets_cm_top6_flavq.push_back( Jets_cm_psort.at(ji).flavq );
                 Jets_cm_top6_nEF.push_back( Jets_cm_psort.at(ji).nEF );
                 Jets_cm_top6_cEF.push_back( Jets_cm_psort.at(ji).cEF );
@@ -239,7 +248,7 @@ private:
         {
             // Boost and rotate the good leptons
             // into the same frame as the AK4 jets
-            GoodLeptons_cm_miniIso->push_back( GoodLeptonsIso.at(ilep) );
+            GoodLeptons_cm_miniIso->push_back( GoodLeptonsMiniIso.at(ilep) );
             GoodLeptons_cm->push_back( GoodLeptons[ilep].second );
             GoodLeptons_cm->at(ilep).Boost( rec_boost_beta_vec );
             GoodLeptons_cm->at(ilep).RotateZ( -phiMax );
@@ -379,6 +388,8 @@ private:
             tr.registerDerivedVar(MVAJetName_+"_m_"+std::to_string(i+1)+myVarSuffix_,   static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).M()   : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_flavb_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavb.at(i)  : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_flavg_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavg.at(i)  : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_flavc_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavc.at(i)  : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_flavuds_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavuds.at(i)  : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_flavq_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavq.at(i)  : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_nEF_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_nEF.at(i)  : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_cEF_"+std::to_string(i+1)+myVarSuffix_,static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_cEF.at(i)  : 0.0));
