@@ -73,12 +73,14 @@ private:
         const auto& NonIsoMuonJets_pt30 = tr.getVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
         const auto& Muons = tr.getVec<TLorentzVector>("Muons");
         const auto& MuonsCharge = tr.getVec<int>("Muons_charge");
+        const auto& MuonsIso = tr.getVec<double>("Muons_MiniIso");
         const auto& GoodMuons = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& NGoodMuons = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& GoodMuons_pt20 = tr.getVec<bool>("GoodMuons_pt20"+myVarSuffix_);
 //        const auto& NGoodMuons_pt20 = tr.getVar<int>("NGoodMuons_pt20"+myVarSuffix_);
         const auto& Electrons = tr.getVec<TLorentzVector>("Electrons");
         const auto& ElectronsCharge = tr.getVec<int>("Electrons_charge");
+        const auto& ElectronsIso = tr.getVec<double>("Electrons_MiniIso");
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& GoodElectrons_pt20 = tr.getVec<bool>("GoodElectrons_pt20"+myVarSuffix_);
@@ -121,6 +123,8 @@ private:
         auto* GoodLeptons_pt20 = new std::vector<std::pair<std::string, TLorentzVector>>();
         auto* GoodLeptonsCharge = new std::vector<int>();
         auto* GoodLeptonsCharge_pt20 = new std::vector<int>();
+        auto* GoodLeptonsIso = new std::vector<double>();
+        auto* GoodLeptonsIso_pt20 = new std::vector<double>();
         int NGoodLeptons = 0;
         int NGoodLeptons_pt20 = 0;
         for(unsigned int imu = 0; imu < Muons.size(); ++imu)
@@ -130,6 +134,7 @@ private:
                 TLorentzVector muon = Muons.at(imu);
                 GoodLeptons->push_back( std::make_pair("m", muon) );
                 GoodLeptonsCharge->push_back( MuonsCharge.at(imu) );
+                GoodLeptonsIso->push_back( MuonsIso.at(imu) );
                 NGoodLeptons++;
             }
             if(GoodMuons_pt20[imu])
@@ -137,6 +142,7 @@ private:
                 TLorentzVector muon = Muons.at(imu);
                 GoodLeptons_pt20->push_back( std::make_pair("m", muon) );
                 GoodLeptonsCharge_pt20->push_back( MuonsCharge.at(imu) );
+                GoodLeptonsIso_pt20->push_back( MuonsIso.at(imu) );
                 NGoodLeptons_pt20++;
             }
         }
@@ -147,6 +153,7 @@ private:
                 TLorentzVector electron = Electrons.at(iel);
                 GoodLeptons->push_back( std::make_pair("e", electron) );
                 GoodLeptonsCharge->push_back( ElectronsCharge.at(iel) );
+                GoodLeptonsIso->push_back( ElectronsIso.at(iel) );
                 NGoodLeptons++;
             }
             if(GoodElectrons_pt20[iel])
@@ -154,6 +161,7 @@ private:
                 TLorentzVector electron = Electrons.at(iel);
                 GoodLeptons_pt20->push_back( std::make_pair("e", electron) );
                 GoodLeptonsCharge_pt20->push_back( ElectronsCharge.at(iel) );
+                GoodLeptonsIso_pt20->push_back( ElectronsIso.at(iel) );
                 NGoodLeptons_pt20++;
             }
         }
@@ -161,10 +169,12 @@ private:
         tr.registerDerivedVec("GoodLeptons"+myVarSuffix_, GoodLeptons);
         tr.registerDerivedVar("NGoodLeptons"+myVarSuffix_, NGoodLeptons);
         tr.registerDerivedVec("GoodLeptonsCharge"+myVarSuffix_, GoodLeptonsCharge);
+        tr.registerDerivedVec("GoodLeptonsIso"+myVarSuffix_, GoodLeptonsIso);
         tr.registerDerivedVec("GoodLeptons_pt20"+myVarSuffix_, GoodLeptons_pt20);
         tr.registerDerivedVar("NGoodLeptons_pt20"+myVarSuffix_, NGoodLeptons_pt20);
         tr.registerDerivedVec("GoodLeptonsCharge_pt20"+myVarSuffix_, GoodLeptonsCharge_pt20);
-        
+        tr.registerDerivedVec("GoodLeptonsIso_pt20"+myVarSuffix_, GoodLeptonsIso_pt20);
+       
         // M(l,b); closest to 105 GeV if multiple combinations (halfway between 30 and 180 GeV)
         double Mbl = 0;
         auto*  MblVec = new std::vector<double>();
