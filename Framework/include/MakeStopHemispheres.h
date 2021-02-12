@@ -13,47 +13,53 @@ private:
     std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_;
     Hemisphere::SeedMethod seedMethod_;
 
-    template<typename T> void orderVars(T& stop1, T& stop2, const T pseudo1, const T pseudo2, const bool pseudo1Tostop1) const
+    template<typename T> void orderVars(T& stop1, T& stop2, const T hemi1, const T hemi2, const bool hemi1ToStop1) const
     {
-        if(pseudo1Tostop1) 
+        if(hemi1ToStop1) 
         {            
-            stop1 = pseudo1;
-            stop2 = pseudo2;      
+            stop1 = hemi1;
+            stop2 = hemi2;      
         } 
         else
         {
-            stop1 = pseudo2;
-            stop2 = pseudo1;      
+            stop1 = hemi2;
+            stop2 = hemi1;      
         }
     }
     
     void getHemispheres(NTupleReader& tr) const
     {
-        const auto& met                   = tr.getVar<double>("MET");
-        const auto& metPhi                = tr.getVar<double>("METPhi");
-        const auto& Jets                  = tr.getVec<TLorentzVector>(jetName_);
-        const auto& GoodJets              = tr.getVec<bool>(jetMaskName_);
-        const auto& NGoodJets             = tr.getVar<int>(nJetName_);
-        const auto& GoodLeptons           = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
-        const auto& event_beta_z          = tr.getVar<double>("event_beta_z"); // for NN
-        const auto& event_phi_rotate      = tr.getVar<double>("event_phi_rotate"); // for NN      
+        const auto& met               = tr.getVar<double>("MET");
+        const auto& metPhi            = tr.getVar<double>("METPhi");
+        const auto& Jets              = tr.getVec<TLorentzVector>(jetName_);
+        const auto& GoodJets          = tr.getVec<bool>(jetMaskName_);
+        const auto& NGoodJets         = tr.getVar<int>(nJetName_);
+        const auto& GoodLeptons       = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
+        const auto& event_beta_z      = tr.getVar<double>("event_beta_z"); // for NN
+        const auto& event_phi_rotate  = tr.getVar<double>("event_phi_rotate"); // for NN      
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
-        TLorentzVector stop1_PtRank,       stop2_PtRank;
-        TLorentzVector stop1_MassRank,     stop2_MassRank;
-        TLorentzVector stop1_ScalarPtRank, stop2_ScalarPtRank;
 
-        TLorentzVector stop1_PtRank_cm,       stop2_PtRank_cm;
-        TLorentzVector stop1_MassRank_cm,     stop2_MassRank_cm;
-        TLorentzVector stop1_ScalarPtRank_cm, stop2_ScalarPtRank_cm;
+        TLorentzVector Stop1,                 Stop2;
+        TLorentzVector Stop1_PtRank,          Stop2_PtRank;
+        TLorentzVector Stop1_MassRank,        Stop2_MassRank;
+        TLorentzVector Stop1_ScalarPtRank,    Stop2_ScalarPtRank;
+        TLorentzVector Stop1_cm,              Stop2_cm;
+        TLorentzVector Stop1_PtRank_cm,       Stop2_PtRank_cm;
+        TLorentzVector Stop1_MassRank_cm,     Stop2_MassRank_cm;
+        TLorentzVector Stop1_ScalarPtRank_cm, Stop2_ScalarPtRank_cm;
 
-        double stop1ScalarPt_ScalarPtRank = -9999.9, stop2ScalarPt_ScalarPtRank = -9999.9;
+        double Stop1ScalarPt              = -9999.9, Stop2ScalarPt = -9999.9;
+        double Stop1ScalarPt_ScalarPtRank = -9999.9, Stop2ScalarPt_ScalarPtRank = -9999.9;
         double MT2                        = 0.0;
-        double dR_stop1stop2              = -1;
-        double dPhi_stop1stop2            = -1;
+        double dR_Stop1Stop2              = -1;
+        double dPhi_Stop1Stop2            = -1;
         double difference_stopMasses      = -9999.9;
         double average_stopMasses         = -9999.9;
         double relativeDiff_stopMasses    = -9999.9;
+        double MT2_cm                     = 0.0;
+        double dR_Stop1Stop2_cm           = -1;
+        double dPhi_Stop1Stop2_cm         = -1;
  
         if(NGoodJets >= 2)
         {
@@ -79,11 +85,8 @@ private:
 
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
-            Hemisphere hemi(px, py, pz, E, seedMethod_, hemi_association); // to get MT2 hemisphere jets
+            Hemisphere hemi(px, py, pz, E, seedMethod_, hemi_association); // to get hemisphere jets
             std::vector<int> grouping = hemi.getGrouping();
-            TLorentzVector pseudojet1, pseudojet2;
-            TLorentzVector pseudojet1_cm, pseudojet2_cm;
-            double pseudojet1ScalarPt = 0.0, pseudojet2ScalarPt = 0.0;
 
             // Perform vector and scalar sum of mega jets
             for(unsigned int i=0; i < px.size(); ++i)
@@ -94,98 +97,116 @@ private:
                 if(grouping[i] == 1)
                 {
                     //vector sum
-                    pseudojet1 += obj;
+                    Stop1 += obj;
 
                     //scalar sum
-                    pseudojet1ScalarPt += obj.Pt();
+                    Stop1ScalarPt += obj.Pt();
                 }
                 else if(grouping[i] == 2)
                 {
                     //vector sum
-                    pseudojet2 += obj;
+                    Stop2 += obj;
 
                     //scalar sum
-                    pseudojet2ScalarPt += obj.Pt();
+                    Stop2ScalarPt += obj.Pt();
                 }
             }
 
             // ---------------------------------------
             // -- Rank mega jets (Mass, Pt, Scalar Pt) 
             // ---------------------------------------
-            orderVars(stop1_PtRank,               stop2_PtRank,               pseudojet1,         pseudojet2,         pseudojet1.Pt()    > pseudojet2.Pt()   );
-            orderVars(stop1_MassRank,             stop2_MassRank,             pseudojet1,         pseudojet2,         pseudojet1.M()     > pseudojet2.M()    );
-            orderVars(stop1_ScalarPtRank,         stop2_ScalarPtRank,         pseudojet1,         pseudojet2,         pseudojet1ScalarPt > pseudojet2ScalarPt);
-            orderVars(stop1ScalarPt_ScalarPtRank, stop2ScalarPt_ScalarPtRank, pseudojet1ScalarPt, pseudojet2ScalarPt, pseudojet1ScalarPt > pseudojet2ScalarPt);                
+            orderVars(Stop1_PtRank,               Stop2_PtRank,               Stop1,         Stop2,         Stop1.Pt()    > Stop2.Pt()   );
+            orderVars(Stop1_MassRank,             Stop2_MassRank,             Stop1,         Stop2,         Stop1.M()     > Stop2.M()    );
+            orderVars(Stop1_ScalarPtRank,         Stop2_ScalarPtRank,         Stop1,         Stop2,         Stop1ScalarPt > Stop2ScalarPt);
+            orderVars(Stop1ScalarPt_ScalarPtRank, Stop2ScalarPt_ScalarPtRank, Stop1ScalarPt, Stop2ScalarPt, Stop1ScalarPt > Stop2ScalarPt);                
 
-            MT2                     = ttUtility::coreMT2calc(pseudojet1, pseudojet2, MET);
-            dR_stop1stop2           = pseudojet1.DeltaR(pseudojet2);    
-            dPhi_stop1stop2         = pseudojet1.DeltaPhi(pseudojet2);
-            difference_stopMasses   = abs( pseudojet1.M() - pseudojet2.M() );
-            average_stopMasses      = ( 0.5 * ( pseudojet1.M() + pseudojet2.M() ) );
+            MT2                     = ttUtility::coreMT2calc(Stop1, Stop2, MET);
+            dR_Stop1Stop2           = Stop1.DeltaR(Stop2);    
+            dPhi_Stop1Stop2         = Stop1.DeltaPhi(Stop2);
+            difference_stopMasses   = abs( Stop1.M() - Stop2.M() );
+            average_stopMasses      = ( 0.5 * ( Stop1.M() + Stop2.M() ) );
             relativeDiff_stopMasses = difference_stopMasses / average_stopMasses;
 
             // ----------------------------------------------------
             // -- Boost to CM frame & Rotate the hemispheres for NN 
             // ----------------------------------------------------
-            pseudojet1_cm = pseudojet1;
-            pseudojet2_cm = pseudojet2;
+            Stop1_cm = Stop1;
+            Stop2_cm = Stop2;
         
             TVector3 boostVec(0.0, 0.0, -event_beta_z);  
     
-            pseudojet1_cm.Boost(boostVec);
-            pseudojet1_cm.RotateZ(-event_phi_rotate);
-
-            pseudojet2_cm.Boost(boostVec);
-            pseudojet2_cm.RotateZ(-event_phi_rotate); 
+            Stop1_cm.Boost(boostVec);
+            Stop1_cm.RotateZ(-event_phi_rotate);
+            
+            Stop2_cm.Boost(boostVec);
+            Stop2_cm.RotateZ(-event_phi_rotate); 
 
             // Rank the hemispheres (Mass, Pt, Scalar Pt) 
-            orderVars(stop1_PtRank_cm,       stop2_PtRank_cm,       pseudojet1_cm, pseudojet2_cm, pseudojet1_cm.Pt() > pseudojet2_cm.Pt());
-            orderVars(stop1_MassRank_cm,     stop2_MassRank_cm,     pseudojet1_cm, pseudojet2_cm, pseudojet1_cm.M()  > pseudojet2_cm.M() );
-            orderVars(stop1_ScalarPtRank_cm, stop2_ScalarPtRank_cm, pseudojet1_cm, pseudojet2_cm, pseudojet1ScalarPt > pseudojet2ScalarPt);
+            orderVars(Stop1_PtRank_cm,       Stop2_PtRank_cm,       Stop1_cm, Stop2_cm, Stop1_cm.Pt() > Stop2_cm.Pt());
+            orderVars(Stop1_MassRank_cm,     Stop2_MassRank_cm,     Stop1_cm, Stop2_cm, Stop1_cm.M()  > Stop2_cm.M() );
+            orderVars(Stop1_ScalarPtRank_cm, Stop2_ScalarPtRank_cm, Stop1_cm, Stop2_cm, Stop1ScalarPt > Stop2ScalarPt);
+
+            MT2_cm             = ttUtility::coreMT2calc(Stop1_cm, Stop2_cm, MET);
+            dR_Stop1Stop2_cm   = Stop1_cm.DeltaR(Stop2_cm);
+            dPhi_Stop1Stop2_cm = Stop1_cm.DeltaPhi(Stop2_cm);
 
         }
+        // without any rank
+        tr.registerDerivedVar("MT2_cm"+myVarSuffix_,MT2_cm);
+        tr.registerDerivedVar("dR_Stop1Stop2_cm"+myVarSuffix_,dR_Stop1Stop2_cm);
+        tr.registerDerivedVar("dPhi_Stop1Stop2_cm"+myVarSuffix_,dPhi_Stop1Stop2_cm);
+        tr.registerDerivedVar("Stop1_mass_cm"+myVarSuffix_,Stop1_cm.M());
+        tr.registerDerivedVar("Stop2_mass_cm"+myVarSuffix_,Stop2_cm.M());
+        tr.registerDerivedVar("Stop1_pt_cm"+myVarSuffix_,Stop1_cm.Pt());
+        tr.registerDerivedVar("Stop2_pt_cm"+myVarSuffix_,Stop2_cm.Pt());
+        tr.registerDerivedVar("Stop1_phi_cm"+myVarSuffix_,Stop1_cm.Phi());
+        tr.registerDerivedVar("Stop2_phi_cm"+myVarSuffix_,Stop2_cm.Phi());
+        tr.registerDerivedVar("Stop1_eta_cm"+myVarSuffix_,Stop1_cm.Eta());
+        tr.registerDerivedVar("Stop2_eta_cm"+myVarSuffix_,Stop2_cm.Eta());
+        tr.registerDerivedVar("Stop1_scalarPt_cm"+myVarSuffix_,Stop1ScalarPt);
+        tr.registerDerivedVar("Stop2_scalarPt_cm"+myVarSuffix_,Stop2ScalarPt);
         // Pt Rank
-        tr.registerDerivedVar("stop1_PtRank"+myVarSuffix_,stop1_PtRank);
-        tr.registerDerivedVar("stop2_PtRank"+myVarSuffix_,stop2_PtRank);
-        tr.registerDerivedVar("Mass_stop1_PtRank_cm"+myVarSuffix_,stop1_PtRank_cm.M()); 
-        tr.registerDerivedVar("Mass_stop2_PtRank_cm"+myVarSuffix_,stop2_PtRank_cm.M());
-        tr.registerDerivedVar("Pt_stop1_PtRank_cm"+myVarSuffix_,stop1_PtRank_cm.Pt());
-        tr.registerDerivedVar("Pt_stop2_PtRank_cm"+myVarSuffix_,stop2_PtRank_cm.Pt());
-        tr.registerDerivedVar("Phi_stop1_PtRank_cm"+myVarSuffix_,stop1_PtRank_cm.Phi());
-        tr.registerDerivedVar("Phi_stop2_PtRank_cm"+myVarSuffix_,stop2_PtRank_cm.Phi());
-        tr.registerDerivedVar("Eta_stop1_PtRank_cm"+myVarSuffix_,stop1_PtRank_cm.Eta());
-        tr.registerDerivedVar("Eta_stop2_PtRank_cm"+myVarSuffix_,stop2_PtRank_cm.Eta());
+        tr.registerDerivedVar("Stop1_PtRank"+myVarSuffix_,Stop1_PtRank);
+        tr.registerDerivedVar("Stop2_PtRank"+myVarSuffix_,Stop2_PtRank);
+        tr.registerDerivedVar("Stop1_mass_PtRank_cm"+myVarSuffix_,Stop1_PtRank_cm.M()); 
+        tr.registerDerivedVar("Stop2_mass_PtRank_cm"+myVarSuffix_,Stop2_PtRank_cm.M());
+        tr.registerDerivedVar("Stop1_pt_PtRank_cm"+myVarSuffix_,Stop1_PtRank_cm.Pt());
+        tr.registerDerivedVar("Stop2_pt_PtRank_cm"+myVarSuffix_,Stop2_PtRank_cm.Pt());
+        tr.registerDerivedVar("Stop1_phi_PtRank_cm"+myVarSuffix_,Stop1_PtRank_cm.Phi());
+        tr.registerDerivedVar("Stop2_phi_PtRank_cm"+myVarSuffix_,Stop2_PtRank_cm.Phi());
+        tr.registerDerivedVar("Stop1_eta_PtRank_cm"+myVarSuffix_,Stop1_PtRank_cm.Eta());
+        tr.registerDerivedVar("Stop2_eta_PtRank_cm"+myVarSuffix_,Stop2_PtRank_cm.Eta());
         // Mask Rank
-        tr.registerDerivedVar("stop1_MassRank"+myVarSuffix_,stop1_MassRank);
-        tr.registerDerivedVar("stop2_MassRank"+myVarSuffix_,stop2_MassRank);
-        tr.registerDerivedVar("Mass_stop1_MassRank_cm"+myVarSuffix_,stop1_MassRank_cm.M()); 
-        tr.registerDerivedVar("Mass_stop2_MassRank_cm"+myVarSuffix_,stop2_MassRank_cm.M());
-        tr.registerDerivedVar("Pt_stop1_MassRank_cm"+myVarSuffix_,stop1_MassRank_cm.Pt());
-        tr.registerDerivedVar("Pt_stop2_MassRank_cm"+myVarSuffix_,stop2_MassRank_cm.Pt());
-        tr.registerDerivedVar("Phi_stop1_MassRank_cm"+myVarSuffix_,stop1_MassRank_cm.Phi());
-        tr.registerDerivedVar("Phi_stop2_MassRank_cm"+myVarSuffix_,stop2_MassRank_cm.Phi());
-        tr.registerDerivedVar("Eta_stop1_MassRank_cm"+myVarSuffix_,stop1_MassRank_cm.Eta());
-        tr.registerDerivedVar("Eta_stop2_MassRank_cm"+myVarSuffix_,stop2_MassRank_cm.Eta());
+        tr.registerDerivedVar("Stop1_MassRank"+myVarSuffix_,Stop1_MassRank);
+        tr.registerDerivedVar("Stop2_MassRank"+myVarSuffix_,Stop2_MassRank);
+        tr.registerDerivedVar("Stop1_mass_MassRank_cm"+myVarSuffix_,Stop1_MassRank_cm.M()); 
+        tr.registerDerivedVar("Stop2_mass_MassRank_cm"+myVarSuffix_,Stop2_MassRank_cm.M());
+        tr.registerDerivedVar("Stop1_pt_MassRank_cm"+myVarSuffix_,Stop1_MassRank_cm.Pt());
+        tr.registerDerivedVar("Stop2_pt_MassRank_cm"+myVarSuffix_,Stop2_MassRank_cm.Pt());
+        tr.registerDerivedVar("Stop1_phi_MassRank_cm"+myVarSuffix_,Stop1_MassRank_cm.Phi());
+        tr.registerDerivedVar("Stop2_phi_MassRank_cm"+myVarSuffix_,Stop2_MassRank_cm.Phi());
+        tr.registerDerivedVar("Stop1_eta_MassRank_cm"+myVarSuffix_,Stop1_MassRank_cm.Eta());
+        tr.registerDerivedVar("Stop2_eta_MassRank_cm"+myVarSuffix_,Stop2_MassRank_cm.Eta());
         // ScalarPt Rank
-        tr.registerDerivedVar("stop1_ScalarPtRank"+myVarSuffix_,stop1_ScalarPtRank);
-        tr.registerDerivedVar("stop2_ScalarPtRank"+myVarSuffix_,stop2_ScalarPtRank);
-        tr.registerDerivedVar("Mass_stop1_ScalarPtRank_cm"+myVarSuffix_,stop1_ScalarPtRank_cm.M());
-        tr.registerDerivedVar("Mass_stop2_ScalarPtRank_cm"+myVarSuffix_,stop2_ScalarPtRank_cm.M());
-        tr.registerDerivedVar("Pt_stop1_ScalarPtRank_cm"+myVarSuffix_,stop1_ScalarPtRank_cm.Pt());
-        tr.registerDerivedVar("Pt_stop2_ScalarPtRank_cm"+myVarSuffix_,stop2_ScalarPtRank_cm.Pt());
-        tr.registerDerivedVar("Phi_stop1_ScalarPtRank_cm"+myVarSuffix_,stop1_ScalarPtRank_cm.Phi());
-        tr.registerDerivedVar("Phi_stop2_ScalarPtRank_cm"+myVarSuffix_,stop2_ScalarPtRank_cm.Phi());
-        tr.registerDerivedVar("Eta_stop1_ScalarPtRank_cm"+myVarSuffix_,stop1_ScalarPtRank_cm.Eta());
-        tr.registerDerivedVar("Eta_stop2_ScalarPtRank_cm"+myVarSuffix_,stop2_ScalarPtRank_cm.Eta());
-        tr.registerDerivedVar("stop1ScalarPt_ScalarPtRank"+myVarSuffix_,stop1ScalarPt_ScalarPtRank);
-        tr.registerDerivedVar("stop2ScalarPt_ScalarPtRank"+myVarSuffix_,stop2ScalarPt_ScalarPtRank); 
+        tr.registerDerivedVar("Stop1_ScalarPtRank"+myVarSuffix_,Stop1_ScalarPtRank);
+        tr.registerDerivedVar("Stop2_ScalarPtRank"+myVarSuffix_,Stop2_ScalarPtRank);
+        tr.registerDerivedVar("Stop1_mass_ScalarPtRank_cm"+myVarSuffix_,Stop1_ScalarPtRank_cm.M());
+        tr.registerDerivedVar("Stop2_mass_ScalarPtRank_cm"+myVarSuffix_,Stop2_ScalarPtRank_cm.M());
+        tr.registerDerivedVar("Stop1_pt_ScalarPtRank_cm"+myVarSuffix_,Stop1_ScalarPtRank_cm.Pt());
+        tr.registerDerivedVar("Stop2_pt_ScalarPtRank_cm"+myVarSuffix_,Stop2_ScalarPtRank_cm.Pt());
+        tr.registerDerivedVar("Stop1_phi_ScalarPtRank_cm"+myVarSuffix_,Stop1_ScalarPtRank_cm.Phi());
+        tr.registerDerivedVar("Stop2_phi_ScalarPtRank_cm"+myVarSuffix_,Stop2_ScalarPtRank_cm.Phi());
+        tr.registerDerivedVar("Stop1_eta_ScalarPtRank_cm"+myVarSuffix_,Stop1_ScalarPtRank_cm.Eta());
+        tr.registerDerivedVar("Stop2_eta_ScalarPtRank_cm"+myVarSuffix_,Stop2_ScalarPtRank_cm.Eta());
         // others
         tr.registerDerivedVar("MT2"+myVarSuffix_,MT2);
-        tr.registerDerivedVar("dR_stop1stop2"+myVarSuffix_,dR_stop1stop2);
-        tr.registerDerivedVar("dPhi_stop1stop2"+myVarSuffix_,dPhi_stop1stop2);
+        tr.registerDerivedVar("dR_Stop1Stop2"+myVarSuffix_,dR_Stop1Stop2);
+        tr.registerDerivedVar("dPhi_Stop1Stop2"+myVarSuffix_,dPhi_Stop1Stop2);
         tr.registerDerivedVar("difference_stopMasses"+myVarSuffix_,difference_stopMasses);
         tr.registerDerivedVar("average_stopMasses"+myVarSuffix_,average_stopMasses);
         tr.registerDerivedVar("relativeDiff_stopMasses"+myVarSuffix_,relativeDiff_stopMasses);
+        tr.registerDerivedVar("Stop1ScalarPt_ScalarPtRank"+myVarSuffix_,Stop1ScalarPt_ScalarPtRank);
+        tr.registerDerivedVar("Stop2ScalarPt_ScalarPtRank"+myVarSuffix_,Stop2ScalarPt_ScalarPtRank);
     }
 
 public:    
