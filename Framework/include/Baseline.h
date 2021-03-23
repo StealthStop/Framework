@@ -207,6 +207,7 @@ private:
                                         NGoodJets_pt45 >= 5   &&
                                         NGoodBJets_pt45 >= 1  ;
 
+        // reference analysis pre-selections
         bool passBaseline0l_refAN = JetID                 &&
                                     passMETFilters        &&
                                     passMadHT             &&
@@ -215,6 +216,15 @@ private:
                                     HT_trigger_pt30 > 500 &&
                                     NGoodJets_pt40 >= 6   && 
                                     NGoodBJets_pt30 >= 2  ; 
+
+        // reference analysis pre-selections with our pt > 45 cut
+        bool passBaseline0l_refAN_pt45 = JetID                 &&
+                                         passMETFilters        &&
+                                         passMadHT             &&
+                                         NGoodMuons == 1       &&
+                                         HT_trigger_pt45 > 500 &&
+                                         NGoodJets_pt45 >= 6   &&
+                                         NGoodBJets_pt45 >= 2  ;
 
         // -------------------------------
         // -- Define 1 Lepton Baseline
@@ -339,36 +349,37 @@ private:
                                         NGoodLeptons == 0   && 
                                         NGoodJets_pt30 >= 7; 
         
-        tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"+myVarSuffix_,      passBaselineGoodOffline1l);
-        tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,            passBaseline0l_Good);
-        tr.registerDerivedVar<bool>("passBaseline0l"+myVarSuffix_,                 passBaseline0l); 
-        tr.registerDerivedVar<bool>("passBaseline0l_hadTrig"+myVarSuffix_,         passBaseline0l_hadTrig);
-        tr.registerDerivedVar<bool>("passBaseline0l_hadMuTrig"+myVarSuffix_,       passBaseline0l_hadMuTrig);
-        tr.registerDerivedVar<bool>("passBaseline0l_refAN"+myVarSuffix_,           passBaseline0l_refAN);
-        tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,            passBaseline1l_Good);
-        tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_,      passBaseline1l_NonIsoMuon);
-        tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"+myVarSuffix_,         passBaseline2lonZ_Good);
-        tr.registerDerivedVar<bool>("passBaseline2l_Good"+myVarSuffix_,            passBaseline2l_Good);
-        tr.registerDerivedVar<bool>("passBaseline2l_pt20"+myVarSuffix_,            passBaseline2l_pt20);
-        tr.registerDerivedVar<bool>("passBaseline2l_pt30"+myVarSuffix_,            passBaseline2l_pt30);
-        tr.registerDerivedVar<bool>("passBaseline1photon_Good"+myVarSuffix_,       passBaseline1photon_Good);
-        tr.registerDerivedVar<bool>("passBaseline1e1m_Good"+myVarSuffix_,          passBaseline1e1m_Good);
-        tr.registerDerivedVar<bool>("passBlindHad_Good"+myVarSuffix_,              passBlindHad_Good);
-        tr.registerDerivedVar<bool>("passBlindLep_Good"+myVarSuffix_,              passBlindLep_Good);
-        tr.registerDerivedVar<bool>("passTriggerAllHad"+myVarSuffix_,              passTriggerAllHad);
-        tr.registerDerivedVar<bool>("passTriggerMuon"+myVarSuffix_,                passTriggerMuon);
-        tr.registerDerivedVar<bool>("passTriggerElectron"+myVarSuffix_,            passTriggerElectron);
-        tr.registerDerivedVar<bool>("passTrigger"+myVarSuffix_,                    passTrigger);
-        tr.registerDerivedVar<bool>("passNonIsoTrigger"+myVarSuffix_,              passNonIsoTrigger);
-        tr.registerDerivedVar<bool>("passIsoMuTrigger"+myVarSuffix_,               passIsoMuTrigger);
-        tr.registerDerivedVar<bool>("passTriggerMuonsRefAN"+myVarSuffix_,          passTriggerMuonsRefAN);
-        tr.registerDerivedVar<bool>("passTriggerRefAN"+myVarSuffix_,               passTriggerRefAN); 
-        tr.registerDerivedVar<bool>("passTriggerMC"+myVarSuffix_,                  passTriggerMC);
-        tr.registerDerivedVar<bool>("passNonIsoTriggerMC"+myVarSuffix_,            passNonIsoTriggerMC);
-        tr.registerDerivedVar<bool>("passIsoMuTriggerMC"+myVarSuffix_,             passIsoMuTriggerMC);
-        tr.registerDerivedVar<bool>("passMadHT"+myVarSuffix_,                      passMadHT);
-        tr.registerDerivedVar<bool>("passMETFilters"+myVarSuffix_,                 passMETFilters);
-        tr.registerDerivedVar<bool>("correct2018Split"+myVarSuffix_,               correct2018Split);        
+        tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"+myVarSuffix_, passBaselineGoodOffline1l);
+        tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,       passBaseline0l_Good);
+        tr.registerDerivedVar<bool>("passBaseline0l"+myVarSuffix_,            passBaseline0l); 
+        tr.registerDerivedVar<bool>("passBaseline0l_hadTrig"+myVarSuffix_,    passBaseline0l_hadTrig); //
+        tr.registerDerivedVar<bool>("passBaseline0l_hadMuTrig"+myVarSuffix_,  passBaseline0l_hadMuTrig); //
+        tr.registerDerivedVar<bool>("passBaseline0l_refAN"+myVarSuffix_,      passBaseline0l_refAN); //
+        tr.registerDerivedVar<bool>("passBaseline0l_refAN_pt45"+myVarSuffix_, passBaseline0l_refAN_pt45); //
+        tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,       passBaseline1l_Good);
+        tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_, passBaseline1l_NonIsoMuon);
+        tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"+myVarSuffix_,    passBaseline2lonZ_Good);
+        tr.registerDerivedVar<bool>("passBaseline2l_Good"+myVarSuffix_,       passBaseline2l_Good);
+        tr.registerDerivedVar<bool>("passBaseline2l_pt20"+myVarSuffix_,       passBaseline2l_pt20);
+        tr.registerDerivedVar<bool>("passBaseline2l_pt30"+myVarSuffix_,       passBaseline2l_pt30);
+        tr.registerDerivedVar<bool>("passBaseline1photon_Good"+myVarSuffix_,  passBaseline1photon_Good);
+        tr.registerDerivedVar<bool>("passBaseline1e1m_Good"+myVarSuffix_,     passBaseline1e1m_Good);
+        tr.registerDerivedVar<bool>("passBlindHad_Good"+myVarSuffix_,         passBlindHad_Good);
+        tr.registerDerivedVar<bool>("passBlindLep_Good"+myVarSuffix_,         passBlindLep_Good);
+        tr.registerDerivedVar<bool>("passTriggerAllHad"+myVarSuffix_,         passTriggerAllHad);
+        tr.registerDerivedVar<bool>("passTriggerMuon"+myVarSuffix_,           passTriggerMuon);
+        tr.registerDerivedVar<bool>("passTriggerElectron"+myVarSuffix_,       passTriggerElectron);
+        tr.registerDerivedVar<bool>("passTrigger"+myVarSuffix_,               passTrigger);
+        tr.registerDerivedVar<bool>("passNonIsoTrigger"+myVarSuffix_,         passNonIsoTrigger);
+        tr.registerDerivedVar<bool>("passIsoMuTrigger"+myVarSuffix_,          passIsoMuTrigger);
+        tr.registerDerivedVar<bool>("passTriggerMuonsRefAN"+myVarSuffix_,     passTriggerMuonsRefAN);
+        tr.registerDerivedVar<bool>("passTriggerRefAN"+myVarSuffix_,          passTriggerRefAN); 
+        tr.registerDerivedVar<bool>("passTriggerMC"+myVarSuffix_,             passTriggerMC);
+        tr.registerDerivedVar<bool>("passNonIsoTriggerMC"+myVarSuffix_,       passNonIsoTriggerMC);
+        tr.registerDerivedVar<bool>("passIsoMuTriggerMC"+myVarSuffix_,        passIsoMuTriggerMC);
+        tr.registerDerivedVar<bool>("passMadHT"+myVarSuffix_,                 passMadHT);
+        tr.registerDerivedVar<bool>("passMETFilters"+myVarSuffix_,            passMETFilters);
+        tr.registerDerivedVar<bool>("correct2018Split"+myVarSuffix_,          correct2018Split);        
     }
 
     bool PassTriggerGeneral(std::vector<std::string>& mytriggers, const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
