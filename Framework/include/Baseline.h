@@ -225,6 +225,15 @@ private:
                                          HT_trigger_pt45 > 500 &&
                                          NGoodJets_pt45 >= 6   &&
                                          NGoodBJets_pt45 >= 2  ;
+        // our tighter preselctions
+        bool passBaseline0l_hadMuTrig2 = JetID                 &&
+                                         passMETFilters        &&
+                                         passMadHT             &&
+                                         passIsoMuTrigger      &&
+                                         NGoodMuons == 1       &&
+                                         HT_trigger_pt45 > 500 &&
+                                         NGoodJets_pt45 >= 6   &&
+                                         NGoodBJets_pt45 >= 2  ;
 
         // -------------------------------
         // -- Define 1 Lepton Baseline
@@ -356,6 +365,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline0l_hadMuTrig"+myVarSuffix_,  passBaseline0l_hadMuTrig); //
         tr.registerDerivedVar<bool>("passBaseline0l_refAN"+myVarSuffix_,      passBaseline0l_refAN); //
         tr.registerDerivedVar<bool>("passBaseline0l_refAN_pt45"+myVarSuffix_, passBaseline0l_refAN_pt45); //
+        tr.registerDerivedVar<bool>("passBaseline0l_hadMuTrig2"+myVarSuffix_, passBaseline0l_hadMuTrig2); //
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,       passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_, passBaseline1l_NonIsoMuon);
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"+myVarSuffix_,    passBaseline2lonZ_Good);
