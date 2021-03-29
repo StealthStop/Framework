@@ -77,7 +77,7 @@ private:
         const auto& newJets_origIndex = tr.getVec<int>("Jets"+name+"_origIndex");
                
         auto& newJets = tr.createDerivedVec<TLorentzVector>("Jets"+name, jc.Jets.size());
-        auto& newJets_bDiscriminatorCSV = tr.createDerivedVec<double>("Jets"+name+"_bDiscriminatorCSV"); //
+        auto& newJets_bDiscriminatorCSV = tr.createDerivedVec<double>("Jets"+name+"_bDiscriminatorCSV", jc.Jets.size()); //
         auto& newJets_bJetTagDeepCSVprobb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
         auto& newJets_bJetTagDeepCSVprobbb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
         auto& newJets_bJetTagDeepCSVtotb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
