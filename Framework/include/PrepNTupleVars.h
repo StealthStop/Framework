@@ -12,6 +12,7 @@ private:
     {
     public:
         const std::vector<TLorentzVector>& Jets;
+        const std::vector<double>& Jets_bDiscriminatorCSV; //
         const std::vector<double>& Jets_bJetTagDeepCSVprobb;
         const std::vector<double>& Jets_bJetTagDeepCSVprobbb;
         const std::vector<double>& Jets_bJetTagDeepFlavourprobb;
@@ -25,6 +26,7 @@ private:
         
         JetCollection(const NTupleReader& tr) 
             : Jets(tr.getVec<TLorentzVector>("Jets"))
+            , Jets_bDiscriminatorCSV(tr.getVec<double>("Jets_bDiscriminatorCSV")) //
             , Jets_bJetTagDeepCSVprobb(tr.getVec<double>("Jets_bJetTagDeepCSVprobb"))
             , Jets_bJetTagDeepCSVprobbb(tr.getVec<double>("Jets_bJetTagDeepCSVprobbb"))
             , Jets_bJetTagDeepFlavourprobb(tr.getVec<double>("Jets_bJetTagDeepFlavourprobb"))
@@ -75,6 +77,7 @@ private:
         const auto& newJets_origIndex = tr.getVec<int>("Jets"+name+"_origIndex");
                
         auto& newJets = tr.createDerivedVec<TLorentzVector>("Jets"+name, jc.Jets.size());
+        auto& newJets_bDiscriminatorCSV = tr.createDerivedVec<double>("Jets"+name+"_bDiscriminatorCSV"); //
         auto& newJets_bJetTagDeepCSVprobb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
         auto& newJets_bJetTagDeepCSVprobbb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
         auto& newJets_bJetTagDeepCSVtotb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
@@ -93,6 +96,7 @@ private:
             int i = newIndex[newJets_origIndex.at(j)];
             
             newJets.at(j) = jc.Jets.at(i)*f.factor(name,i,j);
+            newJets_bDiscriminatorCSV.at(j) = jc.Jets_bDiscriminatorCSV.at(i); //
             newJets_bJetTagDeepCSVprobb.at(j) = jc.Jets_bJetTagDeepCSVprobb.at(i);
             newJets_bJetTagDeepCSVprobbb.at(j) = jc.Jets_bJetTagDeepCSVprobbb.at(i);
             newJets_bJetTagDeepCSVtotb.at(j) = ( jc.Jets_bJetTagDeepCSVprobb.at(i) + jc.Jets_bJetTagDeepCSVprobbb.at(i) );
