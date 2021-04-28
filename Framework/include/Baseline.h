@@ -41,7 +41,9 @@ private:
         const auto& NGoodPhotons             = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
         const auto& Mbl                      = tr.getVar<double>("Mbl"+myVarSuffix_);
         const auto& passHEMVeto              = tr.getVar<bool>("passHEMVeto"+myVarSuffix_);
-        const auto& NGoodBJetsCSV_pt30       = tr.getVar<int>("NGoodBJetsCSV_pt30"+myVarSuffix_); //
+        const auto& passHadHEMVeto           = tr.getVar<bool>("passHadHEMVeto"+myVarSuffix_);
+        const auto& passTrigSFHEMVeto        = tr.getVar<bool>("passTrigSFHEMVeto"+myVarSuffix_);
+        const auto& NGoodBJetsCSV_pt30       = tr.getVar<int>("NGoodBJetsCSV_pt30"+myVarSuffix_); 
  
         // ------------------------------
         // -- Data dependent stuff
@@ -66,7 +68,8 @@ private:
             passTriggerMuon = PassTriggerMuon2017(TriggerNames, TriggerPass);
             passTriggerElectron = PassTriggerElectron2017(TriggerNames, TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2017(TriggerNames, TriggerPass);           
-            passTriggerIsoMu = PassTriggerIsoMu2017(TriggerNames, TriggerPass); 
+            passTriggerIsoMu = PassTriggerIsoMu2017(TriggerNames, TriggerPass);
+            passTriggerMuonsRefAN = PassTriggerMuonsRefAN(TriggerNames, TriggerPass); 
         }
         else if (runYear == "2018pre" || runYear == "2018post")
         {
@@ -75,6 +78,7 @@ private:
             passTriggerElectron = PassTriggerElectron2018(TriggerNames, TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2018(TriggerNames, TriggerPass);
             passTriggerIsoMu = PassTriggerIsoMu2018(TriggerNames, TriggerPass);
+            passTriggerMuonsRefAN = PassTriggerMuonsRefAN(TriggerNames, TriggerPass);
         }
 
         bool passTrigger   = true;
@@ -236,6 +240,18 @@ private:
                                         NGoodJets_pt40 >= 6   &&
                                         NGoodBJetsCSV_pt30 >= 2; 
 
+        // latest preselctions with HEMveto
+        bool passBaseline0l_pt45 = JetID                 &&
+                                   passMETFilters        &&
+                                   passMadHT             &&
+                                   //passHadHEMVeto        &&
+                                   passTrigSFHEMVeto     &&
+                                   correct2018Split      && 
+                                   NGoodMuons == 1       &&
+                                   HT_trigger_pt45 > 500 &&
+                                   NGoodJets_pt45 >= 6   &&
+                                   NGoodBJets_pt45 >= 2  ;
+
         // -------------------------------
         // -- Define 1 Lepton Baseline
         // -------------------------------
@@ -367,6 +383,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline0l_refAN"+myVarSuffix_,      passBaseline0l_refAN); //
         tr.registerDerivedVar<bool>("passBaseline0l_refAN_pt45"+myVarSuffix_, passBaseline0l_refAN_pt45); //
         tr.registerDerivedVar<bool>("passBaseline0l_csv_refAN"+myVarSuffix_,  passBaseline0l_csv_refAN); //
+        tr.registerDerivedVar<bool>("passBaseline0l_pt45"+myVarSuffix_,       passBaseline0l_pt45); //
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,       passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_, passBaseline1l_NonIsoMuon);
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"+myVarSuffix_,    passBaseline2lonZ_Good);
@@ -413,9 +430,10 @@ private:
     bool PassTriggerAllHad2016(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         std::vector<std::string> mytriggers = {
+            "HLT PFJet450",
             "HLT_PFHT900",
-            "HLT_PFHT450_SixJet40_BTagCSV",
-            "HLT_PFHT400_SixJet30_DoubleBTagCSV",            
+            "HLT_PFHT450_SixJet40_BTagCSV_p056",
+            "HLT_PFHT400_SixJet30_DoubleBTagCSV_p056",            
         };
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
@@ -423,9 +441,11 @@ private:
     bool PassTriggerAllHad2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         std::vector<std::string> mytriggers = {
+            "HLT PFJet500",
             "HLT_PFHT1050",
-            "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV",
-            "HLT_PFHT430_SixPFJet40_PFBTagCSV",
+            //"HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2",
+            "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2",
+            "HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5",
         };
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
@@ -433,9 +453,11 @@ private:
     bool PassTriggerAllHad2018(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass) 
     {
         std::vector<std::string> mytriggers = {
+            "HLT PFJet500",
             "HLT_PFHT1050",
-            "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV",
-            "HLT_PFHT430_SixPFJet40_PFBTagCSV",
+            //"HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2",
+            "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2",
+            "HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5",
         };
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }

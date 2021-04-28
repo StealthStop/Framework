@@ -99,6 +99,15 @@ private:
         bool passHEMVeto = !objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear) && passHEMVetoLoose; 
         tr.registerDerivedVar("passHEMVeto"+myVarSuffix_, passHEMVeto);
 
+        // Define hadronic HEM15/16 veto
+        bool passHadHEMVeto = !objectInHEM(Jets, -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
+        tr.registerDerivedVar("passHadHEMVeto"+myVarSuffix_, passHadHEMVeto);
+
+        // Define for Had Trif SF HEM15/16 veto
+        bool passTrigSFHEMVeto = !objectInHEM(Muons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear) &&
+                                 !objectInHEM(Jets,  -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
+        tr.registerDerivedVar("passTrigSFHEMVeto"+myVarSuffix_, passTrigSFHEMVeto);
+
         // HT of jets
         double ht = 0.0, ht_pt30 = 0.0, ht_pt45 = 0.0;         
         double ht_NonIsoMuon_pt30 = 0.0;
