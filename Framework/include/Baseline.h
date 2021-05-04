@@ -28,6 +28,7 @@ private:
         const auto& GoodLeptonsCharge_pt20   = tr.getVec<int>("GoodLeptonsCharge_pt20");
         const auto& HT_trigger               = tr.getVar<double>("HT_trigger"+myVarSuffix_);
         const auto& HT_trigger_pt30          = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
+        const auto& HT_trigger_pt45          = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
         const auto& HT_NonIsoMuon_pt30       = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);
         const auto& onZ                      = tr.getVar<bool>("onZ"+myVarSuffix_); 
         const auto& JetID                    = tr.getVar<bool>("JetID"+myVarSuffix_); 
@@ -61,7 +62,7 @@ private:
         }
         else if (runYear == "2018pre" || runYear == "2018post")
         {
-            passTriggerAllHad = true;
+            passTriggerAllHad = PassTriggerAllHad2018(TriggerNames, TriggerPass); 
             passTriggerMuon = PassTriggerMuon2018(TriggerNames, TriggerPass);
             passTriggerElectron = PassTriggerElectron2018(TriggerNames, TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2018(TriggerNames, TriggerPass);
@@ -69,6 +70,7 @@ private:
 
         bool passTrigger   = true;
         bool passTriggerMC = true;
+        bool passTriggerHadMC = true; 
         bool passNonIsoTrigger = true;
         bool passNonIsoTriggerMC = true;
         bool passBlindHad_Good = true;
@@ -120,6 +122,7 @@ private:
             if (filetag.find("TTJets_Incl") != std::string::npos && NGenLeptons > 0) passMadHT = false;
             
             // MC modeling of the trigger
+            if( !passTriggerAllHad ) passTriggerHadMC = false;
             if( !passTriggerMuon && !passTriggerElectron ) passTriggerMC = false;
             if( !passTriggerNonIsoMuon ) passNonIsoTriggerMC = false;
         }
@@ -154,13 +157,25 @@ private:
                                    passMETFilters       &&
                                    passMadHT            &&
                                    //passTrigger          &&
-                                   //passTriggerMC        &&
+                                   //passTriggerHadMC     &&
                                    //passBlindHad_Good    &&
                                    NGoodLeptons == 0    &&
                                    HT_trigger > 500     && 
                                    NGoodBJets_pt45 >= 2 && 
-                                   NGoodJets_pt45 >= 6;   
- 
+                                   NGoodJets_pt45 >= 6;  
+
+        // Define 0 Lepton Baseline for data-MC
+        bool passBaseline0l = JetID                  &&
+                              passMETFilters         &&
+                              passMadHT              &&
+                              passTrigger            &&
+                              passTriggerHadMC       &&
+                              (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
+                              NGoodLeptons == 0      &&
+                              HT_trigger_pt45  > 500 &&
+                              NGoodBJets_pt45 >= 2   &&
+                              NGoodJets_pt45 >= 6    ;
+
         // -------------------------------
         // -- Define 1 Lepton Baseline
         // -------------------------------
@@ -287,7 +302,8 @@ private:
                                         NGoodJets_pt30 >= 7; 
         
         tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"+myVarSuffix_,   passBaselineGoodOffline1l);
-        tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,         passBaseline0l_Good); 
+        tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,         passBaseline0l_Good);
+        tr.registerDerivedVar<bool>("passBaseline0l"+myVarSuffix_,              passBaseline0l); 
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,         passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_,   passBaseline1l_NonIsoMuon);
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"+myVarSuffix_,      passBaseline2lonZ_Good);
@@ -304,6 +320,7 @@ private:
         tr.registerDerivedVar<bool>("passTrigger"+myVarSuffix_,                 passTrigger);
         tr.registerDerivedVar<bool>("passNonIsoTrigger"+myVarSuffix_,           passNonIsoTrigger);
         tr.registerDerivedVar<bool>("passTriggerMC"+myVarSuffix_,               passTriggerMC);
+        tr.registerDerivedVar<bool>("passTriggerHadMC"+myVarSuffix_,            passTriggerHadMC);
         tr.registerDerivedVar<bool>("passNonIsoTriggerMC"+myVarSuffix_,         passNonIsoTriggerMC);
         tr.registerDerivedVar<bool>("passMadHT"+myVarSuffix_,                   passMadHT);
         tr.registerDerivedVar<bool>("passMETFilters"+myVarSuffix_,              passMETFilters);
@@ -330,9 +347,10 @@ private:
     bool PassTriggerAllHad2016(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         std::vector<std::string> mytriggers = {
-            //"HLT_PFHT900",
-            "HLT_PFHT450_SixJet40_BTagCSV",
-            "HLT_PFHT400_SixJet30_DoubleBTagCSV",            
+            "HLT PFJet450",
+            "HLT_PFHT900",
+            "HLT_PFHT450_SixJet40_BTagCSV_p056",
+            "HLT_PFHT400_SixJet30_DoubleBTagCSV_p056",  
         };
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
@@ -340,9 +358,23 @@ private:
     bool PassTriggerAllHad2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         std::vector<std::string> mytriggers = {
-            //"HLT_PFHT1050",
-            "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV",
-            "HLT_PFHT430_SixPFJet40_PFBTagCSV",
+            "HLT PFJet500",
+            "HLT_PFHT1050",
+            //"HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2",
+            "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2",
+            "HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5",
+        };
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+
+    bool PassTriggerAllHad2018(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass) 
+    {
+        std::vector<std::string> mytriggers = {
+            "HLT PFJet500",
+            "HLT_PFHT1050",
+            //"HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2",
+            "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2",
+            "HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5",
         };
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
