@@ -321,7 +321,7 @@ private:
                 {
                     auto theGen = GenParticles.at(Matches.at(skip).first);
                     auto theRec = RecoParticles.at(Matches.at(skip).second);
-                    int recIdx = Matches.at(skip).second;
+                    //int recIdx = Matches.at(skip).second;
                     int genIdx = Matches.at(skip).first;
 
                     // Starting from this element onward we may have the same reco appearing in a row matched
