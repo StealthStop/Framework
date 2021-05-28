@@ -120,7 +120,7 @@ private:
         outputCmVec_ = getVecFromCfg<int>(        cfgDoc, "outputCmVec", localCxt, -1);       
         year_        = cfgDoc->get("year",      localCxt, "");
         name_        = cfgDoc->get("name",      localCxt, "");
-        nJetVar_     = cfgDoc->get("nJetVar",   localCxt, "NGoodJets_pt30");
+        nJetVar_     = cfgDoc->get("nJetVar",   localCxt, "NGoodJets");
         minNJet_     = cfgDoc->get("minNJet",   localCxt, 7);
         maxNJet_     = cfgDoc->get("maxNJet",   localCxt, 7);
         vars_        = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
@@ -144,7 +144,7 @@ private:
         TF_DeleteImportGraphDefOptions(graph_opts);
         if(TF_GetCode(status) != TF_OK) std::cerr<<utility::color("ERROR: Unable to import graph: "+std::string(TF_Message(status)), "red")<<std::endl;
         TF_DeleteBuffer(graph_def);
-        
+       
         //Create tensorflow session from imported graph
         TF_SessionOptions* sess_opts = TF_NewSessionOptions();
         uint8_t config[] = {0x10, 0x01};
@@ -199,7 +199,7 @@ private:
         
         //Create place to store the output vectors 
         std::vector<TF_Tensor*> output_values(outputs_.size());
-        
+       
         //Construct tensorflow input tensor
         std::vector<TF_Tensor*> input_values;
         const int elemSize = sizeof(float);
@@ -207,7 +207,7 @@ private:
         int nelem = 1;
         for(const auto dimLen : dims) nelem *= dimLen;
         TF_Tensor* input_values_0 =  TF_AllocateTensor(TF_FLOAT, dims.data(), dims.size(), elemSize*nelem);
-        
+      
         input_values = { input_values_0 };
         varCalculator_->setPtr(static_cast<float*>(TF_TensorData(input_values_0)));
         varCalculator_->calculateVars(tr);
@@ -226,18 +226,22 @@ private:
                       nullptr,
                       // Output status
                       status);
+
         if(TF_GetCode(status) != TF_OK) std::cerr<<utility::color("ERROR: Unable to run graph: "+std::string(TF_Message(status)), "red")<<std::endl;
-        
+       
         //Get output discriminators 
         std::vector<std::vector<double>> discriminators(outputs_.size());
+
         for(unsigned int i = 0; i < output_values.size(); i++)
         {            
             auto* tensor = output_values[i];
             auto disc = static_cast<float*>(TF_TensorData(tensor));
+
             for(int j = 0; j < outputCmVec_[i]; j++)
             {
                 discriminators[i].emplace_back(static_cast<double>(disc[j]));
             }
+
         }
 
         for(auto* tensor : input_values)  TF_DeleteTensor(tensor);
@@ -250,26 +254,26 @@ private:
             double disc1   = discriminators[0][0];
             double disc2   = discriminators[0][2];
             double massReg = discriminators[1][0];
-            tr.registerDerivedVar("DoubleDisCo_disc1"+myVarSuffix_, disc1);
-            tr.registerDerivedVar("DoubleDisCo_disc2"+myVarSuffix_, disc2);
-            tr.registerDerivedVar("DoubleDisCo_massReg"+myVarSuffix_, massReg);
-           
+            tr.registerDerivedVar("DoubleDisCo_disc1_"+name_+myVarSuffix_, disc1);
+            tr.registerDerivedVar("DoubleDisCo_disc2_"+name_+myVarSuffix_, disc2);
+            tr.registerDerivedVar("DoubleDisCo_massReg_"+name_+myVarSuffix_, massReg);
+          
             // Define and register deepESM bins
-            const auto& NGoodJets_pt30 = tr.getVar<int>(nJetVar_+myVarSuffix_);
+            const auto& NGoodJets = tr.getVar<int>(nJetVar_+myVarSuffix_);
             int iJet;
-            if      (NGoodJets_pt30 < minNJet_)                                iJet = 1;
-            else if (minNJet_ <= NGoodJets_pt30 && NGoodJets_pt30 <= maxNJet_) iJet = NGoodJets_pt30-minNJet_+1;
-            else if (maxNJet_ < NGoodJets_pt30)                                iJet = maxNJet_-minNJet_+1;
+            if      (NGoodJets < minNJet_)                                iJet = 1;
+            else if (minNJet_ <= NGoodJets && NGoodJets <= maxNJet_) iJet = 2*(NGoodJets-minNJet_)+1;
+            else if (maxNJet_ < NGoodJets)                                iJet = 2*(maxNJet_-minNJet_)+1;
 
             bool passBinA = disc1 > binEdges_[iJet-1] && disc2 > binEdges_[iJet];
-            bool passBinB = disc1 > binEdges_[iJet-1] && disc2 < binEdges_[iJet];
-            bool passBinC = disc1 < binEdges_[iJet-1] && disc2 > binEdges_[iJet];
+            bool passBinB = disc1 < binEdges_[iJet-1] && disc2 > binEdges_[iJet];
+            bool passBinC = disc1 > binEdges_[iJet-1] && disc2 < binEdges_[iJet];
             bool passBinD = disc1 < binEdges_[iJet-1] && disc2 < binEdges_[iJet];
 
-            tr.registerDerivedVar("DoubleDisCo_binA"+myVarSuffix_, passBinA);
-            tr.registerDerivedVar("DoubleDisCo_binB"+myVarSuffix_, passBinB);
-            tr.registerDerivedVar("DoubleDisCo_binC"+myVarSuffix_, passBinC);
-            tr.registerDerivedVar("DoubleDisCo_binD"+myVarSuffix_, passBinD);
+            tr.registerDerivedVar("DoubleDisCo_binA_"+name_+myVarSuffix_, passBinA);
+            tr.registerDerivedVar("DoubleDisCo_binB_"+name_+myVarSuffix_, passBinB);
+            tr.registerDerivedVar("DoubleDisCo_binC_"+name_+myVarSuffix_, passBinC);
+            tr.registerDerivedVar("DoubleDisCo_binD_"+name_+myVarSuffix_, passBinD);
         }
         else
         { 
@@ -277,12 +281,12 @@ private:
             double discriminator = discriminators[0][0];
             tr.registerDerivedVar("deepESM_val"+name_+myVarSuffix_, discriminator);
 
-            const auto& NGoodJets_pt30 = tr.getVar<int>(nJetVar_+myVarSuffix_);
+            const auto& NGoodJets = tr.getVar<int>(nJetVar_+myVarSuffix_);
             int nMVABin = (binEdges_.size() / (maxNJet_ - minNJet_ + 1)) - 1;
             int nJetBinning;
-            if(NGoodJets_pt30 < minNJet_) nJetBinning = 0;
-            else if(minNJet_ <= NGoodJets_pt30 && NGoodJets_pt30 <= maxNJet_) nJetBinning = NGoodJets_pt30-minNJet_;
-            else if(maxNJet_ < NGoodJets_pt30) nJetBinning = maxNJet_-minNJet_;
+            if(NGoodJets < minNJet_) nJetBinning = 0;
+            else if(minNJet_ <= NGoodJets && NGoodJets <= maxNJet_) nJetBinning = NGoodJets-minNJet_;
+            else if(maxNJet_ < NGoodJets) nJetBinning = maxNJet_-minNJet_;
 
             for(int i = (nMVABin+1)*nJetBinning + 1; i < (nMVABin+1)*(nJetBinning+1); i++)
             {
@@ -290,7 +294,7 @@ private:
                 int bin = i - (nMVABin+1)*nJetBinning;
                 tr.registerDerivedVar("deepESM_bin"+name_+std::to_string(bin)+myVarSuffix_, passDeepESMBin);
                 if(passDeepESMBin) tr.registerDerivedVar("deepESM_binNum"+name_+myVarSuffix_, bin);
-                //std::cout<<"nMVABin: "<<nMVABin<<" NJets: "<<NGoodJets_pt30<<" nJetBinning: "<<nJetBinning
+                //std::cout<<"nMVABin: "<<nMVABin<<" NJets: "<<NGoodJets<<" nJetBinning: "<<nJetBinning
                 //         <<" i: "<<i<<" lowBinEdge: "<<binEdges_[i-1]<<" highBinEdge: "<<binEdges_[i]<<" MVABinNumber: "<<bin<<std::endl;
             }
         }
