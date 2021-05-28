@@ -389,6 +389,7 @@ private:
         tr.registerDerivedVar<bool>("passTriggerMuonsRefAN"+myVarSuffix_,     passTriggerMuonsRefAN);
         tr.registerDerivedVar<bool>("passTriggerRefAN"+myVarSuffix_,          passTriggerRefAN); 
         tr.registerDerivedVar<bool>("passTriggerMC"+myVarSuffix_,             passTriggerMC);
+        tr.registerDerivedVar<bool>("passTriggerHadMC"+myVarSuffix_,          passTriggerHadMC);
         tr.registerDerivedVar<bool>("passNonIsoTriggerMC"+myVarSuffix_,       passNonIsoTriggerMC);
         tr.registerDerivedVar<bool>("passIsoMuTriggerMC"+myVarSuffix_,        passIsoMuTriggerMC);
         tr.registerDerivedVar<bool>("passMadHT"+myVarSuffix_,                 passMadHT);
