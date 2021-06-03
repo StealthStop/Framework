@@ -111,8 +111,9 @@ private:
 
         if (NGoodLeptons == 2)
         {
-            bottom1 = Jets[TwoLep_Mbl1_Idx.first];
-            bottom2 = Jets[TwoLep_Mbl2_Idx.first];
+
+            if (TwoLep_Mbl1_Idx.first != -1) bottom1 = Jets[TwoLep_Mbl1_Idx.first];
+            if (TwoLep_Mbl2_Idx.first != -1) bottom2 = Jets[TwoLep_Mbl2_Idx.first];
         }
         else
         {
