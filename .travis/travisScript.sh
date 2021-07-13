@@ -8,8 +8,8 @@ cd /home/cmsuser/
 export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch                                        
 export CMSSW_GIT_REFERENCE=/cvmfs/cms.cern.ch/cmssw.git/                       
 source $VO_CMS_SW_DIR/cmsset_default.sh 
-scramv1 project CMSSW CMSSW_9_3_3
-cd CMSSW_9_3_3/src/
+scramv1 project CMSSW CMSSW_11_2_0_pre5
+cd CMSSW_11_2_0_pre5/src/
 #suppress huge printout from "cmsenv"
 set +x
 echo "============================"
