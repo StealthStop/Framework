@@ -2,6 +2,9 @@ dist: trusty
 
 language: cpp
 
+services:
+  - docker
+
 env:
   global:
   - DOCKER_CONTAINER: aperloff/cms-cvmfs-docker:latest

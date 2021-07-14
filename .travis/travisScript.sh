@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+ls -a
 #stop upon failed command
 set -ex
 
