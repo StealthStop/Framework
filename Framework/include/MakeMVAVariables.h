@@ -300,20 +300,20 @@ private:
         double jmt_ev2_top6 = eigen_vals_norm_top6[2]    ;
 
         // AK8 jet variables
-        const auto& GoodJetsAK8        = tr.getVec<bool>("GoodJetsAK8"+myVarSuffix_                           );
-        const auto& JetsAK8            = tr.getVec<TLorentzVector>("JetsAK8"+myVarSuffix_                     );
-        const auto& Tau1               = tr.getVec<double>("JetsAK8_NsubjettinessTau1"+myVarSuffix_           );
-        const auto& Tau2               = tr.getVec<double>("JetsAK8_NsubjettinessTau2"+myVarSuffix_           );
-        const auto& Tau3               = tr.getVec<double>("JetsAK8_NsubjettinessTau3"+myVarSuffix_           );
-        const auto& softDropMass       = tr.getVec<double>("JetsAK8_softDropMass"+myVarSuffix_                );
-        const auto& prunedMass         = tr.getVec<double>("JetsAK8_prunedMass"+myVarSuffix_                  );
-        const auto& axismajor_AK8      = tr.getVec<double>("JetsAK8_axismajor"+myVarSuffix_                   );
-        const auto& axisminor_AK8      = tr.getVec<double>("JetsAK8_axisminor"+myVarSuffix_                   );
-        const auto& subjets            = tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets"+myVarSuffix_);
-        const auto& tDiscriminator_AK8 = tr.getVec<double>("JetsAK8_tDiscriminatorDeep"+myVarSuffix_          );
-        const auto& wDiscriminator_AK8 = tr.getVec<double>("JetsAK8_wDiscriminatorDeep"+myVarSuffix_          );
-        const auto& hDiscriminator_AK8 = tr.getVec<double>("JetsAK8_hDiscriminatorDeep"+myVarSuffix_          );
-        const auto& multiplicity_AK8   = tr.getVec<int>("JetsAK8_multiplicity"+myVarSuffix_);
+        const auto& GoodJetsAK8        = tr.getVec<bool>("GoodJetsAK8"+myVarSuffix_                              );
+        const auto& JetsAK8            = tr.getVec<TLorentzVector>("JetsAK8"+myVarSuffix_                        );
+        const auto& Tau1               = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau1"           );
+        const auto& Tau2               = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau2"           );
+        const auto& Tau3               = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau3"           );
+        const auto& softDropMass       = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_softDropMass"                );
+        const auto& prunedMass         = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_prunedMass"                  );
+        const auto& axismajor_AK8      = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_axismajor"                   );
+        const auto& axisminor_AK8      = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_axisminor"                   );
+        const auto& subjets            = tr.getVec<std::vector<TLorentzVector>>("JetsAK8"+myVarSuffix_+"_subjets");
+        const auto& tDiscriminator_AK8 = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_tDiscriminatorDeep"          );
+        const auto& wDiscriminator_AK8 = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_wDiscriminatorDeep"          );
+        const auto& hDiscriminator_AK8 = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_hDiscriminatorDeep"          );
+        const auto& multiplicity_AK8   = tr.getVec<int>("JetsAK8"+myVarSuffix_+"_multiplicity"                   );
         
         std::vector<TLorentzVector> JetsAK8_TLV_cm;
         std::vector<double> JetsAK8_SDM, JetsAK8_Pruned, JetsAK8_Tau1, JetsAK8_Tau2, JetsAK8_Tau3, JetsAK8_axismajor, JetsAK8_axisminor, JetsAK8_tDiscriminator, JetsAK8_wDiscriminator, JetsAK8_hDiscriminator; 
