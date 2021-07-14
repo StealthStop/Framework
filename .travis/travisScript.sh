@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 #stop upon failed command
 set -ex
 
