@@ -6,7 +6,6 @@ ls -a /home/
 set -ex
 
 TRAVIS_BUILD_DIR=$1
-ls -a
 cd /home/cmsusr/
 export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch                                        
 export CMSSW_GIT_REFERENCE=/cvmfs/cms.cern.ch/cmssw.git/                       
