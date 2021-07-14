@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ls -a
+ls -a /home/
 #stop upon failed command
 set -ex
 
