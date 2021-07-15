@@ -26,7 +26,6 @@ private:
         const auto& NGoodMinusElectrons      = tr.getVar<int>("NGoodMinusElectrons"+myVarSuffix_);
         const auto& NGoodLeptons_pt20        = tr.getVar<int>("NGoodLeptons_pt20"+myVarSuffix_);
         const auto& GoodLeptonsCharge_pt20   = tr.getVec<int>("GoodLeptonsCharge_pt20");
-        const auto& HT_trigger               = tr.getVar<double>("HT_trigger"+myVarSuffix_);
         const auto& HT_trigger_pt30          = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& HT_trigger_pt45          = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
         const auto& HT_NonIsoMuon_pt30       = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);

@@ -356,7 +356,7 @@ public:
         , myVarSuffix_(myVarSuffix)
         , firstEvent_(true)
     {
-        if(printStatus) std::cout<<"Setting up DeepEventShape"<<std::endl;
+        if(printStatus) std::cout<<"Setting up DeepEventShape: Using "+cfgFileName+" and "+modelFile+" as the DeepEventShape config file and training file"<<std::endl;
         
         //buffer to hold file contents 
         std::string cfgText;
@@ -373,8 +373,6 @@ public:
         //pass raw text to cfg parser, to return parsed document
         std::unique_ptr<cfg::CfgDocument> cfgDoc = cfg::CfgDocument::parseDocument(cfgText);
         getParameters(cfgDoc, localContextName);
-
-        if(printStatus) std::cout<<"Using "+cfgFileName+" and "+modelFile+" as the DeepEventShape config file and training file"<<std::endl;
     }
 
     ~DeepEventShape()
