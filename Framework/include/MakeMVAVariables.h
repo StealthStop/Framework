@@ -411,22 +411,22 @@ private:
 
         for(unsigned int i = 0; i < 5; i++)
         {
-            tr.registerDerivedVar(MVAJetName_+"AK8_pt_"+std::to_string(i+1)+channel_+myVarSuffix_,             static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_TLV_cm.at(i).Pt()    : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_eta_"+std::to_string(i+1)+channel_+myVarSuffix_,            static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_TLV_cm.at(i).Eta()   : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_phi_"+std::to_string(i+1)+channel_+myVarSuffix_,            static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_TLV_cm.at(i).Phi()   : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_m_"+std::to_string(i+1)+channel_+myVarSuffix_,              static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_TLV_cm.at(i).M()     : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_SDM_"+std::to_string(i+1)+channel_+myVarSuffix_,            static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_SDM.at(i)            : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_Pruned_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_Pruned.at(i)         : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_Tau1_"+std::to_string(i+1)+channel_+myVarSuffix_,           static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_Tau1.at(i)           : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_Tau2_"+std::to_string(i+1)+channel_+myVarSuffix_,           static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_Tau2.at(i)           : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_Tau3_"+std::to_string(i+1)+channel_+myVarSuffix_,           static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_Tau3.at(i)           : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_axismajor_"+std::to_string(i+1)+channel_+myVarSuffix_,      static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_axismajor.at(i)      : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_axisminor_"+std::to_string(i+1)+channel_+myVarSuffix_,      static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_axisminor.at(i)      : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_nsubjets_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_nsubjets.at(i)       : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_tDiscriminator_"+std::to_string(i+1)+channel_+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_tDiscriminator.at(i) : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_wDiscriminator_"+std::to_string(i+1)+channel_+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_wDiscriminator.at(i) : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_hDiscriminator_"+std::to_string(i+1)+channel_+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_hDiscriminator.at(i) : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"AK8_multiplicity_"+std::to_string(i+1)+channel_+myVarSuffix_,   static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_multiplicity.at(i)   : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_pt_"+std::to_string(i+1)+channel_+myVarSuffix_,             static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_TLV_cm.at(i).Pt()    : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_eta_"+std::to_string(i+1)+channel_+myVarSuffix_,            static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_TLV_cm.at(i).Eta()   : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_phi_"+std::to_string(i+1)+channel_+myVarSuffix_,            static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_TLV_cm.at(i).Phi()   : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_m_"+std::to_string(i+1)+channel_+myVarSuffix_,              static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_TLV_cm.at(i).M()     : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_SDM_"+std::to_string(i+1)+channel_+myVarSuffix_,            static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_SDM.at(i)            : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_Pruned_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_Pruned.at(i)         : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_Tau1_"+std::to_string(i+1)+channel_+myVarSuffix_,           static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_Tau1.at(i)           : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_Tau2_"+std::to_string(i+1)+channel_+myVarSuffix_,           static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_Tau2.at(i)           : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_Tau3_"+std::to_string(i+1)+channel_+myVarSuffix_,           static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_Tau3.at(i)           : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_axismajor_"+std::to_string(i+1)+channel_+myVarSuffix_,      static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_axismajor.at(i)      : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_axisminor_"+std::to_string(i+1)+channel_+myVarSuffix_,      static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_axisminor.at(i)      : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_nsubjets_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_nsubjets.at(i)       : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_tDiscriminator_"+std::to_string(i+1)+channel_+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_tDiscriminator.at(i) : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_wDiscriminator_"+std::to_string(i+1)+channel_+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_wDiscriminator.at(i) : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_hDiscriminator_"+std::to_string(i+1)+channel_+myVarSuffix_, static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_hDiscriminator.at(i) : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"sAK8_multiplicity_"+std::to_string(i+1)+channel_+myVarSuffix_,   static_cast<double>( (JetsAK8_sorted_TLV_cm.size() >= i+1) ? JetsAK8_sorted_multiplicity.at(i)   : 0.0));
         }
 
         for(unsigned int i = 0; i < nLeptons_; i++)
