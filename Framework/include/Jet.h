@@ -106,10 +106,11 @@ private:
         int NGoodJets = 0, NGoodJets_pt20 = 0, NGoodJets_pt30 = 0, NGoodJets_pt40 = 0, NGoodJets_pt45 = 0;
 
         auto& nonIsoMuonjets_      = tr.createDerivedVec<bool>("NonIsoMuonJets"+myVarSuffix_);
+        auto& nonIsoMuonjets_pt20_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt20"+myVarSuffix_);
         auto& nonIsoMuonjets_pt30_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
         auto& nonIsoMuonjets_pt40_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt40"+myVarSuffix_);
         auto& nonIsoMuonjets_pt45_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt45"+myVarSuffix_);
-        int NNonIsoMuonJets = 0, NNonIsoMuonJets_pt30 = 0, NNonIsoMuonJets_pt40 = 0, NNonIsoMuonJets_pt45 = 0;
+        int NNonIsoMuonJets = 0, NNonIsoMuonJets_pt20 = 0, NNonIsoMuonJets_pt30 = 0, NNonIsoMuonJets_pt40 = 0, NNonIsoMuonJets_pt45 = 0;
 
         for(unsigned int i = 0; i < Jets.size(); ++i ) 
         {               
@@ -127,6 +128,7 @@ private:
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 45 && goodjets_.at(i), goodjets_pt45_, NGoodJets_pt45);
 
             setJetVar( abs(lv.Eta()) < etaCut &&             tempNonIsoMuonJets->at(i), nonIsoMuonjets_,      NNonIsoMuonJets     );
+            setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 20 && nonIsoMuonjets_.at(i), nonIsoMuonjets_pt20_, NNonIsoMuonJets_pt20);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 30 && nonIsoMuonjets_.at(i), nonIsoMuonjets_pt30_, NNonIsoMuonJets_pt30);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 40 && nonIsoMuonjets_.at(i), nonIsoMuonjets_pt40_, NNonIsoMuonJets_pt40);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 45 && nonIsoMuonjets_.at(i), nonIsoMuonjets_pt45_, NNonIsoMuonJets_pt45);
@@ -147,6 +149,7 @@ private:
         tr.registerDerivedVar("NGoodJets_pt45_double"+myVarSuffix_, static_cast<double>(NGoodJets_pt45));
 
         tr.registerDerivedVar("NNonIsoMuonJets"     +myVarSuffix_, NNonIsoMuonJets);        
+        tr.registerDerivedVar("NNonIsoMuonJets_pt20"+myVarSuffix_, NNonIsoMuonJets_pt20);
         tr.registerDerivedVar("NNonIsoMuonJets_pt30"+myVarSuffix_, NNonIsoMuonJets_pt30);
         tr.registerDerivedVar("NNonIsoMuonJets_pt40"+myVarSuffix_, NNonIsoMuonJets_pt40);
         tr.registerDerivedVar("NNonIsoMuonJets_pt45"+myVarSuffix_, NNonIsoMuonJets_pt45);

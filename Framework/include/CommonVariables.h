@@ -71,6 +71,7 @@ private:
         const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
         const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
         const auto& NonIsoMuonJets_pt30 = tr.getVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
+        const auto& NonIsoMuonJets_pt45 = tr.getVec<bool>("NonIsoMuonJets_pt45"+myVarSuffix_);
         const auto& Muons = tr.getVec<TLorentzVector>("Muons");
         const auto& MuonsCharge = tr.getVec<int>("Muons_charge");
         const auto& MuonsMiniIso = tr.getVec<double>("Muons_MiniIso");
@@ -110,7 +111,7 @@ private:
 
         // HT of jets
         double ht = 0.0, ht_pt30 = 0.0, ht_pt45 = 0.0;         
-        double ht_NonIsoMuon_pt30 = 0.0;
+        double ht_NonIsoMuon_pt30 = 0.0, ht_NonIsoMuon_pt45 = 0.0;
         for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {            
             double pT = Jets.at(ijet).Pt();
@@ -121,11 +122,13 @@ private:
             if(GoodJets[ijet] && pT > 45 && absEta < etaCut) ht_pt45 += pT;
             
             if(NonIsoMuonJets_pt30[ijet] && pT > 30 && absEta < etaCut) ht_NonIsoMuon_pt30 += pT;
+            if(NonIsoMuonJets_pt45[ijet] && pT > 45 && absEta < etaCut) ht_NonIsoMuon_pt45 += pT;
         }
         tr.registerDerivedVar("HT_trigger"+myVarSuffix_, ht);
         tr.registerDerivedVar("HT_trigger_pt30"+myVarSuffix_, ht_pt30);
         tr.registerDerivedVar("HT_trigger_pt45"+myVarSuffix_, ht_pt45);
         tr.registerDerivedVar("HT_NonIsoMuon_pt30"+myVarSuffix_, ht_NonIsoMuon_pt30);
+        tr.registerDerivedVar("HT_NonIsoMuon_pt45"+myVarSuffix_, ht_NonIsoMuon_pt45);
 
         // Put leptons together
         auto* GoodLeptons = new std::vector<std::pair<std::string, TLorentzVector>>();
