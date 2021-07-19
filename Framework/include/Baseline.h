@@ -8,40 +8,42 @@ private:
 
     void baseline(NTupleReader& tr)
     {
-        const auto& runtype                  = tr.getVar<std::string>("runtype");     
-        const auto& filetag                  = tr.getVar<std::string>("filetag");
-        const auto& runYear                  = tr.getVar<std::string>("runYear");
-        const auto& RunNum                   = tr.getVar<unsigned int>("RunNum");
-        const auto& blind                    = tr.getVar<bool>("blind");
-        const auto& TriggerNames             = tr.getVec<std::string>("TriggerNames");
-        const auto& TriggerPass              = tr.getVec<int>("TriggerPass");
-        const auto& NNonIsoMuons             = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
-        const auto& NGoodLeptons             = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
-        const auto& GoodLeptonsCharge        = tr.getVec<int>("GoodLeptonsCharge");
-        const auto& NGoodMuons               = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
-        const auto& NGoodPlusMuons           = tr.getVar<int>("NGoodPlusMuons"+myVarSuffix_);
-        const auto& NGoodMinusMuons          = tr.getVar<int>("NGoodMinusMuons"+myVarSuffix_);
-        const auto& NGoodElectrons           = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
-        const auto& NGoodPlusElectrons       = tr.getVar<int>("NGoodPlusElectrons"+myVarSuffix_);
-        const auto& NGoodMinusElectrons      = tr.getVar<int>("NGoodMinusElectrons"+myVarSuffix_);
-        const auto& NGoodLeptons_pt20        = tr.getVar<int>("NGoodLeptons_pt20"+myVarSuffix_);
-        const auto& GoodLeptonsCharge_pt20   = tr.getVec<int>("GoodLeptonsCharge_pt20");
-        const auto& HT_trigger_pt30          = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
-        const auto& HT_trigger_pt45          = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
-        const auto& HT_NonIsoMuon_pt30       = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);
-        const auto& onZ                      = tr.getVar<bool>("onZ"+myVarSuffix_); 
-        const auto& JetID                    = tr.getVar<bool>("JetID"+myVarSuffix_);
-        const auto& NGoodJets_pt40           = tr.getVar<int>("NGoodJets_pt40"+myVarSuffix_); 
-        const auto& NGoodJets_pt45           = tr.getVar<int>("NGoodJets_pt45"+myVarSuffix_);
-        const auto& NGoodBJets_pt45          = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
-        const auto& NGoodJets_pt30           = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
-        const auto& NGoodBJets_pt30          = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_); 
-        const auto& NNonIsoMuonJets_pt30     = tr.getVar<int>("NNonIsoMuonJets_pt30"+myVarSuffix_);         
-        const auto& NGoodPhotons             = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
-        const auto& Mbl                      = tr.getVar<double>("Mbl"+myVarSuffix_);
-        const auto& passHEMVeto              = tr.getVar<bool>("passHEMVeto"+myVarSuffix_);
-        const auto& passTrigSFHEMVeto        = tr.getVar<bool>("passTrigSFHEMVeto"+myVarSuffix_);
-        const auto& NGoodBJetsCSV_pt30       = tr.getVar<int>("NGoodBJetsCSV_pt30"+myVarSuffix_); 
+        const auto& runtype                = tr.getVar<std::string>("runtype");     
+        const auto& filetag                = tr.getVar<std::string>("filetag");
+        const auto& runYear                = tr.getVar<std::string>("runYear");
+        const auto& RunNum                 = tr.getVar<unsigned int>("RunNum");
+        const auto& blind                  = tr.getVar<bool>("blind");
+        const auto& TriggerNames           = tr.getVec<std::string>("TriggerNames");
+        const auto& TriggerPass            = tr.getVec<int>("TriggerPass");
+        const auto& NNonIsoMuons           = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
+        const auto& NGoodLeptons           = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
+        const auto& GoodLeptonsCharge      = tr.getVec<int>("GoodLeptonsCharge");
+        const auto& NGoodMuons             = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
+        const auto& NGoodPlusMuons         = tr.getVar<int>("NGoodPlusMuons"+myVarSuffix_);
+        const auto& NGoodMinusMuons        = tr.getVar<int>("NGoodMinusMuons"+myVarSuffix_);
+        const auto& NGoodElectrons         = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
+        const auto& NGoodPlusElectrons     = tr.getVar<int>("NGoodPlusElectrons"+myVarSuffix_);
+        const auto& NGoodMinusElectrons    = tr.getVar<int>("NGoodMinusElectrons"+myVarSuffix_);
+        const auto& NGoodLeptons_pt20      = tr.getVar<int>("NGoodLeptons_pt20"+myVarSuffix_);
+        const auto& GoodLeptonsCharge_pt20 = tr.getVec<int>("GoodLeptonsCharge_pt20");
+        const auto& HT_trigger_pt30        = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
+        const auto& HT_trigger_pt45        = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
+        const auto& HT_NonIsoMuon_pt30     = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);
+        const auto& onZ                    = tr.getVar<bool>("onZ"+myVarSuffix_); 
+        const auto& JetID                  = tr.getVar<bool>("JetID"+myVarSuffix_);
+        const auto& NGoodJets_pt40         = tr.getVar<int>("NGoodJets_pt40"+myVarSuffix_); 
+        const auto& NGoodJets_pt45         = tr.getVar<int>("NGoodJets_pt45"+myVarSuffix_);
+        const auto& NGoodBJets_pt45        = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
+        const auto& NGoodJets_pt30         = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
+        const auto& NGoodBJets_pt30        = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_); 
+        const auto& NNonIsoMuonJets_pt30   = tr.getVar<int>("NNonIsoMuonJets_pt30"+myVarSuffix_);         
+        const auto& NGoodPhotons           = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
+        const auto& Mbl                    = tr.getVar<double>("Mbl"+myVarSuffix_);
+        const auto& passHEMVeto            = tr.getVar<bool>("passHEMVeto"+myVarSuffix_);
+        const auto& passTrigSFHEMVeto      = tr.getVar<bool>("passTrigSFHEMVeto"+myVarSuffix_);
+        const auto& NGoodBJetsCSV_pt30     = tr.getVar<int>("NGoodBJetsCSV_pt30"+myVarSuffix_); 
+        const auto& ntops                  = tr.getVar<int>("ntops");
+        const auto& dR_bjets               = tr.getVar<double>("dR_bjets"); 
  
         // ------------------------------
         // -- Data dependent stuff
@@ -156,6 +158,19 @@ private:
         // ------------------------------------------
         // -- Define 0 Lepton Baseline for data-MC
         // ------------------------------------------
+        // for some of the analyzers which using the different top selections
+        bool passBaseline0l = JetID                  &&
+                              passMETFilters         &&
+                              passMadHT              &&
+                              passTrigger            &&
+                              passTriggerHadMC       &&
+                              (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
+                              NGoodLeptons == 0      &&
+                              HT_trigger_pt45  > 500 &&
+                              NGoodBJets_pt45 >= 2   &&
+                              NGoodJets_pt45 >= 6    ;
+
+        // general baseline selection
         bool passBaseline0l_Good  = JetID                  &&
                                     passMETFilters         &&
                                     passMadHT              &&
@@ -165,7 +180,9 @@ private:
                                     NGoodLeptons == 0      &&
                                     HT_trigger_pt45  > 500 &&
                                     NGoodBJets_pt45 >= 2   &&
-                                    NGoodJets_pt45 >= 6    ;
+                                    NGoodJets_pt45 >= 6    && 
+                                    ntops >= 2             &&
+                                    dR_bjets >= 1.0        ;
 
         // ----------------------------------------------------------
         // -- Define 0 Lepton Baseline for Trigger Efficiency & SF
