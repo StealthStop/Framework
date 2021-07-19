@@ -377,7 +377,8 @@ private:
                                         NGoodPhotons == 1   &&
                                         NGoodLeptons == 0   && 
                                         NGoodJets_pt30 >= 7; 
-        
+       
+        tr.registerDerivedVar<bool>("passBaseline0l"+myVarSuffix_,            passBaseline0l); 
         tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,       passBaseline0l_Good);
         tr.registerDerivedVar<bool>("passBaseline0l_hadTrig"+myVarSuffix_,    passBaseline0l_hadTrig); //
         tr.registerDerivedVar<bool>("passBaseline0l_hadMuTrig"+myVarSuffix_,  passBaseline0l_hadMuTrig); //
