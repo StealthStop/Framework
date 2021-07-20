@@ -20,6 +20,8 @@ private:
         const std::vector<double>& Jets_bJetTagDeepFlavourprobc;
         const std::vector<double>& Jets_bJetTagDeepFlavourprobuds;
         const std::vector<double>& Jets_bJetTagDeepFlavourprobg;
+        const std::vector<double>& Jets_qgLikelihood;
+
         const std::vector<bool>& Jets_ID;
         const bool& JetID;
         const std::vector<int>& Jets_partonFlavor;
@@ -42,6 +44,7 @@ private:
             , Jets_bJetTagDeepFlavourprobc(tr.getVec<double>("Jets_bJetTagDeepFlavourprobc"))
             , Jets_bJetTagDeepFlavourprobuds(tr.getVec<double>("Jets_bJetTagDeepFlavourprobuds"))
             , Jets_bJetTagDeepFlavourprobg(tr.getVec<double>("Jets_bJetTagDeepFlavourprobg"))
+            , Jets_qgLikelihood(tr.getVec<double>("Jets_qgLikelihood"))
             , Jets_ID(tr.getVec<bool>("Jets_ID"))
             , JetID(tr.getVar<bool>("JetID"))
             , Jets_partonFlavor(tr.getVec<int>("Jets_partonFlavor"))
@@ -139,6 +142,7 @@ private:
         auto& newJets_bJetTagDeepFlavourprobg = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobg", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourprobc = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobc", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourprobuds = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobuds", jc.Jets.size());
+        auto& newJets_qgLikelihood = tr.createDerivedVec<double>("Jets"+name+"_qgLikelihood", jc.Jets.size());
         auto& newJets_ID = tr.createDerivedVec<bool>("Jets"+name+"_ID", jc.Jets.size());
         auto& newJets_partonFlavor = tr.createDerivedVec<int>("Jets"+name+"_partonFlavor", jc.Jets.size());
         auto& newJets_ptD = tr.createDerivedVec<double>("Jets"+name+"_ptD", jc.Jets.size());
@@ -166,6 +170,7 @@ private:
             newJets_bJetTagDeepFlavourprobg.at(j) = jc.Jets_bJetTagDeepFlavourprobg.at(i); 
             newJets_bJetTagDeepFlavourprobc.at(j) = jc.Jets_bJetTagDeepFlavourprobc.at(i); 
             newJets_bJetTagDeepFlavourprobuds.at(j) = jc.Jets_bJetTagDeepFlavourprobuds.at(i); 
+            newJets_qgLikelihood.at(j) = jc.Jets_qgLikelihood.at(i); 
             newJets_ID.at(j) = jc.Jets_ID.at(i);
             newJets_partonFlavor.at(j) = jc.Jets_partonFlavor.at(i);
             newJets_ptD.at(j) = jc.Jets_ptD.at(i);
@@ -195,6 +200,7 @@ private:
         auto& newJets_bJetTagDeepFlavourprobg = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobg", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourprobc = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobc", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourprobuds = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobuds", jc.Jets.size());
+        auto& newJets_qgLikelihood = tr.createDerivedVec<double>("Jets"+name+"_qgLikelihood", jc.Jets.size());
         auto& newJets_ID = tr.createDerivedVec<bool>("Jets"+name+"_ID", jc.Jets.size());
         auto& newJets_partonFlavor = tr.createDerivedVec<int>("Jets"+name+"_partonFlavor", jc.Jets.size());
         auto& newJets_ptD = tr.createDerivedVec<double>("Jets"+name+"_ptD", jc.Jets.size());
@@ -219,6 +225,7 @@ private:
             newJets_bJetTagDeepFlavourprobg.at(j) = jc.Jets_bJetTagDeepFlavourprobg.at(j); 
             newJets_bJetTagDeepFlavourprobc.at(j) = jc.Jets_bJetTagDeepFlavourprobc.at(j); 
             newJets_bJetTagDeepFlavourprobuds.at(j) = jc.Jets_bJetTagDeepFlavourprobuds.at(j); 
+            newJets_qgLikelihood.at(j) = jc.Jets_qgLikelihood.at(j); 
             newJets_ID.at(j) = jc.Jets_ID.at(j);
             newJets_partonFlavor.at(j) = jc.Jets_partonFlavor.at(j);
             newJets_ptD.at(j) = jc.Jets_ptD.at(j);
