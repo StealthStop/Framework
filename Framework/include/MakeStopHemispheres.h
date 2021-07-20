@@ -35,8 +35,8 @@ private:
         const auto& GoodJets          = tr.getVec<bool>(jetMaskName_);
         const auto& NGoodJets         = tr.getVar<int>(nJetName_);
         const auto& GoodLeptons       = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
-        const auto& event_beta_z      = 0.0;//tr.getVar<double>("event_beta_z"); // for NN
-        const auto& event_phi_rotate  = 0.0;//tr.getVar<double>("event_phi_rotate"); // for NN      
+        const auto& event_beta_z      = tr.getVar<double>("event_beta_z"); // for NN
+        const auto& event_phi_rotate  = tr.getVar<double>("event_phi_rotate"); // for NN      
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
 
