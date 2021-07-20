@@ -109,28 +109,28 @@ std::vector<std::vector<double>>* SetUpTopTagger::VecVecintToVecVecdouble(NTuple
 
 void SetUpTopTagger::addVariables()
 {
-    AK4Inputs_->addSupplamentalVector("qgPtD",                               tr_.getVec<double>("Jets_ptD"));
-    AK4Inputs_->addSupplamentalVector("qgAxis1",                             tr_.getVec<double>("Jets_axismajor"));
-    AK4Inputs_->addSupplamentalVector("qgAxis2",                             tr_.getVec<double>("Jets_axisminor"));
-    AK4Inputs_->addSupplamentalVector("qgMult",                              *intVecTodoubleVec(tr_,"Jets_multiplicity"));
-    AK4Inputs_->addSupplamentalVector("recoJetschargedHadronEnergyFraction", tr_.getVec<double>("Jets_chargedHadronEnergyFraction"));
-    AK4Inputs_->addSupplamentalVector("recoJetschargedEmEnergyFraction",     tr_.getVec<double>("Jets_chargedEmEnergyFraction"));
-    AK4Inputs_->addSupplamentalVector("recoJetsneutralEmEnergyFraction",     tr_.getVec<double>("Jets_neutralEmEnergyFraction"));
-    AK4Inputs_->addSupplamentalVector("recoJetsmuonEnergyFraction",          tr_.getVec<double>("Jets_muonEnergyFraction"));
-    AK4Inputs_->addSupplamentalVector("recoJetsHFHadronEnergyFraction",      tr_.getVec<double>("Jets_hfHadronEnergyFraction"));
-    AK4Inputs_->addSupplamentalVector("recoJetsHFEMEnergyFraction",          tr_.getVec<double>("Jets_hfEMEnergyFraction"));
-    AK4Inputs_->addSupplamentalVector("recoJetsneutralEnergyFraction",       *add2Vec<double>(tr_,"Jets_neutralEmEnergyFraction","Jets_neutralHadronEnergyFraction"));
-    AK4Inputs_->addSupplamentalVector("PhotonEnergyFraction",                tr_.getVec<double>("Jets_photonEnergyFraction"));
-    AK4Inputs_->addSupplamentalVector("ElectronEnergyFraction",              tr_.getVec<double>("Jets_electronEnergyFraction"));
-    AK4Inputs_->addSupplamentalVector("ChargedHadronMultiplicity",           *intVecTodoubleVec(tr_,"Jets_chargedHadronMultiplicity"));
-    AK4Inputs_->addSupplamentalVector("NeutralHadronMultiplicity",           *intVecTodoubleVec(tr_,"Jets_neutralMultiplicity"));
-    AK4Inputs_->addSupplamentalVector("PhotonMultiplicity",                  *intVecTodoubleVec(tr_,"Jets_photonMultiplicity"));
-    AK4Inputs_->addSupplamentalVector("ElectronMultiplicity",                *intVecTodoubleVec(tr_,"Jets_electronMultiplicity"));
-    AK4Inputs_->addSupplamentalVector("MuonMultiplicity",                    *intVecTodoubleVec(tr_,"Jets_muonMultiplicity"));
-    AK4Inputs_->addSupplamentalVector("DeepCSVb",                            tr_.getVec<double>("Jets_bJetTagDeepCSVprobb"));
-    AK4Inputs_->addSupplamentalVector("DeepCSVc",                            tr_.getVec<double>("Jets_bJetTagDeepCSVprobc"));
-    AK4Inputs_->addSupplamentalVector("DeepCSVl",                            tr_.getVec<double>("Jets_bJetTagDeepCSVprobudsg"));
-    AK4Inputs_->addSupplamentalVector("DeepCSVbb",                           tr_.getVec<double>("Jets_bJetTagDeepCSVprobbb"));
+    AK4Inputs_->addSupplamentalVector("qgPtD",                               tr_.getVec<double>("Jets"+myVarSuffix_+"_ptD"));
+    AK4Inputs_->addSupplamentalVector("qgAxis1",                             tr_.getVec<double>("Jets"+myVarSuffix_+"_axismajor"));
+    AK4Inputs_->addSupplamentalVector("qgAxis2",                             tr_.getVec<double>("Jets"+myVarSuffix_+"_axisminor"));
+    AK4Inputs_->addSupplamentalVector("qgMult",                              *intVecTodoubleVec(tr_,"Jets"+myVarSuffix_+"_multiplicity"));
+    AK4Inputs_->addSupplamentalVector("recoJetschargedHadronEnergyFraction", tr_.getVec<double>("Jets"+myVarSuffix_+"_chargedHadronEnergyFraction"));
+    AK4Inputs_->addSupplamentalVector("recoJetschargedEmEnergyFraction",     tr_.getVec<double>("Jets"+myVarSuffix_+"_chargedEmEnergyFraction"));
+    AK4Inputs_->addSupplamentalVector("recoJetsneutralEmEnergyFraction",     tr_.getVec<double>("Jets"+myVarSuffix_+"_neutralEmEnergyFraction"));
+    AK4Inputs_->addSupplamentalVector("recoJetsmuonEnergyFraction",          tr_.getVec<double>("Jets"+myVarSuffix_+"_muonEnergyFraction"));
+    AK4Inputs_->addSupplamentalVector("recoJetsHFHadronEnergyFraction",      tr_.getVec<double>("Jets"+myVarSuffix_+"_hfHadronEnergyFraction"));
+    AK4Inputs_->addSupplamentalVector("recoJetsHFEMEnergyFraction",          tr_.getVec<double>("Jets"+myVarSuffix_+"_hfEMEnergyFraction"));
+    AK4Inputs_->addSupplamentalVector("recoJetsneutralEnergyFraction",       *add2Vec<double>(tr_,"Jets"+myVarSuffix_+"_neutralEmEnergyFraction","Jets"+myVarSuffix_+"_neutralHadronEnergyFraction"));
+    AK4Inputs_->addSupplamentalVector("PhotonEnergyFraction",                tr_.getVec<double>("Jets"+myVarSuffix_+"_photonEnergyFraction"));
+    AK4Inputs_->addSupplamentalVector("ElectronEnergyFraction",              tr_.getVec<double>("Jets"+myVarSuffix_+"_electronEnergyFraction"));
+    AK4Inputs_->addSupplamentalVector("ChargedHadronMultiplicity",           *intVecTodoubleVec(tr_,"Jets"+myVarSuffix_+"_chargedHadronMultiplicity"));
+    AK4Inputs_->addSupplamentalVector("NeutralHadronMultiplicity",           *intVecTodoubleVec(tr_,"Jets"+myVarSuffix_+"_neutralHadronMultiplicity"));
+    AK4Inputs_->addSupplamentalVector("PhotonMultiplicity",                  *intVecTodoubleVec(tr_,"Jets"+myVarSuffix_+"_photonMultiplicity"));
+    AK4Inputs_->addSupplamentalVector("ElectronMultiplicity",                *intVecTodoubleVec(tr_,"Jets"+myVarSuffix_+"_electronMultiplicity"));
+    AK4Inputs_->addSupplamentalVector("MuonMultiplicity",                    *intVecTodoubleVec(tr_,"Jets"+myVarSuffix_+"_muonMultiplicity"));
+    AK4Inputs_->addSupplamentalVector("DeepCSVb",                            tr_.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVprobb"));
+    AK4Inputs_->addSupplamentalVector("DeepCSVc",                            tr_.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVprobc"));
+    AK4Inputs_->addSupplamentalVector("DeepCSVl",                            tr_.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVprobudsg"));
+    AK4Inputs_->addSupplamentalVector("DeepCSVbb",                           tr_.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVprobbb"));
 }
 
 // Create jets constituents list combining AK4 and AK8 jets, these are used to construct top candiates
