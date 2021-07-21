@@ -128,14 +128,14 @@ private:
                 filetag.find("TTJets_SingleLeptFromTbar") != std::string::npos || 
                 filetag.find("TTJets_DiLept") != std::string::npos) && madHT > 600) 
             {
-                passMadHT = true;
+                passMadHT = false;
             }
             // also remove lepton overlap from the inclusive sample
             const auto& GenElectrons        = tr.getVec<TLorentzVector>("GenElectrons");
             const auto& GenMuons            = tr.getVec<TLorentzVector>("GenMuons");
             const auto& GenTaus             = tr.getVec<TLorentzVector>("GenTaus");
             int NGenLeptons = GenElectrons.size() + GenMuons.size() + GenTaus.size();
-            if (filetag.find("TTJets_Incl") != std::string::npos && NGenLeptons > 0) passMadHT = true;
+            if (filetag.find("TTJets_Incl") != std::string::npos && NGenLeptons > 0) passMadHT = false;
             
             // MC modeling of the trigger
             if( !passTriggerAllHad ) passTriggerHadMC = false;
