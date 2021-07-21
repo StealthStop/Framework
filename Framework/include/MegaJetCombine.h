@@ -71,17 +71,14 @@ private:
     
     void megaJetCombine(NTupleReader& tr) //Main function for using the list of combos to compute megajets
     {
-        //const auto& NGoodJets_pt30       = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         const auto& Jets                 = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
         const auto& GoodJets_pt30        = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
         const auto& GoodLeptons          = tr.getVec<std::pair<std::string,TLorentzVector>>("GoodLeptons"+myVarSuffix_);
         const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
-        //const auto& GoodBJets_pt30       = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
-        //const auto& NGoodBJets_pt30      = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
         const auto& TwoLep_Mbl1_Idx      = tr.getVar<std::pair<unsigned int, unsigned int>>("TwoLep_Mbl1_Idx"+myVarSuffix_);
         const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<unsigned int, unsigned int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
-        const auto& MET                  = tr.getVar<double>("MET"+myVarSuffix_);
-        const auto& METPhi               = tr.getVar<double>("METPhi"+myVarSuffix_);
+        const auto& MET                  = tr.getVar<double>("MET");
+        const auto& METPhi               = tr.getVar<double>("METPhi");
 
         double massDiffThresh = 100; //specify threshold of mass difference between megajets to generate shortlist of candidates
         TLorentzVector lvMET;

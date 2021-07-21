@@ -17,7 +17,7 @@ private:
         const auto& TriggerPass            = tr.getVec<int>("TriggerPass");
         const auto& NNonIsoMuons           = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
         const auto& NGoodLeptons           = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
-        const auto& GoodLeptonsCharge      = tr.getVec<int>("GoodLeptonsCharge");
+        const auto& GoodLeptonsCharge      = tr.getVec<int>("GoodLeptonsCharge"+myVarSuffix_);
         const auto& NGoodMuons             = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& NGoodPlusMuons         = tr.getVar<int>("NGoodPlusMuons"+myVarSuffix_);
         const auto& NGoodMinusMuons        = tr.getVar<int>("NGoodMinusMuons"+myVarSuffix_);
@@ -25,7 +25,7 @@ private:
         const auto& NGoodPlusElectrons     = tr.getVar<int>("NGoodPlusElectrons"+myVarSuffix_);
         const auto& NGoodMinusElectrons    = tr.getVar<int>("NGoodMinusElectrons"+myVarSuffix_);
         const auto& NGoodLeptons_pt20      = tr.getVar<int>("NGoodLeptons_pt20"+myVarSuffix_);
-        const auto& GoodLeptonsCharge_pt20 = tr.getVec<int>("GoodLeptonsCharge_pt20");
+        const auto& GoodLeptonsCharge_pt20 = tr.getVec<int>("GoodLeptonsCharge_pt20"+myVarSuffix_);
         const auto& HT_trigger_pt30        = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& HT_trigger_pt45        = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
         const auto& HT_NonIsoMuon_pt30     = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);
@@ -42,8 +42,8 @@ private:
         const auto& passHEMVeto            = tr.getVar<bool>("passHEMVeto"+myVarSuffix_);
         const auto& passTrigSFHEMVeto      = tr.getVar<bool>("passTrigSFHEMVeto"+myVarSuffix_);
         const auto& NGoodBJetsCSV_pt30     = tr.getVar<int>("NGoodBJetsCSV_pt30"+myVarSuffix_); 
-        const auto& ntops                  = tr.getVar<int>("ntops");
-        const auto& dR_bjets               = tr.getVar<double>("dR_bjets"); 
+        const auto& ntops                  = tr.getVar<int>("ntops"+myVarSuffix_);
+        const auto& dR_bjets               = tr.getVar<double>("dR_bjets"+myVarSuffix_); 
  
         // ------------------------------
         // -- Data dependent stuff
@@ -128,14 +128,14 @@ private:
                 filetag.find("TTJets_SingleLeptFromTbar") != std::string::npos || 
                 filetag.find("TTJets_DiLept") != std::string::npos) && madHT > 600) 
             {
-                passMadHT = false;
+                passMadHT = true;
             }
             // also remove lepton overlap from the inclusive sample
             const auto& GenElectrons        = tr.getVec<TLorentzVector>("GenElectrons");
             const auto& GenMuons            = tr.getVec<TLorentzVector>("GenMuons");
             const auto& GenTaus             = tr.getVec<TLorentzVector>("GenTaus");
             int NGenLeptons = GenElectrons.size() + GenMuons.size() + GenTaus.size();
-            if (filetag.find("TTJets_Incl") != std::string::npos && NGenLeptons > 0) passMadHT = false;
+            if (filetag.find("TTJets_Incl") != std::string::npos && NGenLeptons > 0) passMadHT = true;
             
             // MC modeling of the trigger
             if( !passTriggerAllHad ) passTriggerHadMC = false;
