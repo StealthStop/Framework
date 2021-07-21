@@ -1,5 +1,5 @@
 #ifndef MEGAJETCOMBINE_H
-#define MEGAJEETCOMBINE_H
+#define MEGAJETCOMBINE_H
 
 #include <iostream>
 #include <algorithm>

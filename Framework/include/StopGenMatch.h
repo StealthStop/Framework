@@ -95,18 +95,18 @@ private:
 
         if(runtype != "Data")
         {
-            const auto& GenParticles        = tr.getVec<TLorentzVector>("GenParticles"+myVarSuffix_);
-            const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId"+myVarSuffix_);
-            const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId"+myVarSuffix_);
-            const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx"+myVarSuffix_);
-            const auto& GenParticles_Status     = tr.getVec<int>("GenParticles_Status"+myVarSuffix_);            
+            const auto& GenParticles        = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
+            const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
+            const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");
+            const auto& GenParticles_Status     = tr.getVec<int>("GenParticles_Status");            
             const auto& Jets                    = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-            const auto& Electrons               = tr.getVec<TLorentzVector>("Electrons"+myVarSuffix_);
-            const auto& Muons                   = tr.getVec<TLorentzVector>("Muons"+myVarSuffix_);
-            const auto& MET                     = tr.getVar<double>("MET"+myVarSuffix_);
-            const auto& METPhi                  = tr.getVar<double>("METPhi"+myVarSuffix_);
-            const auto& GenMET                  = tr.getVar<double>("GenMET"+myVarSuffix_);
-            const auto& GenMETPhi               = tr.getVar<double>("GenMETPhi"+myVarSuffix_);
+            const auto& Electrons               = tr.getVec<TLorentzVector>("Electrons");
+            const auto& Muons                   = tr.getVec<TLorentzVector>("Muons");
+            const auto& MET                     = tr.getVar<double>("MET");
+            const auto& METPhi                  = tr.getVar<double>("METPhi");
+            const auto& GenMET                  = tr.getVar<double>("GenMET");
+            const auto& GenMETPhi               = tr.getVar<double>("GenMETPhi");
 
             const auto& filetag                 = tr.getVar<std::string>("filetag");
 
