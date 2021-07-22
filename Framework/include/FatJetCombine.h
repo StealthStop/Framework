@@ -3,7 +3,6 @@
 
 #include "Framework/Framework/include/Utility.h"
 #include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
-#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
 
 class FatJetCombine
 {
@@ -182,7 +181,6 @@ private:
             }
         } 
 
-        asymm_mt2_lester_bisect::disableCopyrightMessage();
         tr.registerDerivedVar("NGoodJetsAK8"+myVarSuffix_, NGoodJetsAK8);
         tr.registerDerivedVar("NCandidateLSP"+myVarSuffix_, NCandidateLSP);
         

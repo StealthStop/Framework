@@ -4,8 +4,6 @@
 #include <iostream>
 #include <algorithm>
 #include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
-#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
-
 
 class MegaJetCombine
 {
@@ -157,7 +155,6 @@ private:
 
         FirstComboCandidates = RecoStopCands.first;
         SecComboCandidates = RecoStopCands.second;
-        asymm_mt2_lester_bisect::disableCopyrightMessage();
 
         tr.registerDerivedVar("RecoStop1"+myVarSuffix_, RecoStop1);
         tr.registerDerivedVar("RecoStop2"+myVarSuffix_, RecoStop2);

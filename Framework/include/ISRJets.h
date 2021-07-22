@@ -8,7 +8,6 @@
 #include "TopTagger/TopTagger/interface/Constituent.h"
 
 #include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
-#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
 
 #include "TLorentzVector.h"
 #include <iostream> 

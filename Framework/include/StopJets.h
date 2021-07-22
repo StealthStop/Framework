@@ -8,10 +8,6 @@
 #include "TopTagger/TopTagger/interface/TopObject.h"
 #include "TopTagger/TopTagger/interface/Constituent.h"
 
-// for gen level study
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
-#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
-
 #include "TLorentzVector.h"
 #include <iostream> 
 #include <vector>
