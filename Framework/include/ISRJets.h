@@ -3,12 +3,6 @@
 
 #include "Framework/Framework/include/Utility.h"
 
-#include "TopTagger/TopTagger/interface/TopTaggerResults.h"
-#include "TopTagger/TopTagger/interface/TopObject.h"
-#include "TopTagger/TopTagger/interface/Constituent.h"
-
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
-
 #include "TLorentzVector.h"
 #include <iostream> 
 #include <vector>

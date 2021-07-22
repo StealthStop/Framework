@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <algorithm>
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
 
 class MegaJetCombine
 {

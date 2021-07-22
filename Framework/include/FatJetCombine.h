@@ -2,7 +2,6 @@
 #define FATJETCOMBINE_H
 
 #include "Framework/Framework/include/Utility.h"
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
 
 class FatJetCombine
 {
