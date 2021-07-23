@@ -3,13 +3,6 @@
 
 #include "Framework/Framework/include/Utility.h"
 
-#include "TopTagger/TopTagger/interface/TopTaggerResults.h"
-#include "TopTagger/TopTagger/interface/TopObject.h"
-#include "TopTagger/TopTagger/interface/Constituent.h"
-
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
-#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
-
 #include "TLorentzVector.h"
 #include <iostream> 
 #include <vector>
@@ -31,10 +24,10 @@ private:
         {
             const auto& Jets                  = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
             const auto& GoodJets_pt20         = tr.getVec<bool>("GoodJets_pt20"+myVarSuffix_);
-            const auto& GenParticles          = tr.getVec<TLorentzVector>("GenParticles"+myVarSuffix_);
-            const auto& GenParticles_PdgId    = tr.getVec<int>("GenParticles_PdgId"+myVarSuffix_);
-            const auto& GenParticles_ParentId = tr.getVec<int>("GenParticles_ParentId"+myVarSuffix_);
-            const auto& GenParticles_Status   = tr.getVec<int>("GenParticles_Status"+myVarSuffix_); 
+            const auto& GenParticles          = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles_PdgId    = tr.getVec<int>("GenParticles_PdgId");
+            const auto& GenParticles_ParentId = tr.getVec<int>("GenParticles_ParentId");
+            const auto& GenParticles_Status   = tr.getVec<int>("GenParticles_Status"); 
        
             // ---------------------------------------
             // ISR filter by truth definition of it  

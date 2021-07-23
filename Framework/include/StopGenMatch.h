@@ -1,7 +1,5 @@
 #ifndef STOPGENMATCH_H
 #define STOPGENMATCH_H
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
-#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
 
 // This class does gen matching to reconstruct the stops in an event both on gen level and reco level
 // In the event, that there are no stops e.g. in just ttbar+jets scenario, the "stop" should be close to the mass of the top
@@ -408,8 +406,6 @@ private:
             GM_Stop1_recphis = recPhiList.at(0);
             GM_Stop2_recphis = recPhiList.at(1);
 
-            asymm_mt2_lester_bisect::disableCopyrightMessage();
-            
             tr.registerDerivedVar("GM_StopMT2"+myVarSuffix_,        ttUtility::coreMT2calc(RecoSumList.at(0),RecoSumList.at(1),lvMET));
             tr.registerDerivedVar("GM_StopGenMT2"+myVarSuffix_,     ttUtility::coreMT2calc(GenSumList.at(0),GenSumList.at(1),lvGenMET));
             tr.registerDerivedVar("GM_Stop1"+myVarSuffix_,      RecoSumList.at(0));

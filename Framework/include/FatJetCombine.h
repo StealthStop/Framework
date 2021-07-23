@@ -2,8 +2,6 @@
 #define FATJETCOMBINE_H
 
 #include "Framework/Framework/include/Utility.h"
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
-#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
 
 class FatJetCombine
 {
@@ -12,16 +10,14 @@ private:
 
     void fatjetcombine(NTupleReader& tr)
     {
-        const auto& JetsAK8               = tr.getVec<TLorentzVector>("JetsAK8");
-        const auto& Tau1                  = tr.getVec<double>("JetsAK8_NsubjettinessTau1");
-        const auto& Tau2                  = tr.getVec<double>("JetsAK8_NsubjettinessTau2");
-        const auto& Tau3                  = tr.getVec<double>("JetsAK8_NsubjettinessTau3");
-        const auto& softDropMass          = tr.getVec<double>("JetsAK8_softDropMass");
-        const auto& prunedMass            = tr.getVec<double>("JetsAK8_prunedMass");
+        const auto& JetsAK8               = tr.getVec<TLorentzVector>("JetsAK8"+myVarSuffix_);
+        const auto& Tau1                  = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau1");
+        const auto& Tau2                  = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau2");
+        const auto& Tau3                  = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau3");
+        const auto& softDropMass          = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_softDropMass");
+        const auto& prunedMass            = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_prunedMass");
         const auto& Muons                 = tr.getVec<TLorentzVector>("Muons");
-//        const auto& GoodMuons             = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& Electrons             = tr.getVec<TLorentzVector>("Electrons");
-//        const auto& GoodElectrons         = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NMuons                = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& NElectrons            = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& GoodBJets_pt30        = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
@@ -30,13 +26,11 @@ private:
         const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<int, int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
         
         const auto& Jets                 = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-//        const auto& GoodLeptons          = tr.getVec<std::pair<std::string,TLorentzVector>>("GoodLeptons"+myVarSuffix_);
         const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons_pt20"+myVarSuffix_);
 
-        const auto& subjets              = tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets");
+        const auto& subjets              = tr.getVec<std::vector<TLorentzVector>>("JetsAK8"+myVarSuffix_+"_subjets");
 
         //First clean out leptons from JetsAK8 collection
-
         auto& GoodJetsAK8         = tr.createDerivedVec<bool>("GoodJetsAK8"+myVarSuffix_);
         for (unsigned int j = 0; j < JetsAK8.size(); j++)
         {
@@ -54,7 +48,6 @@ private:
                 {
                     TLorentzVector myJet = JetsAK8.at(j);
                     if( std::fabs(myMuon.Pt() - myJet.Pt()) / myMuon.Pt() < 1 && myMuon.DeltaR(myJet) < minDeltaR)
-//                    if(myMuon.DeltaR(myJet) < minDeltaR)
                     {
                         minDeltaR = myMuon.DeltaR(myJet);
                         muonCand = j;
@@ -75,7 +68,6 @@ private:
                 {
                     TLorentzVector myJet = JetsAK8.at(j);
                     if( std::fabs(myElec.Pt() - myJet.Pt()) / myElec.Pt() < 1 && myElec.DeltaR(myJet) < minDeltaR)
-                        //if(myElec.DeltaR(myJet) < minDeltaR)
                     {
                         minDeltaR = myElec.DeltaR(myJet);
                         elecCand = j;                  
@@ -91,7 +83,6 @@ private:
         {
             if(abs(JetsAK8.at(j).Eta()) > 2.4) GoodJetsAK8.at(j) = false;
             if(JetsAK8.at(j).Pt() < 170) GoodJetsAK8.at(j) = false;
-//            if(softDropMass.at(j) < 20) GoodJetsAK8.at(j) = false;
             if(GoodJetsAK8.at(j)) NGoodJetsAK8 += 1;
         }
 
@@ -189,7 +180,6 @@ private:
             }
         } 
 
-        asymm_mt2_lester_bisect::disableCopyrightMessage();
         tr.registerDerivedVar("NGoodJetsAK8"+myVarSuffix_, NGoodJetsAK8);
         tr.registerDerivedVar("NCandidateLSP"+myVarSuffix_, NCandidateLSP);
         

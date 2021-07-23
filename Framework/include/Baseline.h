@@ -17,7 +17,7 @@ private:
         const auto& TriggerPass            = tr.getVec<int>("TriggerPass");
         const auto& NNonIsoMuons           = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
         const auto& NGoodLeptons           = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
-        const auto& GoodLeptonsCharge      = tr.getVec<int>("GoodLeptonsCharge");
+        const auto& GoodLeptonsCharge      = tr.getVec<int>("GoodLeptonsCharge"+myVarSuffix_);
         const auto& NGoodMuons             = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& NGoodPlusMuons         = tr.getVar<int>("NGoodPlusMuons"+myVarSuffix_);
         const auto& NGoodMinusMuons        = tr.getVar<int>("NGoodMinusMuons"+myVarSuffix_);
@@ -25,7 +25,7 @@ private:
         const auto& NGoodPlusElectrons     = tr.getVar<int>("NGoodPlusElectrons"+myVarSuffix_);
         const auto& NGoodMinusElectrons    = tr.getVar<int>("NGoodMinusElectrons"+myVarSuffix_);
         const auto& NGoodLeptons_pt20      = tr.getVar<int>("NGoodLeptons_pt20"+myVarSuffix_);
-        const auto& GoodLeptonsCharge_pt20 = tr.getVec<int>("GoodLeptonsCharge_pt20");
+        const auto& GoodLeptonsCharge_pt20 = tr.getVec<int>("GoodLeptonsCharge_pt20"+myVarSuffix_);
         const auto& HT_trigger_pt30        = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& HT_trigger_pt45        = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
         const auto& HT_NonIsoMuon_pt30     = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);
@@ -42,8 +42,8 @@ private:
         const auto& passHEMVeto            = tr.getVar<bool>("passHEMVeto"+myVarSuffix_);
         const auto& passTrigSFHEMVeto      = tr.getVar<bool>("passTrigSFHEMVeto"+myVarSuffix_);
         const auto& NGoodBJetsCSV_pt30     = tr.getVar<int>("NGoodBJetsCSV_pt30"+myVarSuffix_); 
-        const auto& ntops                  = tr.getVar<int>("ntops");
-        const auto& dR_bjets               = tr.getVar<double>("dR_bjets"); 
+        const auto& ntops                  = tr.getVar<int>("ntops"+myVarSuffix_);
+        const auto& dR_bjets               = tr.getVar<double>("dR_bjets"+myVarSuffix_); 
  
         // ------------------------------
         // -- Data dependent stuff

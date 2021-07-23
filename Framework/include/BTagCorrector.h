@@ -7,10 +7,7 @@
 #include "SusyAnaTools/Tools/SATException.h"
 
 //ROOT headers
-#include <TROOT.h>
-#include "TMath.h"
 #include <TFile.h>
-#include <TTree.h>
 #include <TLorentzVector.h>
 #include "TH2.h"
 

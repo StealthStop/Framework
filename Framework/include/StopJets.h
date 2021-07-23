@@ -8,10 +8,6 @@
 #include "TopTagger/TopTagger/interface/TopObject.h"
 #include "TopTagger/TopTagger/interface/Constituent.h"
 
-// for gen level study
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
-#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
-
 #include "TLorentzVector.h"
 #include <iostream> 
 #include <vector>
@@ -27,13 +23,10 @@ private:
     // -------------------------------------
     void getStopJets(NTupleReader& tr) const
     {
-        const auto* ttr                   = tr.getVar<TopTaggerResults*>("ttr");
-        const auto& Jets                  = tr.getVec<TLorentzVector>("Jets");
-        const auto& GoodJets_pt20         = tr.getVec<bool>("GoodJets_pt20");
-        //const auto& ISRmatched_dr_ptr     = tr.getVec<bool>("ISRmatched_dr_ptr");
-
+        const auto* ttr                   = tr.getVar<TopTaggerResults*>("ttr"+myVarSuffix_);
+        const auto& Jets                  = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+        const auto& GoodJets_pt20         = tr.getVec<bool>("GoodJets_pt20"+myVarSuffix_);
         auto& StopJets                    = tr.createDerivedVec<TLorentzVector>("StopJets"+myVarSuffix_);
-        //auto& ISRmatched_dr_ptr_maskedTop = tr.createDerivedVec<bool>("ISRmatched_dr_ptr_maskedTop"+myVarSuffix_);
  
         // --------------------------------- 
         // create an index for resolved tops
@@ -56,8 +49,6 @@ private:
                 // get top jets   
                 StopJets.push_back(top);
                 
-                // to filter the tops from ISR jets
-                //ISRmatched_dr_ptr_maskedTop.push_back(false);               
             }
         }
 
@@ -81,25 +72,11 @@ private:
             if ( std::find(usedIndex.begin(), usedIndex.end(), i) == usedIndex.end() ) 
             {
                 StopJets.push_back(Jets[i]);
-                //ISRmatched_dr_ptr_maskedTop.push_back(ISRmatched_dr_ptr[i]);
             }
         }
         auto& GoodStopJets = tr.createDerivedVec<bool>("GoodStopJets"+myVarSuffix_, StopJets.size(), true);
         tr.createDerivedVar<int>("NGoodStopJets"+myVarSuffix_, GoodStopJets.size());   
 
-        // ----------------------------------------------
-        // make filter to use inside hemispheres
-        //     -- remove the ISR jets inside GoodStopJets
-        // ----------------------------------------------     
-        //auto& GoodStopJets_maskedISR = tr.createDerivedVec<bool>("GoodStopJets_maskedISR"+myVarSuffix_, GoodStopJets.size(), false);
-        //for (unsigned int j = 0; j < GoodStopJets.size(); ++j)
-        //{
-        //    if (! (ISRmatched_dr_ptr_maskedTop[j]) ) 
-        //    {
-        //        GoodStopJets_maskedISR.at(j) = true;         
-        //    }
-        //}
-        //tr.createDerivedVar<int>("NGoodStopJets_maskedISR"+myVarSuffix_, GoodStopJets_maskedISR.size());        
     }
 
 public:    

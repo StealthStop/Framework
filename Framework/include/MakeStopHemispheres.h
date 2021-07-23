@@ -2,7 +2,7 @@
 #define MakeStopHemispheres_h
 
 #include "Framework/Framework/include/Hemispheres.h"
-#include "TopTagger/TopTagger/interface/TopTaggerUtilities.h"
+#include "TopTagger/TopTagger/interface/lester_mt2_bisect.h"
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -10,7 +10,7 @@
 class MakeStopHemispheres
 {
 private:
-    std::string jetName_, jetMaskName_, nJetName_, myVarSuffix_;
+    std::string jetName_, jetMaskName_, nJetName_, label_, myVarSuffix_;
     Hemisphere::SeedMethod seedMethod_;
 
     template<typename T> void orderVars(T& stop1, T& stop2, const T hemi1, const T hemi2, const bool hemi1ToStop1) const
@@ -31,12 +31,12 @@ private:
     {
         const auto& met               = tr.getVar<double>("MET");
         const auto& metPhi            = tr.getVar<double>("METPhi");
-        const auto& Jets              = tr.getVec<TLorentzVector>(jetName_);
-        const auto& GoodJets          = tr.getVec<bool>(jetMaskName_);
-        const auto& NGoodJets         = tr.getVar<int>(nJetName_);
-        const auto& GoodLeptons       = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons");
-        const auto& event_beta_z      = tr.getVar<double>("event_beta_z"); // for NN
-        const auto& event_phi_rotate  = tr.getVar<double>("event_phi_rotate"); // for NN      
+        const auto& Jets              = tr.getVec<TLorentzVector>(jetName_+myVarSuffix_);
+        const auto& GoodJets          = tr.getVec<bool>(jetMaskName_+myVarSuffix_);
+        const auto& NGoodJets         = tr.getVar<int>(nJetName_+myVarSuffix_);
+        const auto& GoodLeptons       = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons"+myVarSuffix_);
+        const auto& event_beta_z      = tr.getVar<double>("event_beta_z"+myVarSuffix_); // for NN
+        const auto& event_phi_rotate  = tr.getVar<double>("event_phi_rotate"+myVarSuffix_); // for NN      
 
         static const int hemi_association = 3; // 3: 3th method, 'lund' used by MT2  
 
@@ -152,68 +152,69 @@ private:
 
         }
         // without any rank
-        tr.registerDerivedVar("MT2_cm"+myVarSuffix_,MT2_cm);
-        tr.registerDerivedVar("dR_Stop1Stop2_cm"+myVarSuffix_,dR_Stop1Stop2_cm);
-        tr.registerDerivedVar("dPhi_Stop1Stop2_cm"+myVarSuffix_,dPhi_Stop1Stop2_cm);
-        tr.registerDerivedVar("Stop1_mass_cm"+myVarSuffix_,Stop1_cm.M());
-        tr.registerDerivedVar("Stop2_mass_cm"+myVarSuffix_,Stop2_cm.M());
-        tr.registerDerivedVar("Stop1_pt_cm"+myVarSuffix_,Stop1_cm.Pt());
-        tr.registerDerivedVar("Stop2_pt_cm"+myVarSuffix_,Stop2_cm.Pt());
-        tr.registerDerivedVar("Stop1_phi_cm"+myVarSuffix_,Stop1_cm.Phi());
-        tr.registerDerivedVar("Stop2_phi_cm"+myVarSuffix_,Stop2_cm.Phi());
-        tr.registerDerivedVar("Stop1_eta_cm"+myVarSuffix_,Stop1_cm.Eta());
-        tr.registerDerivedVar("Stop2_eta_cm"+myVarSuffix_,Stop2_cm.Eta());
-        tr.registerDerivedVar("Stop1_scalarPt_cm"+myVarSuffix_,Stop1ScalarPt);
-        tr.registerDerivedVar("Stop2_scalarPt_cm"+myVarSuffix_,Stop2ScalarPt);
+        tr.registerDerivedVar("MT2_cm"+label_+myVarSuffix_,MT2_cm);
+        tr.registerDerivedVar("dR_Stop1Stop2_cm"+label_+myVarSuffix_,dR_Stop1Stop2_cm);
+        tr.registerDerivedVar("dPhi_Stop1Stop2_cm"+label_+myVarSuffix_,dPhi_Stop1Stop2_cm);
+        tr.registerDerivedVar("Stop1_mass_cm"+label_+myVarSuffix_,Stop1_cm.M());
+        tr.registerDerivedVar("Stop2_mass_cm"+label_+myVarSuffix_,Stop2_cm.M());
+        tr.registerDerivedVar("Stop1_pt_cm"+label_+myVarSuffix_,Stop1_cm.Pt());
+        tr.registerDerivedVar("Stop2_pt_cm"+label_+myVarSuffix_,Stop2_cm.Pt());
+        tr.registerDerivedVar("Stop1_phi_cm"+label_+myVarSuffix_,Stop1_cm.Phi());
+        tr.registerDerivedVar("Stop2_phi_cm"+label_+myVarSuffix_,Stop2_cm.Phi());
+        tr.registerDerivedVar("Stop1_eta_cm"+label_+myVarSuffix_,Stop1_cm.Eta());
+        tr.registerDerivedVar("Stop2_eta_cm"+label_+myVarSuffix_,Stop2_cm.Eta());
+        tr.registerDerivedVar("Stop1_scalarPt_cm"+label_+myVarSuffix_,Stop1ScalarPt);
+        tr.registerDerivedVar("Stop2_scalarPt_cm"+label_+myVarSuffix_,Stop2ScalarPt);
         // Pt Rank
-        tr.registerDerivedVar("Stop1_PtRank"+myVarSuffix_,Stop1_PtRank);
-        tr.registerDerivedVar("Stop2_PtRank"+myVarSuffix_,Stop2_PtRank);
-        tr.registerDerivedVar("Stop1_mass_PtRank_cm"+myVarSuffix_,Stop1_PtRank_cm.M()); 
-        tr.registerDerivedVar("Stop2_mass_PtRank_cm"+myVarSuffix_,Stop2_PtRank_cm.M());
-        tr.registerDerivedVar("Stop1_pt_PtRank_cm"+myVarSuffix_,Stop1_PtRank_cm.Pt());
-        tr.registerDerivedVar("Stop2_pt_PtRank_cm"+myVarSuffix_,Stop2_PtRank_cm.Pt());
-        tr.registerDerivedVar("Stop1_phi_PtRank_cm"+myVarSuffix_,Stop1_PtRank_cm.Phi());
-        tr.registerDerivedVar("Stop2_phi_PtRank_cm"+myVarSuffix_,Stop2_PtRank_cm.Phi());
-        tr.registerDerivedVar("Stop1_eta_PtRank_cm"+myVarSuffix_,Stop1_PtRank_cm.Eta());
-        tr.registerDerivedVar("Stop2_eta_PtRank_cm"+myVarSuffix_,Stop2_PtRank_cm.Eta());
+        tr.registerDerivedVar("Stop1_PtRank"+label_+myVarSuffix_,Stop1_PtRank);
+        tr.registerDerivedVar("Stop2_PtRank"+label_+myVarSuffix_,Stop2_PtRank);
+        tr.registerDerivedVar("Stop1_mass_PtRank_cm"+label_+myVarSuffix_,Stop1_PtRank_cm.M()); 
+        tr.registerDerivedVar("Stop2_mass_PtRank_cm"+label_+myVarSuffix_,Stop2_PtRank_cm.M());
+        tr.registerDerivedVar("Stop1_pt_PtRank_cm"+label_+myVarSuffix_,Stop1_PtRank_cm.Pt());
+        tr.registerDerivedVar("Stop2_pt_PtRank_cm"+label_+myVarSuffix_,Stop2_PtRank_cm.Pt());
+        tr.registerDerivedVar("Stop1_phi_PtRank_cm"+label_+myVarSuffix_,Stop1_PtRank_cm.Phi());
+        tr.registerDerivedVar("Stop2_phi_PtRank_cm"+label_+myVarSuffix_,Stop2_PtRank_cm.Phi());
+        tr.registerDerivedVar("Stop1_eta_PtRank_cm"+label_+myVarSuffix_,Stop1_PtRank_cm.Eta());
+        tr.registerDerivedVar("Stop2_eta_PtRank_cm"+label_+myVarSuffix_,Stop2_PtRank_cm.Eta());
         // Mask Rank
-        tr.registerDerivedVar("Stop1_MassRank"+myVarSuffix_,Stop1_MassRank);
-        tr.registerDerivedVar("Stop2_MassRank"+myVarSuffix_,Stop2_MassRank);
-        tr.registerDerivedVar("Stop1_mass_MassRank_cm"+myVarSuffix_,Stop1_MassRank_cm.M()); 
-        tr.registerDerivedVar("Stop2_mass_MassRank_cm"+myVarSuffix_,Stop2_MassRank_cm.M());
-        tr.registerDerivedVar("Stop1_pt_MassRank_cm"+myVarSuffix_,Stop1_MassRank_cm.Pt());
-        tr.registerDerivedVar("Stop2_pt_MassRank_cm"+myVarSuffix_,Stop2_MassRank_cm.Pt());
-        tr.registerDerivedVar("Stop1_phi_MassRank_cm"+myVarSuffix_,Stop1_MassRank_cm.Phi());
-        tr.registerDerivedVar("Stop2_phi_MassRank_cm"+myVarSuffix_,Stop2_MassRank_cm.Phi());
-        tr.registerDerivedVar("Stop1_eta_MassRank_cm"+myVarSuffix_,Stop1_MassRank_cm.Eta());
-        tr.registerDerivedVar("Stop2_eta_MassRank_cm"+myVarSuffix_,Stop2_MassRank_cm.Eta());
+        tr.registerDerivedVar("Stop1_MassRank"+label_+myVarSuffix_,Stop1_MassRank);
+        tr.registerDerivedVar("Stop2_MassRank"+label_+myVarSuffix_,Stop2_MassRank);
+        tr.registerDerivedVar("Stop1_mass_MassRank_cm"+label_+myVarSuffix_,Stop1_MassRank_cm.M()); 
+        tr.registerDerivedVar("Stop2_mass_MassRank_cm"+label_+myVarSuffix_,Stop2_MassRank_cm.M());
+        tr.registerDerivedVar("Stop1_pt_MassRank_cm"+label_+myVarSuffix_,Stop1_MassRank_cm.Pt());
+        tr.registerDerivedVar("Stop2_pt_MassRank_cm"+label_+myVarSuffix_,Stop2_MassRank_cm.Pt());
+        tr.registerDerivedVar("Stop1_phi_MassRank_cm"+label_+myVarSuffix_,Stop1_MassRank_cm.Phi());
+        tr.registerDerivedVar("Stop2_phi_MassRank_cm"+label_+myVarSuffix_,Stop2_MassRank_cm.Phi());
+        tr.registerDerivedVar("Stop1_eta_MassRank_cm"+label_+myVarSuffix_,Stop1_MassRank_cm.Eta());
+        tr.registerDerivedVar("Stop2_eta_MassRank_cm"+label_+myVarSuffix_,Stop2_MassRank_cm.Eta());
         // ScalarPt Rank
-        tr.registerDerivedVar("Stop1_ScalarPtRank"+myVarSuffix_,Stop1_ScalarPtRank);
-        tr.registerDerivedVar("Stop2_ScalarPtRank"+myVarSuffix_,Stop2_ScalarPtRank);
-        tr.registerDerivedVar("Stop1_mass_ScalarPtRank_cm"+myVarSuffix_,Stop1_ScalarPtRank_cm.M());
-        tr.registerDerivedVar("Stop2_mass_ScalarPtRank_cm"+myVarSuffix_,Stop2_ScalarPtRank_cm.M());
-        tr.registerDerivedVar("Stop1_pt_ScalarPtRank_cm"+myVarSuffix_,Stop1_ScalarPtRank_cm.Pt());
-        tr.registerDerivedVar("Stop2_pt_ScalarPtRank_cm"+myVarSuffix_,Stop2_ScalarPtRank_cm.Pt());
-        tr.registerDerivedVar("Stop1_phi_ScalarPtRank_cm"+myVarSuffix_,Stop1_ScalarPtRank_cm.Phi());
-        tr.registerDerivedVar("Stop2_phi_ScalarPtRank_cm"+myVarSuffix_,Stop2_ScalarPtRank_cm.Phi());
-        tr.registerDerivedVar("Stop1_eta_ScalarPtRank_cm"+myVarSuffix_,Stop1_ScalarPtRank_cm.Eta());
-        tr.registerDerivedVar("Stop2_eta_ScalarPtRank_cm"+myVarSuffix_,Stop2_ScalarPtRank_cm.Eta());
+        tr.registerDerivedVar("Stop1_ScalarPtRank"+label_+myVarSuffix_,Stop1_ScalarPtRank);
+        tr.registerDerivedVar("Stop2_ScalarPtRank"+label_+myVarSuffix_,Stop2_ScalarPtRank);
+        tr.registerDerivedVar("Stop1_mass_ScalarPtRank_cm"+label_+myVarSuffix_,Stop1_ScalarPtRank_cm.M());
+        tr.registerDerivedVar("Stop2_mass_ScalarPtRank_cm"+label_+myVarSuffix_,Stop2_ScalarPtRank_cm.M());
+        tr.registerDerivedVar("Stop1_pt_ScalarPtRank_cm"+label_+myVarSuffix_,Stop1_ScalarPtRank_cm.Pt());
+        tr.registerDerivedVar("Stop2_pt_ScalarPtRank_cm"+label_+myVarSuffix_,Stop2_ScalarPtRank_cm.Pt());
+        tr.registerDerivedVar("Stop1_phi_ScalarPtRank_cm"+label_+myVarSuffix_,Stop1_ScalarPtRank_cm.Phi());
+        tr.registerDerivedVar("Stop2_phi_ScalarPtRank_cm"+label_+myVarSuffix_,Stop2_ScalarPtRank_cm.Phi());
+        tr.registerDerivedVar("Stop1_eta_ScalarPtRank_cm"+label_+myVarSuffix_,Stop1_ScalarPtRank_cm.Eta());
+        tr.registerDerivedVar("Stop2_eta_ScalarPtRank_cm"+label_+myVarSuffix_,Stop2_ScalarPtRank_cm.Eta());
         // others
-        tr.registerDerivedVar("MT2"+myVarSuffix_,MT2);
-        tr.registerDerivedVar("dR_Stop1Stop2"+myVarSuffix_,dR_Stop1Stop2);
-        tr.registerDerivedVar("dPhi_Stop1Stop2"+myVarSuffix_,dPhi_Stop1Stop2);
-        tr.registerDerivedVar("difference_stopMasses"+myVarSuffix_,difference_stopMasses);
-        tr.registerDerivedVar("average_stopMasses"+myVarSuffix_,average_stopMasses);
-        tr.registerDerivedVar("relativeDiff_stopMasses"+myVarSuffix_,relativeDiff_stopMasses);
-        tr.registerDerivedVar("Stop1ScalarPt_ScalarPtRank"+myVarSuffix_,Stop1ScalarPt_ScalarPtRank);
-        tr.registerDerivedVar("Stop2ScalarPt_ScalarPtRank"+myVarSuffix_,Stop2ScalarPt_ScalarPtRank);
+        tr.registerDerivedVar("MT2"+label_+myVarSuffix_,MT2);
+        tr.registerDerivedVar("dR_Stop1Stop2"+label_+myVarSuffix_,dR_Stop1Stop2);
+        tr.registerDerivedVar("dPhi_Stop1Stop2"+label_+myVarSuffix_,dPhi_Stop1Stop2);
+        tr.registerDerivedVar("difference_stopMasses"+label_+myVarSuffix_,difference_stopMasses);
+        tr.registerDerivedVar("average_stopMasses"+label_+myVarSuffix_,average_stopMasses);
+        tr.registerDerivedVar("relativeDiff_stopMasses"+label_+myVarSuffix_,relativeDiff_stopMasses);
+        tr.registerDerivedVar("Stop1ScalarPt_ScalarPtRank"+label_+myVarSuffix_,Stop1ScalarPt_ScalarPtRank);
+        tr.registerDerivedVar("Stop2ScalarPt_ScalarPtRank"+label_+myVarSuffix_,Stop2ScalarPt_ScalarPtRank);
     }
 
 public:    
-    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& myVarSuffix = "", const Hemisphere::SeedMethod& seedMethod = Hemisphere::InvMassSeed)
+    MakeStopHemispheres(const std::string& jetName = "Jets", const std::string& jetMaskName = "GoodJets_pt45", const std::string& nJetName = "NGoodJets_pt45", const std::string& label = "", const std::string& myVarSuffix = "", const Hemisphere::SeedMethod& seedMethod = Hemisphere::InvMassSeed)
         : jetName_(jetName) 
         , jetMaskName_(jetMaskName)
         , nJetName_(nJetName)
+        , label_(label)
         , myVarSuffix_(myVarSuffix)
         , seedMethod_(seedMethod)
     {
