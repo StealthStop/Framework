@@ -159,7 +159,7 @@ private:
         // -- Define 0 Lepton Baseline for data-MC
         // ------------------------------------------
         // for some of the analyzers which using the different top selections
-        bool passBaseline0l_testTopCuts = JetID                  &&
+        bool passBaseline0l_proto       = JetID                  &&
                                           passMETFilters         &&
                                           passMadHT              &&
                                           passTrigger            &&
@@ -171,16 +171,7 @@ private:
                                           NGoodJets_pt45 >= 6    ;
 
         // general baseline selection
-        bool passBaseline0l_Good  = JetID                  &&
-                                    passMETFilters         &&
-                                    passMadHT              &&
-                                    passTrigger            &&
-                                    passTriggerHadMC       &&
-                                    (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
-                                    NGoodLeptons == 0      &&
-                                    HT_trigger_pt45  > 500 &&
-                                    NGoodBJets_pt45 >= 2   &&
-                                    NGoodJets_pt45 >= 6    && 
+        bool passBaseline0l_Good  = passBaseline0l_proto   &&
                                     ntops >= 2             &&
                                     dR_bjets >= 1.0        ;
 
@@ -378,7 +369,7 @@ private:
                                         NGoodLeptons == 0   && 
                                         NGoodJets_pt30 >= 7; 
        
-        tr.registerDerivedVar<bool>("passBaseline0l_testTopCuts"+myVarSuffix_, passBaseline0l_testTopCuts); 
+        tr.registerDerivedVar<bool>("passBaseline0l_proto"+myVarSuffix_,       passBaseline0l_proto); 
         tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,        passBaseline0l_Good);
         tr.registerDerivedVar<bool>("passBaseline0l_hadTrig"+myVarSuffix_,     passBaseline0l_hadTrig); //
         tr.registerDerivedVar<bool>("passBaseline0l_hadMuTrig"+myVarSuffix_,   passBaseline0l_hadMuTrig); //
