@@ -29,6 +29,7 @@ private:
         const auto& HT_trigger_pt30        = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& HT_trigger_pt45        = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
         const auto& HT_NonIsoMuon_pt30     = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);
+        const auto& HT_NonIsoMuon_pt45     = tr.getVar<double>("HT_NonIsoMuon_pt45"+myVarSuffix_);
         const auto& onZ                    = tr.getVar<bool>("onZ"+myVarSuffix_); 
         const auto& JetID                  = tr.getVar<bool>("JetID"+myVarSuffix_);
         const auto& NGoodJets_pt40         = tr.getVar<int>("NGoodJets_pt40"+myVarSuffix_); 
@@ -37,6 +38,7 @@ private:
         const auto& NGoodJets_pt30         = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         const auto& NGoodBJets_pt30        = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_); 
         const auto& NNonIsoMuonJets_pt30   = tr.getVar<int>("NNonIsoMuonJets_pt30"+myVarSuffix_);         
+        const auto& NNonIsoMuonJets_pt45   = tr.getVar<int>("NNonIsoMuonJets_pt45"+myVarSuffix_);         
         const auto& NGoodPhotons           = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
         const auto& Mbl                    = tr.getVar<double>("Mbl"+myVarSuffix_);
         const auto& passHEMVeto            = tr.getVar<bool>("passHEMVeto"+myVarSuffix_);
@@ -243,6 +245,19 @@ private:
                                    NGoodJets_pt45 >= 6   &&
                                    NGoodBJets_pt45 >= 2  ;
 
+        bool passBaseline0l_NonIsoMuon = HT_NonIsoMuon_pt45 > 300 &&
+                                         correct2018Split         &&
+                                         passHEMVeto              &&
+                                         passMETFilters           &&
+                                         passMadHT                &&
+                                         passNonIsoTrigger        &&
+                                         passNonIsoTriggerMC      &&
+                                         (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
+                                         NNonIsoMuons == 1        &&
+                                         NGoodMuons == 0          &&
+                                         NGoodElectrons == 0      &&
+                                         JetID                    &&
+                                         NNonIsoMuonJets_pt45 >= 6;
 
         // ------------------------------------
         // -- Define 1-lepton proto-baseline
@@ -386,6 +401,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline0l_refAN_pt45"+myVarSuffix_,  passBaseline0l_refAN_pt45); //
         tr.registerDerivedVar<bool>("passBaseline0l_csv_refAN"+myVarSuffix_,   passBaseline0l_csv_refAN); //
         tr.registerDerivedVar<bool>("passBaseline0l_pt45"+myVarSuffix_,        passBaseline0l_pt45); //
+        tr.registerDerivedVar<bool>("passBaseline0l_NonIsoMuon"+myVarSuffix_,  passBaseline0l_NonIsoMuon);
         tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"+myVarSuffix_,  passBaselineGoodOffline1l);
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,        passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_,  passBaseline1l_NonIsoMuon);
