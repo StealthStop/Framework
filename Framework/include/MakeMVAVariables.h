@@ -431,16 +431,16 @@ private:
 
         for(unsigned int i = 0; i < nLeptons_; i++)
         {
-            tr.registerDerivedVar(MVALeptonName_+"_pt_"+std::to_string(i+1)+myVarSuffix_,      static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Pt()            : 0.0));
-            tr.registerDerivedVar(MVALeptonName_+"_eta_"+std::to_string(i+1)+myVarSuffix_,     static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Eta()           : 0.0));
-            tr.registerDerivedVar(MVALeptonName_+"_phi_"+std::to_string(i+1)+myVarSuffix_,     static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Phi()           : 0.0));
-            tr.registerDerivedVar(MVALeptonName_+"_m_"+std::to_string(i+1)+myVarSuffix_,       static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).M()             : 0.0));
+            tr.registerDerivedVar(MVALeptonName_+"_pt_"+std::to_string(i+1)+channel_+myVarSuffix_,      static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Pt()            : 0.0));
+            tr.registerDerivedVar(MVALeptonName_+"_eta_"+std::to_string(i+1)+channel_+myVarSuffix_,     static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Eta()           : 0.0));
+            tr.registerDerivedVar(MVALeptonName_+"_phi_"+std::to_string(i+1)+channel_+myVarSuffix_,     static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Phi()           : 0.0));
+            tr.registerDerivedVar(MVALeptonName_+"_m_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).M()             : 0.0));
         }
 
-        tr.registerDerivedVar(ESVarName_+"lvMET_cm_pt"+myVarSuffix_,              static_cast<double>( lvMET_cm.Pt() ));
-        tr.registerDerivedVar(ESVarName_+"lvMET_cm_eta"+myVarSuffix_,             static_cast<double>( lvMET_cm.Eta()));
-        tr.registerDerivedVar(ESVarName_+"lvMET_cm_phi"+myVarSuffix_,             static_cast<double>( lvMET_cm.Phi()));
-        tr.registerDerivedVar(ESVarName_+"lvMET_cm_m"+myVarSuffix_,               static_cast<double>( lvMET_cm.M()  ));
+        tr.registerDerivedVar(ESVarName_+"lvMET_cm_pt"+channel_+myVarSuffix_,              static_cast<double>( lvMET_cm.Pt() ));
+        tr.registerDerivedVar(ESVarName_+"lvMET_cm_eta"+channel_+myVarSuffix_,             static_cast<double>( lvMET_cm.Eta()));
+        tr.registerDerivedVar(ESVarName_+"lvMET_cm_phi"+channel_+myVarSuffix_,             static_cast<double>( lvMET_cm.Phi()));
+        tr.registerDerivedVar(ESVarName_+"lvMET_cm_m"+channel_+myVarSuffix_,               static_cast<double>( lvMET_cm.M()  ));
         tr.registerDerivedVar(ESVarName_+"fwm2_top6"+channel_+myVarSuffix_,       fwm2_top6                           );
         tr.registerDerivedVar(ESVarName_+"fwm3_top6"+channel_+myVarSuffix_,       fwm3_top6                           );
         tr.registerDerivedVar(ESVarName_+"fwm4_top6"+channel_+myVarSuffix_,       fwm4_top6                           );
@@ -456,7 +456,7 @@ private:
         tr.registerDerivedVar(ESVarName_+"event_beta_z"+myVarSuffix_,             event_beta_z                        );
         tr.registerDerivedVar(ESVarName_+"event_beta_z_pt20"+myVarSuffix_,        event_beta_z_pt20                   );
         tr.registerDerivedVar(ESVarName_+"event_phi_rotate"+myVarSuffix_,         phiMax                              );
-        tr.registerDerivedVar(ESVarName_+"nMVAJets"+myVarSuffix_, nTopJets_                                                      );
+        tr.registerDerivedVar(ESVarName_+"nMVAJets"+channel_+myVarSuffix_,        nTopJets_                           );
 
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
         std::pair<TLorentzVector, TLorentzVector> BestCombo, genBestCombo;

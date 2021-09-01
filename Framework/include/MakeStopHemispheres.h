@@ -48,6 +48,7 @@ private:
         TLorentzVector Stop1_PtRank_cm,       Stop2_PtRank_cm;
         TLorentzVector Stop1_MassRank_cm,     Stop2_MassRank_cm;
         TLorentzVector Stop1_ScalarPtRank_cm, Stop2_ScalarPtRank_cm;
+        TLorentzVector MET_cm;
 
         double Stop1ScalarPt              = -9999.9, Stop2ScalarPt = -9999.9;
         double Stop1ScalarPt_ScalarPtRank = -9999.9, Stop2ScalarPt_ScalarPtRank = -9999.9;
@@ -120,7 +121,6 @@ private:
             orderVars(Stop1_ScalarPtRank,         Stop2_ScalarPtRank,         Stop1,         Stop2,         Stop1ScalarPt > Stop2ScalarPt);
             orderVars(Stop1ScalarPt_ScalarPtRank, Stop2ScalarPt_ScalarPtRank, Stop1ScalarPt, Stop2ScalarPt, Stop1ScalarPt > Stop2ScalarPt);                
 
-            MT2                     = ttUtility::coreMT2calc(Stop1, Stop2, MET);
             dR_Stop1Stop2           = Stop1.DeltaR(Stop2);    
             dPhi_Stop1Stop2         = Stop1.DeltaPhi(Stop2);
             difference_stopMasses   = abs( Stop1.M() - Stop2.M() );
@@ -132,6 +132,7 @@ private:
             // ----------------------------------------------------
             Stop1_cm = Stop1;
             Stop2_cm = Stop2;
+            MET_cm   = MET;
         
             TVector3 boostVec(0.0, 0.0, -event_beta_z);  
     
@@ -141,18 +142,19 @@ private:
             Stop2_cm.Boost(boostVec);
             Stop2_cm.RotateZ(-event_phi_rotate); 
 
+            MET_cm.Boost(boostVec);
+            MET_cm.RotateZ(-event_phi_rotate);
+
             // Rank the hemispheres (Mass, Pt, Scalar Pt) 
             orderVars(Stop1_PtRank_cm,       Stop2_PtRank_cm,       Stop1_cm, Stop2_cm, Stop1_cm.Pt() > Stop2_cm.Pt());
             orderVars(Stop1_MassRank_cm,     Stop2_MassRank_cm,     Stop1_cm, Stop2_cm, Stop1_cm.M()  > Stop2_cm.M() );
             orderVars(Stop1_ScalarPtRank_cm, Stop2_ScalarPtRank_cm, Stop1_cm, Stop2_cm, Stop1ScalarPt > Stop2ScalarPt);
 
-            MT2_cm             = ttUtility::coreMT2calc(Stop1_cm, Stop2_cm, MET);
             dR_Stop1Stop2_cm   = Stop1_cm.DeltaR(Stop2_cm);
             dPhi_Stop1Stop2_cm = Stop1_cm.DeltaPhi(Stop2_cm);
 
         }
         // without any rank
-        tr.registerDerivedVar("MT2_cm"+label_+myVarSuffix_,MT2_cm);
         tr.registerDerivedVar("dR_Stop1Stop2_cm"+label_+myVarSuffix_,dR_Stop1Stop2_cm);
         tr.registerDerivedVar("dPhi_Stop1Stop2_cm"+label_+myVarSuffix_,dPhi_Stop1Stop2_cm);
         tr.registerDerivedVar("Stop1_mass_cm"+label_+myVarSuffix_,Stop1_cm.M());
@@ -199,7 +201,6 @@ private:
         tr.registerDerivedVar("Stop1_eta_ScalarPtRank_cm"+label_+myVarSuffix_,Stop1_ScalarPtRank_cm.Eta());
         tr.registerDerivedVar("Stop2_eta_ScalarPtRank_cm"+label_+myVarSuffix_,Stop2_ScalarPtRank_cm.Eta());
         // others
-        tr.registerDerivedVar("MT2"+label_+myVarSuffix_,MT2);
         tr.registerDerivedVar("dR_Stop1Stop2"+label_+myVarSuffix_,dR_Stop1Stop2);
         tr.registerDerivedVar("dPhi_Stop1Stop2"+label_+myVarSuffix_,dPhi_Stop1Stop2);
         tr.registerDerivedVar("difference_stopMasses"+label_+myVarSuffix_,difference_stopMasses);
