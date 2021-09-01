@@ -52,13 +52,11 @@ private:
 
         double Stop1ScalarPt              = -9999.9, Stop2ScalarPt = -9999.9;
         double Stop1ScalarPt_ScalarPtRank = -9999.9, Stop2ScalarPt_ScalarPtRank = -9999.9;
-        double MT2                        = 0.0;
         double dR_Stop1Stop2              = -1;
         double dPhi_Stop1Stop2            = -1;
         double difference_stopMasses      = -9999.9;
         double average_stopMasses         = -9999.9;
         double relativeDiff_stopMasses    = -9999.9;
-        double MT2_cm                     = 0.0;
         double dR_Stop1Stop2_cm           = -1;
         double dPhi_Stop1Stop2_cm         = -1;
  
