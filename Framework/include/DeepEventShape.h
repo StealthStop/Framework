@@ -75,6 +75,8 @@ private:
     std::vector<int> outputCmVec_;
     std::vector<std::string> vars_;
     std::vector<double> binEdges_;
+    std::map<std::string, std::vector<double> > binEdgesPerRegion_;
+    std::vector<std::string> regions_;
 
     std::vector<TF_Output>     inputs_;
     std::vector<TF_Output>     outputs_;
@@ -124,7 +126,13 @@ private:
         minNJet_     = cfgDoc->get("minNJet",   localCxt, 7);
         maxNJet_     = cfgDoc->get("maxNJet",   localCxt, 7);
         vars_        = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
+        regions_     = getVecFromCfg<std::string>(cfgDoc, "regions", localCxt, "");
         binEdges_    = getVecFromCfg<double>(cfgDoc, "binEdges", localCxt, -1);
+
+        for (const auto region : regions_) {
+            binEdgesPerRegion_[region] = getVecFromCfg<double>(cfgDoc, "binEdges_"+region, localCxt, -1);
+        }
+
         if(!outputOp_.empty())
         {
             outputOpVec_.push_back(outputOp_);
@@ -261,9 +269,9 @@ private:
             // Define and register deepESM bins
             const auto& NGoodJets = tr.getVar<int>(nJetVar_+myVarSuffix_);
             int iJet;
-            if      (NGoodJets < minNJet_)                                iJet = 1;
+            if      (NGoodJets < minNJet_)                           iJet = 1;
             else if (minNJet_ <= NGoodJets && NGoodJets <= maxNJet_) iJet = 2*(NGoodJets-minNJet_)+1;
-            else if (maxNJet_ < NGoodJets)                                iJet = 2*(maxNJet_-minNJet_)+1;
+            else if (maxNJet_ < NGoodJets)                           iJet = 2*(maxNJet_-minNJet_)+1;
 
             bool passBinA = disc1 > binEdges_[iJet-1] && disc2 > binEdges_[iJet];
             bool passBinB = disc1 < binEdges_[iJet-1] && disc2 > binEdges_[iJet];
@@ -274,6 +282,19 @@ private:
             tr.registerDerivedVar("DoubleDisCo_binB_"+name_+myVarSuffix_, passBinB);
             tr.registerDerivedVar("DoubleDisCo_binC_"+name_+myVarSuffix_, passBinC);
             tr.registerDerivedVar("DoubleDisCo_binD_"+name_+myVarSuffix_, passBinD);
+
+            for (const auto region : regions_) {
+
+                bool passBinA = disc1 > binEdgesPerRegion_[region][iJet-1] && disc2 > binEdgesPerRegion_[region][iJet];
+                bool passBinB = disc1 < binEdgesPerRegion_[region][iJet-1] && disc2 > binEdgesPerRegion_[region][iJet];
+                bool passBinC = disc1 > binEdgesPerRegion_[region][iJet-1] && disc2 < binEdgesPerRegion_[region][iJet];
+                bool passBinD = disc1 < binEdgesPerRegion_[region][iJet-1] && disc2 < binEdgesPerRegion_[region][iJet];
+
+                tr.registerDerivedVar("DoubleDisCo_binA_"+region+"_"+name_+myVarSuffix_, passBinA);
+                tr.registerDerivedVar("DoubleDisCo_binB_"+region+"_"+name_+myVarSuffix_, passBinB);
+                tr.registerDerivedVar("DoubleDisCo_binC_"+region+"_"+name_+myVarSuffix_, passBinC);
+                tr.registerDerivedVar("DoubleDisCo_binD_"+region+"_"+name_+myVarSuffix_, passBinD);
+            }
         }
         else
         { 
