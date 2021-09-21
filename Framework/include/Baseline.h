@@ -169,14 +169,37 @@ private:
                                           (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
                                           NGoodLeptons == 0      &&
                                           HT_trigger_pt45  > 500 &&
-                                          NGoodBJets_pt45 >= 2   &&
-                                          NGoodJets_pt45 >= 6    ;
+                                          NGoodJets_pt45 >= 7    ;
 
         // general baseline selection
         bool passBaseline0l_Good  = passBaseline0l_proto   &&
+                                    NGoodBJets_pt45 >= 1   &&
+                                    ntops >= 1             &&
+                                    dR_bjets >= 1.0        ;
+
+        bool passBaseline0l_ge1top =  passBaseline0l_proto    &&
+                                    NGoodBJets_pt45 >= 2    &&
+                                    ntops >= 1              &&
+                                    dR_bjets >= 1.0         ;
+
+        bool passBaseline0l_ge0top =  passBaseline0l_proto    &&
+                                    NGoodBJets_pt45 >= 2    &&
+                                    dR_bjets >= 1.0         ;
+
+        bool passBaseline0l_ge1b =  passBaseline0l_proto   &&
+                                    NGoodBJets_pt45 >= 1   &&
                                     ntops >= 2             &&
                                     dR_bjets >= 1.0        ;
 
+        bool passBaseline0l_ge1top_ge1b = passBaseline0l_proto    &&
+                                        NGoodBJets_pt45 >= 1    &&
+                                        ntops >= 1              &&
+                                        dR_bjets >= 1.0         ;
+
+        bool passBaseline0l_ge0top_ge1b =     passBaseline0l_proto    &&
+                                            NGoodBJets_pt45 >= 1    &&
+                                            dR_bjets >= 1.0         ;
+        
         // ----------------------------------------------------------
         // -- Define 0 Lepton Baseline for Trigger Efficiency & SF
         // ----------------------------------------------------------
@@ -236,7 +259,7 @@ private:
                                    NGoodJets_pt45 >= 6   &&
                                    NGoodBJets_pt45 >= 2  ;
 
-        bool passBaseline0l_NonIsoMuon = HT_NonIsoMuon_pt45 > 300 &&
+        bool passBaseline0l_NonIsoMuon = HT_NonIsoMuon_pt45 > 500 &&
                                          correct2018Split         &&
                                          passHEMVeto              &&
                                          passMETFilters           &&
@@ -386,6 +409,11 @@ private:
        
         tr.registerDerivedVar<bool>("passBaseline0l_proto"+myVarSuffix_,       passBaseline0l_proto); 
         tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,        passBaseline0l_Good);
+        tr.registerDerivedVar<bool>("passBaseline0l_ge1top"+myVarSuffix_,        passBaseline0l_ge1top);
+        tr.registerDerivedVar<bool>("passBaseline0l_ge0top"+myVarSuffix_,        passBaseline0l_ge0top);
+        tr.registerDerivedVar<bool>("passBaseline0l_ge1b"+myVarSuffix_,        passBaseline0l_ge1b);
+        tr.registerDerivedVar<bool>("passBaseline0l_ge1top_ge1b"+myVarSuffix_,   passBaseline0l_ge1top_ge1b);
+        tr.registerDerivedVar<bool>("passBaseline0l_ge0top_ge1b"+myVarSuffix_,   passBaseline0l_ge0top_ge1b);
         tr.registerDerivedVar<bool>("passBaseline0l_hadTrig"+myVarSuffix_,     passBaseline0l_hadTrig); //
         tr.registerDerivedVar<bool>("passBaseline0l_hadMuTrig"+myVarSuffix_,   passBaseline0l_hadMuTrig); //
         tr.registerDerivedVar<bool>("passBaseline0l_refAN"+myVarSuffix_,       passBaseline0l_refAN); //
