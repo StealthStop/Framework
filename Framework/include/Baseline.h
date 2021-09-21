@@ -103,12 +103,12 @@ private:
             if (filetag.find("Data_SinglePhoton") != std::string::npos && !passTriggerPhoton) passTrigger = false;
             if (filetag.find("Data_SingleMuon") != std::string::npos && !passTriggerNonIsoMuon) passNonIsoTrigger = false;
             if (filetag.find("Data_SingleMuon") != std::string::npos && !passTriggerIsoMu) passIsoMuTrigger = false;
-
-            // Blinding data 
-            if (NGoodJets_pt30 >= 9 && blind) passBlindHad_Good = false;
-            if (NGoodJets_pt30 >= 9 && blind) passBlindLep_Good = false;
         }
         
+        // Blind data AND MC together, always
+        if (NGoodJets_pt30 >= 9 && blind) passBlindHad_Good = false;
+        if (NGoodJets_pt30 >= 9 && blind) passBlindLep_Good = false;
+
         // ------------------------
         // -- MC dependent stuff - 
         // -----------------------
@@ -169,6 +169,11 @@ private:
                                           HT_trigger_pt45  > 500 &&
                                           NGoodBJets_pt45 >= 2   &&
                                           NGoodJets_pt45 >= 6    ;
+
+        // general baseline selection
+        bool passBaseline0l_Good_Loose  = passBaseline0l_proto   &&
+                                          ntops >= 1             &&
+                                          dR_bjets >= 1.0        ;
 
         // general baseline selection
         bool passBaseline0l_Good  = passBaseline0l_proto   &&
@@ -371,6 +376,7 @@ private:
        
         tr.registerDerivedVar<bool>("passBaseline0l_proto"+myVarSuffix_,       passBaseline0l_proto); 
         tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,        passBaseline0l_Good);
+        tr.registerDerivedVar<bool>("passBaseline0l_Good_Loose"+myVarSuffix_,  passBaseline0l_Good_Loose);
         tr.registerDerivedVar<bool>("passBaseline0l_hadTrig"+myVarSuffix_,     passBaseline0l_hadTrig); //
         tr.registerDerivedVar<bool>("passBaseline0l_hadMuTrig"+myVarSuffix_,   passBaseline0l_hadMuTrig); //
         tr.registerDerivedVar<bool>("passBaseline0l_refAN"+myVarSuffix_,       passBaseline0l_refAN); //
