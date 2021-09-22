@@ -394,6 +394,7 @@ private:
             tr.registerDerivedVar(MVAJetName_+"_eta_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Eta()        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_phi_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Phi()        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_m_"+std::to_string(i+1)+channel_+myVarSuffix_,           static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).M()          : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_E_"+std::to_string(i+1)+channel_+myVarSuffix_,           static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).E()          : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_flavb_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavb.at(i)        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_flavg_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavg.at(i)        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_flavc_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavc.at(i)        : 0.0));
