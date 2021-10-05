@@ -179,8 +179,7 @@ private:
         // general baseline selection
         bool passBaseline0l_Good  = passBaseline0l_proto   &&
                                     NGoodBJets_pt45 >= 1   &&
-                                    ntops >= 1             &&
-                                    dR_bjets >= 1.0        ;
+                                    ntops >= 1             ;
 
         bool passBaseline0l_ge1top =  passBaseline0l_proto    &&
                                     NGoodBJets_pt45 >= 2    &&
@@ -276,7 +275,7 @@ private:
                                          NGoodMuons == 0          &&
                                          NGoodElectrons == 0      &&
                                          JetID                    &&
-                                         NNonIsoMuonJets_pt45 >= 6;
+                                         NNonIsoMuonJets_pt45 >= 7;
 
         // ------------------------------------
         // -- Define 1-lepton proto-baseline
