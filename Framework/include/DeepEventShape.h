@@ -273,39 +273,38 @@ private:
             // Define and register deepESM bins
             const auto& NGoodJets = tr.getVar<int>(nJetVar_+myVarSuffix_);
             int iJet; // Iterator for simple edges coming from NN framework
-            int kJet; // Iterator for edges, boundaries coming from Validation
 
             // Determine how many unique parameters per Njet bin per region
-            int iSkip = binEdges_.size()          / (maxNJet_-minNJet_+1);
-            int kSkip = binEdgesPerRegion_.size() / (maxNJet_-minNJet_+1);
+            int iSkip = binEdges_.size() / (maxNJet_-minNJet_+1);
 
-            if      (NGoodJets <= minNJet_) {
+            if      (NGoodJets <= minNJet_)
                 iJet = 0;
-                kJet = 0;
-            }
-            else if (NGoodJets <= maxNJet_) {
+            else if (NGoodJets <= maxNJet_)
                 iJet = iSkip*(NGoodJets-minNJet_);
-                kJet = kSkip*(NGoodJets-minNJet_);
-            }
-            else if (NGoodJets  > maxNJet_) {
+            else if (NGoodJets  > maxNJet_)
                 iJet = iSkip*(maxNJet_-minNJet_);
-                kJet = kSkip*(maxNJet_-minNJet_);
-            }
 
             // Here, for edges from NN framework, two parameters are extracted for each Njets bin, ABCD region in the order:
             // disc1, disc2
             double disc1edge = binEdges_[iJet];
             double disc2edge = binEdges_[iJet+1];
 
+            // Discriminant 1 placed on horizontal axis
+            // Discriminant 2 placed on vertical axis
+
+            // Upper-right subregion
             bool passBinA = disc1 > disc1edge &&
                             disc2 > disc2edge;
 
+            // Upper-left subregion
             bool passBinB = disc1 < disc1edge &&
                             disc2 > disc2edge;
 
+            // Lower-right subregion
             bool passBinC = disc1 > disc1edge &&
                             disc2 < disc2edge;
 
+            // Lower-left subregion
             bool passBinD = disc1 < disc1edge &&
                             disc2 < disc2edge;
 
@@ -316,12 +315,23 @@ private:
             passVec.at(2) = passBinC;
             passVec.at(3) = passBinD;
 
+            int kJet; // Iterator for edges, boundaries coming from Validation
             for (const auto region : regions_) {
 
                 if (binEdgesPerRegion_.find(region) == binEdgesPerRegion_.end())
                     continue;
 
-                // Here, six parameters are extracted for each Njets bin, ABCD region in the order:
+                // Determine how many unique parameters per Njet bin per region
+                int kSkip = binEdgesPerRegion_[region].size() / (maxNJet_-minNJet_+1);
+
+                if      (NGoodJets <= minNJet_)
+                    kJet = 0;
+                else if (NGoodJets <= maxNJet_)
+                    kJet = kSkip*(NGoodJets-minNJet_);
+                else if (NGoodJets  > maxNJet_)
+                    kJet = kSkip*(maxNJet_-minNJet_);
+
+                // Here, six parameters are extracted for each (Njets bin, ABCD) region in the order:
                 // disc1, disc2, leftBoundary, rightBoundary, topBoundary, bottomBoundary
                 double disc1edge      = binEdgesPerRegion_[region][kJet];
                 double disc2edge      = binEdgesPerRegion_[region][kJet+1];
@@ -330,6 +340,9 @@ private:
                 double topBoundary    = binEdgesPerRegion_[region][kJet+4];
                 double bottomBoundary = binEdgesPerRegion_[region][kJet+5];
 
+                // Discriminant 1 placed on horizontal (left-to-right) axis
+                // Discriminant 2 placed on vertical (top-to-bottom) axis
+
                 // Check that the current event lives in the region in question.
                 // Otherwise, it cannot possibly live in any of the "A", "B", "C", "D" subregions.
                 bool withinBoundaries = disc1 > leftBoundary   &&
@@ -337,18 +350,22 @@ private:
                                         disc2 > bottomBoundary &&
                                         disc2 < topBoundary;
 
+                // Upper-right subregion
                 bool passBinA = disc1 > disc1edge &&
                                 disc2 > disc2edge &&
                                 withinBoundaries;
 
+                // Upper-left subregion
                 bool passBinB = disc1 < disc1edge &&
                                 disc2 > disc2edge &&
                                 withinBoundaries;
 
+                // Lower-right subregion
                 bool passBinC = disc1 > disc1edge &&
                                 disc2 < disc2edge &&
                                 withinBoundaries;
 
+                // Lower-left subregion
                 bool passBinD = disc1 < disc1edge &&
                                 disc2 < disc2edge &&
                                 withinBoundaries;
