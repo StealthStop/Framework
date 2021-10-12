@@ -161,15 +161,26 @@ private:
         // -- Define 0 Lepton Baseline for data-MC
         // ------------------------------------------
         // for some of the analyzers which using the different top selections
-        bool passBaseline0l_proto       = JetID                  &&
-                                          passMETFilters         &&
-                                          passMadHT              &&
-                                          passTrigger            &&
-                                          passTriggerHadMC       &&
-                                          (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
-                                          NGoodLeptons == 0      &&
-                                          HT_trigger_pt45  > 500 &&
-                                          NGoodJets_pt45 >= 7    ;
+        bool passBaseline0l_proto = JetID                  &&
+                                    passMETFilters         &&
+                                    passMadHT              &&
+                                    passTrigger            &&
+                                    passTriggerHadMC       &&
+                                    (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
+                                    NGoodLeptons == 0      &&
+                                    HT_trigger_pt45  > 500 &&
+                                    NGoodJets_pt45 >= 7    ;
+
+        // proto baseline for baseline exploration
+        bool passBaseline0l_pre = JetID                  &&
+                                  passMETFilters         &&
+                                  passMadHT              &&
+                                  passTrigger            &&
+                                  passTriggerHadMC       &&
+                                  (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
+                                  NGoodLeptons == 0      &&
+                                  HT_trigger_pt45 > 500  && 
+                                  NGoodJets_pt45 >= 6    ;
 
         // general baseline selection
         bool passBaseline0l_Good_Loose  = passBaseline0l_proto   &&
@@ -411,13 +422,14 @@ private:
                                         NGoodLeptons == 0   && 
                                         NGoodJets_pt30 >= 7; 
        
-        tr.registerDerivedVar<bool>("passBaseline0l_proto"+myVarSuffix_,       passBaseline0l_proto); 
+        tr.registerDerivedVar<bool>("passBaseline0l_proto"+myVarSuffix_,       passBaseline0l_proto);
+        tr.registerDerivedVar<bool>("passBaseline0l_pre"+myVarSuffix_,         passBaseline0l_pre); 
         tr.registerDerivedVar<bool>("passBaseline0l_Good"+myVarSuffix_,        passBaseline0l_Good);
-        tr.registerDerivedVar<bool>("passBaseline0l_ge1top"+myVarSuffix_,        passBaseline0l_ge1top);
-        tr.registerDerivedVar<bool>("passBaseline0l_ge0top"+myVarSuffix_,        passBaseline0l_ge0top);
+        tr.registerDerivedVar<bool>("passBaseline0l_ge1top"+myVarSuffix_,      passBaseline0l_ge1top);
+        tr.registerDerivedVar<bool>("passBaseline0l_ge0top"+myVarSuffix_,      passBaseline0l_ge0top);
         tr.registerDerivedVar<bool>("passBaseline0l_ge1b"+myVarSuffix_,        passBaseline0l_ge1b);
-        tr.registerDerivedVar<bool>("passBaseline0l_ge1top_ge1b"+myVarSuffix_,   passBaseline0l_ge1top_ge1b);
-        tr.registerDerivedVar<bool>("passBaseline0l_ge0top_ge1b"+myVarSuffix_,   passBaseline0l_ge0top_ge1b);
+        tr.registerDerivedVar<bool>("passBaseline0l_ge1top_ge1b"+myVarSuffix_, passBaseline0l_ge1top_ge1b);
+        tr.registerDerivedVar<bool>("passBaseline0l_ge0top_ge1b"+myVarSuffix_, passBaseline0l_ge0top_ge1b);
         tr.registerDerivedVar<bool>("passBaseline0l_Good_Loose"+myVarSuffix_,  passBaseline0l_Good_Loose);
         tr.registerDerivedVar<bool>("passBaseline0l_hadTrig"+myVarSuffix_,     passBaseline0l_hadTrig); //
         tr.registerDerivedVar<bool>("passBaseline0l_hadMuTrig"+myVarSuffix_,   passBaseline0l_hadMuTrig); //
