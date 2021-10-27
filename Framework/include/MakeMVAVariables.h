@@ -177,12 +177,10 @@ private:
         for(auto jlv : Jets)
         {
             rlv_all += jlv;
-            if (jlv.Pt() > 20.) rlv_pt20 += jlv;
         }
 
         // Boost to the CM frame (only in z)
         double event_beta_z      = rlv_all.Pz() / rlv_all.E();
-        double event_beta_z_pt20 = rlv_pt20.Pz() / rlv_pt20.E();
         TVector3 rec_boost_beta_vec( 0.0, 0.0, -event_beta_z );
 
         auto& cm_jets = tr.createDerivedVec<math::RThetaPhiVector>(ESVarName_+"cm_jets"+myVarSuffix_);
@@ -226,18 +224,19 @@ private:
 
         double phiMax = (NGoodJets > 0) ? Jets_cm_psort[0].tlv.Phi() : 0.0;
 
+        TLorentzVector combinedJetTLV;
         for(unsigned int ji=0; ji<cm_jets.size(); ji++ ) 
         {
+            TLorentzVector Jet_cm_psort = Jets_cm_psort.at(ji).tlv;                
+            if(ji == 0)
+                Jet_cm_psort.SetPhi(0.0);
+            else
+                Jet_cm_psort.RotateZ(-phiMax);                
+
             if ( ji < nTopJets_ ) 
             {
                 cm_jets_top6.push_back( cm_jets_psort.at(ji) ) ;
 
-                TLorentzVector Jet_cm_psort = Jets_cm_psort.at(ji).tlv;                
-                if(ji == 0)
-                    Jet_cm_psort.SetPhi(0.0);
-                else
-                    Jet_cm_psort.RotateZ(-phiMax);                
-                
                 Jets_cm_top6.push_back             ( Jet_cm_psort                      );
                 Jets_cm_top6_flavb.push_back       ( Jets_cm_psort.at(ji).flavb        );
                 Jets_cm_top6_flavg.push_back       ( Jets_cm_psort.at(ji).flavg        );
@@ -254,7 +253,19 @@ private:
                 Jets_cm_top6_multiplicity.push_back( Jets_cm_psort.at(ji).multiplicity );
                 Jets_top6.push_back                ( Jets_psort.at(ji)                 );
             }
+
+            // Add all jets after and including the 7th jet (ji >= 6)
+            if ( ji >= nTopJets_-1 )
+            {
+                combinedJetTLV += Jet_cm_psort;
+            }
         } // ji
+
+        tr.registerDerivedVar("combined7thToLastJet_pt_cm"+myVarSuffix_,   combinedJetTLV.Pt() );
+        tr.registerDerivedVar("combined7thToLastJet_eta_cm"+myVarSuffix_,  combinedJetTLV.Eta());
+        tr.registerDerivedVar("combined7thToLastJet_phi_cm"+myVarSuffix_,  combinedJetTLV.Phi());
+        tr.registerDerivedVar("combined7thToLastJet_m_cm"+myVarSuffix_, combinedJetTLV.M()  );
+        tr.registerDerivedVar("combined7thToLastJet_E_cm"+myVarSuffix_, combinedJetTLV.E()  );
 
         auto GoodLeptons_cm = std::make_unique<std::vector<TLorentzVector>>();
         for(unsigned int ilep = 0; ilep < GoodLeptons.size(); ilep++)
@@ -284,6 +295,52 @@ private:
             printf("\n\n") ;
         }
         
+        // Get the tops and boost and rotate them !
+        // Only attempt this when running the module for 0l
+        if (channel_.find("0l") != std::string::npos)
+        {
+            auto& topsLV = tr.getVec<TLorentzVector>("topsLV"+myVarSuffix_);
+
+            double top1mass = 0.0; double top2mass = 0.0;
+            double top1pt = 0.0;   double top2pt = 0.0;
+            double top1phi = 0.0;  double top2phi = 0.0;
+            double top1eta = 0.0;  double top2eta = 0.0;
+
+            if (topsLV.size() >= 1)
+            {
+                 auto Top1 = topsLV.at(0);
+                 Top1.Boost(rec_boost_beta_vec);
+                 Top1.RotateZ(-phiMax);
+
+                 top1pt = Top1.Pt();
+                 top1eta = Top1.Eta();
+                 top1phi = Top1.Phi();
+                 top1mass = Top1.M();
+
+                 if (topsLV.size() >= 2)
+                 {
+                     auto Top2 = topsLV.at(1);
+                     Top2.Boost(rec_boost_beta_vec);
+                     Top2.RotateZ(-phiMax);
+
+                     top2pt = Top2.Pt();
+                     top2eta = Top2.Eta();
+                     top2phi = Top2.Phi();
+                     top2mass = Top2.M();
+                 }
+            }
+
+            tr.registerDerivedVar("top1_pt_cm"+myVarSuffix_,   static_cast<double>( top1pt ));
+            tr.registerDerivedVar("top1_eta_cm"+myVarSuffix_,  static_cast<double>( top1eta ));
+            tr.registerDerivedVar("top1_phi_cm"+myVarSuffix_,  static_cast<double>( top1phi ));
+            tr.registerDerivedVar("top1_mass_cm"+myVarSuffix_, static_cast<double>( top1mass ));
+
+            tr.registerDerivedVar("top2_pt_cm"+myVarSuffix_,   static_cast<double>( top2pt ));
+            tr.registerDerivedVar("top2_eta_cm"+myVarSuffix_,  static_cast<double>( top2eta ));
+            tr.registerDerivedVar("top2_phi_cm"+myVarSuffix_,  static_cast<double>( top2phi ));
+            tr.registerDerivedVar("top2_mass_cm"+myVarSuffix_, static_cast<double>( top2mass ));
+        }
+
         // Make and get the event shape variables for the 6 highest-P jets in the CM frame
         EventShapeVariables esv_top6( cm_jets_top6 ) ;
         TVectorD eigen_vals_norm_top6 = esv_top6.getEigenValues() ;
@@ -455,7 +512,6 @@ private:
         tr.registerDerivedVar(ESVarName_+"jmt_ev1_top6"+channel_+myVarSuffix_,    jmt_ev1_top6                        );
         tr.registerDerivedVar(ESVarName_+"jmt_ev2_top6"+channel_+myVarSuffix_,    jmt_ev2_top6                        );
         tr.registerDerivedVar(ESVarName_+"event_beta_z"+myVarSuffix_,             event_beta_z                        );
-        tr.registerDerivedVar(ESVarName_+"event_beta_z_pt20"+myVarSuffix_,        event_beta_z_pt20                   );
         tr.registerDerivedVar(ESVarName_+"event_phi_rotate"+myVarSuffix_,         phiMax                              );
         tr.registerDerivedVar(ESVarName_+"nMVAJets"+channel_+myVarSuffix_,        nTopJets_                           );
 
