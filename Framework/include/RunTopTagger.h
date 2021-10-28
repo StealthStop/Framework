@@ -191,6 +191,7 @@ private:
         auto& topsPhi  = tr.createDerivedVec<double>("topsPhi"+myVarSuffix_);
         auto& topsPt   = tr.createDerivedVec<double>("topsPt"+myVarSuffix_);
         auto& topsLV   = tr.createDerivedVec<TLorentzVector>("topsLV"+myVarSuffix_);
+
         for(const auto* t : tops)
         {
             topsMass.push_back(t->p().M());
@@ -206,6 +207,7 @@ private:
         double bestTopMass             = -9999.9;
         double bestTopEta              = -9999.9;
         double bestTopPt               = -9999.9;
+        double bestTopPhi              = -9999.9;
         const TopObject* bestTopMassLV = nullptr;
         bool bestTopMassGenMatch       = false;
         bool bestTopMassTopTag         = false;
@@ -218,6 +220,7 @@ private:
                 bestTopMass = top->p().M();
                 bestTopEta = top->p().Eta();
                 bestTopPt = top->p().Pt();
+                bestTopPhi = top->p().Phi();
                 bestTopMassLV = top;
             }     
         }
@@ -306,6 +309,7 @@ private:
         tr.registerDerivedVar("bestTopMass"+myVarSuffix_, bestTopMass);
         tr.registerDerivedVar("bestTopEta"+myVarSuffix_, bestTopEta);
         tr.registerDerivedVar("bestTopPt"+myVarSuffix_, bestTopPt);
+        tr.registerDerivedVar("bestTopPhi"+myVarSuffix_, bestTopPhi);
         tr.registerDerivedVar("bestTopMassLV"+myVarSuffix_, bestTopMassLV?(bestTopMassLV->p()):(TLorentzVector()));
         tr.registerDerivedVar("bestTopMassGenMatch"+myVarSuffix_, bestTopMassGenMatch);
         tr.registerDerivedVar("bestTopMassTopTag"+myVarSuffix_, bestTopMassTopTag);
