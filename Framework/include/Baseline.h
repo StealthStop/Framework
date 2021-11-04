@@ -179,9 +179,9 @@ private:
                                   passTriggerHadMC       &&
                                   (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
                                   NGoodLeptons == 0      &&
-                                  NNonIsoMuons == 0      &&
-                                  HT_trigger_pt45 > 500  && 
+                                  HT_trigger_pt30 > 500  && 
                                   NGoodJets_pt45 >= 6    ;
+                                  //NGoodBJets_pt45 >= 1   ;
 
         // general baseline selection
         bool passBaseline0l_Good_Loose  = passBaseline0l_proto   &&

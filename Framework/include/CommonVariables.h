@@ -340,12 +340,12 @@ private:
         // -- Calculate DeltaR between 2 bjets for 0 lepton
         // ---------------------------------------------------
         double dR_bjets = -1;
-        if(NGoodBJets_pt45 >= 2)
+        if(NGoodBJets_pt30 >= 2)
         {
             std::vector<TLorentzVector> bjets;
             for(unsigned int ijet = 0; ijet < Jets.size(); ijet++)
             {
-                if(!GoodBJets_pt45[ijet]) continue;
+                if(!GoodBJets_pt30[ijet]) continue;
                 bjets.push_back(Jets.at(ijet));
             }
             int n = bjets.size();
