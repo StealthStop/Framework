@@ -191,6 +191,7 @@ private:
         auto& topsPhi  = tr.createDerivedVec<double>("topsPhi"+myVarSuffix_);
         auto& topsPt   = tr.createDerivedVec<double>("topsPt"+myVarSuffix_);
         auto& topsLV   = tr.createDerivedVec<TLorentzVector>("topsLV"+myVarSuffix_);
+
         for(const auto* t : tops)
         {
             topsMass.push_back(t->p().M());
