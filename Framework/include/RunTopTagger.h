@@ -206,8 +206,8 @@ private:
         // ----------------------------------
         double bestTopMass             = -9999.9;
         double bestTopEta              = -9999.9;
-        double bestTopPt               = -9999.9;
         double bestTopPhi              = -9999.9;
+        double bestTopPt               = -9999.9;
         const TopObject* bestTopMassLV = nullptr;
         bool bestTopMassGenMatch       = false;
         bool bestTopMassTopTag         = false;
@@ -217,10 +217,10 @@ private:
 
             if(fabs(top->p().M() - 173.21) < fabs(bestTopMass - 173.21))
             {
-                bestTopMass = top->p().M();
-                bestTopEta = top->p().Eta();
-                bestTopPt = top->p().Pt();
-                bestTopPhi = top->p().Phi();
+                bestTopMass   = top->p().M();
+                bestTopEta    = top->p().Eta();
+                bestTopPhi    = top->p().Phi();
+                bestTopPt     = top->p().Pt();
                 bestTopMassLV = top;
             }     
         }
