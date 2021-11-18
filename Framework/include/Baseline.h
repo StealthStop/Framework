@@ -162,7 +162,7 @@ private:
         // proto baseline 
         bool passBaseline0l_pre = JetID                  &&
                                   passMETFilters         &&
-                                  //passMadHT              &&
+                                  passMadHT              &&
                                   passTrigger            &&
                                   passTriggerHadMC       &&
                                   (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
