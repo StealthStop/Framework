@@ -386,6 +386,12 @@ private:
     void prepNTupleVars(NTupleReader& tr)
     {
         // Creating the jet pT and mass scaled collection
+        std::cout<<"Getting Jet collection here"<<std::endl;
+        //tr.printTupleMembers();
+        //const auto& Jets = tr.getVec_LV<float>("Jets");
+        const auto& Jets = tr.getVec<int>("Jets");
+        std::cout<<"Got Jet collection here"<<std::endl;
+
         JetCollection jc(tr);
         JetAK8Collection jcAK8(tr);
         const auto& runYear = tr.getVar<std::string>("runYear");
