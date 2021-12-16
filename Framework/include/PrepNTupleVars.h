@@ -387,10 +387,14 @@ private:
     {
         // Creating the jet pT and mass scaled collection
         std::cout<<"Getting Jet collection here"<<std::endl;
-        //tr.printTupleMembers();
-        //const auto& Jets = tr.getVec_LV<float>("Jets");
-        const auto& Jets = tr.getVec<int>("Jets");
+        const auto& Jets = tr.getVec<utility::LorentzVector>("Jets");
         std::cout<<"Got Jet collection here"<<std::endl;
+        std::cout<<Jets.size()<<std::endl;
+        for(unsigned int i = 0; i < Jets.size(); i++)
+        {
+            std::cout<<i<<" / "<<Jets.size()<<" "<<Jets[i]<<" "<<Jets[i].Pt()<<" "<<Jets[i].pt()<<std::endl;
+        }
+
 
         JetCollection jc(tr);
         JetAK8Collection jcAK8(tr);

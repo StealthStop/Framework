@@ -3,10 +3,13 @@
 
 #include "Framework/Framework/include/Vector3D.h"
 #include "TLorentzVector.h"
+#include "Math/Vector4D.h"
 #include <cmath>
 
 namespace utility
 {
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float>> LorentzVector;
+
     double calcDPhi(const double phi1, const double phi2);
     double calcDR(const double eta1, const double eta2, const double phi1, const double phi2);
     double calcMT(const TLorentzVector& lepton, const TLorentzVector& met);
