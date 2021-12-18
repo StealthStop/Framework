@@ -18,6 +18,7 @@ namespace utility
     bool compare_p(const math::RThetaPhiVector& v1, const math::RThetaPhiVector& v2);
     bool compare_pt_TLV(const TLorentzVector& v1, const TLorentzVector& v2);
     void get_cmframe_jets(const std::vector<TLorentzVector>* lab_frame_jets, std::vector<math::RThetaPhiVector>& cm_frame_jets, int max_number_of_jets = -1 );
+    std::vector<TLorentzVector> convertVectorOfLV(const std::vector<utility::LorentzVector>& vec);
 
     template<typename T> T sum2(T v) { return v*v; }
     template<typename T, typename... Args> T sum2(T v, Args... args) { return v*v + sum2(args...); }
