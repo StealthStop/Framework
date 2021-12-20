@@ -25,9 +25,6 @@ private:
     std::shared_ptr<TH2F> muSFHistoTrig_;
     std::shared_ptr<TH2F> nimuSFHistoTrig_;
     std::shared_ptr<TGraph> muSFHistoReco_;
-    std::shared_ptr<TH1F> puSFHisto_;
-    std::shared_ptr<TH1F> puSFUpHisto_;
-    std::shared_ptr<TH1F> puSFDownHisto_;
     std::shared_ptr<TH2F> L1Prefireing_;
     std::map<std::string, double> sfMeanMap_;
 
@@ -556,32 +553,19 @@ private:
         // For 2016 and 2018: Grab the individual pileup weight from the histogram found in PileupHistograms_*.root
         // For 2017: Using the puWeight stored in the nTuples
         // ----------------------------------------------------------------------------        
-        const auto& puWeight  = tr.getVar<double>("puWeight");
-        const auto& puSysUp   = tr.getVar<double>("puSysUp");
-        const auto& puSysDown = tr.getVar<double>("puSysDown");
+        const auto& puWeightUnCorr  = tr.getVar<double>("puWeight");
+        const auto& puSysUpUnCorr   = tr.getVar<double>("puSysUp");
+        const auto& puSysDownUnCorr = tr.getVar<double>("puSysDown");
         const auto& tru_npv   = tr.getVar<double>("TrueNumInteractions");
 
-        double puWeightUnCorr = 1.0, puSysUpUnCorr = 1.0, puSysDownUnCorr = 1.0;
-        if( runYear == "2016" || runYear == "2018pre" || runYear == "2018post") 
-        {
-            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X", "nom pu") );
-            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X", "up pu") );
-            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X", "down pu") );
-        }
-        else if( runYear == "2017") 
-        {
-            puWeightUnCorr = puWeight; 
-            puSysUpUnCorr = puSysUp;
-            puSysDownUnCorr = puSysDown;
-        }        
         tr.registerDerivedVar( "puWeightUnCorr"+myVarSuffix_,  puWeightUnCorr);
         tr.registerDerivedVar( "puSysUpUnCorr"+myVarSuffix_,   puSysUpUnCorr);
         tr.registerDerivedVar( "puSysDownUnCorr"+myVarSuffix_, puSysDownUnCorr);
 
         // Adding correction to the pileup weight
-        double puWeightCorr  = puWeight;
-        double puSysUpCorr   = puSysUp;
-        double puSysDownCorr = puSysDown;
+        double puWeightCorr  = puWeightUnCorr;
+        double puSysUpCorr   = puSysUpUnCorr;
+        double puSysDownCorr = puSysDownUnCorr;
         if( sfMeanMap_.find(filetag+"_pu") != sfMeanMap_.end() && !isSignal )
         {
             const double mean     = getMean(filetag+"_pu");
@@ -689,7 +673,7 @@ private:
     }
 
 public:
-    ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& puFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
+    ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
         : myVarSuffix_(myVarSuffix), firstPrint_(true), printMeanError_(false), printGetBinError_(false)
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
@@ -773,22 +757,6 @@ public:
             sfMeanMap_.insert(std::pair<std::string, double>(name, h->GetMean()));
         }
         SFMeanRootFile.Close();
-
-        // Getting the pile up histograms
-        TFile puRootFile( puFileName.c_str() );
-        if( runYear == "2016" || runYear == "2018pre" || runYear == "2018post") 
-        {
-            getHisto(puRootFile, puSFHisto_,     "pu_weights_central");
-            getHisto(puRootFile, puSFUpHisto_,   "pu_weights_up");
-            getHisto(puRootFile, puSFDownHisto_, "pu_weights_down");
-        }
-        else if( runYear == "2017")
-        {
-            getHisto(puRootFile, puSFHisto_,     "pu_ratio_central");
-            getHisto(puRootFile, puSFUpHisto_,   "pu_ratio_up");
-            getHisto(puRootFile, puSFDownHisto_, "pu_ratio_down");
-        }
-        puRootFile.Close();
 
         // Get the L1prefiring scale factor histogram
         TFile L1PrefiringFile("L1prefiring_jetpt_2017BtoF.root");
