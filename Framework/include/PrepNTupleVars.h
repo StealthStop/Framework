@@ -91,7 +91,6 @@ private:
         const std::vector<float>&                      JetsAK8_NsubjettinessTau2;
         const std::vector<float>&                      JetsAK8_NsubjettinessTau3;
         const std::vector<float>&                      JetsAK8_softDropMass;
-        const std::vector<float>&                      JetsAK8_prunedMass;
         const std::vector<float>&                      JetsAK8_axismajor;
         const std::vector<float>&                      JetsAK8_axisminor;
         const std::vector<std::vector<utility::LorentzVector>>& JetsAK8_subjets;
@@ -106,7 +105,6 @@ private:
             , JetsAK8_NsubjettinessTau2(tr.getVec<float>("JetsAK8_NsubjettinessTau2"))
             , JetsAK8_NsubjettinessTau3(tr.getVec<float>("JetsAK8_NsubjettinessTau3"))
             , JetsAK8_softDropMass(tr.getVec<float>("JetsAK8_softDropMass"))
-            , JetsAK8_prunedMass(tr.getVec<float>("JetsAK8_prunedMass"))
             , JetsAK8_axismajor(tr.getVec<float>("JetsAK8_axismajor"))
             , JetsAK8_axisminor(tr.getVec<float>("JetsAK8_axisminor"))
             , JetsAK8_subjets(tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8_subjets"))
@@ -321,7 +319,6 @@ private:
         auto& newJetsAK8_NsubjettinessTau2  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau2", jc.JetsAK8.size());
         auto& newJetsAK8_NsubjettinessTau3  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau3", jc.JetsAK8.size());
         auto& newJetsAK8_softDropMass       = tr.createDerivedVec<float>("JetsAK8"+name+"_softDropMass", jc.JetsAK8.size());
-        auto& newJetsAK8_prunedMass         = tr.createDerivedVec<float>("JetsAK8"+name+"_prunedMass", jc.JetsAK8.size());
         auto& newJetsAK8_axismajor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axismajor", jc.JetsAK8.size());
         auto& newJetsAK8_axisminor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axisminor", jc.JetsAK8.size());
         auto& newJetsAK8_subjets            = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjets", jc.JetsAK8.size());
@@ -340,7 +337,6 @@ private:
             newJetsAK8_NsubjettinessTau2.at(j)  = jc.JetsAK8_NsubjettinessTau2.at(i);
             newJetsAK8_NsubjettinessTau3.at(j)  = jc.JetsAK8_NsubjettinessTau3.at(i);
             newJetsAK8_softDropMass.at(j)       = jc.JetsAK8_softDropMass.at(i);
-            newJetsAK8_prunedMass.at(j)         = jc.JetsAK8_prunedMass.at(i);
             newJetsAK8_axismajor.at(j)          = jc.JetsAK8_axismajor.at(i);
             newJetsAK8_axisminor.at(j)          = jc.JetsAK8_axisminor.at(i);
             newJetsAK8_subjets.at(j)            = utility::convertVectorOfLV(jc.JetsAK8_subjets.at(i));
@@ -358,7 +354,6 @@ private:
         auto& newJetsAK8_NsubjettinessTau2  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau2", jc.JetsAK8.size());
         auto& newJetsAK8_NsubjettinessTau3  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau3", jc.JetsAK8.size());
         auto& newJetsAK8_softDropMass       = tr.createDerivedVec<float>("JetsAK8"+name+"_softDropMass", jc.JetsAK8.size());
-        auto& newJetsAK8_prunedMass         = tr.createDerivedVec<float>("JetsAK8"+name+"_prunedMass", jc.JetsAK8.size());
         auto& newJetsAK8_axismajor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axismajor", jc.JetsAK8.size());
         auto& newJetsAK8_axisminor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axisminor", jc.JetsAK8.size());
         auto& newJetsAK8_subjets            = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjets", jc.JetsAK8.size());
@@ -374,7 +369,6 @@ private:
             newJetsAK8_NsubjettinessTau2.at(j)  = jc.JetsAK8_NsubjettinessTau2.at(j);
             newJetsAK8_NsubjettinessTau3.at(j)  = jc.JetsAK8_NsubjettinessTau3.at(j);
             newJetsAK8_softDropMass.at(j)       = jc.JetsAK8_softDropMass.at(j);
-            newJetsAK8_prunedMass.at(j)         = jc.JetsAK8_prunedMass.at(j);
             newJetsAK8_axismajor.at(j)          = jc.JetsAK8_axismajor.at(j);
             newJetsAK8_axisminor.at(j)          = jc.JetsAK8_axisminor.at(j);
             newJetsAK8_subjets.at(j)            = utility::convertVectorOfLV(jc.JetsAK8_subjets.at(j));
