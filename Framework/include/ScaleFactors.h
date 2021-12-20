@@ -556,7 +556,6 @@ private:
         const auto& puWeightUnCorr  = tr.getVar<double>("puWeight");
         const auto& puSysUpUnCorr   = tr.getVar<double>("puSysUp");
         const auto& puSysDownUnCorr = tr.getVar<double>("puSysDown");
-        const auto& tru_npv   = tr.getVar<double>("TrueNumInteractions");
 
         tr.registerDerivedVar( "puWeightUnCorr"+myVarSuffix_,  puWeightUnCorr);
         tr.registerDerivedVar( "puSysUpUnCorr"+myVarSuffix_,   puSysUpUnCorr);
