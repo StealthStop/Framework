@@ -86,7 +86,7 @@ private:
     class JetAK8Collection
     {
     public:
-        const std::vector<utility::LorentzVector>&      JetsAK8;
+        const std::vector<utility::LorentzVector>&     JetsAK8;
         const std::vector<float>&                      JetsAK8_NsubjettinessTau1;
         const std::vector<float>&                      JetsAK8_NsubjettinessTau2;
         const std::vector<float>&                      JetsAK8_NsubjettinessTau3;
@@ -94,10 +94,10 @@ private:
         const std::vector<float>&                      JetsAK8_axismajor;
         const std::vector<float>&                      JetsAK8_axisminor;
         const std::vector<std::vector<utility::LorentzVector>>& JetsAK8_subjets;
-        const std::vector<float>&                      JetsAK8_tDiscriminatorDeep;
-        const std::vector<float>&                      JetsAK8_wDiscriminatorDeep;
-        const std::vector<float>&                      JetsAK8_hDiscriminatorDeep;
-        const std::vector<int>&                         JetsAK8_multiplicity;
+        const std::vector<float>&                      JetsAK8_DeepTagTvsQCD;
+        const std::vector<float>&                      JetsAK8_DeepTagWvsQCD;
+        const std::vector<float>&                      JetsAK8_DeepTagHbbvsQCD;
+        const std::vector<int>&                        JetsAK8_multiplicity;
     
     JetAK8Collection(const NTupleReader& tr) 
             : JetsAK8(tr.getVec<utility::LorentzVector>("JetsAK8"))
@@ -108,9 +108,9 @@ private:
             , JetsAK8_axismajor(tr.getVec<float>("JetsAK8_axismajor"))
             , JetsAK8_axisminor(tr.getVec<float>("JetsAK8_axisminor"))
             , JetsAK8_subjets(tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8_subjets"))
-            , JetsAK8_tDiscriminatorDeep(tr.getVec<float>("JetsAK8_tDiscriminatorDeep"))
-            , JetsAK8_wDiscriminatorDeep(tr.getVec<float>("JetsAK8_wDiscriminatorDeep"))
-            , JetsAK8_hDiscriminatorDeep(tr.getVec<float>("JetsAK8_hDiscriminatorDeep"))
+            , JetsAK8_DeepTagTvsQCD(tr.getVec<float>("JetsAK8_DeepTagTvsQCD"))
+            , JetsAK8_DeepTagWvsQCD(tr.getVec<float>("JetsAK8_DeepTagWvsQCD"))
+            , JetsAK8_DeepTagHbbvsQCD(tr.getVec<float>("JetsAK8_DeepTagHbbvsQCD"))
             , JetsAK8_multiplicity(tr.getVec<int>("JetsAK8_multiplicity"))
         {
         }
@@ -322,9 +322,9 @@ private:
         auto& newJetsAK8_axismajor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axismajor", jc.JetsAK8.size());
         auto& newJetsAK8_axisminor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axisminor", jc.JetsAK8.size());
         auto& newJetsAK8_subjets            = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjets", jc.JetsAK8.size());
-        auto& newJetsAK8_tDiscriminatorDeep = tr.createDerivedVec<float>("JetsAK8"+name+"_tDiscriminatorDeep", jc.JetsAK8.size());
-        auto& newJetsAK8_wDiscriminatorDeep = tr.createDerivedVec<float>("JetsAK8"+name+"_wDiscriminatorDeep", jc.JetsAK8.size());
-        auto& newJetsAK8_hDiscriminatorDeep = tr.createDerivedVec<float>("JetsAK8"+name+"_hDiscriminatorDeep", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagTvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagTvsQCD", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagWvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagWvsQCD", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagHbbvsQCD    = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagHbbvsQCD", jc.JetsAK8.size());
         auto& newJetsAK8_multiplicity       = tr.createDerivedVec<int>("JetsAK8"+name+"_multiplicity", jc.JetsAK8.size());
              
         for(unsigned j = 0; j < newJets_origIndex.size(); ++j)
@@ -340,9 +340,9 @@ private:
             newJetsAK8_axismajor.at(j)          = jc.JetsAK8_axismajor.at(i);
             newJetsAK8_axisminor.at(j)          = jc.JetsAK8_axisminor.at(i);
             newJetsAK8_subjets.at(j)            = utility::convertVectorOfLV(jc.JetsAK8_subjets.at(i));
-            newJetsAK8_tDiscriminatorDeep.at(j) = jc.JetsAK8_tDiscriminatorDeep.at(i);
-            newJetsAK8_wDiscriminatorDeep.at(j) = jc.JetsAK8_wDiscriminatorDeep.at(i);
-            newJetsAK8_hDiscriminatorDeep.at(j) = jc.JetsAK8_hDiscriminatorDeep.at(i);
+            newJetsAK8_DeepTagTvsQCD.at(j)      = jc.JetsAK8_DeepTagTvsQCD.at(i);
+            newJetsAK8_DeepTagWvsQCD.at(j)      = jc.JetsAK8_DeepTagWvsQCD.at(i);
+            newJetsAK8_DeepTagHbbvsQCD.at(j)    = jc.JetsAK8_DeepTagHbbvsQCD.at(i);
             newJetsAK8_multiplicity.at(j)       = jc.JetsAK8_multiplicity.at(i);
         }
     }
@@ -357,9 +357,9 @@ private:
         auto& newJetsAK8_axismajor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axismajor", jc.JetsAK8.size());
         auto& newJetsAK8_axisminor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axisminor", jc.JetsAK8.size());
         auto& newJetsAK8_subjets            = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjets", jc.JetsAK8.size());
-        auto& newJetsAK8_tDiscriminatorDeep = tr.createDerivedVec<float>("JetsAK8"+name+"_tDiscriminatorDeep", jc.JetsAK8.size());
-        auto& newJetsAK8_wDiscriminatorDeep = tr.createDerivedVec<float>("JetsAK8"+name+"_wDiscriminatorDeep", jc.JetsAK8.size());
-        auto& newJetsAK8_hDiscriminatorDeep = tr.createDerivedVec<float>("JetsAK8"+name+"_hDiscriminatorDeep", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagTvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagTvsQCD", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagWvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagWvsQCD", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagHbbvsQCD    = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagHbbvsQCD", jc.JetsAK8.size());
         auto& newJetsAK8_multiplicity       = tr.createDerivedVec<int>("JetsAK8"+name+"_multiplicity", jc.JetsAK8.size());
              
         for(unsigned j = 0; j < jc.JetsAK8.size(); ++j)
@@ -372,9 +372,9 @@ private:
             newJetsAK8_axismajor.at(j)          = jc.JetsAK8_axismajor.at(j);
             newJetsAK8_axisminor.at(j)          = jc.JetsAK8_axisminor.at(j);
             newJetsAK8_subjets.at(j)            = utility::convertVectorOfLV(jc.JetsAK8_subjets.at(j));
-            newJetsAK8_tDiscriminatorDeep.at(j) = jc.JetsAK8_tDiscriminatorDeep.at(j);
-            newJetsAK8_wDiscriminatorDeep.at(j) = jc.JetsAK8_wDiscriminatorDeep.at(j);
-            newJetsAK8_hDiscriminatorDeep.at(j) = jc.JetsAK8_hDiscriminatorDeep.at(j);
+            newJetsAK8_DeepTagTvsQCD.at(j) = jc.JetsAK8_DeepTagTvsQCD.at(j);
+            newJetsAK8_DeepTagWvsQCD.at(j) = jc.JetsAK8_DeepTagWvsQCD.at(j);
+            newJetsAK8_DeepTagHbbvsQCD.at(j) = jc.JetsAK8_DeepTagHbbvsQCD.at(j);
             newJetsAK8_multiplicity.at(j)       = jc.JetsAK8_multiplicity.at(j);
         }
     }

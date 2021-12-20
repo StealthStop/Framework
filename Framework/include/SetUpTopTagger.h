@@ -23,8 +23,8 @@ private:
     const std::vector<bool>& GoodJets_;
     const std::vector<bool>& GoodJets_pt20_; 
     const std::vector<TLorentzVector>& JetsAK8_;                   
-    const std::vector<double>& JetsAK8_tDiscriminatorDeep_;
-    const std::vector<double>& JetsAK8_wDiscriminatorDeep_;
+    const std::vector<double>& JetsAK8_DeepTagTvsQCD_;
+    const std::vector<double>& JetsAK8_DeepTagWvsQCD_;
     const std::vector<double>& JetsAK8_softDropMass_;      
     const std::vector<std::vector<TLorentzVector>>& JetsAK8_subjets_;           
     const std::vector<TLorentzVector>& hadtops_;                   
