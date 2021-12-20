@@ -21,12 +21,15 @@ namespace utility
         return sqrt( dphi*dphi + deta*deta ) ;
     }
 
-    double calcMT(const TLorentzVector& lepton, const TLorentzVector& met)
+    double DeltaR(const LorentzVector& v1, const LorentzVector& v2)
     {
-        // Assuming that both lepton and met are massless
-        const double mt_sq = 2 * lepton.Pt() * met.Pt() * ( 1-cos(met.Phi()-lepton.Phi()) );
-        return sqrt(mt_sq);
-    }    
+        return ROOT::Math::VectorUtil::DeltaR(v1, v2);
+    }
+
+    double DeltaPhi(const LorentzVector& v1, const LorentzVector& v2)
+    {
+        return ROOT::Math::VectorUtil::DeltaPhi(v1, v2);
+    }
 
     const std::string color(const std::string& text, const std::string& color)
     {

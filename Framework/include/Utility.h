@@ -4,6 +4,7 @@
 #include "Framework/Framework/include/Vector3D.h"
 #include "TLorentzVector.h"
 #include "Math/Vector4D.h"
+#include "Math/VectorUtil.h"
 #include <cmath>
 
 namespace utility
@@ -12,7 +13,8 @@ namespace utility
 
     double calcDPhi(const double phi1, const double phi2);
     double calcDR(const double eta1, const double eta2, const double phi1, const double phi2);
-    double calcMT(const TLorentzVector& lepton, const TLorentzVector& met);
+    double DeltaR(const LorentzVector& v1, const LorentzVector& v2);
+    double DeltaPhi(const LorentzVector& v1, const LorentzVector& v2);
     const std::string color(const std::string& text, const std::string& color);
     std::string split(const std::string& half, const std::string& s, const std::string& h);
     bool compare_p(const math::RThetaPhiVector& v1, const math::RThetaPhiVector& v2);
@@ -23,6 +25,13 @@ namespace utility
     template<typename T> T sum2(T v) { return v*v; }
     template<typename T, typename... Args> T sum2(T v, Args... args) { return v*v + sum2(args...); }
     template<typename T, typename... Args> T addInQuad(T v, Args... args) { return sqrt(sum2(v, args...)); }
+    template<typename LV1, typename LV2>
+    double calcMT(const LV1& lepton, const LV2& met)
+    {
+        // Assuming that both lepton and met are massless
+        const double mt_sq = 2 * lepton.Pt() * met.Pt() * ( 1-cos(met.Phi()-lepton.Phi()) );
+        return sqrt(mt_sq);
+    }    
 }
 
 #endif
