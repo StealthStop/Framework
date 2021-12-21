@@ -12,16 +12,16 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     AK4Inputs_               (nullptr),
     AK8Inputs_               (nullptr),
     ak4Filter_               (nullptr),
-    Jets_                    (tr.getVec<TLorentzVector>("Jets"+myVarSuffix_)),
+    Jets_                    (tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_)),
     Jets_bJetTagDeepCSVtotb_ (tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb")),
     Jets_qgLikelihood_       (tr.getVec<double>("Jets"+myVarSuffix_+"_qgLikelihood")),
     GoodJets_                (tr.getVec<bool>("GoodJets"+myVarSuffix_)),
     GoodJets_pt20_           (tr.getVec<bool>("GoodJets_pt20"+myVarSuffix_)), 
-    JetsAK8_                 (tr.getVec<TLorentzVector>("JetsAK8"+myVarSuffix_)),
+    JetsAK8_                 (tr.getVec<utility::LorentzVector>("JetsAK8"+myVarSuffix_)),
     JetsAK8_DeepTagTvsQCD_   (tr.getVec<double>("JetsAK8"+myVarSuffix_+"_DeepTagTvsQCD")),
     JetsAK8_DeepTagWvsQCD_   (tr.getVec<double>("JetsAK8"+myVarSuffix_+"_DeepTagWvsQCD")),
     JetsAK8_softDropMass_    (tr.getVec<double>("JetsAK8"+myVarSuffix_+"_softDropMass")),
-    JetsAK8_subjets_         (tr.getVec<std::vector<TLorentzVector>>("JetsAK8"+myVarSuffix+"_subjets")),
+    JetsAK8_subjets_         (tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8"+myVarSuffix+"_subjets")),
     hadtops_                 (hadtops),
     hadtopdaughters_         (hadtopdaughters)
 {
@@ -50,7 +50,7 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     // Use helper function to create input list 
     // Create AK4 inputs object
     AK4Inputs_ = new ttUtility::ConstAK4Inputs<double>(
-        Jets_,
+        utility::convertVectorOfLV(Jets_),
         Jets_bJetTagDeepCSVtotb_,
         Jets_qgLikelihood_, 
         hadtops_, 
@@ -59,11 +59,11 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
 
     // Create AK8 inputs object
     AK8Inputs_ = new ttUtility::ConstAK8Inputs<double>(
-        JetsAK8_,
+        utility::convertVectorOfLV(JetsAK8_),
         JetsAK8_DeepTagTvsQCD_,
         JetsAK8_DeepTagWvsQCD_,
         JetsAK8_softDropMass_,
-        JetsAK8_subjets_,        
+        utility::convertVecVecOfLV(JetsAK8_subjets_),        
         hadtops_,
         hadtopdaughters_);  
     

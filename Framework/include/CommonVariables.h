@@ -13,21 +13,21 @@ private:
         
         if(runtype != "Data")
         {
-            const auto& GenParticles = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles = tr.getVec<utility::LorentzVector>("GenParticles");
             const auto& Mbl_Index    = tr.getVar<int>("used_bjet_for_mbl"+myVarSuffix_);
-            const auto& Jets         = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
+            const auto& Jets         = tr.getVec<utility::LorentzVector>(("Jets"+myVarSuffix_));
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++ ) 
             {
                 if(Mbl_Index < 0) continue;
-                double deltaR = Jets.at(Mbl_Index).DeltaR( GenParticles.at(gpi) );
+                double deltaR = utility::DeltaR(Jets.at(Mbl_Index), GenParticles.at(gpi) );
                 if(deltaR < 0.4) used_gen_bjet_for_mbl = gpi;
             }            
         }
         tr.registerDerivedVar("used_gen_bjet_for_mbl"+myVarSuffix_, used_gen_bjet_for_mbl);
     }
-    void getJetMatch(const std::vector<TLorentzVector>& JetVectors, const std::vector<bool>& GoodJets_pt30, const std::vector<bool>& GoodBJets_pt30, 
-                     double& twoLep_mbldiff, int& used_jet, unsigned int other_used_jet, double& TwoLep_Mbl, const TLorentzVector& lep,  std::pair<int, int>& TwoLep_Mbl_Idx, const bool checkB)
+    void getJetMatch(const std::vector<utility::LorentzVector>& JetVectors, const std::vector<bool>& GoodJets_pt30, const std::vector<bool>& GoodBJets_pt30, 
+                     double& twoLep_mbldiff, int& used_jet, unsigned int other_used_jet, double& TwoLep_Mbl, const utility::LorentzVector& lep,  std::pair<int, int>& TwoLep_Mbl_Idx, const bool checkB)
     {
         for(unsigned int j=0; j < JetVectors.size(); j++)
         {
@@ -46,7 +46,7 @@ private:
         }
     }
     
-    bool objectInHEM(std::vector<TLorentzVector> objects, const double etalow, const double etahigh, const double philow, const double phihigh, const double ptcut, const std::string& runYear) const
+    bool objectInHEM(std::vector<utility::LorentzVector> objects, const double etalow, const double etahigh, const double philow, const double phihigh, const double ptcut, const std::string& runYear) const
     {
         bool inHEM = false;
         if(runYear == "2018post")
@@ -66,30 +66,26 @@ private:
     {
         // Get needed branches
         const auto& runYear = tr.getVar<std::string>("runYear");
-        const auto& Jets = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
+        const auto& Jets = tr.getVec<utility::LorentzVector>(("Jets"+myVarSuffix_));
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
         const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
         const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
         const auto& NonIsoMuonJets_pt30 = tr.getVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
         const auto& NonIsoMuonJets_pt45 = tr.getVec<bool>("NonIsoMuonJets_pt45"+myVarSuffix_);
-        const auto& Muons = tr.getVec<TLorentzVector>("Muons");
+        const auto& Muons = tr.getVec<utility::LorentzVector>("Muons");
         const auto& MuonsCharge = tr.getVec<int>("Muons_charge");
         const auto& MuonsMiniIso = tr.getVec<double>("Muons_iso");
         const auto& GoodMuons = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& NGoodMuons = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& GoodMuons_pt20 = tr.getVec<bool>("GoodMuons_pt20"+myVarSuffix_);
-//        const auto& NGoodMuons_pt20 = tr.getVar<int>("NGoodMuons_pt20"+myVarSuffix_);
-        const auto& Electrons = tr.getVec<TLorentzVector>("Electrons");
+        const auto& Electrons = tr.getVec<utility::LorentzVector>("Electrons");
         const auto& ElectronsCharge = tr.getVec<int>("Electrons_charge");
         const auto& ElectronsMiniIso = tr.getVec<double>("Electrons_iso");
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& GoodElectrons_pt20 = tr.getVec<bool>("GoodElectrons_pt20"+myVarSuffix_);
-//        const auto& NGoodElectrons_pt20 = tr.getVar<int>("NGoodElectrons_pt20"+myVarSuffix_);
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
-        const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
-        const auto& GoodBJets_pt45  = tr.getVec<bool>("GoodBJets_pt45"+myVarSuffix_);
         
         // Define Loose HEM15/16 veto
         bool passHEMVetoLoose = !(objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear) ||
@@ -131,8 +127,8 @@ private:
         tr.registerDerivedVar("HT_NonIsoMuon_pt45"+myVarSuffix_, ht_NonIsoMuon_pt45);
 
         // Put leptons together
-        auto* GoodLeptons = new std::vector<std::pair<std::string, TLorentzVector>>();
-        auto* GoodLeptons_pt20 = new std::vector<std::pair<std::string, TLorentzVector>>();
+        auto* GoodLeptons = new std::vector<std::pair<std::string, utility::LorentzVector>>();
+        auto* GoodLeptons_pt20 = new std::vector<std::pair<std::string, utility::LorentzVector>>();
         auto* GoodLeptonsCharge = new std::vector<int>();
         auto* GoodLeptonsCharge_pt20 = new std::vector<int>();
         auto* GoodLeptonsMiniIso = new std::vector<double>();
@@ -143,7 +139,7 @@ private:
         {
             if(GoodMuons[imu])
             {
-                TLorentzVector muon = Muons.at(imu);
+                utility::LorentzVector muon = Muons.at(imu);
                 GoodLeptons->push_back( std::make_pair("m", muon) );
                 GoodLeptonsCharge->push_back( MuonsCharge.at(imu) );
                 GoodLeptonsMiniIso->push_back( MuonsMiniIso.at(imu) );
@@ -151,7 +147,7 @@ private:
             }
             if(GoodMuons_pt20[imu])
             {
-                TLorentzVector muon = Muons.at(imu);
+                utility::LorentzVector muon = Muons.at(imu);
                 GoodLeptons_pt20->push_back( std::make_pair("m", muon) );
                 GoodLeptonsCharge_pt20->push_back( MuonsCharge.at(imu) );
                 GoodLeptonsMiniIso_pt20->push_back( MuonsMiniIso.at(imu) );
@@ -162,7 +158,7 @@ private:
         {
             if(GoodElectrons[iel])
             {
-                TLorentzVector electron = Electrons.at(iel);
+                utility::LorentzVector electron = Electrons.at(iel);
                 GoodLeptons->push_back( std::make_pair("e", electron) );
                 GoodLeptonsCharge->push_back( ElectronsCharge.at(iel) );
                 GoodLeptonsMiniIso->push_back( ElectronsMiniIso.at(iel) );
@@ -170,7 +166,7 @@ private:
             }
             if(GoodElectrons_pt20[iel])
             {
-                TLorentzVector electron = Electrons.at(iel);
+                utility::LorentzVector electron = Electrons.at(iel);
                 GoodLeptons_pt20->push_back( std::make_pair("e", electron) );
                 GoodLeptonsCharge_pt20->push_back( ElectronsCharge.at(iel) );
                 GoodLeptonsMiniIso_pt20->push_back( ElectronsMiniIso.at(iel) );
@@ -194,11 +190,11 @@ private:
         int used_bjet_for_mbl = -1;
         for(const auto& pair : *GoodLeptons)
         {
-            TLorentzVector lepton = pair.second;
+            utility::LorentzVector lepton = pair.second;
             for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
             {            
                 if(!GoodBJets_pt30[ijet]) continue;
-                TLorentzVector bjet = Jets.at(ijet);                
+                utility::LorentzVector bjet = Jets.at(ijet);                
                 double mbl = (lepton+bjet).M();
                 MblVec->push_back(mbl);
                 if( abs(mbl - 105) < Mbldiff)
@@ -215,7 +211,7 @@ private:
         genMatch(tr);
         
         //Find single lepton for HistoContainer
-        TLorentzVector singleLepton;
+        utility::LorentzVector singleLepton;
         for(unsigned int i = 0; i < Muons.size(); ++i)
         {
             if(!GoodMuons[i]) continue;
@@ -253,7 +249,7 @@ private:
 
 
         // Two Lepton Mbl definiton
-        TLorentzVector lep1, lep2;
+        utility::LorentzVector lep1, lep2;
         int  used_jet1 = -1, used_jet2 =-1;
         double TwoLep_Mbl1=-1, TwoLep_Mbl2=-1;
         double twoLep_mbl1diff=999, twoLep_mbl2diff=999;
@@ -261,7 +257,7 @@ private:
        
         if(NGoodLeptons_pt20==2)
         {
-            std::vector<std::pair<TLorentzVector,int>> GoodBJetsVec_pt30;
+            std::vector<std::pair<utility::LorentzVector,int>> GoodBJetsVec_pt30;
 
             if(GoodLeptons_pt20->at(0).second.Pt() >= GoodLeptons_pt20->at(1).second.Pt())
             {
@@ -342,7 +338,7 @@ private:
         double dR_bjets = -1;
         if(NGoodBJets_pt30 >= 2)
         {
-            std::vector<TLorentzVector> bjets;
+            std::vector<utility::LorentzVector> bjets;
             for(unsigned int ijet = 0; ijet < Jets.size(); ijet++)
             {
                 if(!GoodBJets_pt30[ijet]) continue;
@@ -354,7 +350,7 @@ private:
             {
                 for(int j = i+1; j < n; j++) 
                 {
-                    deltaRs[i+j-1] = bjets[i].DeltaR(bjets[j]);
+                    deltaRs[i+j-1] = utility::DeltaR(bjets[i], bjets[j]);
                 }
             }
             dR_bjets = *std::max_element(deltaRs.begin(), deltaRs.end());

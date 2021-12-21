@@ -10,7 +10,7 @@ private:
 
     void muon(NTupleReader& tr)
     {
-        const auto& allMuons = tr.getVec<TLorentzVector>("Muons");
+        const auto& allMuons = tr.getVec<utility::LorentzVector>("Muons");
         const auto& allMuons_passIso = tr.getVec<bool>("Muons_passIso");
         const auto& allMuons_charge = tr.getVec<int>("Muons_charge");
         const auto& allMuons_medID = tr.getVec<bool>("Muons_mediumID");
@@ -18,8 +18,8 @@ private:
         const auto& MET = tr.getVar<double>("MET"); 
         const auto& METPhi = tr.getVar<double>("METPhi");
 
-        TLorentzVector lvMET;
-        lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
+        utility::LorentzVector lvMET;
+        lvMET.SetPt(MET); lvMET.SetEta(0.0); lvMET.SetPhi(METPhi); lvMET.SetE(MET);
 
         auto* good_muons_ = new std::vector<bool>();
         auto* good_muons_pt20 = new std::vector<bool>();
@@ -32,12 +32,12 @@ private:
         int NGoodMinusMuons_pt20 = 0;
         
         auto* noniso_muons_ = new std::vector<bool>();
-        auto* GoodNonIsoMuons = new std::vector<std::pair<std::string, TLorentzVector>>();
+        auto* GoodNonIsoMuons = new std::vector<std::pair<std::string, utility::LorentzVector>>();
         int NNonIsoMuons = 0;
         
         for(unsigned int imu = 0; imu < allMuons.size(); ++imu)
         {            
-            TLorentzVector lvmu(allMuons.at(imu));
+            utility::LorentzVector lvmu(allMuons.at(imu));
             double mtw = sqrt( 2*( lvMET.Pt()*lvmu.Pt() - (lvMET.Px()*lvmu.Px() + lvMET.Py()*lvmu.Py()) ) );
             muons_mtw_->push_back(mtw);
             if( abs(lvmu.Eta()) < etaCut && 
@@ -78,7 +78,7 @@ private:
                 allMuons_medID.at(imu)
                 )
             {
-                TLorentzVector muon = allMuons.at(imu);
+                utility::LorentzVector muon = allMuons.at(imu);
                 noniso_muons_->push_back(true);
                 GoodNonIsoMuons->push_back( std::make_pair("n", muon) );
                 NNonIsoMuons++;

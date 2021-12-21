@@ -10,15 +10,15 @@ private:
     class ComboLV
     {
     public:
-        TLorentzVector v1;
-        TLorentzVector v2;
+        utility::LorentzVector v1;
+        utility::LorentzVector v2;
         std::vector<int> jetCombo;
     };
 
     class TLV
     {
     public:
-        TLorentzVector tlv;
+        utility::LorentzVector tlv;
         double nEF;
         double cEF;
         double nHF;
@@ -54,7 +54,7 @@ private:
         return binaryNum;
     }
 
-    bool genMatch(const NTupleReader& tr, const std::vector<TLorentzVector>& lv_all , const std::vector<int>& jetCombo) const
+    bool genMatch(const NTupleReader& tr, const std::vector<utility::LorentzVector>& lv_all , const std::vector<int>& jetCombo) const
     {
         const auto& runtype = tr.getVar<std::string>("runtype");
 
@@ -71,7 +71,7 @@ private:
                 {
                     for(unsigned int ijet = 0; ijet < lv_all.size(); ijet++)
                     {
-                        double deltaR = d->DeltaR( lv_all.at(ijet) );
+                        double deltaR = utility::DeltaR(utility::convertTLV(d), lv_all.at(ijet) );
                         if(deltaR < 0.4)
                         {
                             if(numMatchedJets != 1 && genMatched) genMatched = megaJetID == jetCombo[ijet]; 
@@ -146,7 +146,7 @@ private:
 
     void makeMVAVariables(NTupleReader& tr)
     {
-        const auto& Jets                             = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_                       );
+        const auto& Jets                             = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_                       );
         const auto& Jets_bJetTagDeepFlavourtotb      = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotb"     );
         const auto& Jets_bJetTagDeepFlavourprobg     = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobg"    );
         const auto& Jets_bJetTagDeepFlavourtotq      = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotq"     );
@@ -163,17 +163,17 @@ private:
 
         const auto& GoodJets           = tr.getVec<bool>(GoodJetsName_+myVarSuffix_                                     );
         const auto& NGoodJets          = tr.getVar<int>(NGoodJetsName_+myVarSuffix_                                     );
-        const auto& GoodLeptons        = tr.getVec<std::pair<std::string, TLorentzVector>>(GoodLeptonsName_+myVarSuffix_);
+        const auto& GoodLeptons        = tr.getVec<std::pair<std::string, utility::LorentzVector>>(GoodLeptonsName_+myVarSuffix_);
         const auto& NGoodLeptons       = tr.getVar<int>(NGoodLeptonsName_+myVarSuffix_                                  );
         const auto& MET                = tr.getVar<double>("MET"                                                        ); 
         const auto& METPhi             = tr.getVar<double>("METPhi"                                                     );
 
         // Get the 4-vec for the MET
-        TLorentzVector lvMET;
-        lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
+        utility::LorentzVector lvMET;
+        lvMET.SetPt(MET); lvMET.SetEta(0.0); lvMET.SetPhi(METPhi); lvMET.SetE(MET);
 
         // Sum all jets
-        TLorentzVector rlv_all, rlv_pt20;
+        utility::LorentzVector rlv_all, rlv_pt20;
         for(auto jlv : Jets)
         {
             rlv_all += jlv;
@@ -181,20 +181,20 @@ private:
 
         // Boost to the CM frame (only in z)
         double event_beta_z      = rlv_all.Pz() / rlv_all.E();
-        TVector3 rec_boost_beta_vec( 0.0, 0.0, -event_beta_z );
+        utility::BoostVector rec_boost_beta_vec( 0.0, 0.0, -event_beta_z );
 
         auto& cm_jets = tr.createDerivedVec<math::RThetaPhiVector>(ESVarName_+"cm_jets"+myVarSuffix_);
         std::vector<TLV> Jets_cm;
-        std::vector<TLorentzVector> Jets_;
+        std::vector<utility::LorentzVector> Jets_;
 
         // Boost the GoodJets, Goodleptons, and the MET in the event 
         for(unsigned int j = 0; j < Jets.size(); j++)
         {
             if(!GoodJets[j]) continue;
-            TLorentzVector jlvcm = Jets.at(j);            
+            utility::LorentzVector jlvcm = Jets.at(j);            
             Jets_.push_back( jlvcm );
             
-            jlvcm.Boost( rec_boost_beta_vec );
+            utility::Boost(jlvcm, rec_boost_beta_vec );
             Jets_cm.push_back( {jlvcm, Jets_neutralEmEnergyFraction.at(j), Jets_chargedEmEnergyFraction.at(j), Jets_neutralHadronEnergyFraction.at(j),
                                        Jets_chargedHadronEnergyFraction.at(j), Jets_bJetTagDeepFlavourtotb.at(j), Jets_bJetTagDeepFlavourprobg.at(j),
                                        Jets_bJetTagDeepFlavourprobc.at(j), Jets_bJetTagDeepFlavourprobuds.at(j), Jets_bJetTagDeepFlavourtotq.at(j),
@@ -213,25 +213,25 @@ private:
         auto Jets_cm_psort = Jets_cm;
         auto Jets_psort    = Jets_;
         std::sort( Jets_cm_psort.begin(), Jets_cm_psort.end(), [](TLV v1, TLV v2){return v1.tlv.P() > v2.tlv.P();} );
-        std::sort( Jets_psort.begin(), Jets_psort.end(), utility::compare_pt_TLV );
+        std::sort( Jets_psort.begin(), Jets_psort.end(), utility::compare_pt_TLV<utility::LorentzVector, utility::LorentzVector> );
 
-        auto& Jets_cm_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_cm_top6"+channel_+myVarSuffix_);
+        auto& Jets_cm_top6 = tr.createDerivedVec<utility::LorentzVector>(ESVarName_+"Jets_cm_top6"+channel_+myVarSuffix_);
         std::vector<double> Jets_cm_top6_flavb, Jets_cm_top6_flavg, Jets_cm_top6_flavc, Jets_cm_top6_flavuds, Jets_cm_top6_flavq;
         std::vector<double> Jets_cm_top6_ptD, Jets_cm_top6_axismajor, Jets_cm_top6_axisminor, Jets_cm_top6_multiplicity;
         std::vector<double> Jets_cm_top6_nEF, Jets_cm_top6_cEF, Jets_cm_top6_nHF, Jets_cm_top6_cHF;
 
-        auto& Jets_top6 = tr.createDerivedVec<TLorentzVector>(ESVarName_+"Jets_top6"+myVarSuffix_);
+        auto& Jets_top6 = tr.createDerivedVec<utility::LorentzVector>(ESVarName_+"Jets_top6"+myVarSuffix_);
 
         double phiMax = (NGoodJets > 0) ? Jets_cm_psort[0].tlv.Phi() : 0.0;
 
-        TLorentzVector combinedJetTLV;
+        utility::LorentzVector combinedJetTLV;
         for(unsigned int ji=0; ji<cm_jets.size(); ji++ ) 
         {
-            TLorentzVector Jet_cm_psort = Jets_cm_psort.at(ji).tlv;                
+            utility::LorentzVector Jet_cm_psort = Jets_cm_psort.at(ji).tlv;                
             if(ji == 0)
                 Jet_cm_psort.SetPhi(0.0);
             else
-                Jet_cm_psort.RotateZ(-phiMax);                
+                Jet_cm_psort = utility::RotateZ(Jet_cm_psort, -phiMax);                
 
             if ( ji < nTopJets_ ) 
             {
@@ -267,21 +267,21 @@ private:
         tr.registerDerivedVar("combined7thToLastJet_m_cm"+myVarSuffix_, combinedJetTLV.M()  );
         tr.registerDerivedVar("combined7thToLastJet_E_cm"+myVarSuffix_, combinedJetTLV.E()  );
 
-        auto GoodLeptons_cm = std::make_unique<std::vector<TLorentzVector>>();
+        auto GoodLeptons_cm = std::make_unique<std::vector<utility::LorentzVector>>();
         for(unsigned int ilep = 0; ilep < GoodLeptons.size(); ilep++)
         {
             // Boost and rotate the good leptons into the same frame as the AK4 jets
             GoodLeptons_cm->push_back        ( GoodLeptons[ilep].second    );
-            GoodLeptons_cm->at(ilep).Boost   ( rec_boost_beta_vec          );
-            GoodLeptons_cm->at(ilep).RotateZ ( -phiMax                     );
+            GoodLeptons_cm->at(ilep) = utility::Boost(GoodLeptons_cm->at(ilep), rec_boost_beta_vec    );
+            GoodLeptons_cm->at(ilep) = utility::RotateZ(GoodLeptons_cm->at(ilep), -phiMax                     );
 
         }
 
-        TLorentzVector lvMET_cm = lvMET;
+        utility::LorentzVector lvMET_cm = lvMET;
        
         // Boost and rotate the MET 4-vector into the same frame as the AK4 jets and good leptons
-        lvMET_cm.Boost( rec_boost_beta_vec );           
-        lvMET_cm.RotateZ( -phiMax );           
+        lvMET_cm = utility::Boost(lvMET_cm, rec_boost_beta_vec );           
+        lvMET_cm = utility::RotateZ(lvMET_cm, -phiMax );           
 
         if( verb_ ) 
         {
@@ -299,7 +299,7 @@ private:
         // Only attempt this when running the module for 0l
         if (channel_.find("0l") != std::string::npos)
         {
-            auto& topsLV = tr.getVec<TLorentzVector>("topsLV"+myVarSuffix_);
+            auto& topsLV = tr.getVec<utility::LorentzVector>("topsLV"+myVarSuffix_);
 
             double top1mass = 0.0; double top2mass = 0.0;
             double top1pt = 0.0;   double top2pt = 0.0;
@@ -309,8 +309,8 @@ private:
             if (topsLV.size() >= 1)
             {
                  auto Top1 = topsLV.at(0);
-                 Top1.Boost(rec_boost_beta_vec);
-                 Top1.RotateZ(-phiMax);
+                 Top1 = utility::Boost(Top1, rec_boost_beta_vec);
+                 Top1 = utility::RotateZ(Top1, -phiMax);
 
                  top1pt = Top1.Pt();
                  top1eta = Top1.Eta();
@@ -320,8 +320,8 @@ private:
                  if (topsLV.size() >= 2)
                  {
                      auto Top2 = topsLV.at(1);
-                     Top2.Boost(rec_boost_beta_vec);
-                     Top2.RotateZ(-phiMax);
+                     Top2 = utility::Boost(Top2, rec_boost_beta_vec);
+                     Top2 = utility::RotateZ(Top2, -phiMax);
 
                      top2pt = Top2.Pt();
                      top2eta = Top2.Eta();
@@ -360,7 +360,7 @@ private:
 
         // AK8 jet variables
         const auto& GoodJetsAK8        = tr.getVec<bool>("GoodJetsAK8"+myVarSuffix_                              );
-        const auto& JetsAK8            = tr.getVec<TLorentzVector>("JetsAK8"+myVarSuffix_                        );
+        const auto& JetsAK8            = tr.getVec<utility::LorentzVector>("JetsAK8"+myVarSuffix_                        );
         const auto& Tau1               = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau1"           );
         const auto& Tau2               = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau2"           );
         const auto& Tau3               = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau3"           );
@@ -368,22 +368,22 @@ private:
         const auto& prunedMass         = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_prunedMass"                  );
         const auto& axismajor_AK8      = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_axismajor"                   );
         const auto& axisminor_AK8      = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_axisminor"                   );
-        const auto& subjets            = tr.getVec<std::vector<TLorentzVector>>("JetsAK8"+myVarSuffix_+"_subjets");
+        const auto& subjets            = tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8"+myVarSuffix_+"_subjets");
         const auto& tDiscriminator_AK8 = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_tDiscriminatorDeep"          );
         const auto& wDiscriminator_AK8 = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_wDiscriminatorDeep"          );
         const auto& hDiscriminator_AK8 = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_hDiscriminatorDeep"          );
         const auto& multiplicity_AK8   = tr.getVec<int>("JetsAK8"+myVarSuffix_+"_multiplicity"                   );
         
-        std::vector<TLorentzVector> JetsAK8_TLV_cm;
+        std::vector<utility::LorentzVector> JetsAK8_TLV_cm;
         std::vector<double> JetsAK8_SDM, JetsAK8_Pruned, JetsAK8_Tau1, JetsAK8_Tau2, JetsAK8_Tau3, JetsAK8_axismajor, JetsAK8_axisminor, JetsAK8_tDiscriminator, JetsAK8_wDiscriminator, JetsAK8_hDiscriminator; 
         std::vector<int> JetsAK8_nsubjets, JetsAK8_multiplicity;
         for (unsigned int j = 0; j < JetsAK8.size(); j++)
         {
-            TLorentzVector ijet = JetsAK8.at(j);
+            utility::LorentzVector ijet = JetsAK8.at(j);
 
             // Boost and rotate the AK8 jets to same frame as the AK4 jets, MET, and leptons
-            ijet.Boost( rec_boost_beta_vec );           
-            ijet.RotateZ( -phiMax );           
+            ijet = utility::Boost(ijet, rec_boost_beta_vec );           
+            ijet = utility::RotateZ(ijet, -phiMax );           
             if (GoodJetsAK8.at(j))
             {
                 JetsAK8_TLV_cm.push_back        ( ijet                     );
@@ -403,7 +403,7 @@ private:
         }
 
         // Need to zip up vectors so they are sorted simultaneously
-        std::vector<std::tuple<TLorentzVector, double, double, double, double, double, double, double, int, double, double, double, int>> zipped_JetsAK8;
+        std::vector<std::tuple<utility::LorentzVector, double, double, double, double, double, double, double, int, double, double, double, int>> zipped_JetsAK8;
         for (unsigned int j = 0; j < JetsAK8_TLV_cm.size(); j++)
         {
             zipped_JetsAK8.push_back(std::make_tuple(JetsAK8_TLV_cm.at(j), JetsAK8_SDM.at(j), JetsAK8_Pruned.at(j), JetsAK8_Tau1.at(j), JetsAK8_Tau2.at(j), JetsAK8_Tau3.at(j), 
@@ -414,7 +414,7 @@ private:
         // Now unzip
         std::sort(std::begin(zipped_JetsAK8), std::end(zipped_JetsAK8), [&](const auto& a, const auto& b){return std::get<0>(a).M() > std::get<0>(b).M();});
 
-        std::vector<TLorentzVector> JetsAK8_sorted_TLV_cm;
+        std::vector<utility::LorentzVector> JetsAK8_sorted_TLV_cm;
         std::vector<double> JetsAK8_sorted_SDM, JetsAK8_sorted_Pruned, JetsAK8_sorted_Tau1, JetsAK8_sorted_Tau2, JetsAK8_sorted_Tau3;
         std::vector<double> JetsAK8_sorted_axismajor, JetsAK8_sorted_axisminor, JetsAK8_sorted_tDiscriminator, JetsAK8_sorted_wDiscriminator, JetsAK8_sorted_hDiscriminator;
         std::vector<int> JetsAK8_sorted_nsubjets, JetsAK8_sorted_multiplicity;
@@ -441,7 +441,7 @@ private:
             if(j == 0)
                 JetsAK8_sorted_TLV_cm.at(j).SetPhi(0.0);
             else
-                JetsAK8_sorted_TLV_cm.at(j).RotateZ(-phiMaxAK8);
+                JetsAK8_sorted_TLV_cm.at(j) = utility::RotateZ(JetsAK8_sorted_TLV_cm.at(j), -phiMaxAK8);
         }
 
         // Register Variables
@@ -516,12 +516,12 @@ private:
         tr.registerDerivedVar(ESVarName_+"nMVAJets"+channel_+myVarSuffix_,        nTopJets_                           );
 
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
-        std::pair<TLorentzVector, TLorentzVector> BestCombo, genBestCombo;
+        std::pair<utility::LorentzVector, utility::LorentzVector> BestCombo, genBestCombo;
         bool genMatched = false;
         if(NGoodLeptons == 1 && doGenMatch_)
         {
             // Making a vector of all Jets, leptons, and MET
-            std::vector<TLorentzVector> lv_all;
+            std::vector<utility::LorentzVector> lv_all;
             for(unsigned int j = 0; j < Jets.size(); j++)
             {
                 if(!GoodJets[j]) continue;
@@ -538,7 +538,7 @@ private:
             for(int i = 1; i <= maxDec; i++) 
             {
                 std::vector<int> jetCombo = decToBinary( i, NAll);
-                TLorentzVector v1, v2;
+                utility::LorentzVector v1, v2;
                 int tempCount1 = 0, tempCount2 = 0;
                 for(unsigned int ijet = 0; ijet < lv_all.size(); ijet++)
                 {

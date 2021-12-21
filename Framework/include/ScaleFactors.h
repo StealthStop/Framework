@@ -331,7 +331,7 @@ private:
         // --------------------------------------------------------------------------------------
         // Now calculate the electron scale factor and uncertainty 
         // --------------------------------------------------------------------------------------
-        const auto& electrons         = tr.getVec<TLorentzVector>("Electrons");
+        const auto& electrons         = tr.getVec<utility::LorentzVector>("Electrons");
         const auto& goodElectrons     = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         
         double totGoodElectronSF      = 1.0, totGoodElectronSF_Up   = 1.0, totGoodElectronSF_Down = 1.0;
@@ -408,7 +408,7 @@ private:
         // --------------------------------------------------------------------------------------
         // Adding code for implementing muon scale factors
         // --------------------------------------------------------------------------------------
-        const auto& muons         = tr.getVec<TLorentzVector>("Muons");
+        const auto& muons         = tr.getVec<utility::LorentzVector>("Muons");
         const auto& goodMuons     = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& nonisoMuons     = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
 
@@ -590,7 +590,7 @@ private:
             const double a=0.0615, b=-0.0005;
             auto SF = [&](const double pt){return exp(a + b*pt);};
             
-            const auto& GenParticles        = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles        = tr.getVec<utility::LorentzVector>("GenParticles");
             const auto& GenParticles_PdgId  = tr.getVec<int>("GenParticles_PdgId");
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++)
@@ -614,12 +614,12 @@ private:
         double prefiringScaleFactor = 1.0, prefiringScaleFactorUp = 1.0, prefiringScaleFactorDown = 1.0;
         if( runYear == "2016" || runYear == "2017" )
         {
-            const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);            
+            const auto& Jets = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);            
             const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);            
             for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
             {            
                 if(!GoodJets_pt30[ijet]) continue;
-                const TLorentzVector& jet = Jets.at(ijet);
+                const utility::LorentzVector& jet = Jets.at(ijet);
                 int bin = L1Prefireing_->FindBin(jet.Eta(), jet.Pt());
                 const double weight = L1Prefireing_->GetBinContent(bin);
                 const double weightErr = std::max(0.2*weight, L1Prefireing_->GetBinError(bin));

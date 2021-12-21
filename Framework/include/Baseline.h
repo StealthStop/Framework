@@ -29,7 +29,6 @@ private:
         const auto& HT_trigger_pt30        = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& HT_trigger_pt45        = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
         const auto& HT_NonIsoMuon_pt30     = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);
-        const auto& HT_NonIsoMuon_pt45     = tr.getVar<double>("HT_NonIsoMuon_pt45"+myVarSuffix_);
         const auto& onZ                    = tr.getVar<bool>("onZ"+myVarSuffix_); 
         const auto& JetID                  = tr.getVar<bool>("JetID"+myVarSuffix_);
         const auto& NGoodJets_pt40         = tr.getVar<int>("NGoodJets_pt40"+myVarSuffix_); 
@@ -132,9 +131,9 @@ private:
                 passMadHT = false;
             }
             // also remove lepton overlap from the inclusive sample
-            const auto& GenElectrons        = tr.getVec<TLorentzVector>("GenElectrons");
-            const auto& GenMuons            = tr.getVec<TLorentzVector>("GenMuons");
-            const auto& GenTaus             = tr.getVec<TLorentzVector>("GenTaus");
+            const auto& GenElectrons        = tr.getVec<utility::LorentzVector>("GenElectrons");
+            const auto& GenMuons            = tr.getVec<utility::LorentzVector>("GenMuons");
+            const auto& GenTaus             = tr.getVec<utility::LorentzVector>("GenTaus");
             int NGenLeptons = GenElectrons.size() + GenMuons.size() + GenTaus.size();
             if (filetag.find("TTJets_Incl") != std::string::npos && NGenLeptons > 0) passMadHT = false;
             

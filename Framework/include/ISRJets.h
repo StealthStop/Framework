@@ -3,7 +3,6 @@
 
 #include "Framework/Framework/include/Utility.h"
 
-#include "TLorentzVector.h"
 #include <iostream> 
 #include <vector>
 #include <cmath>
@@ -22,9 +21,9 @@ private:
 
         if(runtype != "Data")
         {
-            const auto& Jets                  = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+            const auto& Jets                  = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
             const auto& GoodJets_pt20         = tr.getVec<bool>("GoodJets_pt20"+myVarSuffix_);
-            const auto& GenParticles          = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles          = tr.getVec<utility::LorentzVector>("GenParticles");
             const auto& GenParticles_PdgId    = tr.getVec<int>("GenParticles_PdgId");
             const auto& GenParticles_ParentId = tr.getVec<int>("GenParticles_ParentId");
             const auto& GenParticles_Status   = tr.getVec<int>("GenParticles_Status"); 
@@ -41,10 +40,10 @@ private:
             auto& GM_ISRmatching_bestPtRatio              = tr.createDerivedVec<double>("GM_ISRmatching_bestPtRatio"+myVarSuffix_);
             auto& GM_ISRmatching_justCutOnDR_PtRatio      = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnDR_PtRatio"+myVarSuffix_);
             auto& GM_ISRmatching_justCutOnPtRatio_PtRatio = tr.createDerivedVec<double>("GM_ISRmatching_justCutOnPtRatio_PtRatio"+myVarSuffix_);
-            auto& GenISR                                  = tr.createDerivedVec<TLorentzVector>("GenISR"+myVarSuffix_);
-            auto& GenISR_qg                               = tr.createDerivedVec<TLorentzVector>("GenISR_qg"+myVarSuffix_);
-            auto& GenISR_gq                               = tr.createDerivedVec<TLorentzVector>("GenISR_gq"+myVarSuffix_);
-            auto& GenISR_gg                               = tr.createDerivedVec<TLorentzVector>("GenISR_gg"+myVarSuffix_);
+            auto& GenISR                                  = tr.createDerivedVec<utility::LorentzVector>("GenISR"+myVarSuffix_);
+            auto& GenISR_qg                               = tr.createDerivedVec<utility::LorentzVector>("GenISR_qg"+myVarSuffix_);
+            auto& GenISR_gq                               = tr.createDerivedVec<utility::LorentzVector>("GenISR_gq"+myVarSuffix_);
+            auto& GenISR_gg                               = tr.createDerivedVec<utility::LorentzVector>("GenISR_gg"+myVarSuffix_);
             auto& dEta_RecoISR_GenISR                     = tr.createDerivedVec<double>("dEta_RecoISR_GenISR"+myVarSuffix_);
             auto& ISRmatched_dr_ptr                       = tr.createDerivedVec<bool>("ISRmatched_dr_ptr"+myVarSuffix_, Jets.size(), false);
             auto& ISRmatched_dr                           = tr.createDerivedVec<bool>("ISRmatched_dr"+myVarSuffix_, Jets.size(), false);
@@ -109,7 +108,7 @@ private:
                     double maxDR      = 0.3; // set max DR allowed for matching / = 0.1
                     double maxPtRatio = 0.5; // set max pT allowed for matching
 
-                    bool passBestDR = GenParticles.at(g).DeltaR(Jets.at(j)) < maxDR;
+                    bool passBestDR = utility::DeltaR(GenParticles.at(g), Jets.at(j)) < maxDR;
                     bool passBestPt = ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) > ( 1 - maxPtRatio ) && 
                                       ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) < ( 1 + maxPtRatio );
 
@@ -118,7 +117,7 @@ private:
                     // ----------------------------           
                     if (pass_ISR)
                     {
-                        GM_ISRmatching_allDR.push_back( GenParticles.at(g).DeltaR(Jets.at(j)) );                         
+                        GM_ISRmatching_allDR.push_back( utility::DeltaR(GenParticles.at(g), Jets.at(j)) );                         
                         GM_ISRmatching_allPtRatio.push_back( Jets.at(j).Pt() / GenParticles.at(g).Pt() );
                     }
 
@@ -127,7 +126,7 @@ private:
                     // --------------------------------------------           
                     if (pass_ISR && passBestDR && passBestPt)
                     {
-                        GM_ISRmatching_bestDR.push_back( GenParticles.at(g).DeltaR(Jets.at(j)) );
+                        GM_ISRmatching_bestDR.push_back( utility::DeltaR(GenParticles.at(g), Jets.at(j)) );
                         GM_ISRmatching_bestPtRatio.push_back( ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) );
 
                         // ISR jet filter
@@ -142,7 +141,7 @@ private:
                     // -------------------------------               
                     if (pass_ISR && passBestDR)
                     {
-                        GM_ISRmatching_justCutOnDR_DR.push_back( GenParticles.at(g).DeltaR(Jets.at(j)) );
+                        GM_ISRmatching_justCutOnDR_DR.push_back( utility::DeltaR(GenParticles.at(g), Jets.at(j)) );
                         GM_ISRmatching_justCutOnDR_PtRatio.push_back( ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) );
 
                         // ISR jet filter
@@ -154,7 +153,7 @@ private:
                     // ---------------------------------
                     if (pass_ISR && passBestPt)
                     {
-                        GM_ISRmatching_justCutOnPtRatio_DR.push_back( GenParticles.at(g).DeltaR(Jets.at(j)) );
+                        GM_ISRmatching_justCutOnPtRatio_DR.push_back( utility::DeltaR(GenParticles.at(g), Jets.at(j)) );
                         GM_ISRmatching_justCutOnPtRatio_PtRatio.push_back( ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) );                        
                     }  
 
@@ -207,7 +206,7 @@ private:
                     if (abs(pdgId) > 5      || status != 23) continue;  
                     if(!(abs(momPdgId) == 6 || abs(momPdgId) == 24 || abs(momPdgId) == 1000022 || abs(momPdgId) == 1000006)) continue;                     
 
-                    double dR    = GenParticles.at(g).DeltaR(Jets.at(j));
+                    double dR    = utility::DeltaR(GenParticles.at(g), Jets.at(j));
                     bool ptRatio = ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) > ( 0.5 ) &&
                                    ( Jets.at(j).Pt() / GenParticles.at(g).Pt() ) < ( 1.5 ); 
                     

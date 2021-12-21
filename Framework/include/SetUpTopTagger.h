@@ -7,6 +7,8 @@
 #include "TopTagger/TopTagger/interface/TopTaggerResults.h"
 #include <vector>
 
+#include "Framework/Framework/include/Utility.h"
+
 #include "SusyAnaTools/Tools/NTupleReader.h"
 
 class SetUpTopTagger
@@ -17,16 +19,16 @@ private:
     ttUtility::ConstAK4Inputs<double>* AK4Inputs_;
     ttUtility::ConstAK8Inputs<double>* AK8Inputs_;
     std::vector<uint8_t>* ak4Filter_;
-    const std::vector<TLorentzVector>& Jets_;                      
+    const std::vector<utility::LorentzVector>& Jets_;                      
     const std::vector<double>& Jets_bJetTagDeepCSVtotb_;
     const std::vector<double>& Jets_qgLikelihood_;        
     const std::vector<bool>& GoodJets_;
     const std::vector<bool>& GoodJets_pt20_; 
-    const std::vector<TLorentzVector>& JetsAK8_;                   
+    const std::vector<utility::LorentzVector>& JetsAK8_;                   
     const std::vector<double>& JetsAK8_DeepTagTvsQCD_;
     const std::vector<double>& JetsAK8_DeepTagWvsQCD_;
     const std::vector<double>& JetsAK8_softDropMass_;      
-    const std::vector<std::vector<TLorentzVector>>& JetsAK8_subjets_;           
+    const std::vector<std::vector<utility::LorentzVector>>& JetsAK8_subjets_;           
     const std::vector<TLorentzVector>& hadtops_;                   
     const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters_;
                

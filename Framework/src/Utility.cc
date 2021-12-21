@@ -4,22 +4,6 @@
 
 namespace utility
 {
-    double calcDPhi(const double phi1, const double phi2)
-    {
-        double dphi = phi1 - phi2 ;
-        if ( dphi >  M_PI ) dphi -= 2*M_PI ;
-        if ( dphi < -M_PI ) dphi += 2*M_PI ;
-        return dphi;
-    }
-    
-    double calcDR(const double eta1, const double eta2, const double phi1, const double phi2)
-    {
-        const double deta = fabs( eta1 - eta2 ) ;
-        double dphi = phi1 - phi2 ;
-        if ( dphi > M_PI ) dphi -= 2*M_PI ;
-        if ( dphi <-M_PI ) dphi += 2*M_PI ;        
-        return sqrt( dphi*dphi + deta*deta ) ;
-    }
 
     double DeltaR(const LorentzVector& v1, const LorentzVector& v2)
     {
@@ -29,6 +13,25 @@ namespace utility
     double DeltaPhi(const LorentzVector& v1, const LorentzVector& v2)
     {
         return ROOT::Math::VectorUtil::DeltaPhi(v1, v2);
+    }
+
+    LorentzVector Boost(const LorentzVector& v, const BoostVector& b)
+    {
+        return ROOT::Math::VectorUtil::boost(v, b.BetaVector());
+    }
+
+    LorentzVector RotateZ(const LorentzVector& v, const double r)
+    {
+
+        auto v3D = v.Vect();
+        double t = v.T();
+
+        auto v3Drot = ROOT::Math::VectorUtil::RotateZ(v3D, r);
+
+        LorentzVector lv;
+        lv.SetXYZT(v3Drot.X(), v3Drot.Y(), v3Drot.Z(), t);
+
+        return lv;
     }
 
     const std::string color(const std::string& text, const std::string& color)
@@ -53,11 +56,6 @@ namespace utility
     bool compare_p(const math::RThetaPhiVector& v1, const math::RThetaPhiVector& v2 ) 
     { 
         return ( v1.R() > v2.R() ); 
-    }
-
-    bool compare_pt_TLV( const TLorentzVector& v1, const TLorentzVector& v2 )
-    {
-        return ( v1.Pt() > v2.Pt() );
     }
 
     void get_cmframe_jets(const std::vector<TLorentzVector>* lab_frame_jets, std::vector<math::RThetaPhiVector>& cm_frame_jets, int max_number_of_jets ) 
@@ -119,5 +117,50 @@ namespace utility
             newvec.at(i).SetPtEtaPhiM(lv.Pt(), lv.Eta(), lv.Phi(), lv.M());
         }
         return newvec;
+    }
+
+    std::vector<LorentzVector> convertVectorOfTLV(const std::vector<TLorentzVector>& vec)
+    {
+        std::vector<LorentzVector> newvec(vec.size());
+        for(unsigned int i = 0; i < vec.size(); i++)
+        {
+            auto& tlv = vec[i];
+            newvec.at(i).SetPt(tlv.Pt()); newvec.at(i).SetEta(tlv.Eta()); newvec.at(i).SetPhi(tlv.Phi()); newvec.at(i).SetE(tlv.E());
+        }
+        return newvec;
+    }
+
+    std::vector<std::vector<TLorentzVector> > convertVecVecOfLV(const std::vector<std::vector<utility::LorentzVector> >& vecvec)
+    {
+        std::vector<std::vector<TLorentzVector> > newvecvec(vecvec.size());
+        for(unsigned int i = 0; i < vecvec.size(); i++)
+        {
+            newvecvec.at(i) = convertVectorOfLV(vecvec.at(i));
+        }
+        return newvecvec;
+    }
+
+    TLorentzVector convertLV(const utility::LorentzVector& lv)
+    {
+        TLorentzVector newTLV;
+        newTLV.SetPtEtaPhiM(lv.Pt(), lv.Eta(), lv.Phi(), lv.M());
+
+        return newTLV;
+    }
+
+    LorentzVector convertTLV(const TLorentzVector& tlv)
+    {
+        LorentzVector newLV;
+        newLV.SetPt(tlv.Pt()); newLV.SetEta(tlv.Eta()); newLV.SetPhi(tlv.Phi()); newLV.SetE(tlv.E());
+
+        return newLV;
+    }
+
+    LorentzVector convertTLV(const TLorentzVector* tlv)
+    {
+        LorentzVector newLV;
+        newLV.SetPt(tlv->Pt()); newLV.SetEta(tlv->Eta()); newLV.SetPhi(tlv->Phi()); newLV.SetE(tlv->E());
+
+        return newLV;
     }
 }

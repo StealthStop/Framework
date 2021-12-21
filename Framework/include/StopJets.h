@@ -8,7 +8,6 @@
 #include "TopTagger/TopTagger/interface/TopObject.h"
 #include "TopTagger/TopTagger/interface/Constituent.h"
 
-#include "TLorentzVector.h"
 #include <iostream> 
 #include <vector>
 #include <cmath>
@@ -24,9 +23,9 @@ private:
     void getStopJets(NTupleReader& tr) const
     {
         const auto* ttr                   = tr.getVar<TopTaggerResults*>("ttr"+myVarSuffix_);
-        const auto& Jets                  = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+        const auto& Jets                  = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
         const auto& GoodJets_pt20         = tr.getVec<bool>("GoodJets_pt20"+myVarSuffix_);
-        auto& StopJets                    = tr.createDerivedVec<TLorentzVector>("StopJets"+myVarSuffix_);
+        auto& StopJets                    = tr.createDerivedVec<utility::LorentzVector>("StopJets"+myVarSuffix_);
  
         // --------------------------------- 
         // create an index for resolved tops
@@ -37,13 +36,13 @@ private:
         {
             if(t->getType()==TopObject::RESOLVED_TOP) 
             {
-                TLorentzVector top;
+                utility::LorentzVector top;
                 const std::vector<const Constituent*>& constituents = t->getConstituents();
                 for(const auto& c : constituents)
                 {
                     unsigned int index = c->getIndex(); 
                     usedIndex.insert(index);
-                    top += c->P();
+                    top += utility::convertTLV(c->P());
                 }
          
                 // get top jets   
@@ -55,11 +54,11 @@ private:
         // -----------------------
         // sort the StopJets by pt
         // -----------------------
-        std::sort(StopJets.begin(), StopJets.end(), utility::compare_pt_TLV);
+        std::sort(StopJets.begin(), StopJets.end(), utility::compare_pt_TLV<utility::LorentzVector, utility::LorentzVector>);
         if( StopJets.size() > 2 ) 
         {
-            std::sort(StopJets.begin()+1, StopJets.end(), [StopJets](const TLorentzVector& v1, const TLorentzVector& v2) 
-                {return v1.Pt()*v1.DeltaR(StopJets[0]) > v2.Pt()*v2.DeltaR(StopJets[0]);}
+            std::sort(StopJets.begin()+1, StopJets.end(), [StopJets](const utility::LorentzVector& v1, const utility::LorentzVector& v2) 
+                {return v1.Pt()*utility::DeltaR(v1, StopJets[0]) > v2.Pt()*utility::DeltaR(v2, StopJets[0]);}
             );
         }
         
