@@ -108,6 +108,30 @@ namespace utility
         cm_frame_jets = cm_jets_topn;
     } // get_cmframe_jets
 
+    const std::vector<std::vector<LorentzVector>> nestVecOfVec(const std::vector<LorentzVector>& vec, const std::vector<int>& counts)
+    {
+    
+        std::vector<std::vector<LorentzVector>> nestedVecs(counts.size());
+
+        unsigned int iSubjet = 0;
+        unsigned int iSubjetsVec = 0;
+        for (unsigned int j = 0; j < counts.size(); j++)
+        {
+
+            unsigned nSubjets = counts.at(j);
+
+            for (unsigned int k = 0; k < nSubjets; k++)
+            {
+                nestedVecs.at(iSubjetsVec).push_back(vec.at(iSubjet));
+                iSubjet++;
+            }
+
+            iSubjetsVec++;
+        }
+
+        return nestedVecs;
+    }
+
     std::vector<TLorentzVector> convertVectorOfLV(const std::vector<utility::LorentzVector>& vec)
     {
         std::vector<TLorentzVector> newvec(vec.size());

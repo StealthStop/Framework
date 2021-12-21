@@ -86,18 +86,18 @@ private:
     class JetAK8Collection
     {
     public:
-        const std::vector<utility::LorentzVector>&     JetsAK8;
-        const std::vector<float>&                      JetsAK8_NsubjettinessTau1;
-        const std::vector<float>&                      JetsAK8_NsubjettinessTau2;
-        const std::vector<float>&                      JetsAK8_NsubjettinessTau3;
-        const std::vector<float>&                      JetsAK8_softDropMass;
-        const std::vector<float>&                      JetsAK8_axismajor;
-        const std::vector<float>&                      JetsAK8_axisminor;
+        const std::vector<utility::LorentzVector>&              JetsAK8;
+        const std::vector<float>&                               JetsAK8_NsubjettinessTau1;
+        const std::vector<float>&                               JetsAK8_NsubjettinessTau2;
+        const std::vector<float>&                               JetsAK8_NsubjettinessTau3;
+        const std::vector<float>&                               JetsAK8_softDropMass;
+        const std::vector<float>&                               JetsAK8_axismajor;
+        const std::vector<float>&                               JetsAK8_axisminor;
         const std::vector<std::vector<utility::LorentzVector>>& JetsAK8_subjets;
-        const std::vector<float>&                      JetsAK8_DeepTagTvsQCD;
-        const std::vector<float>&                      JetsAK8_DeepTagWvsQCD;
-        const std::vector<float>&                      JetsAK8_DeepTagHbbvsQCD;
-        const std::vector<int>&                        JetsAK8_multiplicity;
+        const std::vector<float>&                               JetsAK8_DeepTagTvsQCD;
+        const std::vector<float>&                               JetsAK8_DeepTagWvsQCD;
+        const std::vector<float>&                               JetsAK8_DeepTagHbbvsQCD;
+        const std::vector<int>&                                 JetsAK8_multiplicity;
     
     JetAK8Collection(const NTupleReader& tr) 
             : JetsAK8(tr.getVec<utility::LorentzVector>("JetsAK8"))
@@ -107,7 +107,7 @@ private:
             , JetsAK8_softDropMass(tr.getVec<float>("JetsAK8_softDropMass"))
             , JetsAK8_axismajor(tr.getVec<float>("JetsAK8_axismajor"))
             , JetsAK8_axisminor(tr.getVec<float>("JetsAK8_axisminor"))
-            , JetsAK8_subjets(tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8_subjets"))
+            , JetsAK8_subjets(utility::nestVecOfVec(tr.getVec<utility::LorentzVector>("JetsAK8_subjets"), tr.getVec<int>("JetsAK8_subjetsCounts")))
             , JetsAK8_DeepTagTvsQCD(tr.getVec<float>("JetsAK8_DeepTagTvsQCD"))
             , JetsAK8_DeepTagWvsQCD(tr.getVec<float>("JetsAK8_DeepTagWvsQCD"))
             , JetsAK8_DeepTagHbbvsQCD(tr.getVec<float>("JetsAK8_DeepTagHbbvsQCD"))
@@ -272,7 +272,7 @@ private:
 
         for(unsigned j = 0; j < jc.Jets.size(); ++j)
         {
-            newJets.at(j).SetPt( scalePt*jc.Jets[j].Pt()); newJets.at(j).SetEta(jc.Jets[j].Eta()); newJets.at(j).SetPhi(jc.Jets[j].Phi()); newJets.at(j).SetE(jc.Jets[j].E());
+            newJets.at(j).SetPt( scalePt*jc.Jets[j].Pt()); newJets.at(j).SetEta(jc.Jets[j].Eta()); newJets.at(j).SetPhi(jc.Jets[j].Phi()); newJets.at(j).SetE(scaleMass*jc.Jets[j].E());
             newJets_bDiscriminatorCSV.at(j)           = jc.Jets_bDiscriminatorCSV.at(j);
             newJets_bJetTagDeepCSVprobb.at(j)         = jc.Jets_bJetTagDeepCSVprobb.at(j);
             newJets_bJetTagDeepCSVprobbb.at(j)        = jc.Jets_bJetTagDeepCSVprobbb.at(j);

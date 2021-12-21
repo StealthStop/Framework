@@ -25,9 +25,11 @@ namespace utility
     std::vector<LorentzVector> convertVectorOfTLV(const std::vector<TLorentzVector>& vec);
     std::vector<std::vector<TLorentzVector> > convertVecVecOfLV(const std::vector<std::vector<LorentzVector> >& vecvec);
 
-    TLorentzVector convertLV(const utility::LorentzVector& lv);
-    utility::LorentzVector convertTLV(const TLorentzVector& tlv);
-    utility::LorentzVector convertTLV(const TLorentzVector* tlv);
+    TLorentzVector convertLV(const LorentzVector& lv);
+    LorentzVector  convertTLV(const TLorentzVector& tlv);
+    LorentzVector  convertTLV(const TLorentzVector* tlv);
+
+    const std::vector<std::vector<LorentzVector>> nestVecOfVec(const std::vector<LorentzVector>& vec, const std::vector<int>& counts);
 
     template<typename T> T sum2(T v) { return v*v; }
     template<typename T, typename... Args> T sum2(T v, Args... args) { return v*v + sum2(args...); }
