@@ -491,24 +491,24 @@ private:
             tr.registerDerivedVar(MVALeptonName_+"_m_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).M()             : 0.0));
         }
 
-        tr.registerDerivedVar(ESVarName_+"lvMET_cm_pt"+channel_+myVarSuffix_,              static_cast<double>( lvMET_cm.Pt() ));
-        tr.registerDerivedVar(ESVarName_+"lvMET_cm_eta"+channel_+myVarSuffix_,             static_cast<double>( lvMET_cm.Eta()));
-        tr.registerDerivedVar(ESVarName_+"lvMET_cm_phi"+channel_+myVarSuffix_,             static_cast<double>( lvMET_cm.Phi()));
-        tr.registerDerivedVar(ESVarName_+"lvMET_cm_m"+channel_+myVarSuffix_,               static_cast<double>( lvMET_cm.M()  ));
-        tr.registerDerivedVar(ESVarName_+"fwm2_top6"+channel_+myVarSuffix_,       fwm2_top6                           );
-        tr.registerDerivedVar(ESVarName_+"fwm3_top6"+channel_+myVarSuffix_,       fwm3_top6                           );
-        tr.registerDerivedVar(ESVarName_+"fwm4_top6"+channel_+myVarSuffix_,       fwm4_top6                           );
-        tr.registerDerivedVar(ESVarName_+"fwm5_top6"+channel_+myVarSuffix_,       fwm5_top6                           );
-        tr.registerDerivedVar(ESVarName_+"fwm6_top6"+channel_+myVarSuffix_,       fwm6_top6                           );
-        tr.registerDerivedVar(ESVarName_+"fwm7_top6"+channel_+myVarSuffix_,       fwm7_top6                           );
-        tr.registerDerivedVar(ESVarName_+"fwm8_top6"+channel_+myVarSuffix_,       fwm8_top6                           );
-        tr.registerDerivedVar(ESVarName_+"fwm9_top6"+channel_+myVarSuffix_,       fwm9_top6                           );
-        tr.registerDerivedVar(ESVarName_+"fwm10_top6"+channel_+myVarSuffix_,      fwm10_top6                          );
-        tr.registerDerivedVar(ESVarName_+"jmt_ev0_top6"+channel_+myVarSuffix_,    jmt_ev0_top6                        );
-        tr.registerDerivedVar(ESVarName_+"jmt_ev1_top6"+channel_+myVarSuffix_,    jmt_ev1_top6                        );
-        tr.registerDerivedVar(ESVarName_+"jmt_ev2_top6"+channel_+myVarSuffix_,    jmt_ev2_top6                        );
-        tr.registerDerivedVar(ESVarName_+"event_beta_z"+myVarSuffix_,             event_beta_z                        );
-        tr.registerDerivedVar(ESVarName_+"event_phi_rotate"+myVarSuffix_,         phiMax                              );
+        tr.registerDerivedVar(ESVarName_+"lvMET_cm_pt"+channel_+myVarSuffix_,  static_cast<double>( lvMET_cm.Pt() ));
+        tr.registerDerivedVar(ESVarName_+"lvMET_cm_eta"+channel_+myVarSuffix_, static_cast<double>( lvMET_cm.Eta()));
+        tr.registerDerivedVar(ESVarName_+"lvMET_cm_phi"+channel_+myVarSuffix_, static_cast<double>( lvMET_cm.Phi()));
+        tr.registerDerivedVar(ESVarName_+"lvMET_cm_m"+channel_+myVarSuffix_,   static_cast<double>( lvMET_cm.M()  ));
+        tr.registerDerivedVar(ESVarName_+"fwm2_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm2_top6     ));
+        tr.registerDerivedVar(ESVarName_+"fwm3_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm3_top6     ));
+        tr.registerDerivedVar(ESVarName_+"fwm4_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm4_top6     ));
+        tr.registerDerivedVar(ESVarName_+"fwm5_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm5_top6     ));
+        tr.registerDerivedVar(ESVarName_+"fwm6_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm6_top6     ));
+        tr.registerDerivedVar(ESVarName_+"fwm7_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm7_top6     ));
+        tr.registerDerivedVar(ESVarName_+"fwm8_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm8_top6     ));
+        tr.registerDerivedVar(ESVarName_+"fwm9_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm9_top6     ));
+        tr.registerDerivedVar(ESVarName_+"fwm10_top6"+channel_+myVarSuffix_,   static_cast<double>( fwm10_top6    ));
+        tr.registerDerivedVar(ESVarName_+"jmt_ev0_top6"+channel_+myVarSuffix_, static_cast<double>( jmt_ev0_top6  ));
+        tr.registerDerivedVar(ESVarName_+"jmt_ev1_top6"+channel_+myVarSuffix_, static_cast<double>( jmt_ev1_top6  ));
+        tr.registerDerivedVar(ESVarName_+"jmt_ev2_top6"+channel_+myVarSuffix_, static_cast<double>( jmt_ev2_top6  ));
+        tr.registerDerivedVar(ESVarName_+"event_beta_z"+myVarSuffix_,          static_cast<double>( event_beta_z  ));
+        tr.registerDerivedVar(ESVarName_+"event_phi_rotate"+myVarSuffix_,      static_cast<double>( phiMax        ));
         tr.registerDerivedVar(ESVarName_+"nMVAJets"+channel_+myVarSuffix_,        nTopJets_                           );
 
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles

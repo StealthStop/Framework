@@ -153,59 +153,59 @@ private:
 
         }
         // without any rank
-        tr.registerDerivedVar("dR_Stop1Stop2_cm"+label_+myVarSuffix_,dR_Stop1Stop2_cm);
-        tr.registerDerivedVar("dPhi_Stop1Stop2_cm"+label_+myVarSuffix_,dPhi_Stop1Stop2_cm);
-        tr.registerDerivedVar("Stop1_mass_cm"+label_+myVarSuffix_,Stop1_cm.M());
-        tr.registerDerivedVar("Stop2_mass_cm"+label_+myVarSuffix_,Stop2_cm.M());
-        tr.registerDerivedVar("Stop1_pt_cm"+label_+myVarSuffix_,Stop1_cm.Pt());
-        tr.registerDerivedVar("Stop2_pt_cm"+label_+myVarSuffix_,Stop2_cm.Pt());
-        tr.registerDerivedVar("Stop1_phi_cm"+label_+myVarSuffix_,Stop1_cm.Phi());
-        tr.registerDerivedVar("Stop2_phi_cm"+label_+myVarSuffix_,Stop2_cm.Phi());
-        tr.registerDerivedVar("Stop1_eta_cm"+label_+myVarSuffix_,Stop1_cm.Eta());
-        tr.registerDerivedVar("Stop2_eta_cm"+label_+myVarSuffix_,Stop2_cm.Eta());
-        tr.registerDerivedVar("Stop1_scalarPt_cm"+label_+myVarSuffix_,Stop1ScalarPt);
-        tr.registerDerivedVar("Stop2_scalarPt_cm"+label_+myVarSuffix_,Stop2ScalarPt);
+        tr.registerDerivedVar("dR_Stop1Stop2_cm"  +label_+myVarSuffix_, static_cast<double>(dR_Stop1Stop2_cm));
+        tr.registerDerivedVar("dPhi_Stop1Stop2_cm"+label_+myVarSuffix_, static_cast<double>(dPhi_Stop1Stop2_cm));
+        tr.registerDerivedVar("Stop1_mass_cm"     +label_+myVarSuffix_, static_cast<double>(Stop1_cm.M()));
+        tr.registerDerivedVar("Stop2_mass_cm"     +label_+myVarSuffix_, static_cast<double>(Stop2_cm.M()));
+        tr.registerDerivedVar("Stop1_pt_cm"       +label_+myVarSuffix_, static_cast<double>(Stop1_cm.Pt()));
+        tr.registerDerivedVar("Stop2_pt_cm"       +label_+myVarSuffix_, static_cast<double>(Stop2_cm.Pt()));
+        tr.registerDerivedVar("Stop1_phi_cm"      +label_+myVarSuffix_, static_cast<double>(Stop1_cm.Phi()));
+        tr.registerDerivedVar("Stop2_phi_cm"      +label_+myVarSuffix_, static_cast<double>(Stop2_cm.Phi()));
+        tr.registerDerivedVar("Stop1_eta_cm"      +label_+myVarSuffix_, static_cast<double>(Stop1_cm.Eta()));
+        tr.registerDerivedVar("Stop2_eta_cm"      +label_+myVarSuffix_, static_cast<double>(Stop2_cm.Eta()));
+        tr.registerDerivedVar("Stop1_scalarPt_cm" +label_+myVarSuffix_, static_cast<double>(Stop1ScalarPt));
+        tr.registerDerivedVar("Stop2_scalarPt_cm" +label_+myVarSuffix_, static_cast<double>(Stop2ScalarPt));
         // Pt Rank
-        tr.registerDerivedVar("Stop1_PtRank"+label_+myVarSuffix_,Stop1_PtRank);
-        tr.registerDerivedVar("Stop2_PtRank"+label_+myVarSuffix_,Stop2_PtRank);
-        tr.registerDerivedVar("Stop1_mass_PtRank_cm"+label_+myVarSuffix_,Stop1_PtRank_cm.M()); 
-        tr.registerDerivedVar("Stop2_mass_PtRank_cm"+label_+myVarSuffix_,Stop2_PtRank_cm.M());
-        tr.registerDerivedVar("Stop1_pt_PtRank_cm"+label_+myVarSuffix_,Stop1_PtRank_cm.Pt());
-        tr.registerDerivedVar("Stop2_pt_PtRank_cm"+label_+myVarSuffix_,Stop2_PtRank_cm.Pt());
-        tr.registerDerivedVar("Stop1_phi_PtRank_cm"+label_+myVarSuffix_,Stop1_PtRank_cm.Phi());
-        tr.registerDerivedVar("Stop2_phi_PtRank_cm"+label_+myVarSuffix_,Stop2_PtRank_cm.Phi());
-        tr.registerDerivedVar("Stop1_eta_PtRank_cm"+label_+myVarSuffix_,Stop1_PtRank_cm.Eta());
-        tr.registerDerivedVar("Stop2_eta_PtRank_cm"+label_+myVarSuffix_,Stop2_PtRank_cm.Eta());
+        tr.registerDerivedVar("Stop1_PtRank"        +label_+myVarSuffix_, Stop1_PtRank);
+        tr.registerDerivedVar("Stop2_PtRank"        +label_+myVarSuffix_, Stop2_PtRank);
+        tr.registerDerivedVar("Stop1_mass_PtRank_cm"+label_+myVarSuffix_, static_cast<double>(Stop1_PtRank_cm.M())); 
+        tr.registerDerivedVar("Stop2_mass_PtRank_cm"+label_+myVarSuffix_, static_cast<double>(Stop2_PtRank_cm.M()));
+        tr.registerDerivedVar("Stop1_pt_PtRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop1_PtRank_cm.Pt()));
+        tr.registerDerivedVar("Stop2_pt_PtRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop2_PtRank_cm.Pt()));
+        tr.registerDerivedVar("Stop1_phi_PtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop1_PtRank_cm.Phi()));
+        tr.registerDerivedVar("Stop2_phi_PtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop2_PtRank_cm.Phi()));
+        tr.registerDerivedVar("Stop1_eta_PtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop1_PtRank_cm.Eta()));
+        tr.registerDerivedVar("Stop2_eta_PtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop2_PtRank_cm.Eta()));
         // Mask Rank
-        tr.registerDerivedVar("Stop1_MassRank"+label_+myVarSuffix_,Stop1_MassRank);
-        tr.registerDerivedVar("Stop2_MassRank"+label_+myVarSuffix_,Stop2_MassRank);
-        tr.registerDerivedVar("Stop1_mass_MassRank_cm"+label_+myVarSuffix_,Stop1_MassRank_cm.M()); 
-        tr.registerDerivedVar("Stop2_mass_MassRank_cm"+label_+myVarSuffix_,Stop2_MassRank_cm.M());
-        tr.registerDerivedVar("Stop1_pt_MassRank_cm"+label_+myVarSuffix_,Stop1_MassRank_cm.Pt());
-        tr.registerDerivedVar("Stop2_pt_MassRank_cm"+label_+myVarSuffix_,Stop2_MassRank_cm.Pt());
-        tr.registerDerivedVar("Stop1_phi_MassRank_cm"+label_+myVarSuffix_,Stop1_MassRank_cm.Phi());
-        tr.registerDerivedVar("Stop2_phi_MassRank_cm"+label_+myVarSuffix_,Stop2_MassRank_cm.Phi());
-        tr.registerDerivedVar("Stop1_eta_MassRank_cm"+label_+myVarSuffix_,Stop1_MassRank_cm.Eta());
-        tr.registerDerivedVar("Stop2_eta_MassRank_cm"+label_+myVarSuffix_,Stop2_MassRank_cm.Eta());
+        tr.registerDerivedVar("Stop1_MassRank"        +label_+myVarSuffix_, Stop1_MassRank);
+        tr.registerDerivedVar("Stop2_MassRank"        +label_+myVarSuffix_, Stop2_MassRank);
+        tr.registerDerivedVar("Stop1_mass_MassRank_cm"+label_+myVarSuffix_, static_cast<double>(Stop1_MassRank_cm.M())); 
+        tr.registerDerivedVar("Stop2_mass_MassRank_cm"+label_+myVarSuffix_, static_cast<double>(Stop2_MassRank_cm.M()));
+        tr.registerDerivedVar("Stop1_pt_MassRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop1_MassRank_cm.Pt()));
+        tr.registerDerivedVar("Stop2_pt_MassRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop2_MassRank_cm.Pt()));
+        tr.registerDerivedVar("Stop1_phi_MassRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop1_MassRank_cm.Phi()));
+        tr.registerDerivedVar("Stop2_phi_MassRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop2_MassRank_cm.Phi()));
+        tr.registerDerivedVar("Stop1_eta_MassRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop1_MassRank_cm.Eta()));
+        tr.registerDerivedVar("Stop2_eta_MassRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop2_MassRank_cm.Eta()));
         // ScalarPt Rank
-        tr.registerDerivedVar("Stop1_ScalarPtRank"+label_+myVarSuffix_,Stop1_ScalarPtRank);
-        tr.registerDerivedVar("Stop2_ScalarPtRank"+label_+myVarSuffix_,Stop2_ScalarPtRank);
-        tr.registerDerivedVar("Stop1_mass_ScalarPtRank_cm"+label_+myVarSuffix_,Stop1_ScalarPtRank_cm.M());
-        tr.registerDerivedVar("Stop2_mass_ScalarPtRank_cm"+label_+myVarSuffix_,Stop2_ScalarPtRank_cm.M());
-        tr.registerDerivedVar("Stop1_pt_ScalarPtRank_cm"+label_+myVarSuffix_,Stop1_ScalarPtRank_cm.Pt());
-        tr.registerDerivedVar("Stop2_pt_ScalarPtRank_cm"+label_+myVarSuffix_,Stop2_ScalarPtRank_cm.Pt());
-        tr.registerDerivedVar("Stop1_phi_ScalarPtRank_cm"+label_+myVarSuffix_,Stop1_ScalarPtRank_cm.Phi());
-        tr.registerDerivedVar("Stop2_phi_ScalarPtRank_cm"+label_+myVarSuffix_,Stop2_ScalarPtRank_cm.Phi());
-        tr.registerDerivedVar("Stop1_eta_ScalarPtRank_cm"+label_+myVarSuffix_,Stop1_ScalarPtRank_cm.Eta());
-        tr.registerDerivedVar("Stop2_eta_ScalarPtRank_cm"+label_+myVarSuffix_,Stop2_ScalarPtRank_cm.Eta());
+        tr.registerDerivedVar("Stop1_ScalarPtRank"        +label_+myVarSuffix_, Stop1_ScalarPtRank);
+        tr.registerDerivedVar("Stop2_ScalarPtRank"        +label_+myVarSuffix_, Stop2_ScalarPtRank);
+        tr.registerDerivedVar("Stop1_mass_ScalarPtRank_cm"+label_+myVarSuffix_, static_cast<double>(Stop1_ScalarPtRank_cm.M()));
+        tr.registerDerivedVar("Stop2_mass_ScalarPtRank_cm"+label_+myVarSuffix_, static_cast<double>(Stop2_ScalarPtRank_cm.M()));
+        tr.registerDerivedVar("Stop1_pt_ScalarPtRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop1_ScalarPtRank_cm.Pt()));
+        tr.registerDerivedVar("Stop2_pt_ScalarPtRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop2_ScalarPtRank_cm.Pt()));
+        tr.registerDerivedVar("Stop1_phi_ScalarPtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop1_ScalarPtRank_cm.Phi()));
+        tr.registerDerivedVar("Stop2_phi_ScalarPtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop2_ScalarPtRank_cm.Phi()));
+        tr.registerDerivedVar("Stop1_eta_ScalarPtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop1_ScalarPtRank_cm.Eta()));
+        tr.registerDerivedVar("Stop2_eta_ScalarPtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop2_ScalarPtRank_cm.Eta()));
         // others
-        tr.registerDerivedVar("dR_Stop1Stop2"+label_+myVarSuffix_,dR_Stop1Stop2);
-        tr.registerDerivedVar("dPhi_Stop1Stop2"+label_+myVarSuffix_,dPhi_Stop1Stop2);
-        tr.registerDerivedVar("difference_stopMasses"+label_+myVarSuffix_,difference_stopMasses);
-        tr.registerDerivedVar("average_stopMasses"+label_+myVarSuffix_,average_stopMasses);
-        tr.registerDerivedVar("relativeDiff_stopMasses"+label_+myVarSuffix_,relativeDiff_stopMasses);
-        tr.registerDerivedVar("Stop1ScalarPt_ScalarPtRank"+label_+myVarSuffix_,Stop1ScalarPt_ScalarPtRank);
-        tr.registerDerivedVar("Stop2ScalarPt_ScalarPtRank"+label_+myVarSuffix_,Stop2ScalarPt_ScalarPtRank);
+        tr.registerDerivedVar("dR_Stop1Stop2"             +label_+myVarSuffix_, static_cast<double>(dR_Stop1Stop2));
+        tr.registerDerivedVar("dPhi_Stop1Stop2"           +label_+myVarSuffix_, static_cast<double>(dPhi_Stop1Stop2));
+        tr.registerDerivedVar("difference_stopMasses"     +label_+myVarSuffix_, static_cast<double>(difference_stopMasses));
+        tr.registerDerivedVar("average_stopMasses"        +label_+myVarSuffix_, static_cast<double>(average_stopMasses));
+        tr.registerDerivedVar("relativeDiff_stopMasses"   +label_+myVarSuffix_, static_cast<double>(relativeDiff_stopMasses));
+        tr.registerDerivedVar("Stop1ScalarPt_ScalarPtRank"+label_+myVarSuffix_, static_cast<double>(Stop1ScalarPt_ScalarPtRank));
+        tr.registerDerivedVar("Stop2ScalarPt_ScalarPtRank"+label_+myVarSuffix_, static_cast<double>(Stop2ScalarPt_ScalarPtRank));
     }
 
 public:    
