@@ -12,41 +12,43 @@ private:
     {
     public:
         const std::vector<utility::LorentzVector>& Jets;
-        const std::vector<float>&         Jets_bDiscriminatorCSV;
-        const std::vector<float>&         Jets_bJetTagDeepCSVprobb;
-        const std::vector<float>&         Jets_bJetTagDeepCSVprobbb;
-        const std::vector<float>&         Jets_bJetTagDeepFlavourprobb;
-        const std::vector<float>&         Jets_bJetTagDeepFlavourprobbb;
-        const std::vector<float>&         Jets_bJetTagDeepFlavourprobc;
-        const std::vector<float>&         Jets_bJetTagDeepFlavourprobuds;
-        const std::vector<float>&         Jets_bJetTagDeepFlavourprobg;
-        const std::vector<float>&         Jets_bJetTagDeepCSVprobc;
-        const std::vector<float>&         Jets_bJetTagDeepCSVprobudsg;
-        const std::vector<float>&         Jets_qgLikelihood;
-        const std::vector<float>&         Jets_muonEnergyFraction;
-        const std::vector<float>&         Jets_hfHadronEnergyFraction;
-        const std::vector<float>&         Jets_hfEMEnergyFraction;
-        const std::vector<float>&         Jets_photonEnergyFraction;
-        const std::vector<float>&         Jets_electronEnergyFraction;
-        const std::vector<int>&            Jets_chargedHadronMultiplicity;
-        const std::vector<int>&            Jets_neutralHadronMultiplicity;
-        const std::vector<int>&            Jets_photonMultiplicity;
-        const std::vector<int>&            Jets_electronMultiplicity;
-        const std::vector<int>&            Jets_muonMultiplicity;
-        const std::vector<bool>&           Jets_ID;
-        const bool&                        JetID;
-        const std::vector<int>&            Jets_partonFlavor;
-        const std::vector<float>&         Jets_ptD;
-        const std::vector<float>&         Jets_axismajor;
-        const std::vector<float>&         Jets_axisminor;
-        const std::vector<int>&            Jets_multiplicity;
-        const std::vector<float>&         Jets_neutralEmEnergyFraction;
-        const std::vector<float>&         Jets_chargedEmEnergyFraction;
-        const std::vector<float>&         Jets_neutralHadronEnergyFraction;
-        const std::vector<float>&         Jets_chargedHadronEnergyFraction;
+        const std::vector<TLorentzVector>&         Jets_TLV;
+        const std::vector<float>&                  Jets_bDiscriminatorCSV;
+        const std::vector<float>&                  Jets_bJetTagDeepCSVprobb;
+        const std::vector<float>&                  Jets_bJetTagDeepCSVprobbb;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourprobb;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourprobbb;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourprobc;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourprobuds;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourprobg;
+        const std::vector<float>&                  Jets_bJetTagDeepCSVprobc;
+        const std::vector<float>&                  Jets_bJetTagDeepCSVprobudsg;
+        const std::vector<float>&                  Jets_qgLikelihood;
+        const std::vector<float>&                  Jets_muonEnergyFraction;
+        const std::vector<float>&                  Jets_hfHadronEnergyFraction;
+        const std::vector<float>&                  Jets_hfEMEnergyFraction;
+        const std::vector<float>&                  Jets_photonEnergyFraction;
+        const std::vector<float>&                  Jets_electronEnergyFraction;
+        const std::vector<int>&                    Jets_chargedHadronMultiplicity;
+        const std::vector<int>&                    Jets_neutralHadronMultiplicity;
+        const std::vector<int>&                    Jets_photonMultiplicity;
+        const std::vector<int>&                    Jets_electronMultiplicity;
+        const std::vector<int>&                    Jets_muonMultiplicity;
+        const std::vector<bool>&                   Jets_ID;
+        const bool&                                JetID;
+        const std::vector<int>&                    Jets_partonFlavor;
+        const std::vector<float>&                  Jets_ptD;
+        const std::vector<float>&                  Jets_axismajor;
+        const std::vector<float>&                  Jets_axisminor;
+        const std::vector<int>&                    Jets_multiplicity;
+        const std::vector<float>&                  Jets_neutralEmEnergyFraction;
+        const std::vector<float>&                  Jets_chargedEmEnergyFraction;
+        const std::vector<float>&                  Jets_neutralHadronEnergyFraction;
+        const std::vector<float>&                  Jets_chargedHadronEnergyFraction;
         
     JetCollection(const NTupleReader& tr) 
             : Jets(tr.getVec<utility::LorentzVector>("Jets"))
+            , Jets_TLV(tr.getVec<TLorentzVector>("Jets_TLV"))
             , Jets_bDiscriminatorCSV(tr.getVec<float>("Jets_bDiscriminatorCSV")) 
             , Jets_bJetTagDeepCSVprobb(tr.getVec<float>("Jets_bJetTagDeepCSVprobb"))
             , Jets_bJetTagDeepCSVprobbb(tr.getVec<float>("Jets_bJetTagDeepCSVprobbb"))
@@ -86,28 +88,32 @@ private:
     class JetAK8Collection
     {
     public:
-        const std::vector<utility::LorentzVector>& JetsAK8;
-        const std::vector<float>&                  JetsAK8_NsubjettinessTau1;
-        const std::vector<float>&                  JetsAK8_NsubjettinessTau2;
-        const std::vector<float>&                  JetsAK8_NsubjettinessTau3;
-        const std::vector<float>&                  JetsAK8_softDropMass;
-        const std::vector<float>&                  JetsAK8_axismajor;
-        const std::vector<float>&                  JetsAK8_axisminor;
-        const std::vector<utility::LorentzVector>& JetsAK8_subjets;
-        const std::vector<float>&                  JetsAK8_DeepTagTvsQCD;
-        const std::vector<float>&                  JetsAK8_DeepTagWvsQCD;
-        const std::vector<float>&                  JetsAK8_DeepTagHbbvsQCD;
-        const std::vector<int>&                    JetsAK8_multiplicity;
+        const std::vector<utility::LorentzVector>&              JetsAK8;
+        const std::vector<TLorentzVector>&                      JetsAK8_TLV;
+        const std::vector<float>&                               JetsAK8_NsubjettinessTau1;
+        const std::vector<float>&                               JetsAK8_NsubjettinessTau2;
+        const std::vector<float>&                               JetsAK8_NsubjettinessTau3;
+        const std::vector<float>&                               JetsAK8_softDropMass;
+        const std::vector<float>&                               JetsAK8_axismajor;
+        const std::vector<float>&                               JetsAK8_axisminor;
+        const std::vector<std::vector<utility::LorentzVector>>& JetsAK8_subjetsNested_LV;
+        const std::vector<std::vector<TLorentzVector>>&         JetsAK8_subjetsNested_TLV;
+        const std::vector<float>&                               JetsAK8_DeepTagTvsQCD;
+        const std::vector<float>&                               JetsAK8_DeepTagWvsQCD;
+        const std::vector<float>&                               JetsAK8_DeepTagHbbvsQCD;
+        const std::vector<int>&                                 JetsAK8_multiplicity;
     
     JetAK8Collection(const NTupleReader& tr) 
             : JetsAK8(tr.getVec<utility::LorentzVector>("JetsAK8"))
+            , JetsAK8_TLV(tr.getVec<TLorentzVector>("JetsAK8_TLV"))
             , JetsAK8_NsubjettinessTau1(tr.getVec<float>("JetsAK8_NsubjettinessTau1"))
             , JetsAK8_NsubjettinessTau2(tr.getVec<float>("JetsAK8_NsubjettinessTau2"))
             , JetsAK8_NsubjettinessTau3(tr.getVec<float>("JetsAK8_NsubjettinessTau3"))
             , JetsAK8_softDropMass(tr.getVec<float>("JetsAK8_softDropMass"))
             , JetsAK8_axismajor(tr.getVec<float>("JetsAK8_axismajor"))
             , JetsAK8_axisminor(tr.getVec<float>("JetsAK8_axisminor"))
-            , JetsAK8_subjets(tr.getVec<utility::LorentzVector>("JetsAK8_subjets"))
+            , JetsAK8_subjetsNested_LV(tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8_subjetsNested_LV"))
+            , JetsAK8_subjetsNested_TLV(tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjetsNested_TLV"))
             , JetsAK8_DeepTagTvsQCD(tr.getVec<float>("JetsAK8_DeepTagTvsQCD"))
             , JetsAK8_DeepTagWvsQCD(tr.getVec<float>("JetsAK8_DeepTagWvsQCD"))
             , JetsAK8_DeepTagHbbvsQCD(tr.getVec<float>("JetsAK8_DeepTagHbbvsQCD"))
@@ -152,6 +158,7 @@ private:
         const auto& newJets_origIndex = tr.getVec<int>("Jets"+name+"_origIndex");
                
         auto& newJets                             = tr.createDerivedVec<utility::LorentzVector>("Jets"+name, jc.Jets.size());
+        auto& newJets_TLV                         = tr.createDerivedVec<TLorentzVector>("Jets_TLV"+name, jc.Jets.size());
         auto& newJets_bDiscriminatorCSV           = tr.createDerivedVec<float>("Jets"+name+"_bDiscriminatorCSV", jc.Jets.size());
         auto& newJets_bJetTagDeepCSVprobb         = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
         auto& newJets_bJetTagDeepCSVprobbb        = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
@@ -189,10 +196,12 @@ private:
 
         for(unsigned j = 0; j < newJets_origIndex.size(); ++j)
         {
-            int i = newIndex[newJets_origIndex.at(j)];
-            auto lv = jc.Jets.at(i)*f.factor(name,i,j);
+            int i    = newIndex[newJets_origIndex.at(j)];
+            auto lv  = jc.Jets.at(i)*f.factor(name,i,j);
+            auto tlv = jc.Jets_TLV.at(i)*f.factor(name,i,j);
 
             newJets.at(j).SetPt(lv.Pt()); newJets.at(j).SetEta(lv.Eta()); newJets.at(j).SetPhi(lv.Phi()); newJets.at(j).SetE(lv.E());
+            newJets_TLV.at(j).SetPtEtaPhiE(tlv.Pt(), tlv.Eta(), tlv.Phi(), tlv.E());
             newJets_bDiscriminatorCSV.at(j)           = jc.Jets_bDiscriminatorCSV.at(i);
             newJets_bJetTagDeepCSVprobb.at(j)         = jc.Jets_bJetTagDeepCSVprobb.at(i);
             newJets_bJetTagDeepCSVprobbb.at(j)        = jc.Jets_bJetTagDeepCSVprobbb.at(i);
@@ -235,6 +244,7 @@ private:
         tr.registerDerivedVar("JetID"+name, jc.JetID);        
 
         auto& newJets                             = tr.createDerivedVec<utility::LorentzVector>("Jets"+name, jc.Jets.size());
+        auto& newJets_TLV                         = tr.createDerivedVec<TLorentzVector>("Jets_TLV"+name, jc.Jets.size());
         auto& newJets_bDiscriminatorCSV           = tr.createDerivedVec<float>("Jets"+name+"_bDiscriminatorCSV", jc.Jets.size());
         auto& newJets_bJetTagDeepCSVprobb         = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
         auto& newJets_bJetTagDeepCSVprobbb        = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
@@ -273,6 +283,7 @@ private:
         for(unsigned j = 0; j < jc.Jets.size(); ++j)
         {
             newJets.at(j).SetPt( scalePt*jc.Jets[j].Pt()); newJets.at(j).SetEta(jc.Jets[j].Eta()); newJets.at(j).SetPhi(jc.Jets[j].Phi()); newJets.at(j).SetE(scaleMass*jc.Jets[j].E());
+            newJets_TLV.at(j).SetPtEtaPhiE( scalePt*jc.Jets_TLV[j].Pt(), jc.Jets_TLV[j].Eta(), jc.Jets_TLV[j].Phi(), scaleMass*jc.Jets_TLV[j].E());
             newJets_bDiscriminatorCSV.at(j)           = jc.Jets_bDiscriminatorCSV.at(j);
             newJets_bJetTagDeepCSVprobb.at(j)         = jc.Jets_bJetTagDeepCSVprobb.at(j);
             newJets_bJetTagDeepCSVprobbb.at(j)        = jc.Jets_bJetTagDeepCSVprobbb.at(j);
@@ -314,17 +325,16 @@ private:
     {
         const auto& newJets_origIndex = tr.getVec<int>("JetsAK8"+name+"_origIndex");
 
-        auto& JetsAK8_subjetsNested = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjetsNested", jc.JetsAK8.size());
-        JetsAK8_subjetsNested = utility::nestVecOfVec<TLorentzVector, utility::LorentzVector>(jc.JetsAK8_subjets, tr.getVec<int>("JetsAK8_subjetsCounts"));
-
         auto& newJetsAK8                    = tr.createDerivedVec<utility::LorentzVector>("JetsAK8"+name, jc.JetsAK8.size());
+        auto& newJetsAK8_TLV                = tr.createDerivedVec<TLorentzVector>("JetsAK8_TLV"+name, jc.JetsAK8.size());
         auto& newJetsAK8_NsubjettinessTau1  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau1", jc.JetsAK8.size());
         auto& newJetsAK8_NsubjettinessTau2  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau2", jc.JetsAK8.size());
         auto& newJetsAK8_NsubjettinessTau3  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau3", jc.JetsAK8.size());
         auto& newJetsAK8_softDropMass       = tr.createDerivedVec<float>("JetsAK8"+name+"_softDropMass", jc.JetsAK8.size());
         auto& newJetsAK8_axismajor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axismajor", jc.JetsAK8.size());
         auto& newJetsAK8_axisminor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axisminor", jc.JetsAK8.size());
-        auto& newJetsAK8_subjets            = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjets", jc.JetsAK8.size());
+        auto& newJetsAK8_subjetsNested_LV   = tr.createDerivedVec<std::vector<utility::LorentzVector>>("JetsAK8"+name+"_subjetsNested_LV", jc.JetsAK8.size());
+        auto& newJetsAK8_subjetsNested_TLV  = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjetsNested_TLV", jc.JetsAK8.size());
         auto& newJetsAK8_DeepTagTvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagTvsQCD", jc.JetsAK8.size());
         auto& newJetsAK8_DeepTagWvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagWvsQCD", jc.JetsAK8.size());
         auto& newJetsAK8_DeepTagHbbvsQCD    = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagHbbvsQCD", jc.JetsAK8.size());
@@ -332,17 +342,20 @@ private:
              
         for(unsigned j = 0; j < newJets_origIndex.size(); ++j)
         {
-            int i = newIndex[newJets_origIndex.at(j)];
-            auto lv = jc.JetsAK8.at(i)*f.factor(name,i,j);
+            int i    = newIndex[newJets_origIndex.at(j)];
+            auto lv  = jc.JetsAK8.at(i)*f.factor(name,i,j);
+            auto tlv = jc.JetsAK8_TLV.at(i)*f.factor(name,i,j);
 
             newJetsAK8.at(j).SetPt(lv.Pt()); newJetsAK8.at(j).SetEta(lv.Eta()); newJetsAK8.at(j).SetPhi(lv.Phi()); newJetsAK8.at(j).SetE(lv.E());
+            newJetsAK8_TLV.at(j).SetPtEtaPhiE(tlv.Pt(), tlv.Eta(), tlv.Phi(), tlv.E());
             newJetsAK8_NsubjettinessTau1.at(j)  = jc.JetsAK8_NsubjettinessTau1.at(i);
             newJetsAK8_NsubjettinessTau2.at(j)  = jc.JetsAK8_NsubjettinessTau2.at(i);
             newJetsAK8_NsubjettinessTau3.at(j)  = jc.JetsAK8_NsubjettinessTau3.at(i);
             newJetsAK8_softDropMass.at(j)       = jc.JetsAK8_softDropMass.at(i);
             newJetsAK8_axismajor.at(j)          = jc.JetsAK8_axismajor.at(i);
             newJetsAK8_axisminor.at(j)          = jc.JetsAK8_axisminor.at(i);
-            newJetsAK8_subjets.at(j)            = JetsAK8_subjetsNested.at(i);
+            newJetsAK8_subjetsNested_LV.at(j)   = jc.JetsAK8_subjetsNested_LV.at(i);
+            newJetsAK8_subjetsNested_TLV.at(j)  = jc.JetsAK8_subjetsNested_TLV.at(i);
             newJetsAK8_DeepTagTvsQCD.at(j)      = jc.JetsAK8_DeepTagTvsQCD.at(i);
             newJetsAK8_DeepTagWvsQCD.at(j)      = jc.JetsAK8_DeepTagWvsQCD.at(i);
             newJetsAK8_DeepTagHbbvsQCD.at(j)    = jc.JetsAK8_DeepTagHbbvsQCD.at(i);
@@ -352,17 +365,17 @@ private:
 
     void derivePtMassScaledJetAK8Collection(NTupleReader& tr, const JetAK8Collection& jc, const std::string& name, double scalePt = 1.0, double scaleMass = 1.0)
     {
-        auto& JetsAK8_subjetsNested = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjetsNested", jc.JetsAK8.size());
-        JetsAK8_subjetsNested = utility::nestVecOfVec<TLorentzVector, utility::LorentzVector>(jc.JetsAK8_subjets, tr.getVec<int>("JetsAK8_subjetsCounts"));
 
         auto& newJetsAK8                    = tr.createDerivedVec<utility::LorentzVector>("JetsAK8"+name, jc.JetsAK8.size());
+        auto& newJetsAK8_TLV                = tr.createDerivedVec<TLorentzVector>("JetsAK8_TLV"+name, jc.JetsAK8.size());
         auto& newJetsAK8_NsubjettinessTau1  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau1", jc.JetsAK8.size());
         auto& newJetsAK8_NsubjettinessTau2  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau2", jc.JetsAK8.size());
         auto& newJetsAK8_NsubjettinessTau3  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau3", jc.JetsAK8.size());
         auto& newJetsAK8_softDropMass       = tr.createDerivedVec<float>("JetsAK8"+name+"_softDropMass", jc.JetsAK8.size());
         auto& newJetsAK8_axismajor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axismajor", jc.JetsAK8.size());
         auto& newJetsAK8_axisminor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axisminor", jc.JetsAK8.size());
-        auto& newJetsAK8_subjets            = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjets", jc.JetsAK8.size());
+        auto& newJetsAK8_subjetsNested_LV   = tr.createDerivedVec<std::vector<utility::LorentzVector>>("JetsAK8"+name+"_subjetsNested_LV", jc.JetsAK8.size());
+        auto& newJetsAK8_subjetsNested_TLV  = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjetsNested_TLV", jc.JetsAK8.size());
         auto& newJetsAK8_DeepTagTvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagTvsQCD", jc.JetsAK8.size());
         auto& newJetsAK8_DeepTagWvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagWvsQCD", jc.JetsAK8.size());
         auto& newJetsAK8_DeepTagHbbvsQCD    = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagHbbvsQCD", jc.JetsAK8.size());
@@ -371,13 +384,16 @@ private:
         for(unsigned j = 0; j < jc.JetsAK8.size(); ++j)
         {
             newJetsAK8.at(j).SetPt( scalePt*jc.JetsAK8[j].Pt()); newJetsAK8.at(j).SetEta(jc.JetsAK8[j].Eta()); newJetsAK8.at(j).SetPhi(jc.JetsAK8[j].Phi()); newJetsAK8.at(j).SetE( scaleMass*jc.JetsAK8[j].E());
+            newJetsAK8_TLV.at(j).SetPtEtaPhiE( scalePt*jc.JetsAK8_TLV[j].Pt(), jc.JetsAK8_TLV[j].Eta(), jc.JetsAK8_TLV[j].Phi(), scaleMass*jc.JetsAK8_TLV[j].E());
+
             newJetsAK8_NsubjettinessTau1.at(j)  = jc.JetsAK8_NsubjettinessTau1.at(j);
             newJetsAK8_NsubjettinessTau2.at(j)  = jc.JetsAK8_NsubjettinessTau2.at(j);
             newJetsAK8_NsubjettinessTau3.at(j)  = jc.JetsAK8_NsubjettinessTau3.at(j);
             newJetsAK8_softDropMass.at(j)       = jc.JetsAK8_softDropMass.at(j);
             newJetsAK8_axismajor.at(j)          = jc.JetsAK8_axismajor.at(j);
             newJetsAK8_axisminor.at(j)          = jc.JetsAK8_axisminor.at(j);
-            newJetsAK8_subjets.at(j)            = JetsAK8_subjetsNested.at(j);
+            newJetsAK8_subjetsNested_LV.at(j)   = jc.JetsAK8_subjetsNested_LV.at(j);
+            newJetsAK8_subjetsNested_TLV.at(j)  = jc.JetsAK8_subjetsNested_TLV.at(j);
             newJetsAK8_DeepTagTvsQCD.at(j)      = jc.JetsAK8_DeepTagTvsQCD.at(j);
             newJetsAK8_DeepTagWvsQCD.at(j)      = jc.JetsAK8_DeepTagWvsQCD.at(j);
             newJetsAK8_DeepTagHbbvsQCD.at(j)    = jc.JetsAK8_DeepTagHbbvsQCD.at(j);
@@ -387,6 +403,25 @@ private:
 
     void prepNTupleVars(NTupleReader& tr)
     {
+        // Make nested vector of vectors for AK8 subjets
+        const auto& JetsAK8_subjetsCounts = tr.getVec<int>("JetsAK8_subjetsCounts");
+        const auto& JetsAK8_subjets       = tr.getVec<utility::LorentzVector>("JetsAK8_subjets");
+
+        const auto& Jets    = tr.getVec<utility::LorentzVector>("Jets");
+        const auto& JetsAK8 = tr.getVec<utility::LorentzVector>("JetsAK8");
+
+        auto& JetsAK8_subjetsNested_LV  = tr.createDerivedVec<std::vector<utility::LorentzVector>>("JetsAK8_subjetsNested_LV", JetsAK8_subjetsCounts.size());
+        auto& JetsAK8_subjetsNested_TLV = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8_subjetsNested_TLV", JetsAK8_subjetsCounts.size());
+
+        JetsAK8_subjetsNested_LV  = utility::nestVecOfVec<utility::LorentzVector, utility::LorentzVector>(JetsAK8_subjets, JetsAK8_subjetsCounts);
+        JetsAK8_subjetsNested_TLV = utility::nestVecOfVec<TLorentzVector, utility::LorentzVector>(JetsAK8_subjets, JetsAK8_subjetsCounts);
+
+        auto& JetsTLV = tr.createDerivedVec<TLorentzVector>("Jets_TLV", Jets.size());
+        JetsTLV = utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(Jets);
+    
+        auto& JetsAK8TLV = tr.createDerivedVec<TLorentzVector>("JetsAK8_TLV", JetsAK8.size());
+        JetsAK8TLV = utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(JetsAK8);
+
         // Creating the jet pT and mass scaled collection
         JetCollection jc(tr);
         JetAK8Collection jcAK8(tr);

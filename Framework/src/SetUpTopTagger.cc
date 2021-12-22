@@ -12,16 +12,16 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     AK4Inputs_               (nullptr),
     AK8Inputs_               (nullptr),
     ak4Filter_               (nullptr),
-    Jets_                    (tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_)),
+    Jets_                    (tr.getVec<TLorentzVector>("Jets_TLV"+myVarSuffix_)),
     Jets_bJetTagDeepCSVtotb_ (tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb")),
     Jets_qgLikelihood_       (tr.getVec<float>("Jets"+myVarSuffix_+"_qgLikelihood")),
     GoodJets_                (tr.getVec<bool>("GoodJets"+myVarSuffix_)),
     GoodJets_pt20_           (tr.getVec<bool>("GoodJets_pt20"+myVarSuffix_)), 
-    JetsAK8_                 (tr.getVec<utility::LorentzVector>("JetsAK8"+myVarSuffix_)),
+    JetsAK8_                 (tr.getVec<TLorentzVector>("JetsAK8_TLV"+myVarSuffix_)),
     JetsAK8_DeepTagTvsQCD_   (tr.getVec<float>("JetsAK8"+myVarSuffix_+"_DeepTagTvsQCD")),
     JetsAK8_DeepTagWvsQCD_   (tr.getVec<float>("JetsAK8"+myVarSuffix_+"_DeepTagWvsQCD")),
     JetsAK8_softDropMass_    (tr.getVec<float>("JetsAK8"+myVarSuffix_+"_softDropMass")),
-    JetsAK8_subjets_         (tr.getVec<utility::LorentzVector>("JetsAK8"+myVarSuffix_+"_subjets")),
+    JetsAK8_subjets_         (tr.getVec<std::vector<TLorentzVector>>("JetsAK8"+myVarSuffix_+"_subjetsNested_TLV")),
     hadtops_                 (hadtops),
     hadtopdaughters_         (hadtopdaughters)
 {
@@ -47,19 +47,10 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
         }
     }
 
-    auto& JetsTLV = tr.createDerivedVec<TLorentzVector>("JetsTLV"+myVarSuffix_, Jets_.size());
-    JetsTLV = utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(Jets_);
-
-    auto& JetsAK8TLV = tr.createDerivedVec<TLorentzVector>("JetsAK8TLV"+myVarSuffix_, JetsAK8_.size());
-    JetsAK8TLV = utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(JetsAK8_);
-
-    auto& JetsAK8_subjetsNested = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8_subjetsNested", JetsAK8_.size());
-    JetsAK8_subjetsNested = utility::nestVecOfVec<TLorentzVector, utility::LorentzVector>(JetsAK8_subjets_, tr.getVec<int>("JetsAK8"+myVarSuffix_+"_subjetsCounts"));
-
     // Use helper function to create input list 
     // Create AK4 inputs object
     AK4Inputs_ = new ttUtility::ConstAK4Inputs<double>(
-        JetsTLV,
+        Jets_,
         *floatVecTodoubleVec(Jets_bJetTagDeepCSVtotb_),
         *floatVecTodoubleVec(Jets_qgLikelihood_), 
         hadtops_, 
@@ -68,11 +59,11 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
 
     // Create AK8 inputs object
     AK8Inputs_ = new ttUtility::ConstAK8Inputs<double>(
-        JetsAK8TLV,
+        JetsAK8_,
         *floatVecTodoubleVec(JetsAK8_DeepTagTvsQCD_),
         *floatVecTodoubleVec(JetsAK8_DeepTagWvsQCD_),
         *floatVecTodoubleVec(JetsAK8_softDropMass_),
-        JetsAK8_subjetsNested,        
+        JetsAK8_subjets_,        
         hadtops_,
         hadtopdaughters_);  
     

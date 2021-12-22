@@ -368,7 +368,7 @@ private:
         const auto& prunedMass         = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_prunedMass"                  );
         const auto& axismajor_AK8      = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_axismajor"                   );
         const auto& axisminor_AK8      = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_axisminor"                   );
-        const auto& subjets            = tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8"+myVarSuffix_+"_subjets");
+        const auto& subjets            = tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8"+myVarSuffix_+"_subjetsNested_LV");
         const auto& tDiscriminator_AK8 = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_tDiscriminatorDeep"          );
         const auto& wDiscriminator_AK8 = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_wDiscriminatorDeep"          );
         const auto& hDiscriminator_AK8 = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_hDiscriminatorDeep"          );

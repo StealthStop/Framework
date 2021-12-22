@@ -15,7 +15,6 @@ private:
         const auto& Tau2                  = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau2");
         const auto& Tau3                  = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau3");
         const auto& softDropMass          = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_softDropMass");
-        const auto& prunedMass            = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_prunedMass");
         const auto& Muons                 = tr.getVec<utility::LorentzVector>("Muons");
         const auto& Electrons             = tr.getVec<utility::LorentzVector>("Electrons");
         const auto& NMuons                = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
@@ -28,7 +27,7 @@ private:
         const auto& Jets                 = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
         const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons_pt20"+myVarSuffix_);
 
-        const auto& subjets              = tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8"+myVarSuffix_+"_subjets");
+        const auto& subjets              = tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8"+myVarSuffix_+"_subjetsNested_LV");
 
         //First clean out leptons from JetsAK8 collection
         auto& GoodJetsAK8         = tr.createDerivedVec<bool>("GoodJetsAK8"+myVarSuffix_);
@@ -91,7 +90,6 @@ private:
         auto& candidateLSP_Idx     = tr.createDerivedVec<int>("candidateLSP_Idx"+myVarSuffix_);
         auto& candidateLSP_T21     = tr.createDerivedVec<double>("candidateLSP_T21"+myVarSuffix_);
         auto& candidateLSP_T32     = tr.createDerivedVec<double>("candidateLSP_T32"+myVarSuffix_);
-        auto& candidateLSP_Pruned  = tr.createDerivedVec<double>("candidateLSP_Pruned"+myVarSuffix_);
         auto& candidateLSP_SDM     = tr.createDerivedVec<double>("candidateLSP_SDM"+myVarSuffix_);
         
             
@@ -156,7 +154,6 @@ private:
                 candidateLSP_Idx.push_back(j);
                 candidateLSP_T21.push_back(Tau2.at(j) / Tau1.at(j));
                 candidateLSP_T32.push_back(Tau3.at(j) / Tau2.at(j));
-                candidateLSP_Pruned.push_back(prunedMass.at(j) >= 0 ? prunedMass.at(j): 0.0);
                 candidateLSP_SDM.push_back(softDropMass.at(j));
 
                 int b1_sj_idx = -1, b2_sj_idx = -1;
