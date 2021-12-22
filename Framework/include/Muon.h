@@ -15,8 +15,8 @@ private:
         const auto& allMuons_charge = tr.getVec<int>("Muons_charge");
         const auto& allMuons_medID = tr.getVec<bool>("Muons_mediumID");
         const auto& etaCut = tr.getVar<double>("etaCut");
-        const auto& MET = tr.getVar<double>("MET"); 
-        const auto& METPhi = tr.getVar<double>("METPhi");
+        const auto& MET = tr.getVar<float>("MET"); 
+        const auto& METPhi = tr.getVar<float>("METPhi");
 
         utility::LorentzVector lvMET;
         lvMET.SetPt(MET); lvMET.SetEta(0.0); lvMET.SetPhi(METPhi); lvMET.SetE(MET);

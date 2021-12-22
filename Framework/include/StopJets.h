@@ -42,7 +42,7 @@ private:
                 {
                     unsigned int index = c->getIndex(); 
                     usedIndex.insert(index);
-                    top += utility::convertTLV(c->P());
+                    top += utility::convertLV<utility::LorentzVector, TLorentzVector>(c->P());
                 }
          
                 // get top jets   

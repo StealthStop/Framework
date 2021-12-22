@@ -74,8 +74,8 @@ private:
         const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
         const auto& TwoLep_Mbl1_Idx      = tr.getVar<std::pair<unsigned int, unsigned int>>("TwoLep_Mbl1_Idx"+myVarSuffix_);
         const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<unsigned int, unsigned int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
-        const auto& MET                  = tr.getVar<double>("MET");
-        const auto& METPhi               = tr.getVar<double>("METPhi");
+        const auto& MET                  = tr.getVar<float>("MET");
+        const auto& METPhi               = tr.getVar<float>("METPhi");
 
         double massDiffThresh = 100; //specify threshold of mass difference between megajets to generate shortlist of candidates
         utility::LorentzVector lvMET;
@@ -135,7 +135,7 @@ private:
            {
                FirstStopMassSums.emplace_back(RecoStopCands.first[p].M());
                SecStopMassSums.emplace_back(RecoStopCands.second[p].M());
-               StopMT2s.emplace_back(ttUtility::coreMT2calc(utility::convertLV(RecoStopCands.first[p]), utility::convertLV(RecoStopCands.second[p]), utility::convertLV(lvMET)));
+               StopMT2s.emplace_back(ttUtility::coreMT2calc(utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoStopCands.first[p]), utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoStopCands.second[p]), utility::convertLV<TLorentzVector, utility::LorentzVector>(lvMET)));
                TotalStopCandMassSums.emplace_back((RecoStopCands.first[p] + RecoStopCands.second[p]).M());
            }
            std::vector<double>::iterator Max_mass = std::max_element(TotalStopCandMassSums.begin(), TotalStopCandMassSums.end());
@@ -157,7 +157,7 @@ private:
 
         tr.registerDerivedVar("RecoStop1"+myVarSuffix_, RecoStop1);
         tr.registerDerivedVar("RecoStop2"+myVarSuffix_, RecoStop2);
-        tr.registerDerivedVar("RecoStopMT2"+myVarSuffix_, ttUtility::coreMT2calc(utility::convertLV(RecoStop1),utility::convertLV(RecoStop2),utility::convertLV(lvMET)));
+        tr.registerDerivedVar("RecoStopMT2"+myVarSuffix_, ttUtility::coreMT2calc(utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoStop1),utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoStop2),utility::convertLV<TLorentzVector, utility::LorentzVector>(lvMET)));
     }    
 
 public:

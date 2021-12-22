@@ -13,7 +13,7 @@ private:
         const auto& runYear                = tr.getVar<std::string>("runYear");
         const auto& RunNum                 = tr.getVar<unsigned int>("RunNum");
         const auto& blind                  = tr.getVar<bool>("blind");
-        const auto& TriggerNames           = tr.getVec<std::string>("TriggerNames");
+        const auto& TriggerNames           = utility::splitString(tr.getBranchTitle("TriggerPass"));
         const auto& TriggerPass            = tr.getVec<int>("TriggerPass");
         const auto& NNonIsoMuons           = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
         const auto& NGoodLeptons           = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);

@@ -53,6 +53,24 @@ namespace utility
         return token;
     } 
 
+    std::vector<std::string> splitString(const std::string& string, const char delim)
+    {
+
+        std::vector<std::string> vs;
+
+        std::stringstream ss(string);
+
+        while (ss.good())
+        {
+            std::string substr;
+            std::getline(ss, substr, delim);
+
+            vs.push_back(string);
+        }
+
+        return vs;
+    }
+
     bool compare_p(const math::RThetaPhiVector& v1, const math::RThetaPhiVector& v2 ) 
     { 
         return ( v1.R() > v2.R() ); 
@@ -107,84 +125,4 @@ namespace utility
         }
         cm_frame_jets = cm_jets_topn;
     } // get_cmframe_jets
-
-    const std::vector<std::vector<LorentzVector>> nestVecOfVec(const std::vector<LorentzVector>& vec, const std::vector<int>& counts)
-    {
-    
-        std::vector<std::vector<LorentzVector>> nestedVecs(counts.size());
-
-        unsigned int iSubjet = 0;
-        unsigned int iSubjetsVec = 0;
-        for (unsigned int j = 0; j < counts.size(); j++)
-        {
-
-            unsigned nSubjets = counts.at(j);
-
-            for (unsigned int k = 0; k < nSubjets; k++)
-            {
-                nestedVecs.at(iSubjetsVec).push_back(vec.at(iSubjet));
-                iSubjet++;
-            }
-
-            iSubjetsVec++;
-        }
-
-        return nestedVecs;
-    }
-
-    std::vector<TLorentzVector> convertVectorOfLV(const std::vector<utility::LorentzVector>& vec)
-    {
-        std::vector<TLorentzVector> newvec(vec.size());
-        for(unsigned int i = 0; i < vec.size(); i++)
-        {
-            auto& lv = vec[i];
-            newvec.at(i).SetPtEtaPhiM(lv.Pt(), lv.Eta(), lv.Phi(), lv.M());
-        }
-        return newvec;
-    }
-
-    std::vector<LorentzVector> convertVectorOfTLV(const std::vector<TLorentzVector>& vec)
-    {
-        std::vector<LorentzVector> newvec(vec.size());
-        for(unsigned int i = 0; i < vec.size(); i++)
-        {
-            auto& tlv = vec[i];
-            newvec.at(i).SetPt(tlv.Pt()); newvec.at(i).SetEta(tlv.Eta()); newvec.at(i).SetPhi(tlv.Phi()); newvec.at(i).SetE(tlv.E());
-        }
-        return newvec;
-    }
-
-    std::vector<std::vector<TLorentzVector> > convertVecVecOfLV(const std::vector<std::vector<utility::LorentzVector> >& vecvec)
-    {
-        std::vector<std::vector<TLorentzVector> > newvecvec(vecvec.size());
-        for(unsigned int i = 0; i < vecvec.size(); i++)
-        {
-            newvecvec.at(i) = convertVectorOfLV(vecvec.at(i));
-        }
-        return newvecvec;
-    }
-
-    TLorentzVector convertLV(const utility::LorentzVector& lv)
-    {
-        TLorentzVector newTLV;
-        newTLV.SetPtEtaPhiM(lv.Pt(), lv.Eta(), lv.Phi(), lv.M());
-
-        return newTLV;
-    }
-
-    LorentzVector convertTLV(const TLorentzVector& tlv)
-    {
-        LorentzVector newLV;
-        newLV.SetPt(tlv.Pt()); newLV.SetEta(tlv.Eta()); newLV.SetPhi(tlv.Phi()); newLV.SetE(tlv.E());
-
-        return newLV;
-    }
-
-    LorentzVector convertTLV(const TLorentzVector* tlv)
-    {
-        LorentzVector newLV;
-        newLV.SetPt(tlv->Pt()); newLV.SetEta(tlv->Eta()); newLV.SetPhi(tlv->Phi()); newLV.SetE(tlv->E());
-
-        return newLV;
-    }
 }

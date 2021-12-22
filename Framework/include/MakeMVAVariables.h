@@ -71,7 +71,7 @@ private:
                 {
                     for(unsigned int ijet = 0; ijet < lv_all.size(); ijet++)
                     {
-                        double deltaR = utility::DeltaR(utility::convertTLV(d), lv_all.at(ijet) );
+                        double deltaR = utility::DeltaR(utility::convertLV<utility::LorentzVector, TLorentzVector>(d), lv_all.at(ijet) );
                         if(deltaR < 0.4)
                         {
                             if(numMatchedJets != 1 && genMatched) genMatched = megaJetID == jetCombo[ijet]; 
@@ -147,19 +147,19 @@ private:
     void makeMVAVariables(NTupleReader& tr)
     {
         const auto& Jets                             = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_                       );
-        const auto& Jets_bJetTagDeepFlavourtotb      = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotb"     );
-        const auto& Jets_bJetTagDeepFlavourprobg     = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobg"    );
-        const auto& Jets_bJetTagDeepFlavourtotq      = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotq"     );
-        const auto& Jets_bJetTagDeepFlavourprobc     = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobc"    );
-        const auto& Jets_bJetTagDeepFlavourprobuds   = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobuds"  );
-        const auto& Jets_ptD                         = tr.getVec<double>("Jets"+myVarSuffix_+"_ptD"                        );
-        const auto& Jets_axismajor                   = tr.getVec<double>("Jets"+myVarSuffix_+"_axismajor"                  );
-        const auto& Jets_axisminor                   = tr.getVec<double>("Jets"+myVarSuffix_+"_axisminor"                  );
+        const auto& Jets_bJetTagDeepFlavourtotb      = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotb"     );
+        const auto& Jets_bJetTagDeepFlavourprobg     = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobg"    );
+        const auto& Jets_bJetTagDeepFlavourtotq      = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotq"     );
+        const auto& Jets_bJetTagDeepFlavourprobc     = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobc"    );
+        const auto& Jets_bJetTagDeepFlavourprobuds   = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobuds"  );
+        const auto& Jets_ptD                         = tr.getVec<float>("Jets"+myVarSuffix_+"_ptD"                        );
+        const auto& Jets_axismajor                   = tr.getVec<float>("Jets"+myVarSuffix_+"_axismajor"                  );
+        const auto& Jets_axisminor                   = tr.getVec<float>("Jets"+myVarSuffix_+"_axisminor"                  );
         const auto& Jets_multiplicity                = tr.getVec<int>(   "Jets"+myVarSuffix_+"_multiplicity"               );
-        const auto& Jets_neutralEmEnergyFraction     = tr.getVec<double>("Jets"+myVarSuffix_+"_neutralEmEnergyFraction"    );
-        const auto& Jets_chargedEmEnergyFraction     = tr.getVec<double>("Jets"+myVarSuffix_+"_chargedEmEnergyFraction"    );
-        const auto& Jets_neutralHadronEnergyFraction = tr.getVec<double>("Jets"+myVarSuffix_+"_neutralHadronEnergyFraction");
-        const auto& Jets_chargedHadronEnergyFraction = tr.getVec<double>("Jets"+myVarSuffix_+"_chargedHadronEnergyFraction");
+        const auto& Jets_neutralEmEnergyFraction     = tr.getVec<float>("Jets"+myVarSuffix_+"_neutralEmEnergyFraction"    );
+        const auto& Jets_chargedEmEnergyFraction     = tr.getVec<float>("Jets"+myVarSuffix_+"_chargedEmEnergyFraction"    );
+        const auto& Jets_neutralHadronEnergyFraction = tr.getVec<float>("Jets"+myVarSuffix_+"_neutralHadronEnergyFraction");
+        const auto& Jets_chargedHadronEnergyFraction = tr.getVec<float>("Jets"+myVarSuffix_+"_chargedHadronEnergyFraction");
 
         const auto& GoodJets           = tr.getVec<bool>(GoodJetsName_+myVarSuffix_                                     );
         const auto& NGoodJets          = tr.getVar<int>(NGoodJetsName_+myVarSuffix_                                     );
@@ -361,17 +361,17 @@ private:
         // AK8 jet variables
         const auto& GoodJetsAK8        = tr.getVec<bool>("GoodJetsAK8"+myVarSuffix_                              );
         const auto& JetsAK8            = tr.getVec<utility::LorentzVector>("JetsAK8"+myVarSuffix_                        );
-        const auto& Tau1               = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau1"           );
-        const auto& Tau2               = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau2"           );
-        const auto& Tau3               = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau3"           );
-        const auto& softDropMass       = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_softDropMass"                );
-        const auto& prunedMass         = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_prunedMass"                  );
-        const auto& axismajor_AK8      = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_axismajor"                   );
-        const auto& axisminor_AK8      = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_axisminor"                   );
+        const auto& Tau1               = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau1"           );
+        const auto& Tau2               = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau2"           );
+        const auto& Tau3               = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau3"           );
+        const auto& softDropMass       = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_softDropMass"                );
+        const auto& prunedMass         = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_prunedMass"                  );
+        const auto& axismajor_AK8      = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_axismajor"                   );
+        const auto& axisminor_AK8      = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_axisminor"                   );
         const auto& subjets            = tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8"+myVarSuffix_+"_subjets");
-        const auto& tDiscriminator_AK8 = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_tDiscriminatorDeep"          );
-        const auto& wDiscriminator_AK8 = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_wDiscriminatorDeep"          );
-        const auto& hDiscriminator_AK8 = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_hDiscriminatorDeep"          );
+        const auto& tDiscriminator_AK8 = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_tDiscriminatorDeep"          );
+        const auto& wDiscriminator_AK8 = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_wDiscriminatorDeep"          );
+        const auto& hDiscriminator_AK8 = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_hDiscriminatorDeep"          );
         const auto& multiplicity_AK8   = tr.getVec<int>("JetsAK8"+myVarSuffix_+"_multiplicity"                   );
         
         std::vector<utility::LorentzVector> JetsAK8_TLV_cm;

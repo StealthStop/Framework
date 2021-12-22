@@ -21,15 +21,9 @@ namespace utility
     std::string split(const std::string& half, const std::string& s, const std::string& h);
     bool compare_p(const math::RThetaPhiVector& v1, const math::RThetaPhiVector& v2);
     void get_cmframe_jets(const std::vector<TLorentzVector>* lab_frame_jets, std::vector<math::RThetaPhiVector>& cm_frame_jets, int max_number_of_jets = -1 );
-    std::vector<TLorentzVector> convertVectorOfLV(const std::vector<utility::LorentzVector>& vec);
-    std::vector<LorentzVector> convertVectorOfTLV(const std::vector<TLorentzVector>& vec);
     std::vector<std::vector<TLorentzVector> > convertVecVecOfLV(const std::vector<std::vector<LorentzVector> >& vecvec);
 
-    TLorentzVector convertLV(const LorentzVector& lv);
-    LorentzVector  convertTLV(const TLorentzVector& tlv);
-    LorentzVector  convertTLV(const TLorentzVector* tlv);
-
-    const std::vector<std::vector<LorentzVector>> nestVecOfVec(const std::vector<LorentzVector>& vec, const std::vector<int>& counts);
+    std::vector<std::string> splitString(const std::string& string, const char delim = ',');
 
     template<typename T> T sum2(T v) { return v*v; }
     template<typename T, typename... Args> T sum2(T v, Args... args) { return v*v + sum2(args...); }
@@ -47,6 +41,72 @@ namespace utility
     bool compare_pt_TLV(const LV1& v1, const LV1& v2 )
     {
         return ( v1.Pt() > v2.Pt() );
+    }
+
+    template<typename LV1, typename LV2>
+    LV1 convertLV(const LV2& lv)
+    {
+        LV1 newLV;
+        newLV.SetPxPyPzE(lv.Px(), lv.Py(), lv.Pz(), lv.E());
+
+        return newLV;
+    }
+
+    template<typename LV1, typename LV2>
+    LV1 convertLV(const LV2* lv)
+    {
+        LV1 newLV;
+        newLV.SetPxPyPzE(lv->Px(), lv->Py(), lv->Pz(), lv->E());
+
+        return newLV;
+    }
+
+    template<typename LV1, typename LV2>
+    std::vector<LV1> convertVectorOfLV(const std::vector<LV2>& vec)
+    {
+        std::vector<LV1> newvec(vec.size());
+        for(unsigned int i = 0; i < vec.size(); i++)
+        {
+            auto& tlv = vec[i];
+            newvec.at(i).SetPxPyPzE(tlv.Px(), tlv.Py(), tlv.Pz(), tlv.E());
+        }
+        return newvec;
+    }
+
+    template<typename LV1, typename LV2>
+    std::vector<std::vector<LV1> > convertVecVecOfLV(const std::vector<std::vector<LV2> >& vecvec)
+    {
+        std::vector<std::vector<LV1> > newvecvec(vecvec.size());
+        for(unsigned int i = 0; i < vecvec.size(); i++)
+        {
+            newvecvec.at(i) = convertVectorOfLV<LV1, LV2>(vecvec.at(i));
+        }
+        return newvecvec;
+    }
+
+    template<typename LV1, typename LV2>
+    const std::vector<std::vector<LV1>> nestVecOfVec(const std::vector<LV2>& vec, const std::vector<int>& counts)
+    {
+
+        std::vector<std::vector<LV1>> nestedVecs(counts.size());
+
+        unsigned int iSubjet = 0;
+        unsigned int iSubjetsVec = 0;
+        for (unsigned int j = 0; j < counts.size(); j++)
+        {
+
+            unsigned nSubjets = counts.at(j);
+
+            for (unsigned int k = 0; k < nSubjets; k++)
+            {
+                nestedVecs.at(iSubjetsVec).push_back(convertLV<LV1, LV2>(vec.at(iSubjet)));
+                iSubjet++;
+            }
+
+            iSubjetsVec++;
+        }
+
+        return nestedVecs;
     }
 }
 

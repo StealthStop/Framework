@@ -101,8 +101,8 @@ private:
             const auto& Jets                    = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
             const auto& Electrons               = tr.getVec<utility::LorentzVector>("Electrons");
             const auto& Muons                   = tr.getVec<utility::LorentzVector>("Muons");
-            const auto& MET                     = tr.getVar<double>("MET");
-            const auto& METPhi                  = tr.getVar<double>("METPhi");
+            const auto& MET                     = tr.getVar<float>("MET");
+            const auto& METPhi                  = tr.getVar<float>("METPhi");
             const auto& GenMET                  = tr.getVar<double>("GenMET");
             const auto& GenMETPhi               = tr.getVar<double>("GenMETPhi");
 
@@ -406,8 +406,8 @@ private:
             GM_Stop1_recphis = recPhiList.at(0);
             GM_Stop2_recphis = recPhiList.at(1);
 
-            tr.registerDerivedVar("GM_StopMT2"+myVarSuffix_,        ttUtility::coreMT2calc(utility::convertLV(RecoSumList.at(0)),utility::convertLV(RecoSumList.at(1)),utility::convertLV(lvMET)));
-            tr.registerDerivedVar("GM_StopGenMT2"+myVarSuffix_,     ttUtility::coreMT2calc(utility::convertLV(GenSumList.at(0)), utility::convertLV(GenSumList.at(1)),utility::convertLV(lvGenMET)));
+            tr.registerDerivedVar("GM_StopMT2"+myVarSuffix_,        ttUtility::coreMT2calc(utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoSumList.at(0)),utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoSumList.at(1)),utility::convertLV<TLorentzVector, utility::LorentzVector>(lvMET)));
+            tr.registerDerivedVar("GM_StopGenMT2"+myVarSuffix_,     ttUtility::coreMT2calc(utility::convertLV<TLorentzVector, utility::LorentzVector>(GenSumList.at(0)), utility::convertLV<TLorentzVector, utility::LorentzVector>(GenSumList.at(1)),utility::convertLV<TLorentzVector, utility::LorentzVector>(lvGenMET)));
             tr.registerDerivedVar("GM_Stop1"+myVarSuffix_,      RecoSumList.at(0));
             tr.registerDerivedVar("GM_Stop2"+myVarSuffix_,      RecoSumList.at(1));
             tr.registerDerivedVar("GM_Stop1Gen"+myVarSuffix_,   GenSumList.at(0));

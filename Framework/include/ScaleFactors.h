@@ -201,12 +201,12 @@ private:
         // Following the example in SusyAnaTools PDFUncertainty.h
         // The scale weights are calculated using the envelope method and we ignore all anti-correlated variations (5 and 7)
         // --------------------------------------------------------------------------------------
-        const auto& scaleWeights = tr.getVec<double>("ScaleWeights");
+        const auto& scaleWeights = tr.getVec<float>("ScaleWeights");
         const auto& filetag      = tr.getVar<std::string>("filetag");
         const auto& runYear      = tr.getVar<std::string>("runYear");
         
         double scaleWeightNominal = 1.0;
-        std::vector<double>  myScaleWeights(6, 1.0);
+        std::vector<float>  myScaleWeights(6, 1.0);
         if( scaleWeights.size() == 9 ) 
         {
             //If there are not exactly 9 scale factors, then the vector  was filled incorrectly
@@ -255,7 +255,7 @@ private:
         double PSweight_FSRUp_2 = 1.0, PSweight_FSRDown_2 = 1.0; 
         if(tr.hasVar("PSweights"))
         {
-            const auto& PSweights = tr.getVec<double>("PSweights");
+            const auto& PSweights = tr.getVec<float>("PSweights");
             if(PSweights.size() >= 12) // should have size of 14, but just put 12 or more to be able to use the sample with the bug
             {
                 // Get nominal one so we can normalize it
@@ -285,12 +285,12 @@ private:
         // Now calculate the PDF scale factor and uncertainty 
         // Based on the 100 different replica values stored in PDFweights using envelope method and the median
         // --------------------------------------------------------------------------------------
-        const auto& PDFweights = tr.getVec<double>("PDFweights");
+        const auto& PDFweights = tr.getVec<float>("PDFweights");
         double central = 1.0, NNPDF_from_median_up = 1.0, NNPDF_from_median_down = 1.0;
         if(PDFweights.size() > 0)
         {
             const double reqCL = 0.68; //Choose a confidence level for the uncertainty
-            std::vector<double> sortedPDFWeights = PDFweights; //Cannot sort a constant
+            std::vector<float> sortedPDFWeights = PDFweights; //Cannot sort a constant
             std::sort( sortedPDFWeights.begin() + 1, sortedPDFWeights.end() );
         
             const int upper = std::round( 0.5*(1 + reqCL)*100.0 );
@@ -584,7 +584,7 @@ private:
         // 13 TeV all combined
         // --------------------------------------------------------------------------------------
         double topPtScaleFactor = 1.0;
-        auto* topPtVec = new std::vector<double>();
+        auto* topPtVec = new std::vector<float>();
         if(filetag == "TT" || filetag == "2016_TT" || filetag.find("TTTo") != std::string::npos)
         {
             const double a=0.0615, b=-0.0005;
@@ -637,7 +637,7 @@ private:
         // --------------------------------------------------------------------------------------
         // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
         // --------------------------------------------------------------------------------------
-        const auto& Weight         = tr.getVar<double>("Weight");
+        const auto& Weight         = tr.getVar<float>("Weight");
         const auto& bTagWeight     = tr.getVar<double>("bTagSF_EventWeightSimple_Central"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& NGoodMuons     = tr.getVar<int>("NGoodMuons"+myVarSuffix_);

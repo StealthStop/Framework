@@ -15,8 +15,8 @@ private:
         const auto& allElectrons_charge  = tr.getVec<int>("Electrons_charge");
         const auto& allElectrons_tightID = tr.getVec<bool>("Electrons_tightID");
         const auto& etaCut = tr.getVar<double>("etaCut");
-        const auto& MET = tr.getVar<double>("MET"); 
-        const auto& METPhi = tr.getVar<double>("METPhi");
+        const auto& MET = tr.getVar<float>("MET"); 
+        const auto& METPhi = tr.getVar<float>("METPhi");
         const auto& runYear = tr.getVar<std::string>("runYear");
 
         utility::LorentzVector lvMET;

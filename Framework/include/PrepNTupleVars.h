@@ -107,7 +107,7 @@ private:
             , JetsAK8_softDropMass(tr.getVec<float>("JetsAK8_softDropMass"))
             , JetsAK8_axismajor(tr.getVec<float>("JetsAK8_axismajor"))
             , JetsAK8_axisminor(tr.getVec<float>("JetsAK8_axisminor"))
-            , JetsAK8_subjets(utility::nestVecOfVec(tr.getVec<utility::LorentzVector>("JetsAK8_subjets"), tr.getVec<int>("JetsAK8_subjetsCounts")))
+            , JetsAK8_subjets(utility::nestVecOfVec<utility::LorentzVector, utility::LorentzVector>(tr.getVec<utility::LorentzVector>("JetsAK8_subjets"), tr.getVec<int>("JetsAK8_subjetsCounts")))
             , JetsAK8_DeepTagTvsQCD(tr.getVec<float>("JetsAK8_DeepTagTvsQCD"))
             , JetsAK8_DeepTagWvsQCD(tr.getVec<float>("JetsAK8_DeepTagWvsQCD"))
             , JetsAK8_DeepTagHbbvsQCD(tr.getVec<float>("JetsAK8_DeepTagHbbvsQCD"))
@@ -382,18 +382,6 @@ private:
     void prepNTupleVars(NTupleReader& tr)
     {
         // Creating the jet pT and mass scaled collection
-        std::cout<<"Getting Jet collection here"<<std::endl;
-        const auto& Jets = tr.getVec<utility::LorentzVector>("Jets");
-        std::cout<<"Got Jet collection here"<<std::endl;
-        std::cout<<Jets.size()<<std::endl;
-        for(unsigned int i = 0; i < Jets.size(); i++)
-        {
-            std::cout<<i<<" / "<<Jets.size()<<" "<<Jets[i]<<" "<<Jets[i].Pt()<<" "<<Jets[i].pt()<<std::endl;
-        }
-
-        const auto& tp = tr.getVec<int>("TriggerPass");
-        std::cout<<tr.getBranchTitle("TriggerPass")<<std::endl;
-
         JetCollection jc(tr);
         JetAK8Collection jcAK8(tr);
         const auto& runYear = tr.getVar<std::string>("runYear");

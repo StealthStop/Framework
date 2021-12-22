@@ -11,11 +11,11 @@ private:
     void fatjetcombine(NTupleReader& tr)
     {
         const auto& JetsAK8               = tr.getVec<utility::LorentzVector>("JetsAK8"+myVarSuffix_);
-        const auto& Tau1                  = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau1");
-        const auto& Tau2                  = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau2");
-        const auto& Tau3                  = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau3");
-        const auto& softDropMass          = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_softDropMass");
-        const auto& prunedMass            = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_prunedMass");
+        const auto& Tau1                  = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau1");
+        const auto& Tau2                  = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau2");
+        const auto& Tau3                  = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau3");
+        const auto& softDropMass          = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_softDropMass");
+        const auto& prunedMass            = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_prunedMass");
         const auto& Muons                 = tr.getVec<utility::LorentzVector>("Muons");
         const auto& Electrons             = tr.getVec<utility::LorentzVector>("Electrons");
         const auto& NMuons                = tr.getVar<int>("NGoodMuons"+myVarSuffix_);

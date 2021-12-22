@@ -213,7 +213,7 @@ public:
     //method 1a in twiki
     // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods  
     /***********************************************************************************/
-    double GetSimpleCorrection(const std::vector<utility::LorentzVector>* Jets, const std::vector<bool>* jetMask, const std::vector<int>* Jets_flavor, const std::vector<double>* Jets_bDiscriminatorCSV, const double wp)
+    double GetSimpleCorrection(const std::vector<utility::LorentzVector>* Jets, const std::vector<bool>* jetMask, const std::vector<int>* Jets_flavor, const std::vector<float>* Jets_bDiscriminatorCSV, const double wp)
     {
         double mcTag = 1.0, mcNoTag = 1.0, dataTag = 1.0, dataNoTag = 1.0;
         
@@ -310,7 +310,7 @@ public:
         if( !tr.checkBranch(MCBranch) ) return;
         const auto& inputJets = tr.getVec<utility::LorentzVector>(JetsVec);
         const auto& jetMask = tr.getVec<bool>(JetMask);
-        const auto& recoJetsBtag = tr.getVec<double>(BJetsVec);
+        const auto& recoJetsBtag = tr.getVec<float>(BJetsVec);
         const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
         const auto& wp = tr.getVar<double>("deepCSV_WP_medium");
         

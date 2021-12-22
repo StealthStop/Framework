@@ -55,7 +55,7 @@ private:
             singlets_           = &tr.createDerivedVec<TLorentzVector>("singlets"+myVarSuffix_);
             hadtops_idx_        = &tr.createDerivedVec<int>("hadtops_idx"+myVarSuffix_);
         
-            const auto& GenParticles            = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles            = utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(tr.getVec<utility::LorentzVector>("GenParticles"));
             const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
             const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
             const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");

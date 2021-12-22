@@ -74,13 +74,13 @@ private:
         const auto& NonIsoMuonJets_pt45 = tr.getVec<bool>("NonIsoMuonJets_pt45"+myVarSuffix_);
         const auto& Muons = tr.getVec<utility::LorentzVector>("Muons");
         const auto& MuonsCharge = tr.getVec<int>("Muons_charge");
-        const auto& MuonsMiniIso = tr.getVec<double>("Muons_iso");
+        const auto& MuonsMiniIso = tr.getVec<float>("Muons_iso");
         const auto& GoodMuons = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& NGoodMuons = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& GoodMuons_pt20 = tr.getVec<bool>("GoodMuons_pt20"+myVarSuffix_);
         const auto& Electrons = tr.getVec<utility::LorentzVector>("Electrons");
         const auto& ElectronsCharge = tr.getVec<int>("Electrons_charge");
-        const auto& ElectronsMiniIso = tr.getVec<double>("Electrons_iso");
+        const auto& ElectronsMiniIso = tr.getVec<float>("Electrons_iso");
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& GoodElectrons_pt20 = tr.getVec<bool>("GoodElectrons_pt20"+myVarSuffix_);

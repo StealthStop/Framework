@@ -29,8 +29,8 @@ private:
     
     void getHemispheres(NTupleReader& tr) const
     {
-        const auto& met               = tr.getVar<double>("MET");
-        const auto& metPhi            = tr.getVar<double>("METPhi");
+        const auto& met               = tr.getVar<float>("MET");
+        const auto& metPhi            = tr.getVar<float>("METPhi");
         const auto& Jets              = tr.getVec<utility::LorentzVector>(jetName_+myVarSuffix_);
         const auto& GoodJets          = tr.getVec<bool>(jetMaskName_+myVarSuffix_);
         const auto& NGoodJets         = tr.getVar<int>(nJetName_+myVarSuffix_);
