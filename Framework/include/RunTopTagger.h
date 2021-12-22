@@ -272,7 +272,7 @@ private:
         }
         
         // Making tight photon lv (should live somewhere else: is needed for HistoContainer.h)
-        const auto& Photons        = tr.getVec<TLorentzVector>("Photons");
+        const auto& Photons        = tr.getVec<utility::LorentzVector>("Photons");
         const auto& Photons_fullID = tr.getVec<bool>("Photons_fullID");
 
         auto& tightPhotons = tr.createDerivedVec<TLorentzVector>("tightPhotons"+myVarSuffix_);
@@ -280,7 +280,7 @@ private:
         {
             if(Photons_fullID[i])
             {
-                tightPhotons.push_back(Photons[i]);
+                tightPhotons.push_back(utility::convertLV<TLorentzVector, utility::LorentzVector>(Photons[i]));
             }
         }
         

@@ -165,8 +165,8 @@ private:
         const auto& NGoodJets          = tr.getVar<int>(NGoodJetsName_+myVarSuffix_                                     );
         const auto& GoodLeptons        = tr.getVec<std::pair<std::string, utility::LorentzVector>>(GoodLeptonsName_+myVarSuffix_);
         const auto& NGoodLeptons       = tr.getVar<int>(NGoodLeptonsName_+myVarSuffix_                                  );
-        const auto& MET                = tr.getVar<double>("MET"                                                        ); 
-        const auto& METPhi             = tr.getVar<double>("METPhi"                                                     );
+        const auto& MET                = tr.getVar<float>("MET"                                                        ); 
+        const auto& METPhi             = tr.getVar<float>("METPhi"                                                     );
 
         // Get the 4-vec for the MET
         utility::LorentzVector lvMET;

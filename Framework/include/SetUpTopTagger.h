@@ -28,7 +28,7 @@ private:
     const std::vector<float>& JetsAK8_DeepTagTvsQCD_;
     const std::vector<float>& JetsAK8_DeepTagWvsQCD_;
     const std::vector<float>& JetsAK8_softDropMass_;      
-    const std::vector<std::vector<TLorentzVector>>& JetsAK8_subjets_;           
+    const std::vector<utility::LorentzVector>& JetsAK8_subjets_;           
     const std::vector<TLorentzVector>& hadtops_;                   
     const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters_;
                

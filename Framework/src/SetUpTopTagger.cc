@@ -21,7 +21,7 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     JetsAK8_DeepTagTvsQCD_   (tr.getVec<float>("JetsAK8"+myVarSuffix_+"_DeepTagTvsQCD")),
     JetsAK8_DeepTagWvsQCD_   (tr.getVec<float>("JetsAK8"+myVarSuffix_+"_DeepTagWvsQCD")),
     JetsAK8_softDropMass_    (tr.getVec<float>("JetsAK8"+myVarSuffix_+"_softDropMass")),
-    JetsAK8_subjets_         (utility::nestVecOfVec<TLorentzVector, utility::LorentzVector>(tr.getVec<utility::LorentzVector>("JetsAK8"+myVarSuffix_+"_subjets"), tr.getVec<int>("JetsAK8"+myVarSuffix_+"_subjetsCounts"))),
+    JetsAK8_subjets_         (tr.getVec<utility::LorentzVector>("JetsAK8"+myVarSuffix_+"_subjets")),
     hadtops_                 (hadtops),
     hadtopdaughters_         (hadtopdaughters)
 {
@@ -47,10 +47,19 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
         }
     }
 
+    auto& JetsTLV = tr.createDerivedVec<TLorentzVector>("JetsTLV"+myVarSuffix_, Jets_.size());
+    JetsTLV = utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(Jets_);
+
+    auto& JetsAK8TLV = tr.createDerivedVec<TLorentzVector>("JetsAK8TLV"+myVarSuffix_, JetsAK8_.size());
+    JetsAK8TLV = utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(JetsAK8_);
+
+    auto& JetsAK8_subjetsNested = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8_subjetsNested", JetsAK8_.size());
+    JetsAK8_subjetsNested = utility::nestVecOfVec<TLorentzVector, utility::LorentzVector>(JetsAK8_subjets_, tr.getVec<int>("JetsAK8"+myVarSuffix_+"_subjetsCounts"));
+
     // Use helper function to create input list 
     // Create AK4 inputs object
     AK4Inputs_ = new ttUtility::ConstAK4Inputs<double>(
-        utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(Jets_),
+        JetsTLV,
         *floatVecTodoubleVec(Jets_bJetTagDeepCSVtotb_),
         *floatVecTodoubleVec(Jets_qgLikelihood_), 
         hadtops_, 
@@ -59,11 +68,11 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
 
     // Create AK8 inputs object
     AK8Inputs_ = new ttUtility::ConstAK8Inputs<double>(
-        utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(JetsAK8_),
+        JetsAK8TLV,
         *floatVecTodoubleVec(JetsAK8_DeepTagTvsQCD_),
         *floatVecTodoubleVec(JetsAK8_DeepTagWvsQCD_),
         *floatVecTodoubleVec(JetsAK8_softDropMass_),
-        JetsAK8_subjets_,        
+        JetsAK8_subjetsNested,        
         hadtops_,
         hadtopdaughters_);  
     

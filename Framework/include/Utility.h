@@ -85,7 +85,7 @@ namespace utility
     }
 
     template<typename LV1, typename LV2>
-    const std::vector<std::vector<LV1>> nestVecOfVec(const std::vector<LV2>& vec, const std::vector<int>& counts)
+    std::vector<std::vector<LV1>> nestVecOfVec(const std::vector<LV2>& vec, const std::vector<int>& counts)
     {
 
         std::vector<std::vector<LV1>> nestedVecs(counts.size());

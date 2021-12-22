@@ -103,8 +103,8 @@ private:
             const auto& Muons                   = tr.getVec<utility::LorentzVector>("Muons");
             const auto& MET                     = tr.getVar<float>("MET");
             const auto& METPhi                  = tr.getVar<float>("METPhi");
-            const auto& GenMET                  = tr.getVar<double>("GenMET");
-            const auto& GenMETPhi               = tr.getVar<double>("GenMETPhi");
+            const auto& GenMET                  = tr.getVar<float>("GenMET");
+            const auto& GenMETPhi               = tr.getVar<float>("GenMETPhi");
 
             const auto& filetag                 = tr.getVar<std::string>("filetag");
 

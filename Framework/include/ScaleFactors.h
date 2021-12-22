@@ -553,9 +553,9 @@ private:
         // For 2016 and 2018: Grab the individual pileup weight from the histogram found in PileupHistograms_*.root
         // For 2017: Using the puWeight stored in the nTuples
         // ----------------------------------------------------------------------------        
-        const auto& puWeightUnCorr  = tr.getVar<double>("puWeight");
-        const auto& puSysUpUnCorr   = tr.getVar<double>("puSysUp");
-        const auto& puSysDownUnCorr = tr.getVar<double>("puSysDown");
+        const auto& puWeightUnCorr  = tr.getVar<float>("puWeight");
+        const auto& puSysUpUnCorr   = tr.getVar<float>("puSysUp");
+        const auto& puSysDownUnCorr = tr.getVar<float>("puSysDown");
 
         tr.registerDerivedVar( "puWeightUnCorr"+myVarSuffix_,  puWeightUnCorr);
         tr.registerDerivedVar( "puSysUpUnCorr"+myVarSuffix_,   puSysUpUnCorr);

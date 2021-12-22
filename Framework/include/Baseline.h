@@ -115,7 +115,7 @@ private:
         bool passMadHT = true;
         if(runtype == "MC")
         {
-            const auto& madHT  = tr.getVar<double>("madHT");
+            const auto& madHT  = tr.getVar<float>("madHT");
 
             // Exclude events with MadGraph HT > 100 from the DY & WJets inclusive samples
             if(filetag.find("DYJetsToLL_M-50_Incl") != std::string::npos && madHT > 100) passMadHT = false;
@@ -149,7 +149,7 @@ private:
         // -----------------------
         const auto& globalSuperTightHalo2016Filter      = static_cast<bool>( tr.getVar<int>("globalSuperTightHalo2016Filter") );
         const auto& PrimaryVertexFilter                 = static_cast<bool>( tr.getVar<int>("PrimaryVertexFilter") );
-        const auto& BadPFMuonFilter                     = static_cast<bool>( tr.getVar<bool>("BadPFMuonFilter") );
+        const auto& BadPFMuonFilter                     = static_cast<bool>( tr.getVar<int>("BadPFMuonFilter") );
         const auto& EcalDeadCellTriggerPrimitiveFilter  = static_cast<bool>( tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter") );
         const auto& HBHEIsoNoiseFilter                  = static_cast<bool>( tr.getVar<int>("HBHEIsoNoiseFilter") );
         const auto& HBHENoiseFilter                     = static_cast<bool>( tr.getVar<int>("HBHENoiseFilter") );
