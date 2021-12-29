@@ -191,10 +191,10 @@ private:
         for(unsigned int j = 0; j < Jets.size(); j++)
         {
             if(!GoodJets[j]) continue;
-            utility::LorentzVector jlvcm = Jets.at(j);            
-            Jets_.push_back( jlvcm );
+            utility::LorentzVector jlv = Jets.at(j);            
+            Jets_.push_back( jlv );
             
-            utility::Boost(jlvcm, rec_boost_beta_vec );
+            utility::LorentzVector jlvcm = utility::Boost(jlv, rec_boost_beta_vec );
             Jets_cm.push_back( {jlvcm, Jets_neutralEmEnergyFraction.at(j), Jets_chargedEmEnergyFraction.at(j), Jets_neutralHadronEnergyFraction.at(j),
                                        Jets_chargedHadronEnergyFraction.at(j), Jets_bJetTagDeepFlavourtotb.at(j), Jets_bJetTagDeepFlavourprobg.at(j),
                                        Jets_bJetTagDeepFlavourprobc.at(j), Jets_bJetTagDeepFlavourprobuds.at(j), Jets_bJetTagDeepFlavourtotq.at(j),
