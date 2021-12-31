@@ -21,12 +21,12 @@ private:
 
     void jet(NTupleReader& tr)
     {
-        const auto& Jets          = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
+        const auto& Jets          = tr.getVec<utility::LorentzVector>(("Jets"+myVarSuffix_));
         const auto& etaCut        = tr.getVar<double>("etaCut");
-        const auto& Muons         = tr.getVec<TLorentzVector>("Muons");
+        const auto& Muons         = tr.getVec<utility::LorentzVector>("Muons");
         const auto& GoodMuons     = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& NMuons        = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
-        const auto& Electrons     = tr.getVec<TLorentzVector>("Electrons");
+        const auto& Electrons     = tr.getVec<utility::LorentzVector>("Electrons");
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NElectrons    = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& NonIsoMuons   = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
@@ -40,15 +40,15 @@ private:
         {
             for(unsigned int imu = 0; imu < Muons.size(); ++imu)
             {            
-                TLorentzVector myMuon = Muons.at(imu);
+                utility::LorentzVector myMuon = Muons.at(imu);
                 double         tempDeltaR = 10.0;
                 int            tempJetIt  = -1;                
                 for(unsigned int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
                 {                    
-                    TLorentzVector myJet = Jets.at(myJetIt);
+                    utility::LorentzVector myJet = Jets.at(myJetIt);
                     //First check pT matching between Jet and Muon
                     if( std::fabs( myJet.Pt() - myMuon.Pt() ) / myMuon.Pt() > 1.0 ) continue; 
-                    double jetDeltaR = myMuon.DeltaR(myJet);                    
+                    double jetDeltaR = utility::DeltaR(myMuon, myJet);                    
                     if( jetDeltaR < tempDeltaR ) 
                     {
                         tempDeltaR = jetDeltaR;
@@ -69,15 +69,15 @@ private:
             for(unsigned int iel = 0; iel < Electrons.size(); ++iel)
             {
                 if(!GoodElectrons[iel]) continue;
-                TLorentzVector myElectron = Electrons.at(iel);
+                utility::LorentzVector myElectron = Electrons.at(iel);
                 double         tempDeltaR = 10.0;
                 int            tempJetIt  = -1;                
                 for(unsigned int myJetIt = 0; myJetIt < Jets.size(); ++myJetIt ) 
                 {               
-                    TLorentzVector myJet = Jets.at(myJetIt);
+                    utility::LorentzVector myJet = Jets.at(myJetIt);
                     //Check pT matching between Jet and Electron
                     if( std::fabs( myJet.Pt() - myElectron.Pt() ) / myElectron.Pt() > 1.0 ) continue;
-                    double jetDeltaR = myElectron.DeltaR(myJet);                    
+                    double jetDeltaR = utility::DeltaR(myElectron, myJet);                    
                     if( jetDeltaR < tempDeltaR ) 
                     {
                         tempDeltaR = jetDeltaR;
@@ -114,7 +114,7 @@ private:
 
         for(unsigned int i = 0; i < Jets.size(); ++i ) 
         {               
-            TLorentzVector lv = Jets.at(i);
+            utility::LorentzVector lv = Jets.at(i);
            
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 20, jets_pt20_, NJets_pt20); 
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 30, jets_pt30_, NJets_pt30);

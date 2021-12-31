@@ -72,7 +72,7 @@ private:
 
     void runFisher(NTupleReader& tr)
     {
-        const auto& Jets       = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+        const auto& Jets       = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
         const auto& NJets_pt30 = tr.getVar<int>("NJets_pt30"+myVarSuffix_);
         const auto& NJets_pt45 = tr.getVar<int>("NJets_pt45"+myVarSuffix_);
 

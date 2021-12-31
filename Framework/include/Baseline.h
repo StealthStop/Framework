@@ -13,7 +13,7 @@ private:
         const auto& runYear                = tr.getVar<std::string>("runYear");
         const auto& RunNum                 = tr.getVar<unsigned int>("RunNum");
         const auto& blind                  = tr.getVar<bool>("blind");
-        const auto& TriggerNames           = tr.getVec<std::string>("TriggerNames");
+        const auto& TriggerNames           = utility::splitString(tr.getBranchTitle("TriggerPass"));
         const auto& TriggerPass            = tr.getVec<int>("TriggerPass");
         const auto& NNonIsoMuons           = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
         const auto& NGoodLeptons           = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
@@ -29,7 +29,6 @@ private:
         const auto& HT_trigger_pt30        = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& HT_trigger_pt45        = tr.getVar<double>("HT_trigger_pt45"+myVarSuffix_);
         const auto& HT_NonIsoMuon_pt30     = tr.getVar<double>("HT_NonIsoMuon_pt30"+myVarSuffix_);
-        const auto& HT_NonIsoMuon_pt45     = tr.getVar<double>("HT_NonIsoMuon_pt45"+myVarSuffix_);
         const auto& onZ                    = tr.getVar<bool>("onZ"+myVarSuffix_); 
         const auto& JetID                  = tr.getVar<bool>("JetID"+myVarSuffix_);
         const auto& NGoodJets_pt40         = tr.getVar<int>("NGoodJets_pt40"+myVarSuffix_); 
@@ -116,7 +115,7 @@ private:
         bool passMadHT = true;
         if(runtype == "MC")
         {
-            const auto& madHT  = tr.getVar<double>("madHT");
+            const auto& madHT  = tr.getVar<float>("madHT");
 
             // Exclude events with MadGraph HT > 100 from the DY & WJets inclusive samples
             if(filetag.find("DYJetsToLL_M-50_Incl") != std::string::npos && madHT > 100) passMadHT = false;
@@ -132,9 +131,9 @@ private:
                 passMadHT = false;
             }
             // also remove lepton overlap from the inclusive sample
-            const auto& GenElectrons        = tr.getVec<TLorentzVector>("GenElectrons");
-            const auto& GenMuons            = tr.getVec<TLorentzVector>("GenMuons");
-            const auto& GenTaus             = tr.getVec<TLorentzVector>("GenTaus");
+            const auto& GenElectrons        = tr.getVec<utility::LorentzVector>("GenElectrons");
+            const auto& GenMuons            = tr.getVec<utility::LorentzVector>("GenMuons");
+            const auto& GenTaus             = tr.getVec<utility::LorentzVector>("GenTaus");
             int NGenLeptons = GenElectrons.size() + GenMuons.size() + GenTaus.size();
             if (filetag.find("TTJets_Incl") != std::string::npos && NGenLeptons > 0) passMadHT = false;
             
@@ -150,7 +149,7 @@ private:
         // -----------------------
         const auto& globalSuperTightHalo2016Filter      = static_cast<bool>( tr.getVar<int>("globalSuperTightHalo2016Filter") );
         const auto& PrimaryVertexFilter                 = static_cast<bool>( tr.getVar<int>("PrimaryVertexFilter") );
-        const auto& BadPFMuonFilter                     = static_cast<bool>( tr.getVar<bool>("BadPFMuonFilter") );
+        const auto& BadPFMuonFilter                     = static_cast<bool>( tr.getVar<int>("BadPFMuonFilter") );
         const auto& EcalDeadCellTriggerPrimitiveFilter  = static_cast<bool>( tr.getVar<int>("EcalDeadCellTriggerPrimitiveFilter") );
         const auto& HBHEIsoNoiseFilter                  = static_cast<bool>( tr.getVar<int>("HBHEIsoNoiseFilter") );
         const auto& HBHENoiseFilter                     = static_cast<bool>( tr.getVar<int>("HBHENoiseFilter") );

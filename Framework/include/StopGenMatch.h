@@ -25,7 +25,7 @@ private:
     }
 
     //function to generate all possible matches between gen and reco particles if they pass DR and pT cut
-    inline std::vector<std::tuple< int , int , double>> findAllDR(const std::vector<TLorentzVector>& GenParticles, const std::vector<TLorentzVector>& RecoParticles, 
+    inline std::vector<std::tuple< int , int , double>> findAllDR(const std::vector<utility::LorentzVector>& GenParticles, const std::vector<utility::LorentzVector>& RecoParticles, 
                                                                   const std::vector<bool>& GoodGenParticles, const int resPartID, const std::vector<int>& GenParticles_ParentId, 
                                                                   const std::vector<int>& GenParticles_ParentIdx, const double maxDR,const double maxPTratio) const
     {
@@ -36,13 +36,13 @@ private:
         {
             for (unsigned int g=0; g < GenParticles.size(); g++)
             {
-                bool passDR = GenParticles.at(g).DeltaR(RecoParticles.at(r)) < maxDR;
+                bool passDR = utility::DeltaR(GenParticles.at(g), RecoParticles.at(r)) < maxDR;
                 bool passPT = (GenParticles.at(g).Pt()/RecoParticles.at(r).Pt() > 1.0-maxPTratio and GenParticles.at(g).Pt()/RecoParticles.at(r).Pt() < 1.0+maxPTratio);
                 if (findParent(abs(check_resPartID), g, GenParticles_ParentId, GenParticles_ParentIdx) == check_resPartID && GoodGenParticles.at(g) && passDR && passPT)
                 {
                     std::get<0>(DRtup) = g;
                     std::get<1>(DRtup) = r;
-                    std::get<2>(DRtup) = GenParticles.at(g).DeltaR(RecoParticles.at(r));
+                    std::get<2>(DRtup) = utility::DeltaR(GenParticles.at(g), RecoParticles.at(r));
                     AllDR.push_back(DRtup);
                 }
             }
@@ -93,18 +93,18 @@ private:
 
         if(runtype != "Data")
         {
-            const auto& GenParticles        = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles        = tr.getVec<utility::LorentzVector>("GenParticles");
             const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
             const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
             const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");
             const auto& GenParticles_Status     = tr.getVec<int>("GenParticles_Status");            
-            const auto& Jets                    = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-            const auto& Electrons               = tr.getVec<TLorentzVector>("Electrons");
-            const auto& Muons                   = tr.getVec<TLorentzVector>("Muons");
-            const auto& MET                     = tr.getVar<double>("MET");
-            const auto& METPhi                  = tr.getVar<double>("METPhi");
-            const auto& GenMET                  = tr.getVar<double>("GenMET");
-            const auto& GenMETPhi               = tr.getVar<double>("GenMETPhi");
+            const auto& Jets                    = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
+            const auto& Electrons               = tr.getVec<utility::LorentzVector>("Electrons");
+            const auto& Muons                   = tr.getVec<utility::LorentzVector>("Muons");
+            const auto& MET                     = tr.getVar<float>("MET");
+            const auto& METPhi                  = tr.getVar<float>("METPhi");
+            const auto& GenMET                  = tr.getVar<float>("GenMET");
+            const auto& GenMETPhi               = tr.getVar<float>("GenMETPhi");
 
             const auto& filetag                 = tr.getVar<std::string>("filetag");
 
@@ -112,13 +112,13 @@ private:
             if (filetag.find("mStop") != std::string::npos)
                 commonAncestor = 1000006;
 
-            TLorentzVector lvMET;
-            lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
+            utility::LorentzVector lvMET;
+            lvMET.SetPt(MET); lvMET.SetEta(0.0); lvMET.SetPhi(METPhi); lvMET.SetE(MET);
             
-            TLorentzVector lvGenMET;
-            lvGenMET.SetPtEtaPhiM(GenMET, 0.0, GenMETPhi, 0.0);
-
-            std::vector<TLorentzVector> RecoParticles;
+            utility::LorentzVector lvGenMET;
+            lvGenMET.SetPt(GenMET); lvGenMET.SetEta(0.0); lvGenMET.SetPhi(GenMETPhi); lvGenMET.SetE(GenMET);
+            
+            std::vector<utility::LorentzVector> RecoParticles;
             for(unsigned int j=0; j < Jets.size(); j++)
             {
                 RecoParticles.push_back(Jets.at(j));  //can replace this with any jet collection
@@ -246,8 +246,8 @@ private:
 
             std::vector<int> resParticleList{commonAncestor, -commonAncestor}; //gen match for stop, neutralino, and singlet
 
-            std::vector<TLorentzVector> RecoSumList;
-            std::vector<TLorentzVector> GenSumList;
+            std::vector<utility::LorentzVector> RecoSumList;
+            std::vector<utility::LorentzVector> GenSumList;
             std::vector<std::pair<std::vector<double>, std::vector<double>>> DRandPTSumList;
             std::vector<std::vector<int> > pdgsList;
             std::vector<std::vector<int> > momList;
@@ -258,7 +258,7 @@ private:
             std::vector<std::vector<double> > genPtList;
             std::vector<std::vector<double> > recPtList;
 
-            TLorentzVector AllGenSum,AllGenSumNlino;
+            utility::LorentzVector AllGenSum,AllGenSumNlino;
             for (unsigned int g = 0; g < GenParticles.size(); g++)
             {
                 if (GoodGenParticles.at(g) && findParent(commonAncestor, g, GenParticles_ParentId, GenParticles_ParentIdx) == commonAncestor) AllGenSum += GenParticles.at(g);
@@ -299,8 +299,8 @@ private:
 
                 getMatches( AllDR, Matches, availableDR);
 
-                TLorentzVector RecoMatchedSum;
-                TLorentzVector GenMatchedSum;
+                utility::LorentzVector RecoMatchedSum;
+                utility::LorentzVector GenMatchedSum;
                 std::vector<double> DRvec;
                 std::vector<double> PTvec;
                 std::vector<int> pdgs;
@@ -343,7 +343,7 @@ private:
 
                     GenMatchedSum  += theGen;
                     RecoMatchedSum += theRec;
-                    DRvec.push_back(theGen.DeltaR(theRec));
+                    DRvec.push_back(utility::DeltaR(theGen, theRec));
                     PTvec.push_back(theGen.Pt()/theRec.Pt());
                     pdgs.push_back(GenParticles_PdgId.at(genIdx));
                     mom.push_back(GenParticles_ParentId.at(genIdx));
@@ -406,8 +406,8 @@ private:
             GM_Stop1_recphis = recPhiList.at(0);
             GM_Stop2_recphis = recPhiList.at(1);
 
-            tr.registerDerivedVar("GM_StopMT2"+myVarSuffix_,        ttUtility::coreMT2calc(RecoSumList.at(0),RecoSumList.at(1),lvMET));
-            tr.registerDerivedVar("GM_StopGenMT2"+myVarSuffix_,     ttUtility::coreMT2calc(GenSumList.at(0),GenSumList.at(1),lvGenMET));
+            tr.registerDerivedVar("GM_StopMT2"+myVarSuffix_,        ttUtility::coreMT2calc(utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoSumList.at(0)),utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoSumList.at(1)),utility::convertLV<TLorentzVector, utility::LorentzVector>(lvMET)));
+            tr.registerDerivedVar("GM_StopGenMT2"+myVarSuffix_,     ttUtility::coreMT2calc(utility::convertLV<TLorentzVector, utility::LorentzVector>(GenSumList.at(0)), utility::convertLV<TLorentzVector, utility::LorentzVector>(GenSumList.at(1)),utility::convertLV<TLorentzVector, utility::LorentzVector>(lvGenMET)));
             tr.registerDerivedVar("GM_Stop1"+myVarSuffix_,      RecoSumList.at(0));
             tr.registerDerivedVar("GM_Stop2"+myVarSuffix_,      RecoSumList.at(1));
             tr.registerDerivedVar("GM_Stop1Gen"+myVarSuffix_,   GenSumList.at(0));
