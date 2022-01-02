@@ -1,6 +1,6 @@
-#include "SusyAnaTools/Tools/samples.h"
-#include "SusyAnaTools/Tools/NTupleReader.h"
+#include "NTupleReader/include/NTupleReader.h"
 
+#include "Framework/Framework/include/samples.h"
 #include "Framework/Framework/include/MakeMVAVariables.h"
 #include "Framework/Framework/include/Jet.h"
 #include "Framework/Framework/include/Muon.h"

@@ -4,8 +4,8 @@
 //custom headers
 #include "Framework/Framework/include/BTagCalibrationStandalone.h"
 #include "Framework/Framework/include/Utility.h"
-#include "SusyAnaTools/Tools/NTupleReader.h"
-#include "SusyAnaTools/Tools/SATException.h"
+#include "NTupleReader/include/NTupleReader.h"
+#include "NTupleReader/include/NTRException.h"
 
 //ROOT headers
 #include <TFile.h>
@@ -55,7 +55,7 @@ public:
             
             if(!h_eff_b.get())
             {
-                THROW_SATEXCEPTION("\033[1;31mError: Could not find \"n_eff_b_"+suffix2+"\" histogram in the Btag scale factor root file\033[0m");
+                THROW_NTREXCEPTION("\033[1;31mError: Could not find \"n_eff_b_"+suffix2+"\" histogram in the Btag scale factor root file\033[0m");
             }
             h_eff_c.reset( (TH2F*)file.Get(("n_eff_c_" + suffix2).c_str()) );
             h_eff_udsg.reset( (TH2F*)file.Get(("n_eff_udsg_" + suffix2).c_str()) );
