@@ -8,8 +8,7 @@
 #include <vector>
 
 #include "Framework/Framework/include/Utility.h"
-
-#include "SusyAnaTools/Tools/NTupleReader.h"
+#include "NTupleReader/include/NTupleReader.h"
 
 class SetUpTopTagger
 {
