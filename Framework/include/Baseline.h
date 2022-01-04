@@ -44,6 +44,7 @@ private:
         const auto& passTrigSFHEMVeto      = tr.getVar<bool>("passTrigSFHEMVeto"+myVarSuffix_);
         const auto& NGoodBJetsCSV_pt30     = tr.getVar<int>("NGoodBJetsCSV_pt30"+myVarSuffix_); 
         const auto& ntops                  = tr.getVar<int>("ntops"+myVarSuffix_);
+        const auto& dR_bjets_old           = tr.getVar<double>("dR_bjets_old"+myVarSuffix_);
         const auto& dR_bjets               = tr.getVar<double>("dR_bjets"+myVarSuffix_); 
  
         // ------------------------------
@@ -159,6 +160,20 @@ private:
         // --------------------------------
         // -- Define 0 Lepton Selections  
         // --------------------------------
+        // full old baseline
+        bool passBaseline0l_old = JetID                  &&
+                                  passMETFilters         &&
+                                  passMadHT              &&
+                                  passTrigger            &&
+                                  passTriggerHadMC       &&
+                                  (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
+                                  NGoodLeptons == 0      &&
+                                  HT_trigger_pt45 > 500  &&
+                                  NGoodJets_pt45 >= 6    &&
+                                  NGoodBJets_pt45 >= 2   &&
+                                  ntops >= 2             &&
+                                  dR_bjets_old >= 1.0    ;
+
         // proto baseline 
         bool passBaseline0l_pre = JetID                  &&
                                   passMETFilters         &&
@@ -383,7 +398,8 @@ private:
                                         NGoodPhotons == 1   &&
                                         NGoodLeptons == 0   && 
                                         NGoodJets_pt30 >= 7; 
-       
+
+        tr.registerDerivedVar<bool>("passBaseline0l_old"+myVarSuffix_,         passBaseline0l_old);       
         tr.registerDerivedVar<bool>("passBaseline0l_pre"+myVarSuffix_,         passBaseline0l_pre); 
         tr.registerDerivedVar<bool>("passBaseline0l_good"+myVarSuffix_,        passBaseline0l_good);
         tr.registerDerivedVar<bool>("pass_qcdCR"+myVarSuffix_,                 pass_qcdCR);
