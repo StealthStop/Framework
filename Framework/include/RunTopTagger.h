@@ -157,7 +157,6 @@ private:
         const TopTaggerResults& ttr = tt_->getResults();
        
         // Get tagged objects the new top tagger returns more than just tops now (MERGED_TOP, SEMIMERGEDWB_TOP, RESOLVED_TOP, MERGED_W, SEMIMERGEDQB_TOP)
- 
         // For now we will only use merged and resolved tops
         const std::vector<TopObject*>& taggedObjects = ttr.getTops();
         std::vector<TopObject*> mergedTops;
@@ -169,9 +168,9 @@ private:
         }
 
         // Get reconstructed tops and derive needed variables                            
-        std::vector<TopObject*> tops(mergedTops); // for whole top tagger
+        std::vector<TopObject*> tops(mergedTops);                          // for whole top tagger
         tops.insert(tops.end(), resolvedTops.begin(), resolvedTops.end()); // for whole top tagger
-        //std::vector<TopObject*> tops(resolvedTops); // this for using only Resolved one
+        //std::vector<TopObject*> tops(resolvedTops);                        // this for using only Resolved one
         countTops(tops);
         
         // -------------------------------------
@@ -270,7 +269,94 @@ private:
                 break;
             }
         }
+       
+        // --------------------------------------------------------
+        // -- get the variables for Efficiency & Fake Rate & ROC
+        // --------------------------------------------------------
+        double genTopMatchMass_R = -9999.9, genTopMatchEta_R = -9999.9, genTopMatchPhi_R = -9999.9, genTopMatchPt_R = -9999.9;
+        double genTopMatchMass_M = -9999.9, genTopMatchEta_M = -9999.9, genTopMatchPhi_M = -9999.9, genTopMatchPt_M = -9999.9;
+        double genTopMatchMass_C = -9999.9, genTopMatchEta_C = -9999.9, genTopMatchPhi_C = -9999.9, genTopMatchPt_C = -9999.9;
+        bool isFakeRate_R = false, isFakeRate_M = false, isFakeRate_C = false;
+        double topDiscGenMatch = -9999.9, topDiscNotGenMatch = -9999.9; 
+ 
+        for(const auto* top : tops)
+        {
+            // ----------
+            // Efficiency
+            // ---------- 
+            const auto* genMatchTop = top->getBestGenTopMatch();
+
+            if (genMatchTop)
+            {
+                // gen match top variables for Resolved
+                if (top->getNConstituents() == 3)
+                {
+                    genTopMatchMass_R = top->p().M();
+                    genTopMatchEta_R  = top->p().Eta();
+                    genTopMatchPhi_R  = top->p().Phi();
+                    genTopMatchPt_R   = top->p().Pt();
+                    
+                }
+
+                // gen match top variables for Merged
+                else if (top->getNConstituents() == 1)
+                {
+                    genTopMatchMass_M = top->p().M();
+                    genTopMatchEta_M  = top->p().Eta();
+                    genTopMatchPhi_M  = top->p().Phi();
+                    genTopMatchPt_M   = top->p().Pt();
+                
+                }
+                 
+                // gen match top variables for Resolved + Merged
+                else if (top->getNConstituents() == 3 && top->getNConstituents() == 1)
+                {
+                    genTopMatchMass_C = top->p().M();
+                    genTopMatchEta_C  = top->p().Eta();
+                    genTopMatchPhi_C  = top->p().Phi();
+                    genTopMatchPt_C   = top->p().Pt();
+
+                }
+            }   
         
+            // ---------
+            // Fake Rate
+            // --------- 
+            if (top->getBestGenTopMatch() == nullptr)
+            {
+
+                if (top->getNConstituents() == 3)
+                {
+                    isFakeRate_R = true;
+                }
+
+                else if (top->getNConstituents() == 1)
+                {
+                    isFakeRate_M = true;
+                }
+
+                else if (top->getNConstituents() == 3 && top->getNConstituents() == 1)
+                {
+                    isFakeRate_C = true;
+                }
+            }
+            
+            // ---------------
+            // MVA Score - ROC
+            // ---------------
+            if (top->getBestGenTopMatch() != nullptr)
+            {
+                topDiscGenMatch = top->getDiscriminator();
+            }
+
+            else
+            {
+                topDiscNotGenMatch = top->getDiscriminator();;
+            }
+
+        } 
+
+
         // Making tight photon lv (should live somewhere else: is needed for HistoContainer.h)
         const auto& Photons        = tr.getVec<TLorentzVector>("Photons");
         const auto& Photons_fullID = tr.getVec<bool>("Photons_fullID");
@@ -319,7 +405,26 @@ private:
         tr.registerDerivedVar("bestTopMassLVCand"+myVarSuffix_, bestTopMassLVCand?(bestTopMassLVCand->p()):(TLorentzVector()));
         tr.registerDerivedVar("bestTopMassTopTagDisc"+myVarSuffix_, bestTopMassTopTagDisc);
         tr.registerDerivedVar("bestTopMassGenMatchCand"+myVarSuffix_, bestTopMassGenMatchCand);
-        tr.registerDerivedVar("bestTopMassTopTagCand"+myVarSuffix_, bestTopMassTopTagCand); 
+        tr.registerDerivedVar("bestTopMassTopTagCand"+myVarSuffix_, bestTopMassTopTagCand);
+        // variables for efficiency and fake rate for Resolved, Merged, Resolved + Merged
+        tr.registerDerivedVar("genTopMatchMass_R"+myVarSuffix_,  genTopMatchMass_R );
+        tr.registerDerivedVar("genTopMatchEta_R"+myVarSuffix_,   genTopMatchEta_R  );
+        tr.registerDerivedVar("genTopMatchPhi_R"+myVarSuffix_,   genTopMatchPhi_R  );
+        tr.registerDerivedVar("genTopMatchPt_R"+myVarSuffix_,    genTopMatchPt_R   );
+        tr.registerDerivedVar("genTopMatchMass_M"+myVarSuffix_,  genTopMatchMass_M );
+        tr.registerDerivedVar("genTopMatchEta_M"+myVarSuffix_,   genTopMatchEta_M  );
+        tr.registerDerivedVar("genTopMatchPhi_M"+myVarSuffix_,   genTopMatchPhi_M  );
+        tr.registerDerivedVar("genTopMatchPt_M"+myVarSuffix_,    genTopMatchPt_M   );
+        tr.registerDerivedVar("genTopMatchMass_C"+myVarSuffix_,  genTopMatchMass_C );
+        tr.registerDerivedVar("genTopMatchEta_C"+myVarSuffix_,   genTopMatchEta_C  );
+        tr.registerDerivedVar("genTopMatchPhi_C"+myVarSuffix_,   genTopMatchPhi_C  );
+        tr.registerDerivedVar("genTopMatchPt_C"+myVarSuffix_,    genTopMatchPt_C   );
+        tr.registerDerivedVar("isFakeRate_R"+myVarSuffix_,       isFakeRate_R      );
+        tr.registerDerivedVar("isFakeRate_M"+myVarSuffix_,       isFakeRate_M      );
+        tr.registerDerivedVar("isFakeRate_C"+myVarSuffix_,       isFakeRate_C      );
+        tr.registerDerivedVar("topDiscGenMatch"+myVarSuffix_,    topDiscGenMatch   );
+        tr.registerDerivedVar("topDiscNotGenMatch"+myVarSuffix_, topDiscNotGenMatch);
+
     }
 
 public:
