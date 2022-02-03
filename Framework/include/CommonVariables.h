@@ -335,6 +335,30 @@ private:
         // ---------------------------------------------------
         // -- Calculate DeltaR between 2 bjets for 0 lepton
         // ---------------------------------------------------
+        // calculate dR_bjets for old baseline selection
+        double dR_bjets_old = -1;
+        if(NGoodBJets_pt45 >= 2)
+        {
+            std::vector<TLorentzVector> bjets;
+            for(unsigned int ijet = 0; ijet < Jets.size(); ijet++)
+            {
+                if(!GoodBJets_pt45[ijet]) continue;
+                bjets.push_back(Jets.at(ijet));
+            }
+            int n = bjets.size();
+            std::vector<double> deltaRs( n*(n - 1)/2, 0.0 );
+            for(int i = 0; i < n; i++) 
+            {
+                for(int j = i+1; j < n; j++) 
+                {
+                    deltaRs[i+j-1] = bjets[i].DeltaR(bjets[j]);
+                }
+            }
+            dR_bjets_old = *std::max_element(deltaRs.begin(), deltaRs.end());
+        }
+        tr.registerDerivedVar("dR_bjets_old"+myVarSuffix_, dR_bjets_old);
+
+        // calculate dR_bjets for new baseline selection
         double dR_bjets = -1;
         if(NGoodBJets_pt30 >= 2)
         {
@@ -356,7 +380,6 @@ private:
             dR_bjets = *std::max_element(deltaRs.begin(), deltaRs.end());
         }
         tr.registerDerivedVar("dR_bjets"+myVarSuffix_, dR_bjets);
-
     }
 
 public:
