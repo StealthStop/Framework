@@ -8,7 +8,7 @@ private:
     
     void photon(NTupleReader& tr)
     {
-        const auto& allPhotons = tr.getVec<TLorentzVector>("Photons");
+        const auto& allPhotons = tr.getVec<utility::LorentzVector>("Photons");
         const auto& allPhotons_fullID = tr.getVec<bool>("Photons_fullID");
         const auto& etaCut = tr.getVar<double>("etaCut");
 
@@ -16,7 +16,7 @@ private:
         int NGoodPhotons = 0;
         for(unsigned int iel = 0; iel < allPhotons.size(); ++iel)
         {
-            TLorentzVector lvel = allPhotons.at(iel);
+            utility::LorentzVector lvel = allPhotons.at(iel);
             if( abs(lvel.Eta()) < etaCut && 
                 lvel.Pt() > 200 && 
                 allPhotons_fullID.at(iel) 

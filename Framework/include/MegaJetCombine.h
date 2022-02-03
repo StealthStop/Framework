@@ -68,24 +68,24 @@ private:
     
     void megaJetCombine(NTupleReader& tr) //Main function for using the list of combos to compute megajets
     {
-        const auto& Jets                 = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+        const auto& Jets                 = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
         const auto& GoodJets_pt30        = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
-        const auto& GoodLeptons          = tr.getVec<std::pair<std::string,TLorentzVector>>("GoodLeptons"+myVarSuffix_);
+        const auto& GoodLeptons          = tr.getVec<std::pair<std::string,utility::LorentzVector>>("GoodLeptons"+myVarSuffix_);
         const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons"+myVarSuffix_);
         const auto& TwoLep_Mbl1_Idx      = tr.getVar<std::pair<unsigned int, unsigned int>>("TwoLep_Mbl1_Idx"+myVarSuffix_);
         const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<unsigned int, unsigned int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
-        const auto& MET                  = tr.getVar<double>("MET");
-        const auto& METPhi               = tr.getVar<double>("METPhi");
+        const auto& MET                  = tr.getVar<float>("MET");
+        const auto& METPhi               = tr.getVar<float>("METPhi");
 
         double massDiffThresh = 100; //specify threshold of mass difference between megajets to generate shortlist of candidates
-        TLorentzVector lvMET;
-        lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
+        utility::LorentzVector lvMET;
+        lvMET.SetPt(MET); lvMET.SetEta(0.0); lvMET.SetPhi(METPhi); lvMET.SetE(MET);
       
-        TLorentzVector RecoStop1, RecoStop2;
-        std::pair<std::vector<TLorentzVector>,std::vector<TLorentzVector>> RecoStopCands;
+        utility::LorentzVector RecoStop1, RecoStop2;
+        std::pair<std::vector<utility::LorentzVector>,std::vector<utility::LorentzVector>> RecoStopCands;
         
-        auto& FirstComboCandidates         = tr.createDerivedVec<TLorentzVector>("FirstComboCandidates"+myVarSuffix_);
-        auto& SecComboCandidates           = tr.createDerivedVec<TLorentzVector>("SecComboCandidates"+myVarSuffix_);
+        auto& FirstComboCandidates         = tr.createDerivedVec<utility::LorentzVector>("FirstComboCandidates"+myVarSuffix_);
+        auto& SecComboCandidates           = tr.createDerivedVec<utility::LorentzVector>("SecComboCandidates"+myVarSuffix_);
         auto& FirstStopMassSums            = tr.createDerivedVec<double>("FirstStopMassSums"+myVarSuffix_);
         auto& SecStopMassSums              = tr.createDerivedVec<double>("SecStopMassSums"+myVarSuffix_);
         auto& StopMassDiffs                = tr.createDerivedVec<double>("StopMassDiffs"+myVarSuffix_);
@@ -94,11 +94,11 @@ private:
 
         if (NGoodLeptons == 2)
         {
-            TLorentzVector BLVec_1 = Jets[TwoLep_Mbl1_Idx.first] + GoodLeptons[TwoLep_Mbl1_Idx.second].second;
-            TLorentzVector BLVec_2 = Jets[TwoLep_Mbl2_Idx.first] + GoodLeptons[TwoLep_Mbl2_Idx.second].second;
+            utility::LorentzVector BLVec_1 = Jets[TwoLep_Mbl1_Idx.first] + GoodLeptons[TwoLep_Mbl1_Idx.second].second;
+            utility::LorentzVector BLVec_2 = Jets[TwoLep_Mbl2_Idx.first] + GoodLeptons[TwoLep_Mbl2_Idx.second].second;
             //double StopDiff = 9999;
             
-            std::vector<TLorentzVector> JetsToCombine;
+            std::vector<utility::LorentzVector> JetsToCombine;
             
             for (unsigned int j =0; j < Jets.size(); j++)
             {
@@ -112,7 +112,7 @@ private:
                                    
             for (unsigned int c=0; c < comboMap[JetsToCombine.size()].size(); c++)
             {
-                TLorentzVector FirstOfPairSum = BLVec_1, SecOfPairSum = BLVec_2;
+                utility::LorentzVector FirstOfPairSum = BLVec_1, SecOfPairSum = BLVec_2;
                 for (unsigned int j=0; j < comboMap[JetsToCombine.size()][c].first.size(); j++)
                 {
                     FirstOfPairSum +=  JetsToCombine[comboMap[JetsToCombine.size()][c].first[j]];
@@ -135,7 +135,7 @@ private:
            {
                FirstStopMassSums.emplace_back(RecoStopCands.first[p].M());
                SecStopMassSums.emplace_back(RecoStopCands.second[p].M());
-               StopMT2s.emplace_back(ttUtility::coreMT2calc(RecoStopCands.first[p], RecoStopCands.second[p], lvMET));
+               StopMT2s.emplace_back(ttUtility::coreMT2calc(utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoStopCands.first[p]), utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoStopCands.second[p]), utility::convertLV<TLorentzVector, utility::LorentzVector>(lvMET)));
                TotalStopCandMassSums.emplace_back((RecoStopCands.first[p] + RecoStopCands.second[p]).M());
            }
            std::vector<double>::iterator Max_mass = std::max_element(TotalStopCandMassSums.begin(), TotalStopCandMassSums.end());
@@ -157,7 +157,7 @@ private:
 
         tr.registerDerivedVar("RecoStop1"+myVarSuffix_, RecoStop1);
         tr.registerDerivedVar("RecoStop2"+myVarSuffix_, RecoStop2);
-        tr.registerDerivedVar("RecoStopMT2"+myVarSuffix_, ttUtility::coreMT2calc(RecoStop1,RecoStop2,lvMET));
+        tr.registerDerivedVar("RecoStopMT2"+myVarSuffix_, ttUtility::coreMT2calc(utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoStop1),utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoStop2),utility::convertLV<TLorentzVector, utility::LorentzVector>(lvMET)));
     }    
 
 public:
