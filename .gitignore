@@ -20,7 +20,6 @@
 #other data files
 **.csv
 **.pkl
-**.cfg
 
 #MVA model files 
 **.pb
