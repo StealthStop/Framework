@@ -70,6 +70,7 @@ private:
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
         const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
         const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
+        const auto& GoodBJets_pt45 = tr.getVec<bool>("GoodBJets_pt45"+myVarSuffix_);
         const auto& NonIsoMuonJets_pt30 = tr.getVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
         const auto& NonIsoMuonJets_pt45 = tr.getVec<bool>("NonIsoMuonJets_pt45"+myVarSuffix_);
         const auto& Muons = tr.getVec<utility::LorentzVector>("Muons");
@@ -86,7 +87,8 @@ private:
         const auto& GoodElectrons_pt20 = tr.getVec<bool>("GoodElectrons_pt20"+myVarSuffix_);
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
-        
+        const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
+       
         // Define Loose HEM15/16 veto
         bool passHEMVetoLoose = !(objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear) ||
                                   objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
@@ -339,7 +341,7 @@ private:
         double dR_bjets_old = -1;
         if(NGoodBJets_pt45 >= 2)
         {
-            std::vector<TLorentzVector> bjets;
+            std::vector<utility::LorentzVector> bjets;
             for(unsigned int ijet = 0; ijet < Jets.size(); ijet++)
             {
                 if(!GoodBJets_pt45[ijet]) continue;
@@ -351,7 +353,7 @@ private:
             {
                 for(int j = i+1; j < n; j++) 
                 {
-                    deltaRs[i+j-1] = bjets[i].DeltaR(bjets[j]);
+                    deltaRs[i+j-1] = utility::DeltaR(bjets[i], bjets[j]);
                 }
             }
             dR_bjets_old = *std::max_element(deltaRs.begin(), deltaRs.end());
