@@ -277,6 +277,17 @@ private:
                                          JetID                    &&
                                          NNonIsoMuonJets_pt45 >= 7;
 
+        bool pass0lQCDCR =            HT_trigger_pt45 > 500 &&
+                                         correct2018Split         &&
+                                         passHEMVeto              &&
+                                         passMETFilters           &&
+                                         passMadHT                &&
+                                         (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
+                                         NGoodMuons == 0          &&
+                                         NGoodElectrons == 0      &&
+                                         JetID                    &&
+                                         NGoodJets_pt45 >= 7;
+        
         // ------------------------------------
         // -- Define 1-lepton proto-baseline
         // ------------------------------------
@@ -426,6 +437,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline0l_csv_refAN"+myVarSuffix_,   passBaseline0l_csv_refAN); //
         tr.registerDerivedVar<bool>("passBaseline0l_pt45"+myVarSuffix_,        passBaseline0l_pt45); //
         tr.registerDerivedVar<bool>("passBaseline0l_NonIsoMuon"+myVarSuffix_,  passBaseline0l_NonIsoMuon);
+        tr.registerDerivedVar<bool>("pass0lQCDCR"+myVarSuffix_,  pass0lQCDCR);
         tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"+myVarSuffix_,  passBaselineGoodOffline1l);
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,        passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_,  passBaseline1l_NonIsoMuon);
