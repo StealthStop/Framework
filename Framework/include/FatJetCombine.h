@@ -10,14 +10,13 @@ private:
 
     void fatjetcombine(NTupleReader& tr)
     {
-        const auto& JetsAK8               = tr.getVec<TLorentzVector>("JetsAK8"+myVarSuffix_);
-        const auto& Tau1                  = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau1");
-        const auto& Tau2                  = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau2");
-        const auto& Tau3                  = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau3");
-        const auto& softDropMass          = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_softDropMass");
-        const auto& prunedMass            = tr.getVec<double>("JetsAK8"+myVarSuffix_+"_prunedMass");
-        const auto& Muons                 = tr.getVec<TLorentzVector>("Muons");
-        const auto& Electrons             = tr.getVec<TLorentzVector>("Electrons");
+        const auto& JetsAK8               = tr.getVec<utility::LorentzVector>("JetsAK8"+myVarSuffix_);
+        const auto& Tau1                  = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau1");
+        const auto& Tau2                  = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau2");
+        const auto& Tau3                  = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_NsubjettinessTau3");
+        const auto& softDropMass          = tr.getVec<float>("JetsAK8"+myVarSuffix_+"_softDropMass");
+        const auto& Muons                 = tr.getVec<utility::LorentzVector>("Muons");
+        const auto& Electrons             = tr.getVec<utility::LorentzVector>("Electrons");
         const auto& NMuons                = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& NElectrons            = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& GoodBJets_pt30        = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
@@ -25,10 +24,10 @@ private:
         const auto& TwoLep_Mbl1_Idx      = tr.getVar<std::pair<int, int>>("TwoLep_Mbl1_Idx"+myVarSuffix_);
         const auto& TwoLep_Mbl2_Idx      = tr.getVar<std::pair<int, int>>("TwoLep_Mbl2_Idx"+myVarSuffix_);
         
-        const auto& Jets                 = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
+        const auto& Jets                 = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
         const auto& NGoodLeptons         = tr.getVar<int>("NGoodLeptons_pt20"+myVarSuffix_);
 
-        const auto& subjets              = tr.getVec<std::vector<TLorentzVector>>("JetsAK8"+myVarSuffix_+"_subjets");
+        const auto& subjets              = tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8"+myVarSuffix_+"_subjetsNested_LV");
 
         //First clean out leptons from JetsAK8 collection
         auto& GoodJetsAK8         = tr.createDerivedVec<bool>("GoodJetsAK8"+myVarSuffix_);
@@ -42,14 +41,14 @@ private:
             for(unsigned int mu=0; mu < Muons.size(); mu++)
             {
                 double minDeltaR = 0.8;
-                TLorentzVector myMuon = Muons.at(mu);
+                utility::LorentzVector myMuon = Muons.at(mu);
                 int muonCand = -1;
                 for(unsigned int j=0; j < JetsAK8.size(); j++)
                 {
-                    TLorentzVector myJet = JetsAK8.at(j);
-                    if( std::fabs(myMuon.Pt() - myJet.Pt()) / myMuon.Pt() < 1 && myMuon.DeltaR(myJet) < minDeltaR)
+                    utility::LorentzVector myJet = JetsAK8.at(j);
+                    if( std::fabs(myMuon.Pt() - myJet.Pt()) / myMuon.Pt() < 1 && utility::DeltaR(myMuon, myJet) < minDeltaR)
                     {
-                        minDeltaR = myMuon.DeltaR(myJet);
+                        minDeltaR = utility::DeltaR(myMuon, myJet);
                         muonCand = j;
                     }
                 }
@@ -62,14 +61,14 @@ private:
             for(unsigned int el=0; el < Electrons.size(); el++)
             {
                 double minDeltaR = 0.8;
-                TLorentzVector myElec = Electrons.at(el);
+                utility::LorentzVector myElec = Electrons.at(el);
                 int elecCand = -1;
                 for(unsigned int j=0; j < JetsAK8.size(); j++)
                 {
-                    TLorentzVector myJet = JetsAK8.at(j);
-                    if( std::fabs(myElec.Pt() - myJet.Pt()) / myElec.Pt() < 1 && myElec.DeltaR(myJet) < minDeltaR)
+                    utility::LorentzVector myJet = JetsAK8.at(j);
+                    if( std::fabs(myElec.Pt() - myJet.Pt()) / myElec.Pt() < 1 && utility::DeltaR(myElec, myJet) < minDeltaR)
                     {
-                        minDeltaR = myElec.DeltaR(myJet);
+                        minDeltaR = utility::DeltaR(myElec, myJet);
                         elecCand = j;                  
                     }
                 }
@@ -87,18 +86,17 @@ private:
         }
 
         auto& candidateLSP         = tr.createDerivedVec<bool>("candidateLSP"+myVarSuffix_);
-        auto& candidateLSP_TLV     = tr.createDerivedVec<TLorentzVector>("candidateLSP_TLV"+myVarSuffix_);
+        auto& candidateLSP_TLV     = tr.createDerivedVec<utility::LorentzVector>("candidateLSP_TLV"+myVarSuffix_);
         auto& candidateLSP_Idx     = tr.createDerivedVec<int>("candidateLSP_Idx"+myVarSuffix_);
         auto& candidateLSP_T21     = tr.createDerivedVec<double>("candidateLSP_T21"+myVarSuffix_);
         auto& candidateLSP_T32     = tr.createDerivedVec<double>("candidateLSP_T32"+myVarSuffix_);
-        auto& candidateLSP_Pruned  = tr.createDerivedVec<double>("candidateLSP_Pruned"+myVarSuffix_);
         auto& candidateLSP_SDM     = tr.createDerivedVec<double>("candidateLSP_SDM"+myVarSuffix_);
         
             
         candidateLSP = GoodJetsAK8;
 
-        TLorentzVector bottom1;
-        TLorentzVector bottom2;
+        utility::LorentzVector bottom1;
+        utility::LorentzVector bottom2;
 
         if (NGoodLeptons == 2)
         {
@@ -134,12 +132,12 @@ private:
         {
             if (candidateLSP.at(j))
             {
-                if(bottom1.DeltaR(JetsAK8.at(j)) < 0.2 && abs(1 - bottom1.Pt()/JetsAK8.at(j).Pt()) < 0.2)
+                if(utility::DeltaR(bottom1, JetsAK8.at(j)) < 0.2 && abs(1 - bottom1.Pt()/JetsAK8.at(j).Pt()) < 0.2)
                 {
                     bottom1Found = true;
                     candidateLSP.at(j) = false;
                 }
-                else if(bottom2.DeltaR(JetsAK8.at(j)) < 0.2 && abs(1 - bottom2.Pt()/JetsAK8.at(j).Pt()) < 0.2)
+                else if(utility::DeltaR(bottom2, JetsAK8.at(j)) < 0.2 && abs(1 - bottom2.Pt()/JetsAK8.at(j).Pt()) < 0.2)
                 {
                     bottom2Found = true;
                     candidateLSP.at(j) = false;
@@ -152,23 +150,22 @@ private:
             if(candidateLSP.at(j))
             {
                 NCandidateLSP++;
-                TLorentzVector myJetAK8 = JetsAK8.at(j);
+                utility::LorentzVector myJetAK8 = JetsAK8.at(j);
                 candidateLSP_Idx.push_back(j);
                 candidateLSP_T21.push_back(Tau2.at(j) / Tau1.at(j));
                 candidateLSP_T32.push_back(Tau3.at(j) / Tau2.at(j));
-                candidateLSP_Pruned.push_back(prunedMass.at(j) >= 0 ? prunedMass.at(j): 0.0);
                 candidateLSP_SDM.push_back(softDropMass.at(j));
 
                 int b1_sj_idx = -1, b2_sj_idx = -1;
                 for(unsigned int s = 0; s < subjets.at(j).size(); s++)
                 {
-                    TLorentzVector mySJ = subjets.at(j).at(s);
-                    if(!bottom1Found && bottom1.DeltaR(mySJ) < 0.2 && abs(1 - bottom1.Pt()/mySJ.Pt()) < 0.5)
+                    utility::LorentzVector mySJ = subjets.at(j).at(s);
+                    if(!bottom1Found && utility::DeltaR(bottom1, mySJ) < 0.2 && abs(1 - bottom1.Pt()/mySJ.Pt()) < 0.5)
                     {
                         b1_sj_idx = s;
                         bottom1Found = true;
                     }
-                    else if(!bottom2Found && bottom2.DeltaR(mySJ) < 0.2 && abs(1 - bottom2.Pt()/mySJ.Pt()) < 0.5)
+                    else if(!bottom2Found && utility::DeltaR(bottom2, mySJ) < 0.2 && abs(1 - bottom2.Pt()/mySJ.Pt()) < 0.5)
                     {
                         b2_sj_idx = s;
                         bottom2Found = true;

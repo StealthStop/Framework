@@ -75,6 +75,8 @@ private:
     std::vector<int> outputCmVec_;
     std::vector<std::string> vars_;
     std::vector<double> binEdges_;
+    std::map<std::string, std::vector<double> > binEdgesPerRegion_;
+    std::vector<std::string> regions_;
 
     std::vector<TF_Output>     inputs_;
     std::vector<TF_Output>     outputs_;
@@ -124,7 +126,13 @@ private:
         minNJet_     = cfgDoc->get("minNJet",   localCxt, 7);
         maxNJet_     = cfgDoc->get("maxNJet",   localCxt, 7);
         vars_        = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
+        regions_     = getVecFromCfg<std::string>(cfgDoc, "regions", localCxt, "");
         binEdges_    = getVecFromCfg<double>(cfgDoc, "binEdges", localCxt, -1);
+
+        for (const auto region : regions_) {
+            binEdgesPerRegion_[region] = getVecFromCfg<double>(cfgDoc, "binEdges_"+region, localCxt, -1);
+        }
+
         if(!outputOp_.empty())
         {
             outputOpVec_.push_back(outputOp_);
@@ -194,6 +202,10 @@ private:
             firstEvent_ = false;
         }
 
+        auto& regions = tr.createDerivedVec<std::string>("regions_"+name_, regions_.size());
+        for (unsigned int i = 0; i < regions_.size(); i++)
+            regions.at(i) = regions_.at(i);
+
         //tensorflow status variable
         TF_Status* status = TF_NewStatus();
         
@@ -260,20 +272,111 @@ private:
           
             // Define and register deepESM bins
             const auto& NGoodJets = tr.getVar<int>(nJetVar_+myVarSuffix_);
-            int iJet;
-            if      (NGoodJets < minNJet_)                                iJet = 1;
-            else if (minNJet_ <= NGoodJets && NGoodJets <= maxNJet_) iJet = 2*(NGoodJets-minNJet_)+1;
-            else if (maxNJet_ < NGoodJets)                                iJet = 2*(maxNJet_-minNJet_)+1;
+            int iJet; // Iterator for simple edges coming from NN framework
 
-            bool passBinA = disc1 > binEdges_[iJet-1] && disc2 > binEdges_[iJet];
-            bool passBinB = disc1 < binEdges_[iJet-1] && disc2 > binEdges_[iJet];
-            bool passBinC = disc1 > binEdges_[iJet-1] && disc2 < binEdges_[iJet];
-            bool passBinD = disc1 < binEdges_[iJet-1] && disc2 < binEdges_[iJet];
+            // Determine how many unique parameters per Njet bin per region
+            int iSkip = binEdges_.size() / (maxNJet_-minNJet_+1);
 
-            tr.registerDerivedVar("DoubleDisCo_binA_"+name_+myVarSuffix_, passBinA);
-            tr.registerDerivedVar("DoubleDisCo_binB_"+name_+myVarSuffix_, passBinB);
-            tr.registerDerivedVar("DoubleDisCo_binC_"+name_+myVarSuffix_, passBinC);
-            tr.registerDerivedVar("DoubleDisCo_binD_"+name_+myVarSuffix_, passBinD);
+            if      (NGoodJets <= minNJet_)
+                iJet = 0;
+            else if (NGoodJets <= maxNJet_)
+                iJet = iSkip*(NGoodJets-minNJet_);
+            else if (NGoodJets  > maxNJet_)
+                iJet = iSkip*(maxNJet_-minNJet_);
+
+            // Here, for edges from NN framework, two parameters are extracted for each Njets bin, ABCD region in the order:
+            // disc1, disc2
+            double disc1edge = binEdges_[iJet];
+            double disc2edge = binEdges_[iJet+1];
+
+            // Discriminant 1 placed on horizontal axis
+            // Discriminant 2 placed on vertical axis
+
+            // Upper-right subregion
+            bool passBinA = disc1 > disc1edge &&
+                            disc2 > disc2edge;
+
+            // Upper-left subregion
+            bool passBinB = disc1 < disc1edge &&
+                            disc2 > disc2edge;
+
+            // Lower-right subregion
+            bool passBinC = disc1 > disc1edge &&
+                            disc2 < disc2edge;
+
+            // Lower-left subregion
+            bool passBinD = disc1 < disc1edge &&
+                            disc2 < disc2edge;
+
+            auto& passVec = tr.createDerivedVec<bool>("DoubleDisCo_"+name_+myVarSuffix_, 4);
+
+            passVec.at(0) = passBinA;
+            passVec.at(1) = passBinB;
+            passVec.at(2) = passBinC;
+            passVec.at(3) = passBinD;
+
+            int kJet; // Iterator for edges, boundaries coming from Validation
+            for (const auto region : regions_) {
+
+                if (binEdgesPerRegion_.find(region) == binEdgesPerRegion_.end())
+                    continue;
+
+                // Determine how many unique parameters per Njet bin per region
+                int kSkip = binEdgesPerRegion_[region].size() / (maxNJet_-minNJet_+1);
+
+                if      (NGoodJets <= minNJet_)
+                    kJet = 0;
+                else if (NGoodJets <= maxNJet_)
+                    kJet = kSkip*(NGoodJets-minNJet_);
+                else if (NGoodJets  > maxNJet_)
+                    kJet = kSkip*(maxNJet_-minNJet_);
+
+                // Here, six parameters are extracted for each (Njets bin, ABCD) region in the order:
+                // disc1, disc2, leftBoundary, rightBoundary, topBoundary, bottomBoundary
+                double disc1edge      = binEdgesPerRegion_[region][kJet];
+                double disc2edge      = binEdgesPerRegion_[region][kJet+1];
+                double leftBoundary   = binEdgesPerRegion_[region][kJet+2];
+                double rightBoundary  = binEdgesPerRegion_[region][kJet+3];
+                double topBoundary    = binEdgesPerRegion_[region][kJet+4];
+                double bottomBoundary = binEdgesPerRegion_[region][kJet+5];
+
+                // Discriminant 1 placed on horizontal (left-to-right) axis
+                // Discriminant 2 placed on vertical (top-to-bottom) axis
+
+                // Check that the current event lives in the region in question.
+                // Otherwise, it cannot possibly live in any of the "A", "B", "C", "D" subregions.
+                bool withinBoundaries = disc1 > leftBoundary   &&
+                                        disc1 < rightBoundary  && 
+                                        disc2 > bottomBoundary &&
+                                        disc2 < topBoundary;
+
+                // Upper-right subregion
+                bool passBinA = disc1 > disc1edge &&
+                                disc2 > disc2edge &&
+                                withinBoundaries;
+
+                // Upper-left subregion
+                bool passBinB = disc1 < disc1edge &&
+                                disc2 > disc2edge &&
+                                withinBoundaries;
+
+                // Lower-right subregion
+                bool passBinC = disc1 > disc1edge &&
+                                disc2 < disc2edge &&
+                                withinBoundaries;
+
+                // Lower-left subregion
+                bool passBinD = disc1 < disc1edge &&
+                                disc2 < disc2edge &&
+                                withinBoundaries;
+
+                auto& passVec = tr.createDerivedVec<bool>("DoubleDisCo_"+region+"_"+name_+myVarSuffix_, 4);
+
+                passVec.at(0) = passBinA;
+                passVec.at(1) = passBinB;
+                passVec.at(2) = passBinC;
+                passVec.at(3) = passBinD;
+            }
         }
         else
         { 

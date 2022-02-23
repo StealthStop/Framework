@@ -3,12 +3,12 @@
 
 //custom headers
 #include "Framework/Framework/include/BTagCalibrationStandalone.h"
-#include "SusyAnaTools/Tools/NTupleReader.h"
-#include "SusyAnaTools/Tools/SATException.h"
+#include "Framework/Framework/include/Utility.h"
+#include "NTupleReader/include/NTupleReader.h"
+#include "NTupleReader/include/NTRException.h"
 
 //ROOT headers
 #include <TFile.h>
-#include <TLorentzVector.h>
 #include "TH2.h"
 
 //STL headers
@@ -55,7 +55,7 @@ public:
             
             if(!h_eff_b.get())
             {
-                THROW_SATEXCEPTION("\033[1;31mError: Could not find \"n_eff_b_"+suffix2+"\" histogram in the Btag scale factor root file\033[0m");
+                THROW_NTREXCEPTION("\033[1;31mError: Could not find \"n_eff_b_"+suffix2+"\" histogram in the Btag scale factor root file\033[0m");
             }
             h_eff_c.reset( (TH2F*)file.Get(("n_eff_c_" + suffix2).c_str()) );
             h_eff_udsg.reset( (TH2F*)file.Get(("n_eff_udsg_" + suffix2).c_str()) );
@@ -126,7 +126,7 @@ public:
     // Method 1b) in twiki
     // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
     /***********************************************************************************/
-    std::vector<double>* GetCorrections(const std::vector<TLorentzVector>* Jets, const std::vector<bool>* jetMask,  const std::vector<int>* Jets_flavor)
+    std::vector<double>* GetCorrections(const std::vector<utility::LorentzVector>* Jets, const std::vector<bool>* jetMask,  const std::vector<int>* Jets_flavor)
     {
         //reset probabilities
         std::vector<double>* prob = new std::vector<double>(4,0.0);
@@ -213,7 +213,7 @@ public:
     //method 1a in twiki
     // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods  
     /***********************************************************************************/
-    double GetSimpleCorrection(const std::vector<TLorentzVector>* Jets, const std::vector<bool>* jetMask, const std::vector<int>* Jets_flavor, const std::vector<double>* Jets_bDiscriminatorCSV, const double wp)
+    double GetSimpleCorrection(const std::vector<utility::LorentzVector>* Jets, const std::vector<bool>* jetMask, const std::vector<int>* Jets_flavor, const std::vector<float>* Jets_bDiscriminatorCSV, const double wp)
     {
         double mcTag = 1.0, mcNoTag = 1.0, dataTag = 1.0, dataNoTag = 1.0;
         
@@ -308,9 +308,9 @@ public:
     {
         //Check if this is data
         if( !tr.checkBranch(MCBranch) ) return;
-        const auto& inputJets = tr.getVec<TLorentzVector>(JetsVec);
+        const auto& inputJets = tr.getVec<utility::LorentzVector>(JetsVec);
         const auto& jetMask = tr.getVec<bool>(JetMask);
-        const auto& recoJetsBtag = tr.getVec<double>(BJetsVec);
+        const auto& recoJetsBtag = tr.getVec<float>(BJetsVec);
         const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
         const auto& wp = tr.getVar<double>("deepCSV_WP_medium");
         

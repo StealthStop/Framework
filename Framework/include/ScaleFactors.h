@@ -25,9 +25,6 @@ private:
     std::shared_ptr<TH2F> muSFHistoTrig_;
     std::shared_ptr<TH2F> nimuSFHistoTrig_;
     std::shared_ptr<TGraph> muSFHistoReco_;
-    std::shared_ptr<TH1F> puSFHisto_;
-    std::shared_ptr<TH1F> puSFUpHisto_;
-    std::shared_ptr<TH1F> puSFDownHisto_;
     std::shared_ptr<TH2F> L1Prefireing_;
     std::map<std::string, double> sfMeanMap_;
 
@@ -204,12 +201,12 @@ private:
         // Following the example in SusyAnaTools PDFUncertainty.h
         // The scale weights are calculated using the envelope method and we ignore all anti-correlated variations (5 and 7)
         // --------------------------------------------------------------------------------------
-        const auto& scaleWeights = tr.getVec<double>("ScaleWeights");
+        const auto& scaleWeights = tr.getVec<float>("ScaleWeights");
         const auto& filetag      = tr.getVar<std::string>("filetag");
         const auto& runYear      = tr.getVar<std::string>("runYear");
         
         double scaleWeightNominal = 1.0;
-        std::vector<double>  myScaleWeights(6, 1.0);
+        std::vector<float>  myScaleWeights(6, 1.0);
         if( scaleWeights.size() == 9 ) 
         {
             //If there are not exactly 9 scale factors, then the vector  was filled incorrectly
@@ -258,7 +255,7 @@ private:
         double PSweight_FSRUp_2 = 1.0, PSweight_FSRDown_2 = 1.0; 
         if(tr.hasVar("PSweights"))
         {
-            const auto& PSweights = tr.getVec<double>("PSweights");
+            const auto& PSweights = tr.getVec<float>("PSweights");
             if(PSweights.size() >= 12) // should have size of 14, but just put 12 or more to be able to use the sample with the bug
             {
                 // Get nominal one so we can normalize it
@@ -288,12 +285,12 @@ private:
         // Now calculate the PDF scale factor and uncertainty 
         // Based on the 100 different replica values stored in PDFweights using envelope method and the median
         // --------------------------------------------------------------------------------------
-        const auto& PDFweights = tr.getVec<double>("PDFweights");
+        const auto& PDFweights = tr.getVec<float>("PDFweights");
         double central = 1.0, NNPDF_from_median_up = 1.0, NNPDF_from_median_down = 1.0;
         if(PDFweights.size() > 0)
         {
             const double reqCL = 0.68; //Choose a confidence level for the uncertainty
-            std::vector<double> sortedPDFWeights = PDFweights; //Cannot sort a constant
+            std::vector<float> sortedPDFWeights = PDFweights; //Cannot sort a constant
             std::sort( sortedPDFWeights.begin() + 1, sortedPDFWeights.end() );
         
             const int upper = std::round( 0.5*(1 + reqCL)*100.0 );
@@ -334,7 +331,7 @@ private:
         // --------------------------------------------------------------------------------------
         // Now calculate the electron scale factor and uncertainty 
         // --------------------------------------------------------------------------------------
-        const auto& electrons         = tr.getVec<TLorentzVector>("Electrons");
+        const auto& electrons         = tr.getVec<utility::LorentzVector>("Electrons");
         const auto& goodElectrons     = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         
         double totGoodElectronSF      = 1.0, totGoodElectronSF_Up   = 1.0, totGoodElectronSF_Down = 1.0;
@@ -411,7 +408,7 @@ private:
         // --------------------------------------------------------------------------------------
         // Adding code for implementing muon scale factors
         // --------------------------------------------------------------------------------------
-        const auto& muons         = tr.getVec<TLorentzVector>("Muons");
+        const auto& muons         = tr.getVec<utility::LorentzVector>("Muons");
         const auto& goodMuons     = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& nonisoMuons     = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
 
@@ -556,32 +553,18 @@ private:
         // For 2016 and 2018: Grab the individual pileup weight from the histogram found in PileupHistograms_*.root
         // For 2017: Using the puWeight stored in the nTuples
         // ----------------------------------------------------------------------------        
-        const auto& puWeight  = tr.getVar<double>("puWeight");
-        const auto& puSysUp   = tr.getVar<double>("puSysUp");
-        const auto& puSysDown = tr.getVar<double>("puSysDown");
-        const auto& tru_npv   = tr.getVar<double>("TrueNumInteractions");
+        const auto& puWeightUnCorr  = tr.getVar<float>("puWeight");
+        const auto& puSysUpUnCorr   = tr.getVar<float>("puSysUp");
+        const auto& puSysDownUnCorr = tr.getVar<float>("puSysDown");
 
-        double puWeightUnCorr = 1.0, puSysUpUnCorr = 1.0, puSysDownUnCorr = 1.0;
-        if( runYear == "2016" || runYear == "2018pre" || runYear == "2018post") 
-        {
-            puWeightUnCorr = puSFHisto_->GetBinContent( findBin(puSFHisto_, tru_npv, "X", "nom pu") );
-            puSysUpUnCorr = puSFUpHisto_->GetBinContent( findBin(puSFUpHisto_, tru_npv, "X", "up pu") );
-            puSysDownUnCorr = puSFDownHisto_->GetBinContent( findBin(puSFDownHisto_, tru_npv, "X", "down pu") );
-        }
-        else if( runYear == "2017") 
-        {
-            puWeightUnCorr = puWeight; 
-            puSysUpUnCorr = puSysUp;
-            puSysDownUnCorr = puSysDown;
-        }        
         tr.registerDerivedVar( "puWeightUnCorr"+myVarSuffix_,  puWeightUnCorr);
         tr.registerDerivedVar( "puSysUpUnCorr"+myVarSuffix_,   puSysUpUnCorr);
         tr.registerDerivedVar( "puSysDownUnCorr"+myVarSuffix_, puSysDownUnCorr);
 
         // Adding correction to the pileup weight
-        double puWeightCorr  = puWeight;
-        double puSysUpCorr   = puSysUp;
-        double puSysDownCorr = puSysDown;
+        double puWeightCorr  = puWeightUnCorr;
+        double puSysUpCorr   = puSysUpUnCorr;
+        double puSysDownCorr = puSysDownUnCorr;
         if( sfMeanMap_.find(filetag+"_pu") != sfMeanMap_.end() && !isSignal )
         {
             const double mean     = getMean(filetag+"_pu");
@@ -601,13 +584,13 @@ private:
         // 13 TeV all combined
         // --------------------------------------------------------------------------------------
         double topPtScaleFactor = 1.0;
-        auto* topPtVec = new std::vector<double>();
+        auto* topPtVec = new std::vector<float>();
         if(filetag == "TT" || filetag == "2016_TT" || filetag.find("TTTo") != std::string::npos)
         {
             const double a=0.0615, b=-0.0005;
             auto SF = [&](const double pt){return exp(a + b*pt);};
             
-            const auto& GenParticles        = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles        = tr.getVec<utility::LorentzVector>("GenParticles");
             const auto& GenParticles_PdgId  = tr.getVec<int>("GenParticles_PdgId");
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++)
@@ -631,12 +614,12 @@ private:
         double prefiringScaleFactor = 1.0, prefiringScaleFactorUp = 1.0, prefiringScaleFactorDown = 1.0;
         if( runYear == "2016" || runYear == "2017" )
         {
-            const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);            
+            const auto& Jets = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);            
             const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);            
             for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
             {            
                 if(!GoodJets_pt30[ijet]) continue;
-                const TLorentzVector& jet = Jets.at(ijet);
+                const utility::LorentzVector& jet = Jets.at(ijet);
                 int bin = L1Prefireing_->FindBin(jet.Eta(), jet.Pt());
                 const double weight = L1Prefireing_->GetBinContent(bin);
                 const double weightErr = std::max(0.2*weight, L1Prefireing_->GetBinError(bin));
@@ -654,7 +637,7 @@ private:
         // --------------------------------------------------------------------------------------
         // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
         // --------------------------------------------------------------------------------------
-        const auto& Weight         = tr.getVar<double>("Weight");
+        const auto& Weight         = tr.getVar<float>("Weight");
         const auto& bTagWeight     = tr.getVar<double>("bTagSF_EventWeightSimple_Central"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& NGoodMuons     = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
@@ -689,7 +672,7 @@ private:
     }
 
 public:
-    ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& puFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
+    ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
         : myVarSuffix_(myVarSuffix), firstPrint_(true), printMeanError_(false), printGetBinError_(false)
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
@@ -773,22 +756,6 @@ public:
             sfMeanMap_.insert(std::pair<std::string, double>(name, h->GetMean()));
         }
         SFMeanRootFile.Close();
-
-        // Getting the pile up histograms
-        TFile puRootFile( puFileName.c_str() );
-        if( runYear == "2016" || runYear == "2018pre" || runYear == "2018post") 
-        {
-            getHisto(puRootFile, puSFHisto_,     "pu_weights_central");
-            getHisto(puRootFile, puSFUpHisto_,   "pu_weights_up");
-            getHisto(puRootFile, puSFDownHisto_, "pu_weights_down");
-        }
-        else if( runYear == "2017")
-        {
-            getHisto(puRootFile, puSFHisto_,     "pu_ratio_central");
-            getHisto(puRootFile, puSFUpHisto_,   "pu_ratio_up");
-            getHisto(puRootFile, puSFDownHisto_, "pu_ratio_down");
-        }
-        puRootFile.Close();
 
         // Get the L1prefiring scale factor histogram
         TFile L1PrefiringFile("L1prefiring_jetpt_2017BtoF.root");

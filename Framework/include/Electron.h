@@ -10,17 +10,17 @@ private:
 
     void electron(NTupleReader& tr)
     {
-        const auto& allElectrons = tr.getVec<TLorentzVector>("Electrons");
+        const auto& allElectrons = tr.getVec<utility::LorentzVector>("Electrons");
         const auto& allElectrons_passIso = tr.getVec<bool>("Electrons_passIso");
         const auto& allElectrons_charge  = tr.getVec<int>("Electrons_charge");
         const auto& allElectrons_tightID = tr.getVec<bool>("Electrons_tightID");
         const auto& etaCut = tr.getVar<double>("etaCut");
-        const auto& MET = tr.getVar<double>("MET"); 
-        const auto& METPhi = tr.getVar<double>("METPhi");
+        const auto& MET = tr.getVar<float>("MET"); 
+        const auto& METPhi = tr.getVar<float>("METPhi");
         const auto& runYear = tr.getVar<std::string>("runYear");
 
-        TLorentzVector lvMET;
-        lvMET.SetPtEtaPhiM(MET, 0.0, METPhi, 0.0);
+        utility::LorentzVector lvMET;
+        lvMET.SetPt(MET); lvMET.SetEta(0.0); lvMET.SetPhi(METPhi); lvMET.SetE(MET);
 
         auto* good_electrons_ = new std::vector<bool>();
         auto* good_electrons_pt20 = new std::vector<bool>();
@@ -37,7 +37,7 @@ private:
         else if (runYear == "2018pre" || runYear == "2018post") ptCut = 37.0; 
         for(unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
-            TLorentzVector lvel = allElectrons.at(iel);
+            utility::LorentzVector lvel = allElectrons.at(iel);
             double mtw = sqrt( 2*( lvMET.Pt()*lvel.Pt() - (lvMET.Px()*lvel.Px() + lvMET.Py()*lvel.Py()) ) );
             electrons_mtw_->push_back(mtw);
             if( abs(lvel.Eta()) < etaCut && 

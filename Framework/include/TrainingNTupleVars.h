@@ -9,9 +9,9 @@ private:
     
     void moreVars(NTupleReader& tr)
     {
-        const auto& Jets                    = tr.getVec<TLorentzVector>(("Jets"+myVarSuffix_));
+        const auto& Jets                    = tr.getVec<utility::LorentzVector>(("Jets"+myVarSuffix_));
         const auto& GoodJets_pt30           = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
-        const auto& GoodLeptons             = tr.getVec<std::pair<std::string, TLorentzVector>>("GoodLeptons"+myVarSuffix_);
+        const auto& GoodLeptons             = tr.getVec<std::pair<std::string, utility::LorentzVector>>("GoodLeptons"+myVarSuffix_);
         
         auto& GoodLeptonsMass               = tr.createDerivedVec<double>("GoodLeptonsMass"+myVarSuffix_);
         auto& GoodLeptonsPt                 = tr.createDerivedVec<double>("GoodLeptonsPt"+myVarSuffix_);
