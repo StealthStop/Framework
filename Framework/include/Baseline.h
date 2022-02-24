@@ -406,15 +406,8 @@ private:
         tr.registerDerivedVar<bool>("passBaseline0l_hadMuTrig"+myVarSuffix_,   passBaseline0l_hadMuTrig);  //
         tr.registerDerivedVar<bool>("passBaseline0l_refAN"+myVarSuffix_,       passBaseline0l_refAN);      //
         tr.registerDerivedVar<bool>("passBaseline0l_refAN_pt45"+myVarSuffix_,  passBaseline0l_refAN_pt45); //
-<<<<<<< HEAD
-        tr.registerDerivedVar<bool>("passBaseline0l_csv_refAN"+myVarSuffix_,   passBaseline0l_csv_refAN); //
-        tr.registerDerivedVar<bool>("passBaseline0l_pt45"+myVarSuffix_,        passBaseline0l_pt45); //
-        tr.registerDerivedVar<bool>("passBaseline0l_NonIsoMuon"+myVarSuffix_,  passBaseline0l_NonIsoMuon);
-        tr.registerDerivedVar<bool>("pass0lQCDCR"+myVarSuffix_,  pass0lQCDCR);
-=======
         tr.registerDerivedVar<bool>("passBaseline0l_csv_refAN"+myVarSuffix_,   passBaseline0l_csv_refAN);  //
         tr.registerDerivedVar<bool>("passBaseline0l_pt45"+myVarSuffix_,        passBaseline0l_pt45);       // 0l trigger study
->>>>>>> 5b7798e887c1b03611ca096e1acc995feb158d80
         tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"+myVarSuffix_,  passBaselineGoodOffline1l);
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,        passBaseline1l_Good);
         tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_,  passBaseline1l_NonIsoMuon);
