@@ -3,7 +3,6 @@
 #include <string>
 #include <iostream>
 extern "C" {
-    double SC_fixed_lumi(){ return AnaSamples::luminosity_2016; }
     AnaSamples::SampleSet* SS_new(char *ssfile)
     {
         return new AnaSamples::SampleSet(ssfile);
@@ -82,16 +81,6 @@ extern "C" {
         for(auto& sample : *sc)
         {
             array[i++] = sample.first.c_str();
-        }
-        return array;
-    }
-    double const * SC_samplecollection_lumis(AnaSamples::SampleCollection* sc)
-    {
-        double *array = new double[sc->size()];
-        int i = 0;
-        for(auto& sample : *sc)
-        {
-            array[i++] = sc->getSampleLumi(sample.first);
         }
         return array;
     }

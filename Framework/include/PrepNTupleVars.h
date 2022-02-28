@@ -484,8 +484,17 @@ private:
         {
             const auto& Weight = tr.getVar<float>("Weight");
             w = (Weight >= 0.0) ? 1 : -1;
+
+            // "weightVal" calculated by samples.cc provides no sign information
+            // So determine that here using the weight from TreeMaker, where
+            // the value is irrelevant
+            const auto& weightVal = tr.getVar<double>("weightVal");
+
+            tr.registerDerivedVar<double>("weight", w*weightVal);
         }
         tr.registerDerivedVar<int>("eventCounter",w);        
+    
+        
     }
 public:
     PrepNTupleVars() : pTMass_({{"2016",{0.95,0.95}},{"2017",{0.95,1.01}},{"2018pre",{0.95,0.98}},{"2018post",{0.95,0.98}}})
