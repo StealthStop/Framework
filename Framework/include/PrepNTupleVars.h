@@ -482,6 +482,7 @@ private:
         int w = 1;
         if(runtype == "MC")
         {
+            // For MC, the a "Weight" branch is provided by TreeMaker
             const auto& Weight = tr.getVar<float>("Weight");
             w = (Weight >= 0.0) ? 1 : -1;
 
@@ -492,9 +493,16 @@ private:
 
             tr.registerDerivedVar<double>("weight", w*weightVal);
         }
+        else if(runtype == "Data")
+        {
+            // For Data, no "Weight" branch is provided
+            // Put in trivial 1.0 for it and "weight"
+            // for use later on in the code
+            tr.registerDerivedVar<double>("weight", 1.0);
+            tr.registerDerivedVar<float>("Weight",  1.0);
+        }
+
         tr.registerDerivedVar<int>("eventCounter",w);        
-    
-        
     }
 public:
     PrepNTupleVars() : pTMass_({{"2016",{0.95,0.95}},{"2017",{0.95,1.01}},{"2018pre",{0.95,0.98}},{"2018post",{0.95,0.98}}})
