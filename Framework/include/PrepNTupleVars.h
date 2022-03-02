@@ -486,14 +486,14 @@ private:
             const float Weight = tr.getVar<float>("Weight");
             w = (Weight >= 0.0) ? 1 : -1;
 
-            // "weightVal" calculated by samples.cc provides no sign information
+            // "weightAbsVal" calculated by samples.cc provides no sign information
             // So determine that here using the weight from TreeMaker, where
             // the value is irrelevant
-            const auto& weightVal = tr.getVar<double>("weightVal");
+            const auto& weightAbsVal = tr.getVar<double>("weightAbsVal");
 
             // Reregister "Weight" with the newly calculated weight coming
             // from samples.cc and save the original Weight in a new "WeightTM" field
-            tr.registerDerivedVar<float>("Weight",   w*weightVal);
+            tr.registerDerivedVar<float>("Weight",   w*weightAbsVal);
             tr.registerDerivedVar<float>("WeightTM", Weight);
         }
 
