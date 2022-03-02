@@ -147,7 +147,7 @@ namespace AnaSamples
     friend class SampleCollection;
    
    public:
-    SampleSet(std::string file = "sampleSet.cfg", bool isCondor = false);
+    SampleSet(std::string file = "sampleSets.cfg", bool isCondor = false);
     void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double nEvts, double kfactor, int color = kBlack) 
     {
         sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, nEvts, kfactor, color);
