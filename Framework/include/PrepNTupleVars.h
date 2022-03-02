@@ -482,8 +482,8 @@ private:
         int w = 1;
         if(runtype == "MC")
         {
-            // For MC, the a "Weight" branch is provided by TreeMaker
-            const auto& Weight = tr.getVar<float>("Weight");
+            // For MC, a "Weight" branch is provided by TreeMaker in the ntuples
+            const float Weight = tr.getVar<float>("Weight");
             w = (Weight >= 0.0) ? 1 : -1;
 
             // "weightVal" calculated by samples.cc provides no sign information
@@ -491,15 +491,19 @@ private:
             // the value is irrelevant
             const auto& weightVal = tr.getVar<double>("weightVal");
 
-            tr.registerDerivedVar<double>("weight", w*weightVal);
+            // Reregister "Weight" with the newly calculated weight coming
+            // from samples.cc and save the original Weight in a new "WeightTM" field
+            tr.registerDerivedVar<float>("Weight",   w*weightVal);
+            tr.registerDerivedVar<float>("WeightTM", Weight);
         }
+
         else if(runtype == "Data")
         {
             // For Data, no "Weight" branch is provided
-            // Put in trivial 1.0 for it and "weight"
+            // Put in trivial 1.0 for it and "WeightTM"
             // for use later on in the code
-            tr.registerDerivedVar<double>("weight", 1.0);
-            tr.registerDerivedVar<float>("Weight",  1.0);
+            tr.registerDerivedVar<float>("Weight",   1.0);
+            tr.registerDerivedVar<float>("WeightTM", 1.0);
         }
 
         tr.registerDerivedVar<int>("eventCounter",w);        
