@@ -19,25 +19,25 @@ namespace AnaSamples
    public:
     std::string tag;
     std::string filePath, fileName, treePath;
-    double xsec, lumi, kfactor, nEvts;
+    double xsec, kfactor, nEvts;
     int color;
     bool isData_;
         
     FileSummary() {}
-    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(xsec), lumi(lumi), kfactor(kfactor), nEvts(nEvts), color(color), isData_(false)
+    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(xsec), kfactor(kfactor), nEvts(nEvts), color(color), isData_(false)
     {
-      weight_ = xsec * lumi * kfactor / nEvts;
+      weight_ = xsec * kfactor / nEvts;
     }
 
-    //Constructor which doesn't make a xsec*lumi weighted sample, e.g. for use with data.
-    //Initialize xsec, lumi, nEvts to 1 so that the comparison operators still work
-    //Need a record of the actual data lumi!
-    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double lumi, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(1), lumi(lumi), kfactor(kfactor), nEvts(1), color(color), isData_(true)
+    //Constructor which doesn't make a xsec*kfactor/nEvts weighted sample, e.g. for use with data.
+    //Initialize xsec, nEvts to 1 so that the comparison operators still work
+    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(1), kfactor(kfactor), nEvts(1), color(color), isData_(true)
     {
       weight_ = kfactor;
     }
 
     double getWeight() const {return weight_;}
+
     const std::vector<std::string>& getFilelist() const {return filelist_;}
     template<class T> void addFilesToChain(T* chain, int startfile=0, int filerun=-1) const
     {
@@ -65,32 +65,6 @@ namespace AnaSamples
   bool operator< (const FileSummary& lhs, const FileSummary& rhs);
   bool operator== (const FileSummary& lhs, const FileSummary& rhs);
   bool operator!= (const FileSummary& lhs, const FileSummary& rhs);
-
-  //May 5, 2019: Updated Luminosities from PostProcessed_StopTuple_V2.7.2
-  static const double luminosity_2016           = 35922.0; // in pb-1 (Data_SingleMuon_2016)
-  static const double luminosity_2017           = 41856.0; // in pb-1 (Data_SingleElectron_2017)
-  static const double luminosity_2018           = 58905.0; // in pb-1 (Data_EGamma_2018)
-  static const double luminosity_2018_AB        = 20757.0; // in pb-1 (Data_EGamma_2018 Periods A + B)
-  static const double luminosity_2018_CD        = 38148.0; // in pb-1 (Data_EGamma_2018 Periods C + D)
-  // lumi per sample when datasets had different lumis
-  static const double luminosity_electron_2016  = 35860.0; // in pb-1 for Data_SingleElectron_2016
-  static const double luminosity_muon_2016      = 35922.0; // in pb-1 for Data_SingleMuon_2016
-  static const double luminosity_photon_2016    = 35922.0; // in pb-1 for Data_SinglePhoton_2016 
-  static const double luminosity_electron_2017  = 41856.0; // in pb-1 for Data_SingleElectron_2017
-  static const double luminosity_muon_2017      = 41856.0; // in pb-1 for Data_SingleMuon_2017
-  static const double luminosity_photon_2017    = 41666.0; // in pb-1 for Data_SinglePhoton_2017 
-  static const double luminosity_electron_2018  = 58905.0; // in pb-1 for Data_EGamma_2018
-  static const double luminosity_muon_2018      = 59477.0; // in pb-1 for Data_SingleMuon_2018
-  static const double luminosity_photon_2018    = 58905.0; // in pb-1 for Data_EGamma_2018
-  
-  //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Dec23_2014/";
-  //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_720_Mar14_2014_v2/";
-  //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/PHYS14_72X_July_2015_v1.1/";
-  //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_July_2015_v1.1/";
-  //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/Spring15_74X_Oct_2015_Ntp_v2X/";
-  //static const std::string fileDir = "/eos/uscms/store/user/lpcsusyhad/";
-  
-  static const std::string fileDir = "/cms/data/store/user/lpcsusyhad/";
 
   template<class T>
   class SampleBase
@@ -173,15 +147,15 @@ namespace AnaSamples
     friend class SampleCollection;
    
    public:
-    SampleSet(std::string fDir = fileDir, bool isCondor = false, double lumi = luminosity_2016);
-    void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double lumi, double nEvts, double kfactor, int color = kBlack) 
+    SampleSet(std::string file = "sampleSets.cfg", bool isCondor = false);
+    void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double nEvts, double kfactor, int color = kBlack) 
     {
-        sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, lumi, nEvts, kfactor, color);
+        sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, nEvts, kfactor, color);
     }
 
-    void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName,  const std::string& treePath, double lumi, double kfactor, int color = kBlack) 
+    void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName,  const std::string& treePath, double kfactor, int color = kBlack) 
     {
-        sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, lumi, kfactor, color);
+        sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, kfactor, color);
     }
     
     // modify weights to compare two MC samples
@@ -191,7 +165,6 @@ namespace AnaSamples
    private:
     std::string fDir_;
     bool isCondor_;
-    double lumi_;
     
     std::map<std::string, FileSummary>& getMap() { return sampleSet_; }
     
@@ -203,16 +176,11 @@ namespace AnaSamples
    public:
     SampleCollection(const std::string& file, SampleSet& samples);
     std::vector<std::string>& getSampleLabels(std::string name);
-    inline double getSampleLumi(std::string name)
-    {
-      return totalLumiMap_[name];
-    }
     
     // modify weights to compare two MC samples
     double getCrossSectionRatio(std::string& sampleTag1, std::string sampleTag2, bool verbose = false);
 
    private:
-    std::map<std::string, double> totalLumiMap_;
     std::map<std::string, std::vector<std::string>> nameVec_;
     SampleSet& ss_;
     void addSampleSet(SampleSet& samples, const std::string& name, const std::vector<std::string>& vss);

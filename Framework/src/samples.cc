@@ -76,9 +76,9 @@ namespace AnaSamples
         int nMatches = sscanf(buf, "%s %s %s %s %lf %lf %lf %lf", cDSname, cFPath, cfName, cTPath, &f1, &f2, &f3, &f4);
         if(nMatches == 8) //this is MC 
         {
-            //                                                        xsec        NEvts+ NEvts-  kfactor
-            if(!isCondor_) addSample(cDSname, cFPath, cfName, cTPath, f1,   lumi_, f2 -  f3,     f4,     kGreen);
-            else           addSample(cDSname, "",     cfName, cTPath, f1,   lumi_, f2 -  f3,     f4,     kGreen);
+            //                                                        xsec   NEvts+ NEvts-  kfactor
+            if(!isCondor_) addSample(cDSname, cFPath, cfName, cTPath, f1,    f2 -  f3,     f4,     kGreen);
+            else           addSample(cDSname, "",     cfName, cTPath, f1,    f2 -  f3,     f4,     kGreen);
             return true;
         }
         else if(nMatches == 6) //this is Data
@@ -92,7 +92,7 @@ namespace AnaSamples
         return false;            
     }
     
-    SampleSet::SampleSet(std::string file, bool isCondor, double lumi) : isCondor_(isCondor), lumi_(lumi)
+    SampleSet::SampleSet(std::string file, bool isCondor) : isCondor_(isCondor)
     {
         readCfg(file);
     }
@@ -184,7 +184,6 @@ namespace AnaSamples
             map[sn].addCollection(name);
             sampleSet_[name].push_back(samples[sn]);
             nameVec_[name].push_back(sn);
-            totalLumiMap_[name] += samples[sn].lumi;
         }
     }
 
@@ -200,7 +199,7 @@ namespace AnaSamples
 
     bool operator== (const FileSummary& lhs, const FileSummary& rhs)
     {
-        return lhs.filePath == rhs.filePath && lhs.treePath == rhs.treePath && lhs.xsec == rhs.xsec && lhs.lumi == rhs.lumi && lhs.kfactor == rhs.kfactor && lhs.nEvts == rhs.nEvts;
+        return lhs.filePath == rhs.filePath && lhs.treePath == rhs.treePath && lhs.xsec == rhs.xsec && lhs.kfactor == rhs.kfactor && lhs.nEvts == rhs.nEvts;
     }
 
     bool operator!= (const FileSummary& lhs, const FileSummary& rhs)
