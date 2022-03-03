@@ -153,6 +153,8 @@ private:
 
         }
         // without any rank
+        tr.registerDerivedVar("Stop1"             +label_+myVarSuffix_, Stop1);
+        tr.registerDerivedVar("Stop2"             +label_+myVarSuffix_, Stop2);
         tr.registerDerivedVar("dR_Stop1Stop2_cm"  +label_+myVarSuffix_, static_cast<double>(dR_Stop1Stop2_cm));
         tr.registerDerivedVar("dPhi_Stop1Stop2_cm"+label_+myVarSuffix_, static_cast<double>(dPhi_Stop1Stop2_cm));
         tr.registerDerivedVar("Stop1_mass_cm"     +label_+myVarSuffix_, static_cast<double>(Stop1_cm.M()));
