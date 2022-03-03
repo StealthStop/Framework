@@ -55,7 +55,7 @@ private:
             singlets_           = &tr.createDerivedVec<TLorentzVector>("singlets"+myVarSuffix_);
             hadtops_idx_        = &tr.createDerivedVec<int>("hadtops_idx"+myVarSuffix_);
         
-            const auto& GenParticles            = tr.getVec<TLorentzVector>("GenParticles");
+            const auto& GenParticles            = utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(tr.getVec<utility::LorentzVector>("GenParticles"));
             const auto& GenParticles_PdgId      = tr.getVec<int>("GenParticles_PdgId");
             const auto& GenParticles_ParentId   = tr.getVec<int>("GenParticles_ParentId");
             const auto& GenParticles_ParentIdx  = tr.getVec<int>("GenParticles_ParentIdx");
@@ -189,7 +189,7 @@ private:
         auto& topsEta  = tr.createDerivedVec<double>("topsEta"+myVarSuffix_);
         auto& topsPhi  = tr.createDerivedVec<double>("topsPhi"+myVarSuffix_);
         auto& topsPt   = tr.createDerivedVec<double>("topsPt"+myVarSuffix_);
-        auto& topsLV   = tr.createDerivedVec<TLorentzVector>("topsLV"+myVarSuffix_);
+        auto& topsLV   = tr.createDerivedVec<utility::LorentzVector>("topsLV"+myVarSuffix_);
 
         for(const auto* t : tops)
         {
@@ -197,7 +197,7 @@ private:
             topsEta.push_back(t->p().Eta());
             topsPhi.push_back(t->p().Phi());
             topsPt.push_back(t->p().Pt());
-            topsLV.push_back(t->p());
+            topsLV.push_back(utility::convertLV<utility::LorentzVector, TLorentzVector>(t->p()));
         }
 
         // ----------------------------------
@@ -358,7 +358,7 @@ private:
 
 
         // Making tight photon lv (should live somewhere else: is needed for HistoContainer.h)
-        const auto& Photons        = tr.getVec<TLorentzVector>("Photons");
+        const auto& Photons        = tr.getVec<utility::LorentzVector>("Photons");
         const auto& Photons_fullID = tr.getVec<bool>("Photons_fullID");
 
         auto& tightPhotons = tr.createDerivedVec<TLorentzVector>("tightPhotons"+myVarSuffix_);
@@ -366,7 +366,7 @@ private:
         {
             if(Photons_fullID[i])
             {
-                tightPhotons.push_back(Photons[i]);
+                tightPhotons.push_back(utility::convertLV<TLorentzVector, utility::LorentzVector>(Photons[i]));
             }
         }
         

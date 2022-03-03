@@ -21,9 +21,9 @@ private:
 
     void bjet(NTupleReader& tr)
     {
-        const auto& Jets = tr.getVec<TLorentzVector>("Jets"+myVarSuffix_);
-        const auto& Jets_bJetTagDeepCSVtotb = tr.getVec<double>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb");
-        const auto& Jets_bDiscriminatorCSV = tr.getVec<double>("Jets"+myVarSuffix_+"_bDiscriminatorCSV"); //
+        const auto& Jets = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
+        const auto& Jets_bJetTagDeepCSVtotb = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb");
+        const auto& Jets_bDiscriminatorCSV = tr.getVec<float>("Jets"+myVarSuffix_+"_bDiscriminatorCSV"); //
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
@@ -69,7 +69,7 @@ private:
 
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
-            TLorentzVector lv = Jets.at(ijet);
+            utility::LorentzVector lv = Jets.at(ijet);
             double bdisc = Jets_bJetTagDeepCSVtotb.at(ijet);
             double csv_bdisc = Jets_bDiscriminatorCSV.at(ijet); 
 

@@ -7,7 +7,8 @@
 #include "TopTagger/TopTagger/interface/TopTaggerResults.h"
 #include <vector>
 
-#include "SusyAnaTools/Tools/NTupleReader.h"
+#include "Framework/Framework/include/Utility.h"
+#include "NTupleReader/include/NTupleReader.h"
 
 class SetUpTopTagger
 {
@@ -18,26 +19,27 @@ private:
     ttUtility::ConstAK8Inputs<double>* AK8Inputs_;
     std::vector<uint8_t>* ak4Filter_;
     const std::vector<TLorentzVector>& Jets_;                      
-    const std::vector<double>& Jets_bJetTagDeepCSVtotb_;
-    const std::vector<double>& Jets_qgLikelihood_;        
+    const std::vector<float>& Jets_bJetTagDeepCSVtotb_;
+    const std::vector<float>& Jets_qgLikelihood_;        
     const std::vector<bool>& GoodJets_;
     const std::vector<bool>& GoodJets_pt20_; 
     const std::vector<TLorentzVector>& JetsAK8_;                   
-    const std::vector<double>& JetsAK8_tDiscriminatorDeep_;
-    const std::vector<double>& JetsAK8_wDiscriminatorDeep_;
-    const std::vector<double>& JetsAK8_softDropMass_;      
+    const std::vector<float>& JetsAK8_DeepTagTvsQCD_;
+    const std::vector<float>& JetsAK8_DeepTagWvsQCD_;
+    const std::vector<float>& JetsAK8_softDropMass_;      
     const std::vector<std::vector<TLorentzVector>>& JetsAK8_subjets_;           
     const std::vector<TLorentzVector>& hadtops_;                   
     const std::vector<std::vector<const TLorentzVector*>>& hadtopdaughters_;
                
         
     std::vector<double>* intVecTodoubleVec(NTupleReader& tr, const std::string& vType);
+    std::vector<double>* floatVecTodoubleVec(const std::vector<float>& vF);
     std::vector<std::vector<double>>* VecVecintToVecVecdouble(NTupleReader& tr, const std::string& name);
 
-    template<typename I> std::vector<I>* add2Vec(NTupleReader& tr, const std::string& name1, const std::string& name2)
+    template<typename I, typename J> std::vector<I>* add2Vec(NTupleReader& tr, const std::string& name1, const std::string& name2)
     {
-        const auto& vec1 = tr.getVec<I>(name1);
-        const auto& vec2 = tr.getVec<I>(name2);
+        const auto& vec1 = tr.getVec<J>(name1);
+        const auto& vec2 = tr.getVec<J>(name2);
         std::vector<I>* sumVec = new std::vector<I>(vec1.size());
         for(unsigned int i = 0; i < vec1.size(); i++)
         {

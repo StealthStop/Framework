@@ -11,58 +11,60 @@ private:
     class JetCollection
     {
     public:
-        const std::vector<TLorentzVector>& Jets;
-        const std::vector<double>&         Jets_bDiscriminatorCSV;
-        const std::vector<double>&         Jets_bJetTagDeepCSVprobb;
-        const std::vector<double>&         Jets_bJetTagDeepCSVprobbb;
-        const std::vector<double>&         Jets_bJetTagDeepFlavourprobb;
-        const std::vector<double>&         Jets_bJetTagDeepFlavourprobbb;
-        const std::vector<double>&         Jets_bJetTagDeepFlavourprobc;
-        const std::vector<double>&         Jets_bJetTagDeepFlavourprobuds;
-        const std::vector<double>&         Jets_bJetTagDeepFlavourprobg;
-        const std::vector<double>&         Jets_bJetTagDeepCSVprobc;
-        const std::vector<double>&         Jets_bJetTagDeepCSVprobudsg;
-        const std::vector<double>&         Jets_qgLikelihood;
-        const std::vector<double>&         Jets_muonEnergyFraction;
-        const std::vector<double>&         Jets_hfHadronEnergyFraction;
-        const std::vector<double>&         Jets_hfEMEnergyFraction;
-        const std::vector<double>&         Jets_photonEnergyFraction;
-        const std::vector<double>&         Jets_electronEnergyFraction;
-        const std::vector<int>&            Jets_chargedHadronMultiplicity;
-        const std::vector<int>&            Jets_neutralHadronMultiplicity;
-        const std::vector<int>&            Jets_photonMultiplicity;
-        const std::vector<int>&            Jets_electronMultiplicity;
-        const std::vector<int>&            Jets_muonMultiplicity;
-        const std::vector<bool>&           Jets_ID;
-        const bool&                        JetID;
-        const std::vector<int>&            Jets_partonFlavor;
-        const std::vector<double>&         Jets_ptD;
-        const std::vector<double>&         Jets_axismajor;
-        const std::vector<double>&         Jets_axisminor;
-        const std::vector<int>&            Jets_multiplicity;
-        const std::vector<double>&         Jets_neutralEmEnergyFraction;
-        const std::vector<double>&         Jets_chargedEmEnergyFraction;
-        const std::vector<double>&         Jets_neutralHadronEnergyFraction;
-        const std::vector<double>&         Jets_chargedHadronEnergyFraction;
+        const std::vector<utility::LorentzVector>& Jets;
+        const std::vector<TLorentzVector>&         Jets_TLV;
+        const std::vector<float>&                  Jets_bDiscriminatorCSV;
+        const std::vector<float>&                  Jets_bJetTagDeepCSVprobb;
+        const std::vector<float>&                  Jets_bJetTagDeepCSVprobbb;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourprobb;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourprobbb;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourprobc;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourprobuds;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourprobg;
+        const std::vector<float>&                  Jets_bJetTagDeepCSVprobc;
+        const std::vector<float>&                  Jets_bJetTagDeepCSVprobudsg;
+        const std::vector<float>&                  Jets_qgLikelihood;
+        const std::vector<float>&                  Jets_muonEnergyFraction;
+        const std::vector<float>&                  Jets_hfHadronEnergyFraction;
+        const std::vector<float>&                  Jets_hfEMEnergyFraction;
+        const std::vector<float>&                  Jets_photonEnergyFraction;
+        const std::vector<float>&                  Jets_electronEnergyFraction;
+        const std::vector<int>&                    Jets_chargedHadronMultiplicity;
+        const std::vector<int>&                    Jets_neutralHadronMultiplicity;
+        const std::vector<int>&                    Jets_photonMultiplicity;
+        const std::vector<int>&                    Jets_electronMultiplicity;
+        const std::vector<int>&                    Jets_muonMultiplicity;
+        const std::vector<bool>&                   Jets_ID;
+        const bool&                                JetID;
+        const std::vector<int>&                    Jets_partonFlavor;
+        const std::vector<float>&                  Jets_ptD;
+        const std::vector<float>&                  Jets_axismajor;
+        const std::vector<float>&                  Jets_axisminor;
+        const std::vector<int>&                    Jets_multiplicity;
+        const std::vector<float>&                  Jets_neutralEmEnergyFraction;
+        const std::vector<float>&                  Jets_chargedEmEnergyFraction;
+        const std::vector<float>&                  Jets_neutralHadronEnergyFraction;
+        const std::vector<float>&                  Jets_chargedHadronEnergyFraction;
         
     JetCollection(const NTupleReader& tr) 
-            : Jets(tr.getVec<TLorentzVector>("Jets"))
-            , Jets_bDiscriminatorCSV(tr.getVec<double>("Jets_bDiscriminatorCSV")) 
-            , Jets_bJetTagDeepCSVprobb(tr.getVec<double>("Jets_bJetTagDeepCSVprobb"))
-            , Jets_bJetTagDeepCSVprobbb(tr.getVec<double>("Jets_bJetTagDeepCSVprobbb"))
-            , Jets_bJetTagDeepFlavourprobb(tr.getVec<double>("Jets_bJetTagDeepFlavourprobb"))
-            , Jets_bJetTagDeepFlavourprobbb(tr.getVec<double>("Jets_bJetTagDeepFlavourprobbb"))
-            , Jets_bJetTagDeepFlavourprobc(tr.getVec<double>("Jets_bJetTagDeepFlavourprobc"))
-            , Jets_bJetTagDeepFlavourprobuds(tr.getVec<double>("Jets_bJetTagDeepFlavourprobuds"))
-            , Jets_bJetTagDeepFlavourprobg(tr.getVec<double>("Jets_bJetTagDeepFlavourprobg"))
-            , Jets_bJetTagDeepCSVprobc(tr.getVec<double>("Jets_bJetTagDeepCSVprobc"))
-            , Jets_bJetTagDeepCSVprobudsg(tr.getVec<double>("Jets_bJetTagDeepCSVprobudsg"))
-            , Jets_qgLikelihood(tr.getVec<double>("Jets_qgLikelihood"))
-            , Jets_muonEnergyFraction(tr.getVec<double>("Jets_muonEnergyFraction"))
-            , Jets_hfHadronEnergyFraction(tr.getVec<double>("Jets_hfHadronEnergyFraction"))
-            , Jets_hfEMEnergyFraction(tr.getVec<double>("Jets_hfEMEnergyFraction"))
-            , Jets_photonEnergyFraction(tr.getVec<double>("Jets_photonEnergyFraction"))
-            , Jets_electronEnergyFraction(tr.getVec<double>("Jets_electronEnergyFraction"))
+            : Jets(tr.getVec<utility::LorentzVector>("Jets"))
+            , Jets_TLV(tr.getVec<TLorentzVector>("Jets_TLV"))
+            , Jets_bDiscriminatorCSV(tr.getVec<float>("Jets_bDiscriminatorCSV")) 
+            , Jets_bJetTagDeepCSVprobb(tr.getVec<float>("Jets_bJetTagDeepCSVprobb"))
+            , Jets_bJetTagDeepCSVprobbb(tr.getVec<float>("Jets_bJetTagDeepCSVprobbb"))
+            , Jets_bJetTagDeepFlavourprobb(tr.getVec<float>("Jets_bJetTagDeepFlavourprobb"))
+            , Jets_bJetTagDeepFlavourprobbb(tr.getVec<float>("Jets_bJetTagDeepFlavourprobbb"))
+            , Jets_bJetTagDeepFlavourprobc(tr.getVec<float>("Jets_bJetTagDeepFlavourprobc"))
+            , Jets_bJetTagDeepFlavourprobuds(tr.getVec<float>("Jets_bJetTagDeepFlavourprobuds"))
+            , Jets_bJetTagDeepFlavourprobg(tr.getVec<float>("Jets_bJetTagDeepFlavourprobg"))
+            , Jets_bJetTagDeepCSVprobc(tr.getVec<float>("Jets_bJetTagDeepCSVprobc"))
+            , Jets_bJetTagDeepCSVprobudsg(tr.getVec<float>("Jets_bJetTagDeepCSVprobudsg"))
+            , Jets_qgLikelihood(tr.getVec<float>("Jets_qgLikelihood"))
+            , Jets_muonEnergyFraction(tr.getVec<float>("Jets_muonEnergyFraction"))
+            , Jets_hfHadronEnergyFraction(tr.getVec<float>("Jets_hfHadronEnergyFraction"))
+            , Jets_hfEMEnergyFraction(tr.getVec<float>("Jets_hfEMEnergyFraction"))
+            , Jets_photonEnergyFraction(tr.getVec<float>("Jets_photonEnergyFraction"))
+            , Jets_electronEnergyFraction(tr.getVec<float>("Jets_electronEnergyFraction"))
             , Jets_chargedHadronMultiplicity(tr.getVec<int>("Jets_chargedHadronMultiplicity"))
             , Jets_neutralHadronMultiplicity(tr.getVec<int>("Jets_neutralHadronMultiplicity"))
             , Jets_photonMultiplicity(tr.getVec<int>("Jets_photonMultiplicity"))
@@ -71,14 +73,14 @@ private:
             , Jets_ID(tr.getVec<bool>("Jets_ID"))
             , JetID(tr.getVar<bool>("JetID"))
             , Jets_partonFlavor(tr.getVec<int>("Jets_partonFlavor"))
-            , Jets_ptD(tr.getVec<double>("Jets_ptD"))
-            , Jets_axismajor(tr.getVec<double>("Jets_axismajor"))    
-            , Jets_axisminor(tr.getVec<double>("Jets_axisminor"))
+            , Jets_ptD(tr.getVec<float>("Jets_ptD"))
+            , Jets_axismajor(tr.getVec<float>("Jets_axismajor"))    
+            , Jets_axisminor(tr.getVec<float>("Jets_axisminor"))
             , Jets_multiplicity(tr.getVec<int>("Jets_multiplicity"))
-            , Jets_neutralEmEnergyFraction(tr.getVec<double>("Jets_neutralEmEnergyFraction"))
-            , Jets_chargedEmEnergyFraction(tr.getVec<double>("Jets_chargedEmEnergyFraction"))
-            , Jets_neutralHadronEnergyFraction(tr.getVec<double>("Jets_neutralHadronEnergyFraction"))
-            , Jets_chargedHadronEnergyFraction(tr.getVec<double>("Jets_chargedHadronEnergyFraction"))
+            , Jets_neutralEmEnergyFraction(tr.getVec<float>("Jets_neutralEmEnergyFraction"))
+            , Jets_chargedEmEnergyFraction(tr.getVec<float>("Jets_chargedEmEnergyFraction"))
+            , Jets_neutralHadronEnergyFraction(tr.getVec<float>("Jets_neutralHadronEnergyFraction"))
+            , Jets_chargedHadronEnergyFraction(tr.getVec<float>("Jets_chargedHadronEnergyFraction"))
         {
         }
     };
@@ -86,33 +88,35 @@ private:
     class JetAK8Collection
     {
     public:
-        const std::vector<TLorentzVector>&              JetsAK8;
-        const std::vector<double>&                      JetsAK8_NsubjettinessTau1;
-        const std::vector<double>&                      JetsAK8_NsubjettinessTau2;
-        const std::vector<double>&                      JetsAK8_NsubjettinessTau3;
-        const std::vector<double>&                      JetsAK8_softDropMass;
-        const std::vector<double>&                      JetsAK8_prunedMass;
-        const std::vector<double>&                      JetsAK8_axismajor;
-        const std::vector<double>&                      JetsAK8_axisminor;
-        const std::vector<std::vector<TLorentzVector>>& JetsAK8_subjets;
-        const std::vector<double>&                      JetsAK8_tDiscriminatorDeep;
-        const std::vector<double>&                      JetsAK8_wDiscriminatorDeep;
-        const std::vector<double>&                      JetsAK8_hDiscriminatorDeep;
-        const std::vector<int>&                         JetsAK8_multiplicity;
+        const std::vector<utility::LorentzVector>&              JetsAK8;
+        const std::vector<TLorentzVector>&                      JetsAK8_TLV;
+        const std::vector<float>&                               JetsAK8_NsubjettinessTau1;
+        const std::vector<float>&                               JetsAK8_NsubjettinessTau2;
+        const std::vector<float>&                               JetsAK8_NsubjettinessTau3;
+        const std::vector<float>&                               JetsAK8_softDropMass;
+        const std::vector<float>&                               JetsAK8_axismajor;
+        const std::vector<float>&                               JetsAK8_axisminor;
+        const std::vector<std::vector<utility::LorentzVector>>& JetsAK8_subjetsNested_LV;
+        const std::vector<std::vector<TLorentzVector>>&         JetsAK8_subjetsNested_TLV;
+        const std::vector<float>&                               JetsAK8_DeepTagTvsQCD;
+        const std::vector<float>&                               JetsAK8_DeepTagWvsQCD;
+        const std::vector<float>&                               JetsAK8_DeepTagHbbvsQCD;
+        const std::vector<int>&                                 JetsAK8_multiplicity;
     
     JetAK8Collection(const NTupleReader& tr) 
-            : JetsAK8(tr.getVec<TLorentzVector>("JetsAK8"))
-            , JetsAK8_NsubjettinessTau1(tr.getVec<double>("JetsAK8_NsubjettinessTau1"))
-            , JetsAK8_NsubjettinessTau2(tr.getVec<double>("JetsAK8_NsubjettinessTau2"))
-            , JetsAK8_NsubjettinessTau3(tr.getVec<double>("JetsAK8_NsubjettinessTau3"))
-            , JetsAK8_softDropMass(tr.getVec<double>("JetsAK8_softDropMass"))
-            , JetsAK8_prunedMass(tr.getVec<double>("JetsAK8_prunedMass"))
-            , JetsAK8_axismajor(tr.getVec<double>("JetsAK8_axismajor"))
-            , JetsAK8_axisminor(tr.getVec<double>("JetsAK8_axisminor"))
-            , JetsAK8_subjets(tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjets"))
-            , JetsAK8_tDiscriminatorDeep(tr.getVec<double>("JetsAK8_tDiscriminatorDeep"))
-            , JetsAK8_wDiscriminatorDeep(tr.getVec<double>("JetsAK8_wDiscriminatorDeep"))
-            , JetsAK8_hDiscriminatorDeep(tr.getVec<double>("JetsAK8_hDiscriminatorDeep"))
+            : JetsAK8(tr.getVec<utility::LorentzVector>("JetsAK8"))
+            , JetsAK8_TLV(tr.getVec<TLorentzVector>("JetsAK8_TLV"))
+            , JetsAK8_NsubjettinessTau1(tr.getVec<float>("JetsAK8_NsubjettinessTau1"))
+            , JetsAK8_NsubjettinessTau2(tr.getVec<float>("JetsAK8_NsubjettinessTau2"))
+            , JetsAK8_NsubjettinessTau3(tr.getVec<float>("JetsAK8_NsubjettinessTau3"))
+            , JetsAK8_softDropMass(tr.getVec<float>("JetsAK8_softDropMass"))
+            , JetsAK8_axismajor(tr.getVec<float>("JetsAK8_axismajor"))
+            , JetsAK8_axisminor(tr.getVec<float>("JetsAK8_axisminor"))
+            , JetsAK8_subjetsNested_LV(tr.getVec<std::vector<utility::LorentzVector>>("JetsAK8_subjetsNested_LV"))
+            , JetsAK8_subjetsNested_TLV(tr.getVec<std::vector<TLorentzVector>>("JetsAK8_subjetsNested_TLV"))
+            , JetsAK8_DeepTagTvsQCD(tr.getVec<float>("JetsAK8_DeepTagTvsQCD"))
+            , JetsAK8_DeepTagWvsQCD(tr.getVec<float>("JetsAK8_DeepTagWvsQCD"))
+            , JetsAK8_DeepTagHbbvsQCD(tr.getVec<float>("JetsAK8_DeepTagHbbvsQCD"))
             , JetsAK8_multiplicity(tr.getVec<int>("JetsAK8_multiplicity"))
         {
         }
@@ -121,15 +125,15 @@ private:
     class Factor
     {
     private:
-        const std::vector<double>& Jets_jerFactor;
-        const std::vector<double>& Jets_jecUnc;
-        const std::vector<double>& JetsJECup_jerFactor;
-        const std::vector<double>& JetsJECdown_jerFactor;
-        const std::vector<double>& Jets_jerFactorUp;
-        const std::vector<double>& Jets_jerFactorDown;
+        const std::vector<float>& Jets_jerFactor;
+        const std::vector<float>& Jets_jecUnc;
+        const std::vector<float>& JetsJECup_jerFactor;
+        const std::vector<float>& JetsJECdown_jerFactor;
+        const std::vector<float>& Jets_jerFactorUp;
+        const std::vector<float>& Jets_jerFactorDown;
 
     public:
-        double factor(const std::string& name, const int i, const int j) const
+        float factor(const std::string& name, const int i, const int j) const
         {            
             if     (name == "JECup")   return (1./Jets_jerFactor.at(i))*(1+Jets_jecUnc.at(i))*JetsJECup_jerFactor.at(j);
             else if(name == "JECdown") return (1./Jets_jerFactor.at(i))*(1-Jets_jecUnc.at(i))*JetsJECdown_jerFactor.at(j);
@@ -139,12 +143,12 @@ private:
         }
         
         Factor(const NTupleReader& tr, const std::string& name = "") 
-            : Jets_jerFactor(tr.getVec<double>("Jets"+name+"_jerFactor"))
-            , Jets_jecUnc(tr.getVec<double>("Jets"+name+"_jecUnc"))
-            , JetsJECup_jerFactor(tr.getVec<double>("Jets"+name+"JECup_jerFactor"))
-            , JetsJECdown_jerFactor(tr.getVec<double>("Jets"+name+"JECdown_jerFactor"))
-            , Jets_jerFactorUp(tr.getVec<double>("Jets"+name+"_jerFactorUp"))
-            , Jets_jerFactorDown(tr.getVec<double>("Jets"+name+"_jerFactorDown"))
+            : Jets_jerFactor(tr.getVec<float>("Jets"+name+"_jerFactor"))
+            , Jets_jecUnc(tr.getVec<float>("Jets"+name+"_jecUnc"))
+            , JetsJECup_jerFactor(tr.getVec<float>("Jets"+name+"JECup_jerFactor"))
+            , JetsJECdown_jerFactor(tr.getVec<float>("Jets"+name+"JECdown_jerFactor"))
+            , Jets_jerFactorUp(tr.getVec<float>("Jets"+name+"_jerFactorUp"))
+            , Jets_jerFactorDown(tr.getVec<float>("Jets"+name+"_jerFactorDown"))
         {
         }
     };
@@ -153,36 +157,37 @@ private:
     {
         const auto& newJets_origIndex = tr.getVec<int>("Jets"+name+"_origIndex");
                
-        auto& newJets                             = tr.createDerivedVec<TLorentzVector>("Jets"+name, jc.Jets.size());
-        auto& newJets_bDiscriminatorCSV           = tr.createDerivedVec<double>("Jets"+name+"_bDiscriminatorCSV", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVprobb         = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVprobbb        = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVtotb          = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourprobb     = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobb", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourprobbb    = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobbb", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourtotb      = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourtotb", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourtotq      = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourtotq", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourprobg     = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobg", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourprobc     = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobc", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourprobuds   = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobuds", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVprobc         = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobc", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVprobudsg      = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobudsg", jc.Jets.size());
-        auto& newJets_qgLikelihood                = tr.createDerivedVec<double>("Jets"+name+"_qgLikelihood", jc.Jets.size());
+        auto& newJets                             = tr.createDerivedVec<utility::LorentzVector>("Jets"+name, jc.Jets.size());
+        auto& newJets_TLV                         = tr.createDerivedVec<TLorentzVector>("Jets_TLV"+name, jc.Jets.size());
+        auto& newJets_bDiscriminatorCSV           = tr.createDerivedVec<float>("Jets"+name+"_bDiscriminatorCSV", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobb         = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobbb        = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVtotb          = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourprobb     = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobb", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourprobbb    = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobbb", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourtotb      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourtotb", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourtotq      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourtotq", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourprobg     = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobg", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourprobc     = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobc", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourprobuds   = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobuds", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobc         = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobc", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobudsg      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobudsg", jc.Jets.size());
+        auto& newJets_qgLikelihood                = tr.createDerivedVec<float>("Jets"+name+"_qgLikelihood", jc.Jets.size());
         auto& newJets_ID                          = tr.createDerivedVec<bool>("Jets"+name+"_ID", jc.Jets.size());
         auto& newJets_partonFlavor                = tr.createDerivedVec<int>("Jets"+name+"_partonFlavor", jc.Jets.size());
-        auto& newJets_ptD                         = tr.createDerivedVec<double>("Jets"+name+"_ptD", jc.Jets.size());
-        auto& newJets_axismajor                   = tr.createDerivedVec<double>("Jets"+name+"_axismajor", jc.Jets.size());
-        auto& newJets_axisminor                   = tr.createDerivedVec<double>("Jets"+name+"_axisminor", jc.Jets.size());
+        auto& newJets_ptD                         = tr.createDerivedVec<float>("Jets"+name+"_ptD", jc.Jets.size());
+        auto& newJets_axismajor                   = tr.createDerivedVec<float>("Jets"+name+"_axismajor", jc.Jets.size());
+        auto& newJets_axisminor                   = tr.createDerivedVec<float>("Jets"+name+"_axisminor", jc.Jets.size());
         auto& newJets_multiplicity                = tr.createDerivedVec<int>("Jets"+name+"_multiplicity", jc.Jets.size());
-        auto& newJets_neutralEmEnergyFraction     = tr.createDerivedVec<double>("Jets"+name+"_neutralEmEnergyFraction", jc.Jets.size());
-        auto& newJets_chargedEmEnergyFraction     = tr.createDerivedVec<double>("Jets"+name+"_chargedEmEnergyFraction", jc.Jets.size());
-        auto& newJets_neutralHadronEnergyFraction = tr.createDerivedVec<double>("Jets"+name+"_neutralHadronEnergyFraction", jc.Jets.size());
-        auto& newJets_chargedHadronEnergyFraction = tr.createDerivedVec<double>("Jets"+name+"_chargedHadronEnergyFraction", jc.Jets.size());
-        auto& newJets_muonEnergyFraction          = tr.createDerivedVec<double>("Jets"+name+"_muonEnergyFraction", jc.Jets.size());
-        auto& newJets_hfHadronEnergyFraction      = tr.createDerivedVec<double>("Jets"+name+"_hfHadronEnergyFraction", jc.Jets.size());
-        auto& newJets_hfEMEnergyFraction          = tr.createDerivedVec<double>("Jets"+name+"_hfEMEnergyFraction", jc.Jets.size());
-        auto& newJets_photonEnergyFraction        = tr.createDerivedVec<double>("Jets"+name+"_photonEnergyFraction", jc.Jets.size());
-        auto& newJets_electronEnergyFraction      = tr.createDerivedVec<double>("Jets"+name+"_electronEnergyFraction", jc.Jets.size());
+        auto& newJets_neutralEmEnergyFraction     = tr.createDerivedVec<float>("Jets"+name+"_neutralEmEnergyFraction", jc.Jets.size());
+        auto& newJets_chargedEmEnergyFraction     = tr.createDerivedVec<float>("Jets"+name+"_chargedEmEnergyFraction", jc.Jets.size());
+        auto& newJets_neutralHadronEnergyFraction = tr.createDerivedVec<float>("Jets"+name+"_neutralHadronEnergyFraction", jc.Jets.size());
+        auto& newJets_chargedHadronEnergyFraction = tr.createDerivedVec<float>("Jets"+name+"_chargedHadronEnergyFraction", jc.Jets.size());
+        auto& newJets_muonEnergyFraction          = tr.createDerivedVec<float>("Jets"+name+"_muonEnergyFraction", jc.Jets.size());
+        auto& newJets_hfHadronEnergyFraction      = tr.createDerivedVec<float>("Jets"+name+"_hfHadronEnergyFraction", jc.Jets.size());
+        auto& newJets_hfEMEnergyFraction          = tr.createDerivedVec<float>("Jets"+name+"_hfEMEnergyFraction", jc.Jets.size());
+        auto& newJets_photonEnergyFraction        = tr.createDerivedVec<float>("Jets"+name+"_photonEnergyFraction", jc.Jets.size());
+        auto& newJets_electronEnergyFraction      = tr.createDerivedVec<float>("Jets"+name+"_electronEnergyFraction", jc.Jets.size());
         auto& newJets_chargedHadronMultiplicity   = tr.createDerivedVec<int>("Jets"+name+"_chargedHadronMultiplicity", jc.Jets.size());
         auto& newJets_neutralHadronMultiplicity   = tr.createDerivedVec<int>("Jets"+name+"_neutralHadronMultiplicity", jc.Jets.size());
         auto& newJets_photonMultiplicity          = tr.createDerivedVec<int>("Jets"+name+"_photonMultiplicity", jc.Jets.size());
@@ -191,9 +196,12 @@ private:
 
         for(unsigned j = 0; j < newJets_origIndex.size(); ++j)
         {
-            int i = newIndex[newJets_origIndex.at(j)];
-            
-            newJets.at(j)                             = jc.Jets.at(i)*f.factor(name,i,j);
+            int i    = newIndex[newJets_origIndex.at(j)];
+            auto lv  = jc.Jets.at(i)*f.factor(name,i,j);
+            auto tlv = jc.Jets_TLV.at(i)*f.factor(name,i,j);
+
+            newJets.at(j).SetPt(lv.Pt()); newJets.at(j).SetEta(lv.Eta()); newJets.at(j).SetPhi(lv.Phi()); newJets.at(j).SetE(lv.E());
+            newJets_TLV.at(j).SetPtEtaPhiE(tlv.Pt(), tlv.Eta(), tlv.Phi(), tlv.E());
             newJets_bDiscriminatorCSV.at(j)           = jc.Jets_bDiscriminatorCSV.at(i);
             newJets_bJetTagDeepCSVprobb.at(j)         = jc.Jets_bJetTagDeepCSVprobb.at(i);
             newJets_bJetTagDeepCSVprobbb.at(j)        = jc.Jets_bJetTagDeepCSVprobbb.at(i);
@@ -235,45 +243,47 @@ private:
     {
         tr.registerDerivedVar("JetID"+name, jc.JetID);        
 
-        auto& newJets                             = tr.createDerivedVec<TLorentzVector>("Jets"+name, jc.Jets.size());
-        auto& newJets_bDiscriminatorCSV           = tr.createDerivedVec<double>("Jets"+name+"_bDiscriminatorCSV", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVprobb         = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVprobbb        = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVtotb          = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourprobb     = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobb", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourprobbb    = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobbb", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourtotb      = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourtotb", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourtotq      = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourtotq", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourprobg     = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobg", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourprobc     = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobc", jc.Jets.size());
-        auto& newJets_bJetTagDeepFlavourprobuds   = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepFlavourprobuds", jc.Jets.size());
-        auto& newJets_qgLikelihood                = tr.createDerivedVec<double>("Jets"+name+"_qgLikelihood", jc.Jets.size());
+        auto& newJets                             = tr.createDerivedVec<utility::LorentzVector>("Jets"+name, jc.Jets.size());
+        auto& newJets_TLV                         = tr.createDerivedVec<TLorentzVector>("Jets_TLV"+name, jc.Jets.size());
+        auto& newJets_bDiscriminatorCSV           = tr.createDerivedVec<float>("Jets"+name+"_bDiscriminatorCSV", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobb         = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobbb        = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVtotb          = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourprobb     = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobb", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourprobbb    = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobbb", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourtotb      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourtotb", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourtotq      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourtotq", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourprobg     = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobg", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourprobc     = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobc", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourprobuds   = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobuds", jc.Jets.size());
+        auto& newJets_qgLikelihood                = tr.createDerivedVec<float>("Jets"+name+"_qgLikelihood", jc.Jets.size());
         auto& newJets_ID                          = tr.createDerivedVec<bool>("Jets"+name+"_ID", jc.Jets.size());
         auto& newJets_partonFlavor                = tr.createDerivedVec<int>("Jets"+name+"_partonFlavor", jc.Jets.size());
-        auto& newJets_ptD                         = tr.createDerivedVec<double>("Jets"+name+"_ptD", jc.Jets.size());
-        auto& newJets_axismajor                   = tr.createDerivedVec<double>("Jets"+name+"_axismajor", jc.Jets.size());
-        auto& newJets_axisminor                   = tr.createDerivedVec<double>("Jets"+name+"_axisminor", jc.Jets.size());
+        auto& newJets_ptD                         = tr.createDerivedVec<float>("Jets"+name+"_ptD", jc.Jets.size());
+        auto& newJets_axismajor                   = tr.createDerivedVec<float>("Jets"+name+"_axismajor", jc.Jets.size());
+        auto& newJets_axisminor                   = tr.createDerivedVec<float>("Jets"+name+"_axisminor", jc.Jets.size());
         auto& newJets_multiplicity                = tr.createDerivedVec<int>("Jets"+name+"_multiplicity", jc.Jets.size());
-        auto& newJets_neutralEmEnergyFraction     = tr.createDerivedVec<double>("Jets"+name+"_neutralEmEnergyFraction", jc.Jets.size());
-        auto& newJets_chargedEmEnergyFraction     = tr.createDerivedVec<double>("Jets"+name+"_chargedEmEnergyFraction", jc.Jets.size());
-        auto& newJets_neutralHadronEnergyFraction = tr.createDerivedVec<double>("Jets"+name+"_neutralHadronEnergyFraction", jc.Jets.size());
-        auto& newJets_chargedHadronEnergyFraction = tr.createDerivedVec<double>("Jets"+name+"_chargedHadronEnergyFraction", jc.Jets.size());
-        auto& newJets_muonEnergyFraction          = tr.createDerivedVec<double>("Jets"+name+"_muonEnergyFraction", jc.Jets.size());
-        auto& newJets_hfHadronEnergyFraction      = tr.createDerivedVec<double>("Jets"+name+"_hfHadronEnergyFraction", jc.Jets.size());
-        auto& newJets_hfEMEnergyFraction          = tr.createDerivedVec<double>("Jets"+name+"_hfEMEnergyFraction", jc.Jets.size());
-        auto& newJets_photonEnergyFraction        = tr.createDerivedVec<double>("Jets"+name+"_photonEnergyFraction", jc.Jets.size());
-        auto& newJets_electronEnergyFraction      = tr.createDerivedVec<double>("Jets"+name+"_electronEnergyFraction", jc.Jets.size());
+        auto& newJets_neutralEmEnergyFraction     = tr.createDerivedVec<float>("Jets"+name+"_neutralEmEnergyFraction", jc.Jets.size());
+        auto& newJets_chargedEmEnergyFraction     = tr.createDerivedVec<float>("Jets"+name+"_chargedEmEnergyFraction", jc.Jets.size());
+        auto& newJets_neutralHadronEnergyFraction = tr.createDerivedVec<float>("Jets"+name+"_neutralHadronEnergyFraction", jc.Jets.size());
+        auto& newJets_chargedHadronEnergyFraction = tr.createDerivedVec<float>("Jets"+name+"_chargedHadronEnergyFraction", jc.Jets.size());
+        auto& newJets_muonEnergyFraction          = tr.createDerivedVec<float>("Jets"+name+"_muonEnergyFraction", jc.Jets.size());
+        auto& newJets_hfHadronEnergyFraction      = tr.createDerivedVec<float>("Jets"+name+"_hfHadronEnergyFraction", jc.Jets.size());
+        auto& newJets_hfEMEnergyFraction          = tr.createDerivedVec<float>("Jets"+name+"_hfEMEnergyFraction", jc.Jets.size());
+        auto& newJets_photonEnergyFraction        = tr.createDerivedVec<float>("Jets"+name+"_photonEnergyFraction", jc.Jets.size());
+        auto& newJets_electronEnergyFraction      = tr.createDerivedVec<float>("Jets"+name+"_electronEnergyFraction", jc.Jets.size());
         auto& newJets_chargedHadronMultiplicity   = tr.createDerivedVec<int>("Jets"+name+"_chargedHadronMultiplicity", jc.Jets.size());
         auto& newJets_neutralHadronMultiplicity   = tr.createDerivedVec<int>("Jets"+name+"_neutralHadronMultiplicity", jc.Jets.size());
         auto& newJets_photonMultiplicity          = tr.createDerivedVec<int>("Jets"+name+"_photonMultiplicity", jc.Jets.size());
         auto& newJets_electronMultiplicity        = tr.createDerivedVec<int>("Jets"+name+"_electronMultiplicity", jc.Jets.size());
         auto& newJets_muonMultiplicity            = tr.createDerivedVec<int>("Jets"+name+"_muonMultiplicity", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVprobc         = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobc", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVprobudsg      = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobudsg", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobc         = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobc", jc.Jets.size());
+        auto& newJets_bJetTagDeepCSVprobudsg      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobudsg", jc.Jets.size());
 
         for(unsigned j = 0; j < jc.Jets.size(); ++j)
         {
-            newJets[j].SetPtEtaPhiM( scalePt*jc.Jets[j].Pt(), jc.Jets[j].Eta(), jc.Jets[j].Phi(), scaleMass*jc.Jets[j].M() );
+            newJets.at(j).SetPt( scalePt*jc.Jets[j].Pt()); newJets.at(j).SetEta(jc.Jets[j].Eta()); newJets.at(j).SetPhi(jc.Jets[j].Phi()); newJets.at(j).SetE(scaleMass*jc.Jets[j].E());
+            newJets_TLV.at(j).SetPtEtaPhiE( scalePt*jc.Jets_TLV[j].Pt(), jc.Jets_TLV[j].Eta(), jc.Jets_TLV[j].Phi(), scaleMass*jc.Jets_TLV[j].E());
             newJets_bDiscriminatorCSV.at(j)           = jc.Jets_bDiscriminatorCSV.at(j);
             newJets_bJetTagDeepCSVprobb.at(j)         = jc.Jets_bJetTagDeepCSVprobb.at(j);
             newJets_bJetTagDeepCSVprobbb.at(j)        = jc.Jets_bJetTagDeepCSVprobbb.at(j);
@@ -315,76 +325,103 @@ private:
     {
         const auto& newJets_origIndex = tr.getVec<int>("JetsAK8"+name+"_origIndex");
 
-        auto& newJetsAK8                    = tr.createDerivedVec<TLorentzVector>("JetsAK8"+name, jc.JetsAK8.size());
-        auto& newJetsAK8_NsubjettinessTau1  = tr.createDerivedVec<double>("JetsAK8"+name+"_NsubjettinessTau1", jc.JetsAK8.size());
-        auto& newJetsAK8_NsubjettinessTau2  = tr.createDerivedVec<double>("JetsAK8"+name+"_NsubjettinessTau2", jc.JetsAK8.size());
-        auto& newJetsAK8_NsubjettinessTau3  = tr.createDerivedVec<double>("JetsAK8"+name+"_NsubjettinessTau3", jc.JetsAK8.size());
-        auto& newJetsAK8_softDropMass       = tr.createDerivedVec<double>("JetsAK8"+name+"_softDropMass", jc.JetsAK8.size());
-        auto& newJetsAK8_prunedMass         = tr.createDerivedVec<double>("JetsAK8"+name+"_prunedMass", jc.JetsAK8.size());
-        auto& newJetsAK8_axismajor          = tr.createDerivedVec<double>("JetsAK8"+name+"_axismajor", jc.JetsAK8.size());
-        auto& newJetsAK8_axisminor          = tr.createDerivedVec<double>("JetsAK8"+name+"_axisminor", jc.JetsAK8.size());
-        auto& newJetsAK8_subjets            = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjets", jc.JetsAK8.size());
-        auto& newJetsAK8_tDiscriminatorDeep = tr.createDerivedVec<double>("JetsAK8"+name+"_tDiscriminatorDeep", jc.JetsAK8.size());
-        auto& newJetsAK8_wDiscriminatorDeep = tr.createDerivedVec<double>("JetsAK8"+name+"_wDiscriminatorDeep", jc.JetsAK8.size());
-        auto& newJetsAK8_hDiscriminatorDeep = tr.createDerivedVec<double>("JetsAK8"+name+"_hDiscriminatorDeep", jc.JetsAK8.size());
+        auto& newJetsAK8                    = tr.createDerivedVec<utility::LorentzVector>("JetsAK8"+name, jc.JetsAK8.size());
+        auto& newJetsAK8_TLV                = tr.createDerivedVec<TLorentzVector>("JetsAK8_TLV"+name, jc.JetsAK8.size());
+        auto& newJetsAK8_NsubjettinessTau1  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau1", jc.JetsAK8.size());
+        auto& newJetsAK8_NsubjettinessTau2  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau2", jc.JetsAK8.size());
+        auto& newJetsAK8_NsubjettinessTau3  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau3", jc.JetsAK8.size());
+        auto& newJetsAK8_softDropMass       = tr.createDerivedVec<float>("JetsAK8"+name+"_softDropMass", jc.JetsAK8.size());
+        auto& newJetsAK8_axismajor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axismajor", jc.JetsAK8.size());
+        auto& newJetsAK8_axisminor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axisminor", jc.JetsAK8.size());
+        auto& newJetsAK8_subjetsNested_LV   = tr.createDerivedVec<std::vector<utility::LorentzVector>>("JetsAK8"+name+"_subjetsNested_LV", jc.JetsAK8.size());
+        auto& newJetsAK8_subjetsNested_TLV  = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjetsNested_TLV", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagTvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagTvsQCD", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagWvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagWvsQCD", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagHbbvsQCD    = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagHbbvsQCD", jc.JetsAK8.size());
         auto& newJetsAK8_multiplicity       = tr.createDerivedVec<int>("JetsAK8"+name+"_multiplicity", jc.JetsAK8.size());
              
         for(unsigned j = 0; j < newJets_origIndex.size(); ++j)
         {
-            int i = newIndex[newJets_origIndex.at(j)];
+            int i    = newIndex[newJets_origIndex.at(j)];
+            auto lv  = jc.JetsAK8.at(i)*f.factor(name,i,j);
+            auto tlv = jc.JetsAK8_TLV.at(i)*f.factor(name,i,j);
 
-            newJetsAK8.at(j)                    = jc.JetsAK8.at(i)*f.factor(name,i,j);
+            newJetsAK8.at(j).SetPt(lv.Pt()); newJetsAK8.at(j).SetEta(lv.Eta()); newJetsAK8.at(j).SetPhi(lv.Phi()); newJetsAK8.at(j).SetE(lv.E());
+            newJetsAK8_TLV.at(j).SetPtEtaPhiE(tlv.Pt(), tlv.Eta(), tlv.Phi(), tlv.E());
             newJetsAK8_NsubjettinessTau1.at(j)  = jc.JetsAK8_NsubjettinessTau1.at(i);
             newJetsAK8_NsubjettinessTau2.at(j)  = jc.JetsAK8_NsubjettinessTau2.at(i);
             newJetsAK8_NsubjettinessTau3.at(j)  = jc.JetsAK8_NsubjettinessTau3.at(i);
             newJetsAK8_softDropMass.at(j)       = jc.JetsAK8_softDropMass.at(i);
-            newJetsAK8_prunedMass.at(j)         = jc.JetsAK8_prunedMass.at(i);
             newJetsAK8_axismajor.at(j)          = jc.JetsAK8_axismajor.at(i);
             newJetsAK8_axisminor.at(j)          = jc.JetsAK8_axisminor.at(i);
-            newJetsAK8_subjets.at(j)            = jc.JetsAK8_subjets.at(i);
-            newJetsAK8_tDiscriminatorDeep.at(j) = jc.JetsAK8_tDiscriminatorDeep.at(i);
-            newJetsAK8_wDiscriminatorDeep.at(j) = jc.JetsAK8_wDiscriminatorDeep.at(i);
-            newJetsAK8_hDiscriminatorDeep.at(j) = jc.JetsAK8_hDiscriminatorDeep.at(i);
+            newJetsAK8_subjetsNested_LV.at(j)   = jc.JetsAK8_subjetsNested_LV.at(i);
+            newJetsAK8_subjetsNested_TLV.at(j)  = jc.JetsAK8_subjetsNested_TLV.at(i);
+            newJetsAK8_DeepTagTvsQCD.at(j)      = jc.JetsAK8_DeepTagTvsQCD.at(i);
+            newJetsAK8_DeepTagWvsQCD.at(j)      = jc.JetsAK8_DeepTagWvsQCD.at(i);
+            newJetsAK8_DeepTagHbbvsQCD.at(j)    = jc.JetsAK8_DeepTagHbbvsQCD.at(i);
             newJetsAK8_multiplicity.at(j)       = jc.JetsAK8_multiplicity.at(i);
         }
     }
 
     void derivePtMassScaledJetAK8Collection(NTupleReader& tr, const JetAK8Collection& jc, const std::string& name, double scalePt = 1.0, double scaleMass = 1.0)
     {
-        auto& newJetsAK8                    = tr.createDerivedVec<TLorentzVector>("JetsAK8"+name, jc.JetsAK8.size());
-        auto& newJetsAK8_NsubjettinessTau1  = tr.createDerivedVec<double>("JetsAK8"+name+"_NsubjettinessTau1", jc.JetsAK8.size());
-        auto& newJetsAK8_NsubjettinessTau2  = tr.createDerivedVec<double>("JetsAK8"+name+"_NsubjettinessTau2", jc.JetsAK8.size());
-        auto& newJetsAK8_NsubjettinessTau3  = tr.createDerivedVec<double>("JetsAK8"+name+"_NsubjettinessTau3", jc.JetsAK8.size());
-        auto& newJetsAK8_softDropMass       = tr.createDerivedVec<double>("JetsAK8"+name+"_softDropMass", jc.JetsAK8.size());
-        auto& newJetsAK8_prunedMass         = tr.createDerivedVec<double>("JetsAK8"+name+"_prunedMass", jc.JetsAK8.size());
-        auto& newJetsAK8_axismajor          = tr.createDerivedVec<double>("JetsAK8"+name+"_axismajor", jc.JetsAK8.size());
-        auto& newJetsAK8_axisminor          = tr.createDerivedVec<double>("JetsAK8"+name+"_axisminor", jc.JetsAK8.size());
-        auto& newJetsAK8_subjets            = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjets", jc.JetsAK8.size());
-        auto& newJetsAK8_tDiscriminatorDeep = tr.createDerivedVec<double>("JetsAK8"+name+"_tDiscriminatorDeep", jc.JetsAK8.size());
-        auto& newJetsAK8_wDiscriminatorDeep = tr.createDerivedVec<double>("JetsAK8"+name+"_wDiscriminatorDeep", jc.JetsAK8.size());
-        auto& newJetsAK8_hDiscriminatorDeep = tr.createDerivedVec<double>("JetsAK8"+name+"_hDiscriminatorDeep", jc.JetsAK8.size());
+
+        auto& newJetsAK8                    = tr.createDerivedVec<utility::LorentzVector>("JetsAK8"+name, jc.JetsAK8.size());
+        auto& newJetsAK8_TLV                = tr.createDerivedVec<TLorentzVector>("JetsAK8_TLV"+name, jc.JetsAK8.size());
+        auto& newJetsAK8_NsubjettinessTau1  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau1", jc.JetsAK8.size());
+        auto& newJetsAK8_NsubjettinessTau2  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau2", jc.JetsAK8.size());
+        auto& newJetsAK8_NsubjettinessTau3  = tr.createDerivedVec<float>("JetsAK8"+name+"_NsubjettinessTau3", jc.JetsAK8.size());
+        auto& newJetsAK8_softDropMass       = tr.createDerivedVec<float>("JetsAK8"+name+"_softDropMass", jc.JetsAK8.size());
+        auto& newJetsAK8_axismajor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axismajor", jc.JetsAK8.size());
+        auto& newJetsAK8_axisminor          = tr.createDerivedVec<float>("JetsAK8"+name+"_axisminor", jc.JetsAK8.size());
+        auto& newJetsAK8_subjetsNested_LV   = tr.createDerivedVec<std::vector<utility::LorentzVector>>("JetsAK8"+name+"_subjetsNested_LV", jc.JetsAK8.size());
+        auto& newJetsAK8_subjetsNested_TLV  = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8"+name+"_subjetsNested_TLV", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagTvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagTvsQCD", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagWvsQCD      = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagWvsQCD", jc.JetsAK8.size());
+        auto& newJetsAK8_DeepTagHbbvsQCD    = tr.createDerivedVec<float>("JetsAK8"+name+"_DeepTagHbbvsQCD", jc.JetsAK8.size());
         auto& newJetsAK8_multiplicity       = tr.createDerivedVec<int>("JetsAK8"+name+"_multiplicity", jc.JetsAK8.size());
              
         for(unsigned j = 0; j < jc.JetsAK8.size(); ++j)
         {
-            newJetsAK8.at(j).SetPtEtaPhiM( scalePt*jc.JetsAK8[j].Pt(), jc.JetsAK8[j].Eta(), jc.JetsAK8[j].Phi(), scaleMass*jc.JetsAK8[j].M() );
+            newJetsAK8.at(j).SetPt( scalePt*jc.JetsAK8[j].Pt()); newJetsAK8.at(j).SetEta(jc.JetsAK8[j].Eta()); newJetsAK8.at(j).SetPhi(jc.JetsAK8[j].Phi()); newJetsAK8.at(j).SetE( scaleMass*jc.JetsAK8[j].E());
+            newJetsAK8_TLV.at(j).SetPtEtaPhiE( scalePt*jc.JetsAK8_TLV[j].Pt(), jc.JetsAK8_TLV[j].Eta(), jc.JetsAK8_TLV[j].Phi(), scaleMass*jc.JetsAK8_TLV[j].E());
+
             newJetsAK8_NsubjettinessTau1.at(j)  = jc.JetsAK8_NsubjettinessTau1.at(j);
             newJetsAK8_NsubjettinessTau2.at(j)  = jc.JetsAK8_NsubjettinessTau2.at(j);
             newJetsAK8_NsubjettinessTau3.at(j)  = jc.JetsAK8_NsubjettinessTau3.at(j);
             newJetsAK8_softDropMass.at(j)       = jc.JetsAK8_softDropMass.at(j);
-            newJetsAK8_prunedMass.at(j)         = jc.JetsAK8_prunedMass.at(j);
             newJetsAK8_axismajor.at(j)          = jc.JetsAK8_axismajor.at(j);
             newJetsAK8_axisminor.at(j)          = jc.JetsAK8_axisminor.at(j);
-            newJetsAK8_subjets.at(j)            = jc.JetsAK8_subjets.at(j);
-            newJetsAK8_tDiscriminatorDeep.at(j) = jc.JetsAK8_tDiscriminatorDeep.at(j);
-            newJetsAK8_wDiscriminatorDeep.at(j) = jc.JetsAK8_wDiscriminatorDeep.at(j);
-            newJetsAK8_hDiscriminatorDeep.at(j) = jc.JetsAK8_hDiscriminatorDeep.at(j);
+            newJetsAK8_subjetsNested_LV.at(j)   = jc.JetsAK8_subjetsNested_LV.at(j);
+            newJetsAK8_subjetsNested_TLV.at(j)  = jc.JetsAK8_subjetsNested_TLV.at(j);
+            newJetsAK8_DeepTagTvsQCD.at(j)      = jc.JetsAK8_DeepTagTvsQCD.at(j);
+            newJetsAK8_DeepTagWvsQCD.at(j)      = jc.JetsAK8_DeepTagWvsQCD.at(j);
+            newJetsAK8_DeepTagHbbvsQCD.at(j)    = jc.JetsAK8_DeepTagHbbvsQCD.at(j);
             newJetsAK8_multiplicity.at(j)       = jc.JetsAK8_multiplicity.at(j);
         }
     }
 
     void prepNTupleVars(NTupleReader& tr)
     {
+        // Make nested vector of vectors for AK8 subjets
+        const auto& JetsAK8_subjetsCounts = tr.getVec<int>("JetsAK8_subjetsCounts");
+        const auto& JetsAK8_subjets       = tr.getVec<utility::LorentzVector>("JetsAK8_subjets");
+
+        const auto& Jets    = tr.getVec<utility::LorentzVector>("Jets");
+        const auto& JetsAK8 = tr.getVec<utility::LorentzVector>("JetsAK8");
+
+        auto& JetsAK8_subjetsNested_LV  = tr.createDerivedVec<std::vector<utility::LorentzVector>>("JetsAK8_subjetsNested_LV", JetsAK8_subjetsCounts.size());
+        auto& JetsAK8_subjetsNested_TLV = tr.createDerivedVec<std::vector<TLorentzVector>>("JetsAK8_subjetsNested_TLV", JetsAK8_subjetsCounts.size());
+
+        JetsAK8_subjetsNested_LV  = utility::nestVecOfVec<utility::LorentzVector, utility::LorentzVector>(JetsAK8_subjets, JetsAK8_subjetsCounts);
+        JetsAK8_subjetsNested_TLV = utility::nestVecOfVec<TLorentzVector, utility::LorentzVector>(JetsAK8_subjets, JetsAK8_subjetsCounts);
+
+        auto& JetsTLV = tr.createDerivedVec<TLorentzVector>("Jets_TLV", Jets.size());
+        JetsTLV = utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(Jets);
+    
+        auto& JetsAK8TLV = tr.createDerivedVec<TLorentzVector>("JetsAK8_TLV", JetsAK8.size());
+        JetsAK8TLV = utility::convertVectorOfLV<TLorentzVector, utility::LorentzVector>(JetsAK8);
+
         // Creating the jet pT and mass scaled collection
         JetCollection jc(tr);
         JetAK8Collection jcAK8(tr);
@@ -393,15 +430,15 @@ private:
         derivePtMassScaledJetAK8Collection(tr, jcAK8, "mpTScaled", 1.0, 1.0);
 
         // Create DeepCSV b-jet discriminator vector
-        const auto& Jets_bJetTagDeepCSVprobb       = tr.getVec<double>("Jets_bJetTagDeepCSVprobb");
-        const auto& Jets_bJetTagDeepCSVprobbb      = tr.getVec<double>("Jets_bJetTagDeepCSVprobbb");
-              auto& Jets_bJetTagDeepCSVtotb        = tr.createDerivedVec<double>("Jets_bJetTagDeepCSVtotb", Jets_bJetTagDeepCSVprobbb.size());
-        const auto& Jets_bJetTagDeepFlavourprobb   = tr.getVec<double>("Jets_bJetTagDeepFlavourprobb");
-        const auto& Jets_bJetTagDeepFlavourprobbb  = tr.getVec<double>("Jets_bJetTagDeepFlavourprobbb");
-              auto& Jets_bJetTagDeepFlavourtotb    = tr.createDerivedVec<double>("Jets_bJetTagDeepFlavourtotb", Jets_bJetTagDeepFlavourprobbb.size());
-        const auto& Jets_bJetTagDeepFlavourprobc   = tr.getVec<double>("Jets_bJetTagDeepFlavourprobc");
-        const auto& Jets_bJetTagDeepFlavourprobuds = tr.getVec<double>("Jets_bJetTagDeepFlavourprobuds");
-              auto& Jets_bJetTagDeepFlavourtotq    = tr.createDerivedVec<double>("Jets_bJetTagDeepFlavourtotq", Jets_bJetTagDeepFlavourprobc.size());
+        const auto& Jets_bJetTagDeepCSVprobb       = tr.getVec<float>("Jets_bJetTagDeepCSVprobb");
+        const auto& Jets_bJetTagDeepCSVprobbb      = tr.getVec<float>("Jets_bJetTagDeepCSVprobbb");
+              auto& Jets_bJetTagDeepCSVtotb        = tr.createDerivedVec<float>("Jets_bJetTagDeepCSVtotb", Jets_bJetTagDeepCSVprobbb.size());
+        const auto& Jets_bJetTagDeepFlavourprobb   = tr.getVec<float>("Jets_bJetTagDeepFlavourprobb");
+        const auto& Jets_bJetTagDeepFlavourprobbb  = tr.getVec<float>("Jets_bJetTagDeepFlavourprobbb");
+              auto& Jets_bJetTagDeepFlavourtotb    = tr.createDerivedVec<float>("Jets_bJetTagDeepFlavourtotb", Jets_bJetTagDeepFlavourprobbb.size());
+        const auto& Jets_bJetTagDeepFlavourprobc   = tr.getVec<float>("Jets_bJetTagDeepFlavourprobc");
+        const auto& Jets_bJetTagDeepFlavourprobuds = tr.getVec<float>("Jets_bJetTagDeepFlavourprobuds");
+              auto& Jets_bJetTagDeepFlavourtotq    = tr.createDerivedVec<float>("Jets_bJetTagDeepFlavourtotq", Jets_bJetTagDeepFlavourprobc.size());
 
         for(unsigned j = 0; j < Jets_bJetTagDeepCSVprobb.size(); ++j)
         {
@@ -445,9 +482,30 @@ private:
         int w = 1;
         if(runtype == "MC")
         {
-            const auto& Weight = tr.getVar<double>("Weight");
+            // For MC, a "Weight" branch is provided by TreeMaker in the ntuples
+            const float Weight = tr.getVar<float>("Weight");
             w = (Weight >= 0.0) ? 1 : -1;
+
+            // "weightAbsVal" calculated by samples.cc provides no sign information
+            // So determine that here using the weight from TreeMaker, where
+            // the value is irrelevant
+            const auto& weightAbsVal = tr.getVar<double>("weightAbsVal");
+
+            // Reregister "Weight" with the newly calculated weight coming
+            // from samples.cc and save the original Weight in a new "WeightTM" field
+            tr.registerDerivedVar<float>("Weight",   w*weightAbsVal);
+            tr.registerDerivedVar<float>("WeightTM", Weight);
         }
+
+        else if(runtype == "Data")
+        {
+            // For Data, no "Weight" branch is provided
+            // Put in trivial 1.0 for it and "WeightTM"
+            // for use later on in the code
+            tr.registerDerivedVar<float>("Weight",   1.0);
+            tr.registerDerivedVar<float>("WeightTM", 1.0);
+        }
+
         tr.registerDerivedVar<int>("eventCounter",w);        
     }
 public:
