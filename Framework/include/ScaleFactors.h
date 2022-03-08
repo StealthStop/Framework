@@ -64,8 +64,16 @@ private:
         //All values updated for v1.0 on October 4, 2019. Commented out values are from the old setup (just 2016 and 2017).
         double norm = 1.0;
         double expo = 0.0;
-        if( runYear == "2016" ) 
+        if( runYear == "2016preVFP") 
         {
+            norm = 0.04176*nJets + 0.8915;
+            expo = (-0.02358*nJets - 0.08940)/1000;
+            //norm = 0.03422*nJets + 0.9367;
+            //expo = (-0.02310*nJets - 0.0940 )/1000;
+        }
+        else if( runYear == "2016postVFP")
+        {
+            // Identical above, may need to be addressed   
             norm = 0.04176*nJets + 0.8915;
             expo = (-0.02358*nJets - 0.08940)/1000;
             //norm = 0.03422*nJets + 0.9367;
@@ -100,8 +108,16 @@ private:
     {
         double norm = 1.0;
         double expo = 0.0;      
-        if( runYear == "2016" ) 
+        if( runYear == "2016preVFP" ) 
         {
+            norm = 1.318;
+            expo = -0.000349;
+            //norm = 1.307;
+            //expo = -0.0003416;
+        }
+        else if( runYear == "2016postVFP" ) 
+        {
+            // Identical to above, may need to be addressed later
             norm = 1.318;
             expo = -0.000349;
             //norm = 1.307;
@@ -131,8 +147,14 @@ private:
     {
         double norm = 1.0;
         double expo = 0.0;
-        if( runYear == "2016" ) 
+        if( runYear == "2016preVFP" ) 
         {
+            norm = -0.002429*nJets + 1.044;
+            expo = (0.01214*nJets - 0.1198)/1000;
+        }
+        else if( runYear == "2016postVFP" ) 
+        {
+            // Identical to above, may need to be addressed later
             norm = -0.002429*nJets + 1.044;
             expo = (0.01214*nJets - 0.1198)/1000;
         }
@@ -158,8 +180,14 @@ private:
     {
         double norm = 1.0;
         double expo = 0.0;
-        if( runYear == "2016" ) 
+        if( runYear == "2016preVFP" ) 
         {
+            norm = 1.073;
+            expo = -0.00009169;
+        }
+        else if( runYear == "2016postVFP" ) 
+        {
+            // Identical to above, may need to be addressed later
             norm = 1.073;
             expo = -0.00009169;
         }
@@ -368,7 +396,7 @@ private:
                 const double eleTrigSFErr     = (eleSFHistoTrig_) ? eleSFHistoTrig_->GetBinError( xbinElTrig, ybinElTrig ) : 0.0;
                 const double eleTrigPErr      = eleTrigSFErr/eleTrigSF;
                 
-                if( runYear == "2016" ) 
+                if( runYear.find("2016") != std::string::npos ) 
                 { 
                     //The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
                     //If this is the year 2016, we need to add the IP2D histogram scale factors into the Iso scale factor
@@ -450,7 +478,7 @@ private:
                 const double muTotSFPErr2       = muNoTrigSFPErr2 + muTrigSFPErr*muTrigSFPErr;
                 const double muNonIsoTotSFPErr2 = muNoTrigSFPErr2 + muNonIsoTrigSFPErr*muNonIsoTrigSFPErr;
                 
-                if( runYear == "2016" ) 
+                if( runYear.find("2016") != std::string::npos ) 
                 {
                     //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
                     //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
@@ -585,7 +613,7 @@ private:
         // --------------------------------------------------------------------------------------
         double topPtScaleFactor = 1.0;
         auto* topPtVec = new std::vector<float>();
-        if(filetag == "TT" || filetag == "2016_TT" || filetag.find("TTTo") != std::string::npos)
+        if( filetag.find("TTTo") != std::string::npos )
         {
             const double a=0.0615, b=-0.0005;
             auto SF = [&](const double pt){return exp(a + b*pt);};
@@ -612,23 +640,20 @@ private:
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
         // --------------------------------------------------------------------------------------
         double prefiringScaleFactor = 1.0, prefiringScaleFactorUp = 1.0, prefiringScaleFactorDown = 1.0;
-        if( runYear == "2016" || runYear == "2017" )
-        {
-            const auto& Jets = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);            
-            const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);            
-            for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
-            {            
-                if(!GoodJets_pt30[ijet]) continue;
-                const utility::LorentzVector& jet = Jets.at(ijet);
-                int bin = L1Prefireing_->FindBin(jet.Eta(), jet.Pt());
-                const double weight = L1Prefireing_->GetBinContent(bin);
-                const double weightErr = std::max(0.2*weight, L1Prefireing_->GetBinError(bin));
-                const double weightUp = weight + weightErr;
-                const double weightDown = weight - weightErr;
-                prefiringScaleFactor *= 1 - weight;
-                prefiringScaleFactorUp *= 1 - weightDown;
-                prefiringScaleFactorDown *= 1 - weightUp;
-            }
+        const auto& Jets = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);            
+        const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);            
+        for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
+        {            
+            if(!GoodJets_pt30[ijet]) continue;
+            const utility::LorentzVector& jet = Jets.at(ijet);
+            int bin = L1Prefireing_->FindBin(jet.Eta(), jet.Pt());
+            const double weight = L1Prefireing_->GetBinContent(bin);
+            const double weightErr = std::max(0.2*weight, L1Prefireing_->GetBinError(bin));
+            const double weightUp = weight + weightErr;
+            const double weightDown = weight - weightErr;
+            prefiringScaleFactor *= 1 - weight;
+            prefiringScaleFactorUp *= 1 - weightDown;
+            prefiringScaleFactorDown *= 1 - weightUp;
         }
         tr.registerDerivedVar( "prefiringScaleFactor"+myVarSuffix_, prefiringScaleFactor);                    
         tr.registerDerivedVar( "prefiringScaleFactorUp"+myVarSuffix_, prefiringScaleFactorUp);                    
@@ -683,16 +708,28 @@ public:
         TString eleSFHistoTightName, eleSFHistoIsoName, eleSFHistoRecoName, eleSFHistoTrigName;
         TString muSFHistoMediumName,  muSFHistoIsoName,  muSFHistoRecoName,  muSFHistoTrigName, nimuSFHistoTrigName;
 
-        if( runYear == "2016")
+        if( runYear == "2016preVFP")
         {
-            eleSFHistoTightName = "Run2016_CutBasedTightNoIso94XV2";
-            eleSFHistoIsoName = "Run2016_Mini";
+            eleSFHistoTightName = "Run2016preVFP_CutBasedTightNoIso94XV2";
+            eleSFHistoIsoName = "Run2016preVFP_Mini";
             eleSFHistoRecoName = "EGamma_SF2D";
-            eleSFHistoTrigName = "TrigEff_2016_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            eleSFHistoTrigName = "TrigEff_2016preVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
             muSFHistoMediumName = "sf_mu_mediumID";
             muSFHistoIsoName = "sf_mu_mediumID_mini02";
-            muSFHistoTrigName = "TrigEff_2016_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            //nimuSFHistoTrigName = "TrigEff_2016_num_nimu_pt40_trig_4jCut";
+            muSFHistoTrigName = "TrigEff_2016preVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            //nimuSFHistoTrigName = "TrigEff_2016preVFP_num_nimu_pt40_trig_4jCut";
+            nimuSFHistoTrigName = ""; //just for calculating non iso muon scale factors
+        }
+        else if( runYear == "2016postVFP")
+        {
+            eleSFHistoTightName = "Run2016postVFP_CutBasedTightNoIso94XV2";
+            eleSFHistoIsoName = "Run2016postVFP_Mini";
+            eleSFHistoRecoName = "EGamma_SF2D";
+            eleSFHistoTrigName = "TrigEff_2016postVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoMediumName = "sf_mu_mediumID";
+            muSFHistoIsoName = "sf_mu_mediumID_mini02";
+            muSFHistoTrigName = "TrigEff_2016postVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            //nimuSFHistoTrigName = "TrigEff_2016postVFP_num_nimu_pt40_trig_4jCut";
             nimuSFHistoTrigName = ""; //just for calculating non iso muon scale factors
         }
         else if( runYear == "2017")
