@@ -52,7 +52,7 @@ private:
         bool passTriggerPhoton = PassTriggerPhoton(TriggerNames, TriggerPass);
         bool passTriggerAllHad = false, passTriggerMuon = false, passTriggerElectron = false, passTriggerNonIsoMuon = false, passTriggerIsoMu = false;
         bool passTriggerMuonsRefAN = false, passTriggerRefAN = false;  
-        if (runYear == "2016")
+        if (runYear.find("2016") != std::string::npos)
         {
             passTriggerAllHad = PassTriggerAllHad2016(TriggerNames, TriggerPass);
             passTriggerMuon = PassTriggerMuon2016(TriggerNames, TriggerPass);

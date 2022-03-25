@@ -32,7 +32,7 @@ private:
         int NGoodPlusElectrons_pt20 = 0;
         int NGoodMinusElectrons_pt20 = 0;
         double ptCut = 0.0;
-        if      (runYear == "2016") ptCut = 30.0;
+        if      (runYear.find("2016") != std::string::npos) ptCut = 30.0;
         else if (runYear == "2017") ptCut = 37.0; 
         else if (runYear == "2018pre" || runYear == "2018post") ptCut = 37.0; 
         for(unsigned int iel = 0; iel < allElectrons.size(); ++iel)
