@@ -33,7 +33,7 @@ private:
                
         
     std::vector<double>* intVecTodoubleVec(NTupleReader& tr, const std::string& vType);
-    std::vector<double>* floatVecTodoubleVec(const std::vector<float>& vF);
+    std::vector<double>* floatVecTodoubleVec(NTupleReader& tr, const std::string& vType);
     std::vector<std::vector<double>>* VecVecintToVecVecdouble(NTupleReader& tr, const std::string& name);
 
     template<typename I, typename J> std::vector<I>* add2Vec(NTupleReader& tr, const std::string& name1, const std::string& name2)
