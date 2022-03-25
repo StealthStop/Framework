@@ -28,7 +28,7 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     // ------------------------------
     // -- Jet Filter
     // ------------------------------
-    std::vector<uint8_t>* ak4Filter_ = new std::vector<uint8_t>(Jets_.size(), true);
+    ak4Filter_ = new std::vector<uint8_t>(Jets_.size(), true);
     for( unsigned int i = 0; i < ak4Filter_->size(); ++i)
     {
         // Jet cleaning which is pT < 20, for resolved top candidate: pT > 40, 30, 20 GeV on the three jets respectively
@@ -69,7 +69,6 @@ SetUpTopTagger::SetUpTopTagger(NTupleReader& tr,
     
     //Add variables that are not passed to the constructor
     addVariables();     
-    delete ak4Filter_; 
 }
 
 SetUpTopTagger::~SetUpTopTagger()
