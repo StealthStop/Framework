@@ -40,6 +40,17 @@ extern "C" {
         }
         return array;
     }
+    char const ** SS_samples_treePaths(AnaSamples::SampleSet* ss)
+    {
+        const char **array = new const char*[ss->size()];
+        int i = 0;
+        for(auto& sample : *ss)
+        {
+            array[i++] = sample.second.treePath.c_str();
+        }
+        return array;
+    }
+
     int const * SC_samples_nEvts(AnaSamples::SampleCollection* sc, char *scn)
     {
         auto& sampleVec = (*sc)[std::string(scn)];
