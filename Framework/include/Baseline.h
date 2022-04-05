@@ -457,6 +457,7 @@ private:
     {
         std::vector<std::string> mytriggers = {
             "HLT PFJet450",
+            //"HLT PFJet500",
             "HLT_PFHT900",
             "HLT_PFHT450_SixJet40_BTagCSV_p056",
             "HLT_PFHT400_SixJet30_DoubleBTagCSV_p056",            
@@ -468,10 +469,14 @@ private:
     {
         std::vector<std::string> mytriggers = {
             "HLT PFJet500",
+            //"HLT_PFJet550",
             "HLT_PFHT1050",
-            //"HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2",
+            "HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2",
             "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2",
             "HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5",
+            // -- newer ones based on Semra's study
+            "HLT_PFHT380_SixJet32_DoubleBTagCSV_p075",
+            "HLT_PFHT430_SixJet40_BTagCSV_p080",
         };
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
@@ -480,10 +485,15 @@ private:
     {
         std::vector<std::string> mytriggers = {
             "HLT PFJet500",
+            //"HLT_PFJet550",
             "HLT_PFHT1050",
-            //"HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2",
+            "HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2",
             "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2",
             "HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5",
+            // -- newer ones based on Semra's study
+            "HLT PFHT430_SixPFJet40_PFBTagDeepCSV_1p5",
+            "HLT PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94",
+            "HLT PFHT450_SixPFJet36_PFBTagDeepCSV_1p59",
         };
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
