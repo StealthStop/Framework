@@ -72,7 +72,7 @@ private:
             passTriggerIsoMu = PassTriggerIsoMu2017(TriggerNames, TriggerPass);
             passTriggerMuonsRefAN = PassTriggerMuonsRefAN(TriggerNames, TriggerPass); 
         }
-        else if (runYear == "2018pre" || runYear == "2018post")
+        else if (runYear == "2018pre" || runYear == "2018post" || runYear == "2018")
         {
             passTriggerAllHad = PassTriggerAllHad2018(TriggerNames, TriggerPass); 
             passTriggerMuon = PassTriggerMuon2018(TriggerNames, TriggerPass);
