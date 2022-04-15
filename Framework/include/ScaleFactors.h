@@ -478,16 +478,18 @@ private:
                 const double muTotSFPErr2       = muNoTrigSFPErr2 + muTrigSFPErr*muTrigSFPErr;
                 const double muNonIsoTotSFPErr2 = muNoTrigSFPErr2 + muNonIsoTrigSFPErr*muNonIsoTrigSFPErr;
                 
-                if( runYear.find("2016") != std::string::npos ) 
+                /*if( runYear.find("2016") != std::string::npos ) 
                 {
                     //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
                     //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
+                    std::cout << "I'm in the if"<< std::endl;
                     const double muRecoSF    = muSFHistoReco_->Eval( mueta );
                     muTotSF                 *= muRecoSF;
                     muNoTrigSF              *= muRecoSF;
                     muNonIsoTotSF           *= muRecoSF;
+                    std::cout << "I'm breaking here"<< std::endl;
                 }
-
+                */
                 if( goodMuons.at(imu) )
                 {                
                     totGoodMuonSF           *= muTotSF;
@@ -615,50 +617,40 @@ private:
         auto* topPtVec = new std::vector<float>();
         if( filetag.find("TTTo") != std::string::npos )
         {
-            const double a=0.0615, b=-0.0005;
-            auto SF = [&](const double pt){return exp(a + b*pt);};
+            const double a=0.103, b=-0.0118, c=-0.000134, d=0.973;
+            auto SF = [&](const double pt){return a * exp(b * pt) + c * pt + d;};
             
             const auto& GenParticles        = tr.getVec<utility::LorentzVector>("GenParticles");
             const auto& GenParticles_PdgId  = tr.getVec<int>("GenParticles_PdgId");
+            const auto& GenParticles_Status  = tr.getVec<int>("GenParticles_Status");
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++)
-            {
-                if( abs(GenParticles_PdgId[gpi]) == 6 )
+            {   
+                if( abs(GenParticles_PdgId[gpi]) == 6 && GenParticles_Status[gpi] >= 60 )
                 {
                     topPtScaleFactor *= SF( GenParticles[gpi].Pt() );
                     topPtVec->push_back( GenParticles[gpi].Pt() );
                 }
+                
             }
             topPtScaleFactor = sqrt(topPtScaleFactor);
         }
         
         tr.registerDerivedVar( "topPtScaleFactor"+myVarSuffix_, topPtScaleFactor);
         tr.registerDerivedVec( "topPtVec"+myVarSuffix_, topPtVec);
-        
+       
         // --------------------------------------------------------------------------------------
         // Adding reweighting recipe to emulate Level 1 ECAL prefiring
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
+        // All prefiring recipes are now included in UL ntuples. Values are grabbed directly and registered with tree reader
         // --------------------------------------------------------------------------------------
         double prefiringScaleFactor = 1.0, prefiringScaleFactorUp = 1.0, prefiringScaleFactorDown = 1.0;
-        const auto& Jets = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);            
-        const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);            
-        for(unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
-        {            
-            if(!GoodJets_pt30[ijet]) continue;
-            const utility::LorentzVector& jet = Jets.at(ijet);
-            int bin = L1Prefireing_->FindBin(jet.Eta(), jet.Pt());
-            const double weight = L1Prefireing_->GetBinContent(bin);
-            const double weightErr = std::max(0.2*weight, L1Prefireing_->GetBinError(bin));
-            const double weightUp = weight + weightErr;
-            const double weightDown = weight - weightErr;
-            prefiringScaleFactor *= 1 - weight;
-            prefiringScaleFactorUp *= 1 - weightDown;
-            prefiringScaleFactorDown *= 1 - weightUp;
-        }
+        prefiringScaleFactor        = tr.getVar<float>("NonPrefiringProb");
+        prefiringScaleFactorUp      = tr.getVar<float>("NonPrefiringProbUp");
+        prefiringScaleFactorDown    = tr.getVar<float>("NonPrefiringProbDown");
         tr.registerDerivedVar( "prefiringScaleFactor"+myVarSuffix_, prefiringScaleFactor);                    
         tr.registerDerivedVar( "prefiringScaleFactorUp"+myVarSuffix_, prefiringScaleFactorUp);                    
         tr.registerDerivedVar( "prefiringScaleFactorDown"+myVarSuffix_, prefiringScaleFactorDown);                    
-
         // --------------------------------------------------------------------------------------
         // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
         // --------------------------------------------------------------------------------------
@@ -708,78 +700,80 @@ public:
         TString eleSFHistoTightName, eleSFHistoIsoName, eleSFHistoRecoName, eleSFHistoTrigName;
         TString muSFHistoMediumName,  muSFHistoIsoName,  muSFHistoRecoName,  muSFHistoTrigName, nimuSFHistoTrigName;
 
+        // Electron Iso root file not currently seen in recommendations. Working to determine if this is still necessary
         if( runYear == "2016preVFP")
         {
-            eleSFHistoTightName = "Run2016preVFP_CutBasedTightNoIso94XV2";
-            eleSFHistoIsoName = "Run2016preVFP_Mini";
-            eleSFHistoRecoName = "EGamma_SF2D";
+            eleSFHistoTightName = "EGamma_SF2D_2016preVFP_UL_ID";
+            //eleSFHistoIsoName = "Run2016preVFP_Mini";
+            eleSFHistoRecoName = "EGamma_SF2D_2016preVFP_UL_RECO";
             eleSFHistoTrigName = "TrigEff_2016preVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName = "sf_mu_mediumID";
-            muSFHistoIsoName = "sf_mu_mediumID_mini02";
+            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016preVFP_UL_ID";
+            muSFHistoIsoName = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016preVFP_UL_ISO";
             muSFHistoTrigName = "TrigEff_2016preVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             //nimuSFHistoTrigName = "TrigEff_2016preVFP_num_nimu_pt40_trig_4jCut";
             nimuSFHistoTrigName = ""; //just for calculating non iso muon scale factors
         }
         else if( runYear == "2016postVFP")
         {
-            eleSFHistoTightName = "Run2016postVFP_CutBasedTightNoIso94XV2";
-            eleSFHistoIsoName = "Run2016postVFP_Mini";
-            eleSFHistoRecoName = "EGamma_SF2D";
+            eleSFHistoTightName = "EGamma_SF2D_2016postVFP_UL_ID";
+            //eleSFHistoIsoName = "Run2016postVFP_Mini";
+            eleSFHistoRecoName = "EGamma_SF2D_2016postVFP_UL_RECO";
             eleSFHistoTrigName = "TrigEff_2016postVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName = "sf_mu_mediumID";
-            muSFHistoIsoName = "sf_mu_mediumID_mini02";
+            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016postVFP_UL_ID";
+            muSFHistoIsoName = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016postVFP_UL_ISO";
             muSFHistoTrigName = "TrigEff_2016postVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             //nimuSFHistoTrigName = "TrigEff_2016postVFP_num_nimu_pt40_trig_4jCut";
             nimuSFHistoTrigName = ""; //just for calculating non iso muon scale factors
         }
         else if( runYear == "2017")
         {
-            eleSFHistoTightName = "Run2017_CutBasedTightNoIso94XV2";
-            eleSFHistoIsoName = "Run2017_MVAVLooseTightIP2DMini";
-            eleSFHistoRecoName = "EGamma_SF2D";
+            eleSFHistoTightName = "EGamma_SF2D_2017_UL_ID";
+            //eleSFHistoIsoName = "Run2017_MVAVLooseTightIP2DMini";
+            eleSFHistoRecoName = "EGamma_SF2D_2017_UL_RECO";
             eleSFHistoTrigName = "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName = "NUM_MediumID_DEN_genTracks_pt_abseta";
-            muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
+            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2017_UL_ID";
+            muSFHistoIsoName = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2017_UL_ISO";
             muSFHistoTrigName = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             //nimuSFHistoTrigName = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
             nimuSFHistoTrigName = ""; //just for calculating non iso muon scale factors
         }
         else if( runYear == "2018pre")
         {
-            eleSFHistoTightName = "Run2018_CutBasedTightNoIso94XV2";
-            eleSFHistoIsoName = "Run2018_Mini";
-            eleSFHistoRecoName = "EGamma_SF2D";
+            eleSFHistoTightName = "EGamma_SF2D_2018_UL_ID";
+            //eleSFHistoIsoName = "Run2018_Mini";
+            eleSFHistoRecoName = "EGamma_SF2D_2018_UL_RECO";
             eleSFHistoTrigName = "TrigEff_2018pre_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_pt_abseta";
-            muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
+            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2018_UL_ID";
+            muSFHistoIsoName = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2018_UL_ISO";
             muSFHistoTrigName = "TrigEff_2018pre_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             nimuSFHistoTrigName = "";
         }
         else if( runYear == "2018post")
         {
-            eleSFHistoTightName = "Run2018_CutBasedTightNoIso94XV2";
-            eleSFHistoIsoName = "Run2018_Mini";
-            eleSFHistoRecoName = "EGamma_SF2D";
+            eleSFHistoTightName = "EGamma_SF2D_2018_UL_ID";
+            //eleSFHistoIsoName = "Run2018_Mini";
+            eleSFHistoRecoName = "EGamma_SF2D_2018_UL_RECO";
             eleSFHistoTrigName = "TrigEff_2018post_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_pt_abseta";
-            muSFHistoIsoName = "TnP_MC_NUM_MiniIso02Cut_DEN_MediumID_PAR_pt_eta";
+            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2018_UL_ID";
+            muSFHistoIsoName = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2018_UL_ISO";
             muSFHistoTrigName = "TrigEff_2018post_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
             nimuSFHistoTrigName = "";
         }
 
         getHisto(SFRootFile, eleSFHistoTight_, eleSFHistoTightName);
-        getHisto(SFRootFile, eleSFHistoIso_,   eleSFHistoIsoName);
+        //getHisto(SFRootFile, eleSFHistoIso_,   eleSFHistoIsoName);
         getHisto(SFRootFile, eleSFHistoReco_,  eleSFHistoRecoName);
         getHisto(SFRootFile, eleSFHistoTrig_,  eleSFHistoTrigName);
         getHisto(SFRootFile, muSFHistoMedium_, muSFHistoMediumName);
         getHisto(SFRootFile, muSFHistoIso_,    muSFHistoIsoName);
         getHisto(SFRootFile, muSFHistoTrig_,   muSFHistoTrigName);
         getHisto(SFRootFile, nimuSFHistoTrig_, nimuSFHistoTrigName);
-        if( runYear == "2016" ) 
+        /*if( runYear == "2016" ) 
         {
             getHisto(SFRootFile, eleSFHistoIP2D_, "Run2016_MVAVLooseIP2D");//In 2016, the isolation SF histogram is separate from the IP2D cut scale factor histogram.
             getHisto(SFRootFile, muSFHistoReco_,  "ratio_eff_aeta_dr030e030_corr");//Only 2016 requires the track reconstruction efficiency.
         }
+        */
         SFRootFile.Close();
 
         // Getting mean of some scale factors to keep total number of events the same after apply the scale factor
@@ -793,16 +787,6 @@ public:
             sfMeanMap_.insert(std::pair<std::string, double>(name, h->GetMean()));
         }
         SFMeanRootFile.Close();
-
-        // Get the L1prefiring scale factor histogram
-        TFile L1PrefiringFile("L1prefiring_jetpt_2017BtoF.root");
-        TString prefireHistoName = "L1prefiring_jetpt_2017BtoF";
-        if(runYear == "2016")
-        {
-            prefireHistoName = "L1prefiring_jetpt_2016BtoH";
-        }        
-        getHisto(L1PrefiringFile, L1Prefireing_, prefireHistoName);
-        L1PrefiringFile.Close();
     }
 
     ~ScaleFactors() 
