@@ -452,14 +452,14 @@ private:
             const double mupt = muons.at(imu).Pt();
             const double mueta = muons.at(imu).Eta();
 
-            const int xbinMuMedium     = findBin(muSFHistoMedium_, mupt,       "X", "mu id x");
-            const int ybinMuMedium     = findBin(muSFHistoMedium_, abs(mueta), "Y", "mu id y");
-            const int xbinMuIso        = findBin(muSFHistoIso_,    mupt,       "X", "mu iso x");
-            const int ybinMuIso        = findBin(muSFHistoIso_,    abs(mueta), "Y", "mu iso y");            
-            const int xbinMuTrig       = findBin(muSFHistoTrig_,   mupt,       "X", "mu trigger x");
-            const int ybinMuTrig       = findBin(muSFHistoTrig_,   mueta,      "Y", "mu trigger y");
-            const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,       "X", "mu iso trigger x");
-            const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,      "Y", "mu iso trigger y");
+            const int ybinMuMedium     = findBin(muSFHistoMedium_, mupt,       "Y", "mu id y");
+            const int xbinMuMedium     = findBin(muSFHistoMedium_, abs(mueta), "X", "mu id x");
+            const int ybinMuIso        = findBin(muSFHistoIso_,    mupt,       "Y", "mu iso y");
+            const int xbinMuIso        = findBin(muSFHistoIso_,    abs(mueta), "X", "mu iso x");            
+            const int ybinMuTrig       = findBin(muSFHistoTrig_,   mupt,       "Y", "mu trigger y");
+            const int xbinMuTrig       = findBin(muSFHistoTrig_,   mueta,      "X", "mu trigger x");
+            const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,       "Y", "mu iso trigger y");
+            const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,      "X", "mu iso trigger x");
             if( xbinMuMedium != -1 && ybinMuMedium != -1 && xbinMuIso != -1 && ybinMuIso != -1 ) 
             {
                 //The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
@@ -478,18 +478,20 @@ private:
                 const double muTotSFPErr2       = muNoTrigSFPErr2 + muTrigSFPErr*muTrigSFPErr;
                 const double muNonIsoTotSFPErr2 = muNoTrigSFPErr2 + muNonIsoTrigSFPErr*muNonIsoTrigSFPErr;
                 
+                
+                // The RECO scale factor for muons have been shown to be close to unity and are not required by the Muon POG for UL (see https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonTnPOverview). Confirmation from the SUSY Muon contact is still needed
+
                 /*if( runYear.find("2016") != std::string::npos ) 
                 {
                     //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
                     //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
-                    std::cout << "I'm in the if"<< std::endl;
                     const double muRecoSF    = muSFHistoReco_->Eval( mueta );
                     muTotSF                 *= muRecoSF;
                     muNoTrigSF              *= muRecoSF;
                     muNonIsoTotSF           *= muRecoSF;
-                    std::cout << "I'm breaking here"<< std::endl;
                 }
                 */
+                
                 if( goodMuons.at(imu) )
                 {                
                     totGoodMuonSF           *= muTotSF;
@@ -626,12 +628,11 @@ private:
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++)
             {   
-                if( abs(GenParticles_PdgId[gpi]) == 6 && GenParticles_Status[gpi] >= 60 )
+                if( abs(GenParticles_PdgId[gpi]) == 6 && GenParticles_Status[gpi] == 62 )
                 {
                     topPtScaleFactor *= SF( GenParticles[gpi].Pt() );
                     topPtVec->push_back( GenParticles[gpi].Pt() );
                 }
-                
             }
             topPtScaleFactor = sqrt(topPtScaleFactor);
         }
