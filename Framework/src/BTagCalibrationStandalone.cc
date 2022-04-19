@@ -54,16 +54,17 @@ BTagEntry::BTagEntry(const std::string& csvLine)
     }
 
     // make parameters
-    unsigned op = stoi(vec[0]);
-    if(op > 3) 
+    char op = vec[0][0];
+    std::string check = "LMT3";
+    if(check.find(op) == std::string::npos) 
     {
         std::cerr << "ERROR in BTagCalibration: Invalid csv line; OperatingPoint > 3: " << csvLine << std::endl;
         throw std::exception();
     }
     unsigned jf = stoi(vec[3]);
-    if(jf > 2) 
+    if(jf > 5) 
     {
-        std::cerr << "ERROR in BTagCalibration: Invalid csv line; JetFlavor > 2: " << csvLine << std::endl;
+        std::cerr << "ERROR in BTagCalibration: Invalid csv line; JetFlavor > 5: " << csvLine << std::endl;
         throw std::exception();
     }
     params = BTagEntry::Parameters(BTagEntry::OperatingPoint(op), vec[1], vec[2], BTagEntry::JetFlavor(jf),
@@ -328,16 +329,16 @@ BTagCalibrationReader::BTagCalibrationReaderImpl::TmpEntry::TmpEntry(float etaMi
 BTagCalibrationReader::BTagCalibrationReaderImpl::BTagCalibrationReaderImpl(BTagEntry::OperatingPoint op, const std::string& sysType)
     : op_(op)
     , sysType_(sysType)
-    , tmpData_(3)
-    , useAbsEta_(3, true)
+    , tmpData_(6)
+    , useAbsEta_(6, true)
 {
 }
 
 BTagCalibrationReader::BTagCalibrationReaderImpl::BTagCalibrationReaderImpl(BTagEntry::OperatingPoint op, const std::string& sysType, const std::vector<std::string>& otherSysTypes)
     : op_(op)
     , sysType_(sysType)
-    , tmpData_(3)
-    , useAbsEta_(3, true)
+    , tmpData_(6)
+    , useAbsEta_(6, true)
 {
     for(const std::string& ost : otherSysTypes) 
     {

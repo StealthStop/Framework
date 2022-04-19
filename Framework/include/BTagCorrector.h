@@ -32,7 +32,7 @@ public:
         TFile inFile(inFileName.c_str());
         SetEffs(inFile, suffix);
         inFile.Close();
-        
+ 
         if(CSVFilePath.size())
         {
             SetCalib((CSVFilePath + "/" + CSVFile).c_str());
@@ -72,7 +72,7 @@ public:
             h_eff_b.reset( (TH2F*)file.Get("n_eff_b") );
             h_eff_c.reset( (TH2F*)file.Get("n_eff_c") );
             h_eff_udsg.reset(  (TH2F*)file.Get("n_eff_udsg") );
-	    std::unique_ptr<TH2F> d_eff_b( (TH2F*)file.Get("d_eff_b") );
+	        std::unique_ptr<TH2F> d_eff_b( (TH2F*)file.Get("d_eff_b") );
             std::unique_ptr<TH2F> d_eff_c( (TH2F*)file.Get("d_eff_c") );
             std::unique_ptr<TH2F> d_eff_udsg( (TH2F*)file.Get("d_eff_udsg") );
             

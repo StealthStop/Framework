@@ -13,8 +13,8 @@
 class BTagEntry
 {
 public:
-    enum OperatingPoint{ OP_LOOSE=0, OP_MEDIUM=1, OP_TIGHT=2, OP_RESHAPING=3 };
-    enum JetFlavor{ FLAV_B=0, FLAV_C=1, FLAV_UDSG=2 };
+    enum OperatingPoint{ OP_LOOSE='L', OP_MEDIUM='M', OP_TIGHT='T', OP_RESHAPING='3' };
+    enum JetFlavor{ FLAV_B=5, FLAV_C=4, FLAV_UDSG=0 };
     
     class Parameters 
     {
