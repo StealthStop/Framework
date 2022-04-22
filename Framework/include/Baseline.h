@@ -40,7 +40,6 @@ private:
         const auto& NGoodPhotons           = tr.getVar<int>("NGoodPhotons"+myVarSuffix_);
         const auto& Mbl                    = tr.getVar<double>("Mbl"+myVarSuffix_);
         const auto& passHEMVeto            = tr.getVar<bool>("passHEMVeto"+myVarSuffix_);
-        const auto& passTrigSFHEMVeto      = tr.getVar<bool>("passTrigSFHEMVeto"+myVarSuffix_);
         const auto& NGoodBJetsCSV_pt30     = tr.getVar<int>("NGoodBJetsCSV_pt30"+myVarSuffix_); 
         const auto& ntops                  = tr.getVar<int>("ntops"+myVarSuffix_);
         const auto& dR_bjets_old           = tr.getVar<double>("dR_bjets_old"+myVarSuffix_);
@@ -257,7 +256,7 @@ private:
         bool passBaseline0l_pt45 = JetID                 &&
                                    passMETFilters        &&
                                    passMadHT             &&
-                                   passTrigSFHEMVeto     &&
+                                   passHEMVeto           &&
                                    correct2018Split      && 
                                    NGoodMuons == 1       &&
                                    HT_trigger_pt45 > 500 &&

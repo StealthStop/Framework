@@ -89,23 +89,25 @@ private:
         const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
         const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
        
-        // Define Loose HEM15/16 veto
-        bool passHEMVetoLoose = !(objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear) ||
-                                  objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
-        tr.registerDerivedVar("passHEMVetoLoose"+myVarSuffix_, passHEMVetoLoose);
+        // Define electron HEM15/16 veto
+        bool passElectronHEMVeto = !objectInHEM(Electrons, -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
+        tr.registerDerivedVar("passElectronHEMVeto"+myVarSuffix_, passElectronHEMVeto);
+
+        // Define muon HEM15/16 veto
+        bool passMuonHEMVeto = !objectInHEM(Muons, -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
+        tr.registerDerivedVar("passMuonHEMVeto"+myVarSuffix_, passMuonHEMVeto);
+
+        // Define jet HEM15/16 veto
+        bool passJetHEMVeto = !objectInHEM(Jets, -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
+        tr.registerDerivedVar("passJetHEMVeto"+myVarSuffix_, passJetHEMVeto);
+
+        // Define lepton HEM15/16 veto
+        bool passLeptonHEMVeto = passElectronHEMVeto && passMuonHEMVeto;
+        tr.registerDerivedVar("passLeptonHEMVeto"+myVarSuffix_, passLeptonHEMVeto);
 
         // Define full HEM15/16 veto
-        bool passHEMVeto = !objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear) && passHEMVetoLoose; 
+        bool passHEMVeto = passJetHEMVeto && passLeptonHEMVeto; 
         tr.registerDerivedVar("passHEMVeto"+myVarSuffix_, passHEMVeto);
-
-        // Define hadronic HEM15/16 veto
-        bool passHadHEMVeto = !objectInHEM(Jets, -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
-        tr.registerDerivedVar("passHadHEMVeto"+myVarSuffix_, passHadHEMVeto);
-
-        // Define for Had Trif SF HEM15/16 veto
-        bool passTrigSFHEMVeto = !objectInHEM(Muons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear) &&
-                                 !objectInHEM(Jets,  -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
-        tr.registerDerivedVar("passTrigSFHEMVeto"+myVarSuffix_, passTrigSFHEMVeto);
 
         // HT of jets
         double ht = 0.0, ht_pt30 = 0.0, ht_pt45 = 0.0;         
