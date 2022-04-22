@@ -296,50 +296,46 @@ private:
         }
         
         // Get the tops and boost and rotate them !
-        // Only attempt this when running the module for 0l
-        if (channel_.find("0l") != std::string::npos)
+        auto& topsLV = tr.getVec<utility::LorentzVector>("topsLV"+myVarSuffix_);
+
+        double top1mass = 0.0; double top2mass = 0.0;
+        double top1pt = 0.0;   double top2pt = 0.0;
+        double top1phi = 0.0;  double top2phi = 0.0;
+        double top1eta = 0.0;  double top2eta = 0.0;
+
+        if (topsLV.size() >= 1)
         {
-            auto& topsLV = tr.getVec<utility::LorentzVector>("topsLV"+myVarSuffix_);
+             auto Top1 = topsLV.at(0);
+             Top1 = utility::Boost(Top1, rec_boost_beta_vec);
+             Top1 = utility::RotateZ(Top1, -phiMax);
 
-            double top1mass = 0.0; double top2mass = 0.0;
-            double top1pt = 0.0;   double top2pt = 0.0;
-            double top1phi = 0.0;  double top2phi = 0.0;
-            double top1eta = 0.0;  double top2eta = 0.0;
+             top1pt = Top1.Pt();
+             top1eta = Top1.Eta();
+             top1phi = Top1.Phi();
+             top1mass = Top1.M();
 
-            if (topsLV.size() >= 1)
-            {
-                 auto Top1 = topsLV.at(0);
-                 Top1 = utility::Boost(Top1, rec_boost_beta_vec);
-                 Top1 = utility::RotateZ(Top1, -phiMax);
+             if (topsLV.size() >= 2)
+             {
+                 auto Top2 = topsLV.at(1);
+                 Top2 = utility::Boost(Top2, rec_boost_beta_vec);
+                 Top2 = utility::RotateZ(Top2, -phiMax);
 
-                 top1pt = Top1.Pt();
-                 top1eta = Top1.Eta();
-                 top1phi = Top1.Phi();
-                 top1mass = Top1.M();
-
-                 if (topsLV.size() >= 2)
-                 {
-                     auto Top2 = topsLV.at(1);
-                     Top2 = utility::Boost(Top2, rec_boost_beta_vec);
-                     Top2 = utility::RotateZ(Top2, -phiMax);
-
-                     top2pt = Top2.Pt();
-                     top2eta = Top2.Eta();
-                     top2phi = Top2.Phi();
-                     top2mass = Top2.M();
-                 }
-            }
-
-            tr.registerDerivedVar("top1_pt_cm"+myVarSuffix_,   static_cast<double>( top1pt ));
-            tr.registerDerivedVar("top1_eta_cm"+myVarSuffix_,  static_cast<double>( top1eta ));
-            tr.registerDerivedVar("top1_phi_cm"+myVarSuffix_,  static_cast<double>( top1phi ));
-            tr.registerDerivedVar("top1_mass_cm"+myVarSuffix_, static_cast<double>( top1mass ));
-
-            tr.registerDerivedVar("top2_pt_cm"+myVarSuffix_,   static_cast<double>( top2pt ));
-            tr.registerDerivedVar("top2_eta_cm"+myVarSuffix_,  static_cast<double>( top2eta ));
-            tr.registerDerivedVar("top2_phi_cm"+myVarSuffix_,  static_cast<double>( top2phi ));
-            tr.registerDerivedVar("top2_mass_cm"+myVarSuffix_, static_cast<double>( top2mass ));
+                 top2pt = Top2.Pt();
+                 top2eta = Top2.Eta();
+                 top2phi = Top2.Phi();
+                 top2mass = Top2.M();
+             }
         }
+
+        tr.registerDerivedVar("top1_pt_cm"+myVarSuffix_,   static_cast<double>( top1pt ));
+        tr.registerDerivedVar("top1_eta_cm"+myVarSuffix_,  static_cast<double>( top1eta ));
+        tr.registerDerivedVar("top1_phi_cm"+myVarSuffix_,  static_cast<double>( top1phi ));
+        tr.registerDerivedVar("top1_mass_cm"+myVarSuffix_, static_cast<double>( top1mass ));
+
+        tr.registerDerivedVar("top2_pt_cm"+myVarSuffix_,   static_cast<double>( top2pt ));
+        tr.registerDerivedVar("top2_eta_cm"+myVarSuffix_,  static_cast<double>( top2eta ));
+        tr.registerDerivedVar("top2_phi_cm"+myVarSuffix_,  static_cast<double>( top2phi ));
+        tr.registerDerivedVar("top2_mass_cm"+myVarSuffix_, static_cast<double>( top2mass ));
 
         // Make and get the event shape variables for the 6 highest-P jets in the CM frame
         EventShapeVariables esv_top6( cm_jets_top6 ) ;
