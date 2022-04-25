@@ -272,7 +272,7 @@ private:
                                          correct2018Split      &&
                                          passMETFilters        &&
                                          HT_trigger_pt30 > 300 &&
-                                         //passMadHT             &&
+                                         passMadHT             &&
                                          NGoodBJets_pt30 >= 1  &&
                                          (50 < Mbl && Mbl < 250);
 
@@ -298,6 +298,12 @@ private:
                                     NGoodJets_pt30 >= 7;
 
         bool passBaseline1l_Good = passBaseline1mu_Good || passBaseline1el_Good;
+
+        bool passBaseline1l_HT500_Good = passBaseline1l_Good &&
+                                         HT_trigger_pt30 > 500;
+                                         
+        bool passBaseline1l_HT700_Good = passBaseline1l_Good &&
+                                         HT_trigger_pt30 > 700;
 
         bool passBaseline1l_NonIsoMuon = HT_NonIsoMuon_pt30 > 300 &&
                                          correct2018Split         &&
@@ -410,6 +416,8 @@ private:
         tr.registerDerivedVar<bool>("passBaseline0l_pt45"+myVarSuffix_,        passBaseline0l_pt45);       // 0l trigger study
         tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"+myVarSuffix_,  passBaselineGoodOffline1l);
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,        passBaseline1l_Good);
+        tr.registerDerivedVar<bool>("passBaseline1l_HT500_Good"+myVarSuffix_,  passBaseline1l_HT500_Good);
+        tr.registerDerivedVar<bool>("passBaseline1l_HT700_Good"+myVarSuffix_,  passBaseline1l_HT700_Good);
         tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_,  passBaseline1l_NonIsoMuon);
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"+myVarSuffix_,     passBaseline2lonZ_Good);
         tr.registerDerivedVar<bool>("passBaseline2l_Good"+myVarSuffix_,        passBaseline2l_Good);
