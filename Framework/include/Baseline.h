@@ -272,7 +272,7 @@ private:
                                          correct2018Split      &&
                                          passMETFilters        &&
                                          HT_trigger_pt30 > 300 &&
-                                         //passMadHT             &&
+                                         passMadHT             &&
                                          NGoodBJets_pt30 >= 1  &&
                                          (50 < Mbl && Mbl < 250);
 
