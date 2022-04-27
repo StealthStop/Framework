@@ -54,7 +54,9 @@ BTagEntry::BTagEntry(const std::string& csvLine)
     }
 
     // make parameters
-    char op = vec[0][0];
+    char op;
+    if(vec[0] == "shape") op = '3';
+    else op = vec[0][0];
     std::string check = "LMT3";
     if(check.find(op) == std::string::npos) 
     {
