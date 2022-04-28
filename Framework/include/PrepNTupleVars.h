@@ -495,6 +495,29 @@ private:
             // from samples.cc and save the original Weight in a new "WeightTM" field
             tr.registerDerivedVar<float>("Weight",   w*weightAbsVal);
             tr.registerDerivedVar<float>("WeightTM", Weight);
+
+            const auto& vetoHEMelectron = tr.getVar<bool>("vetoHEMelectron");
+            const auto& runYear         = tr.getVar<std::string>("runYear"); 
+
+            // Register lumi * xsec as its own variable for users
+            // For 2018, if an event would be vetoed, use 2018 pre-HEM lumi in lumi * xsec
+            // otherwise, use the nominal 2018 or respective year lumi
+            if (runYear == "2018")
+            {
+                if (vetoHEMelectron)
+                {
+                    const auto& Lumi_preHEM = tr.getVar<float>("Lumi_preHEM");
+                    tr.registerDerivedVar<float>("LumiXsec", w*weightAbsVal*Lumi_preHEM);
+                } else
+                {
+                    const auto& Lumi = tr.getVar<float>("Lumi");
+                    tr.registerDerivedVar<float>("LumiXsec", w*weightAbsVal*Lumi); 
+                }
+            } else
+            {
+                const auto& Lumi = tr.getVar<float>("Lumi");
+                tr.registerDerivedVar<float>("LumiXsec", w*weightAbsVal*Lumi);
+            }
         }
 
         else if(runtype == "Data")
