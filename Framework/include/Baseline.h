@@ -191,6 +191,12 @@ private:
                                    NGoodBJets_pt30 >= 2 &&
                                    dR_bjets >= 1.0      ;
         
+        bool passBaseline0l_good_noHEMveto = passBaseline0l_pre   &&
+                                             NNonIsoMuons == 0    &&
+                                             NGoodJets_pt30 >= 7  &&
+                                             ntops >= 2           &&
+                                             NGoodBJets_pt30 >= 2 &&
+                                             dR_bjets >= 1.0      ;
         // QCD CR 
         bool pass_qcdCR = JetID                     &&
                           passMETFilters            &&
@@ -291,13 +297,17 @@ private:
                                     NGoodMuons == 0           &&
                                     NGoodJets_pt30 >= 7;
 
+        bool passBaseline1l_Good_noHEMveto = passBaseline1mu_Good || passBaseline1el_Good;
+
         bool passBaseline1l_Good = (passBaseline1mu_Good || passBaseline1el_Good) && 
                                     passElectronHEMveto;
 
         bool passBaseline1l_HT500_Good = passBaseline1l_Good &&
+                                         passElectronHEMveto &&
                                          HT_trigger_pt30 > 500;
                                          
         bool passBaseline1l_HT700_Good = passBaseline1l_Good &&
+                                         passElectronHEMveto &&
                                          HT_trigger_pt30 > 700;
 
         bool passBaseline1l_NonIsoMuon = HT_NonIsoMuon_pt30 > 300 &&
