@@ -508,6 +508,9 @@ private:
                 {
                     const auto& Lumi_preHEM = tr.getVar<float>("Lumi_preHEM");
                     tr.registerDerivedVar<float>("LumiXsec", w*weightAbsVal*Lumi_preHEM);
+
+                    // HEM veto is live, overwrite nominal lumi with preHEM
+                    tr.registerDerivedVar<float>("Lumi", Lumi_preHEM);
                 } else
                 {
                     const auto& Lumi = tr.getVar<float>("Lumi");
