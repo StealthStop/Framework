@@ -46,17 +46,27 @@ private:
         }
     }
     
-    bool objectInHEM(std::vector<utility::LorentzVector> objects, const double etalow, const double etahigh, const double philow, const double phihigh, const double ptcut, const std::string& runYear) const
+    bool objectInHEM(const std::vector<utility::LorentzVector>& objects, const double etalow, const double etahigh, const double philow, const double phihigh, const double ptcut, const std::string& runYear) const
     {
         bool inHEM = false;
-        if(runYear == "2018post")
+        for(const auto& o : objects)
         {
-            for(const auto& o : objects)
+            if( (o.Eta() >= etalow) && (o.Eta() <= etahigh) && (o.Phi() >= philow) && (o.Phi() <= phihigh) && (o.Pt() > ptcut) )
             {
-                if( (o.Eta() >= etalow) && (o.Eta() <= etahigh) && (o.Phi() >= philow) && (o.Phi() <= phihigh) && (o.Pt() > ptcut) )
-                {
-                    inHEM = true;
-                }
+                inHEM = true;
+            }
+        }
+        return inHEM;
+    }
+
+    bool objectInHEM(const std::vector<utility::LorentzVector>& objects, const std::vector<bool>& filter, const double etalow, const double etahigh, const double philow, const double phihigh, const double ptcut, const std::string& runYear) const
+    {
+        bool inHEM = false;
+        for(unsigned int i = 0; i < objects.size(); i++)
+        {
+            if( (objects[i].Eta() >= etalow) && (objects[i].Eta() <= etahigh) && (objects[i].Phi() >= philow) && (objects[i].Phi() <= phihigh) && (objects[i].Pt() > ptcut) && filter[i])
+            {
+                inHEM = true;
             }
         }
         return inHEM;
@@ -66,9 +76,12 @@ private:
     {
         // Get needed branches
         const auto& runYear = tr.getVar<std::string>("runYear");
+        const auto& runType = tr.getVar<std::string>("runtype");
+        const auto& runNumber = tr.getVar<unsigned int>("RunNum");
         const auto& Jets = tr.getVec<utility::LorentzVector>(("Jets"+myVarSuffix_));
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
         const auto& GoodJets_pt30 = tr.getVec<bool>("GoodJets_pt30"+myVarSuffix_);
+        const auto& GoodBJets = tr.getVec<bool>("GoodBJets"+myVarSuffix_);
         const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
         const auto& GoodBJets_pt45 = tr.getVec<bool>("GoodBJets_pt45"+myVarSuffix_);
         const auto& NonIsoMuonJets_pt30 = tr.getVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
@@ -89,23 +102,25 @@ private:
         const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
         const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
        
-        // Define Loose HEM15/16 veto
-        bool passHEMVetoLoose = !(objectInHEM(Muons,     -3.00, -1.30, -1.57, -0.87, 20.0, runYear) ||
-                                  objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear));
-        tr.registerDerivedVar("passHEMVetoLoose"+myVarSuffix_, passHEMVetoLoose);
+        // Define electron HEM15/16 veto
+        bool vetoedHEMelectron = objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear);
+        tr.registerDerivedVar("vetoedHEMelectron"+myVarSuffix_, vetoedHEMelectron);
 
-        // Define full HEM15/16 veto
-        bool passHEMVeto = !objectInHEM(Jets,      -3.20, -1.10, -1.77, -0.67, 20.0, runYear) && passHEMVetoLoose; 
-        tr.registerDerivedVar("passHEMVeto"+myVarSuffix_, passHEMVeto);
+        // Define muon HEM15/16 veto
+        bool vetoedHEMmuon = objectInHEM(Muons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear);
+        tr.registerDerivedVar("vetoedHEMmuon"+myVarSuffix_, vetoedHEMmuon);
 
-        // Define hadronic HEM15/16 veto
-        bool passHadHEMVeto = !objectInHEM(Jets, -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
-        tr.registerDerivedVar("passHadHEMVeto"+myVarSuffix_, passHadHEMVeto);
+        // Define jet HEM15/16 veto
+        bool vetoedHEMjet = objectInHEM(Jets, -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
+        tr.registerDerivedVar("vetoedHEMjet"+myVarSuffix_, vetoedHEMjet);
 
-        // Define for Had Trif SF HEM15/16 veto
-        bool passTrigSFHEMVeto = !objectInHEM(Muons, -3.00, -1.30, -1.57, -0.87, 20.0, runYear) &&
-                                 !objectInHEM(Jets,  -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
-        tr.registerDerivedVar("passTrigSFHEMVeto"+myVarSuffix_, passTrigSFHEMVeto);
+        // Define b jet HEM15/16 veto
+        bool vetoedHEMbjet = objectInHEM(Jets, GoodBJets, -3.20, -1.10, -1.77, -0.67, 20.0, runYear);
+        tr.registerDerivedVar("vetoedHEMbjet"+myVarSuffix_, vetoedHEMbjet);
+
+        // Define lepton HEM15/16 veto
+        bool vetoedHEMlepton = vetoedHEMelectron || vetoedHEMmuon;
+        tr.registerDerivedVar("vetoedHEMlepton"+myVarSuffix_, vetoedHEMlepton);
 
         // HT of jets
         double ht = 0.0, ht_pt30 = 0.0, ht_pt45 = 0.0;         
