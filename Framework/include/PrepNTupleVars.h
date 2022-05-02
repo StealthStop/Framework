@@ -477,36 +477,6 @@ private:
             deriveJetAK8Collection(tr, jcAK8, fAK8, newIndexAK8, "JERup");
             deriveJetAK8Collection(tr, jcAK8, fAK8, newIndexAK8, "JERdown");
         }        
-
-        // Create the eventCounter variable to keep track of processed events
-        int w = 1;
-        if(runtype == "MC")
-        {
-            // For MC, a "Weight" branch is provided by TreeMaker in the ntuples
-            const float Weight = tr.getVar<float>("Weight");
-            w = (Weight >= 0.0) ? 1 : -1;
-
-            // "weightAbsVal" calculated by samples.cc provides no sign information
-            // So determine that here using the weight from TreeMaker, where
-            // the value is irrelevant
-            const auto& weightAbsVal = tr.getVar<double>("weightAbsVal");
-
-            // Reregister "Weight" with the newly calculated weight coming
-            // from samples.cc and save the original Weight in a new "WeightTM" field
-            tr.registerDerivedVar<float>("Weight",   w*weightAbsVal);
-            tr.registerDerivedVar<float>("WeightTM", Weight);
-        }
-
-        else if(runtype == "Data")
-        {
-            // For Data, no "Weight" branch is provided
-            // Put in trivial 1.0 for it and "WeightTM"
-            // for use later on in the code
-            tr.registerDerivedVar<float>("Weight",   1.0);
-            tr.registerDerivedVar<float>("WeightTM", 1.0);
-        }
-
-        tr.registerDerivedVar<int>("eventCounter",w);        
     }
 public:
     //PrepNTupleVars() : pTMass_({{"2016preVFP",{0.95,0.95}},{"2016postVFP",{0.95,0.95}},{"2017",{0.95,1.01}},{"2018pre",{0.95,0.98}},{"2018post",{0.95,0.98}}})
