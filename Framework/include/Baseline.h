@@ -186,6 +186,7 @@ private:
         bool passBaseline0l_good = passBaseline0l_pre   &&
                                    passElectronHEMveto  &&
                                    NNonIsoMuons == 0    &&
+                                   passBlindHad_Good    &&
                                    NGoodJets_pt30 >= 7  &&
                                    ntops >= 2           &&
                                    NGoodBJets_pt30 >= 2 &&
