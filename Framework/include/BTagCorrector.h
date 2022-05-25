@@ -20,7 +20,7 @@ class BTagCorrector
 {
 public:
     //constructor
-    BTagCorrector(std::string file, std::string CSVFilePath, std::string CSVFile, std::string suffix = "") 
+    BTagCorrector(std::string file, std::string CSVFilePath, std::string CSVFile, std::string CSVFileReshape, std::string suffix = "") 
     : debug(false), btagSFunc(0), mistagSFunc(0), btagCFunc(0), ctagCFunc(0), mistagCFunc(0)
     , h_eff_b(nullptr), h_eff_c(nullptr), h_eff_udsg(nullptr), inFileName(file), MCBranch(""), JetsVec(""), JetMask(""), BJetsVec(""), JetsFlavor(""), myVarSuffix_("")
     {
@@ -33,13 +33,28 @@ public:
         SetEffs(inFile, suffix);
         inFile.Close();
  
-        if(CSVFilePath.size())
+        if(CSVFileReshape.size())
         {
-            SetCalib((CSVFilePath + "/" + CSVFile).c_str());
+            if(CSVFilePath.size())
+            {
+                SetCalib((CSVFilePath + "/" + CSVFile).c_str(), (CSVFilePath + "/" + CSVFileReshape).c_str());
+            }
+            else
+            {
+                SetCalib(CSVFile.c_str(), CSVFileReshape.c_str());
+            }
         }
         else
         {
-            SetCalib(CSVFile.c_str());
+            if(CSVFilePath.size())
+            {
+                SetCalib((CSVFilePath + "/" + CSVFile).c_str());
+            }
+            else
+            {
+                SetCalib(CSVFile.c_str());
+            }
+
         }
     }
 
@@ -97,11 +112,31 @@ public:
         //initialize btag helper classes. Interface has been changed.
         calib = BTagCalibration("",cfile);
         reader = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central");
-        reader.load(calib, BTagEntry::FLAV_B, "comb"); reader.load(calib, BTagEntry::FLAV_C, "comb");  reader.load(calib, BTagEntry::FLAV_UDSG, "incl");
+        reader.load(calib, BTagEntry::FLAV_B, "comb"); reader.load(calib, BTagEntry::FLAV_C, "comb");  reader.load(calib, BTagEntry::FLAV_UDSG, "comb");
         readerUp = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "up");
-        readerUp.load(calib, BTagEntry::FLAV_B, "comb"); readerUp.load(calib, BTagEntry::FLAV_C, "comb");  readerUp.load(calib, BTagEntry::FLAV_UDSG, "incl");
+        readerUp.load(calib, BTagEntry::FLAV_B, "comb"); readerUp.load(calib, BTagEntry::FLAV_C, "comb");  readerUp.load(calib, BTagEntry::FLAV_UDSG, "comb");
         readerDown = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "down");
-        readerDown.load(calib, BTagEntry::FLAV_B, "comb"); readerDown.load(calib, BTagEntry::FLAV_C, "comb");  readerDown.load(calib, BTagEntry::FLAV_UDSG, "incl");        
+        readerDown.load(calib, BTagEntry::FLAV_B, "incl"); readerDown.load(calib, BTagEntry::FLAV_C, "incl");  readerDown.load(calib, BTagEntry::FLAV_UDSG, "incl");        
+    }
+
+    void SetCalib(std::string cfile, std::string cfileReshaping)
+    {        
+        //initialize btag helper classes. Interface has been changed.
+        calib = BTagCalibration("",cfile);
+        reader = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "central");
+        reader.load(calib, BTagEntry::FLAV_B, "comb"); reader.load(calib, BTagEntry::FLAV_C, "comb");  reader.load(calib, BTagEntry::FLAV_UDSG, "comb");
+        readerUp = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "up");
+        readerUp.load(calib, BTagEntry::FLAV_B, "comb"); readerUp.load(calib, BTagEntry::FLAV_C, "comb");  readerUp.load(calib, BTagEntry::FLAV_UDSG, "comb");
+        readerDown = BTagCalibrationReader(BTagEntry::OP_MEDIUM, "down");
+        readerDown.load(calib, BTagEntry::FLAV_B, "incl"); readerDown.load(calib, BTagEntry::FLAV_C, "incl");  readerDown.load(calib, BTagEntry::FLAV_UDSG, "incl");        
+
+        calibReshaping = BTagCalibration("",cfileReshaping);
+        readerReshaping = BTagCalibrationReader(BTagEntry::OP_RESHAPING, "central");
+        readerReshaping.load(calibReshaping, BTagEntry::FLAV_B, "iterativefit"); readerReshaping.load(calibReshaping, BTagEntry::FLAV_C, "iterativefit");  readerReshaping.load(calibReshaping, BTagEntry::FLAV_UDSG, "iterativefit");
+        readerUpReshaping = BTagCalibrationReader(BTagEntry::OP_RESHAPING, "up_jes");
+        readerUpReshaping.load(calibReshaping, BTagEntry::FLAV_B, "iterativefit"); readerUpReshaping.load(calibReshaping, BTagEntry::FLAV_C, "iterativefit");  readerUpReshaping.load(calibReshaping, BTagEntry::FLAV_UDSG, "iterativefit");
+        readerDownReshaping = BTagCalibrationReader(BTagEntry::OP_RESHAPING, "down_jes");
+        readerDownReshaping.load(calibReshaping, BTagEntry::FLAV_B, "iterativefit"); readerDownReshaping.load(calibReshaping, BTagEntry::FLAV_C, "iterativefit");  readerDownReshaping.load(calibReshaping, BTagEntry::FLAV_UDSG, "iterativefit");        
     }
 
     void SetVarNames(std::string MCBranchName, std::string JetsVecName, std::string JetMaskName, std::string BJetsVecName, std::string JetsFlavorName, std::string myVarSuffix = "")
@@ -250,6 +285,82 @@ public:
         return result;
     }
 
+    /*********************************************************************************/
+    // Method 1d in twiki
+    // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
+    // Used for correcting the entire BTag discriminant distribution for NN
+    /*********************************************************************************/
+    double GetShapeCorrection(const std::vector<utility::LorentzVector>* Jets, const std::vector<bool>* jetMask, const std::vector<int>* Jets_flavor, const std::vector<float>* Jets_bDiscriminatorCSV, const double wp)
+    {
+        double weight = 1.0;
+
+        //loop over jets
+        std::vector<double> sfList = std::vector<double>(Jets->size());
+
+        for(unsigned int ja = 0; ja < Jets->size(); ++ja)
+        {
+            if(!jetMask->at(ja)) continue;
+
+            // Get sf for each of the jet and multiply to get weight
+            InitSFShape(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), Jets_bDiscriminatorCSV->at(ja), sfList[ja]);
+            double sf_a = sfList[ja];
+
+            if(debug) std::cout<<"sfList[ja] : "<<sfList[ja]<<std::endl;
+
+            //Total weight = product of all scale factors in shape csv
+            if(Jets_bDiscriminatorCSV->at(ja) > wp)
+            {
+                weight *= sf_a;
+            }
+        }
+
+        return weight;
+    }
+
+    void InitSFShape(double pt, double eta, int flav, double discr, double& sfEntry)
+    {
+        //Use absolute value of flav
+        flav = abs(flav);
+
+        if(flav==5)
+        { //b-tag
+            // data_t Uncertainty are now taken care automaticall with method eval_auto_bounds
+            //in new interface.
+            int pt_bin = h_eff_b->GetXaxis()->FindBin(pt); 
+            if( pt_bin > h_eff_b->GetXaxis()->GetNbins() ) pt_bin = h_eff_b->GetXaxis()->GetNbins(); 
+            int eta_bin = h_eff_b->GetYaxis()->FindBin(eta); 
+            if ( eta_bin > h_eff_b->GetYaxis()->GetNbins() ) eta_bin = h_eff_b->GetYaxis()->GetNbins();
+        
+            sfEntry = (btagSFunc==0 ? readerReshaping.eval_auto_bounds("central",BTagEntry::FLAV_B,eta,pt,discr) :
+                            (btagSFunc==1 ? readerUpReshaping.eval_auto_bounds("up_jes",BTagEntry::FLAV_B,eta,pt,discr) :
+                             readerDownReshaping.eval_auto_bounds("down_jes",BTagEntry::FLAV_B,eta,pt,discr) ) );       
+        }
+        else if(flav==4)
+        { //charm mistag
+            int pt_bin = h_eff_c->GetXaxis()->FindBin(pt); 
+            if( pt_bin > h_eff_c->GetXaxis()->GetNbins() ) pt_bin = h_eff_c->GetXaxis()->GetNbins();
+            int eta_bin = h_eff_c->GetYaxis()->FindBin(eta); 
+            if ( eta_bin > h_eff_c->GetYaxis()->GetNbins() ) eta_bin = h_eff_c->GetYaxis()->GetNbins();
+        
+            sfEntry = (btagSFunc==0 ? readerReshaping.eval_auto_bounds("central",BTagEntry::FLAV_C,eta,pt,discr) :
+                            (btagSFunc==1 ? readerUpReshaping.eval_auto_bounds("up_jes",BTagEntry::FLAV_C,eta,pt,discr) :
+                             readerDownReshaping.eval_auto_bounds("down_jes", BTagEntry::FLAV_C,eta,pt,discr) ) );
+        }
+        else if(flav<4 || flav==21)
+        { //udsg mistag
+            int pt_bin = h_eff_udsg->GetXaxis()->FindBin(pt); 
+            if( pt_bin > h_eff_udsg->GetXaxis()->GetNbins() ) pt_bin = h_eff_udsg->GetXaxis()->GetNbins(); 
+            int eta_bin = h_eff_udsg->GetYaxis()->FindBin(eta); 
+            if ( eta_bin > h_eff_udsg->GetYaxis()->GetNbins() ) eta_bin = h_eff_udsg->GetYaxis()->GetNbins();
+        
+            sfEntry = (mistagSFunc==0 ? readerReshaping.eval_auto_bounds("central",BTagEntry::FLAV_UDSG,eta,pt,discr) :
+                            (mistagSFunc==1 ? readerUpReshaping.eval_auto_bounds("up_jes",BTagEntry::FLAV_UDSG,eta,pt,discr) :
+                             readerDownReshaping.eval_auto_bounds("down_jes", BTagEntry::FLAV_UDSG,eta,pt,discr) ) );           
+        }  
+        
+
+    }
+
     void InitSFEff(double pt, double eta, int flav, std::vector<double>& sfEffList)
     {
         //avoid rerunning this
@@ -275,6 +386,7 @@ public:
             sfEffList[1] = (btagSFunc==0 ? reader.eval_auto_bounds("central",BTagEntry::FLAV_B,eta,pt) :
                             (btagSFunc==1 ? readerUp.eval_auto_bounds("up",BTagEntry::FLAV_B,eta,pt) :
                              readerDown.eval_auto_bounds("down",BTagEntry::FLAV_B,eta,pt) ) );       
+            if( sfEffList[1] == 0 ) std::cout << "B, Eta: " << eta << " Pt: " << pt << std::endl;
         }
         else if(flav==4)
         { //charm mistag
@@ -287,6 +399,7 @@ public:
             sfEffList[1] = (btagSFunc==0 ? reader.eval_auto_bounds("central",BTagEntry::FLAV_C,eta,pt) :
                             (btagSFunc==1 ? readerUp.eval_auto_bounds("up",BTagEntry::FLAV_C,eta,pt) :
                              readerDown.eval_auto_bounds("down", BTagEntry::FLAV_C,eta,pt) ) );
+            if( sfEffList[1] == 0 ) std::cout << "C, Eta: " << eta << " Pt: " << pt << std::endl;
         }
         else if(flav<4 || flav==21)
         { //udsg mistag
@@ -300,6 +413,7 @@ public:
             sfEffList[1] = (mistagSFunc==0 ? reader.eval_auto_bounds("central",BTagEntry::FLAV_UDSG,eta,pt) :
                             (mistagSFunc==1 ? readerUp.eval_auto_bounds("up",BTagEntry::FLAV_UDSG,eta,pt) :
                              readerDown.eval_auto_bounds("down", BTagEntry::FLAV_UDSG,eta,pt) ) );           
+            if( sfEffList[1] == 0 ) std::cout << "UDS, Eta: " << eta << " Pt: " << pt << std::endl;
         }  
     }
 
@@ -328,12 +442,15 @@ public:
         SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
         //Method 1a) ignoring b-tag status 
         double evtWeightSimple_Central  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
+        //Method 1d) reshping btag disc. distribution
+        //double evtWeightReshaping_Central  = GetShapeCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
         if( std::isnan( evtWeightSimple_Central) || std::isinf(evtWeightSimple_Central) )
         {
             evtWeightSimple_Central = 1.0;
         } 
         //Register derived quantities to nTuples.
         tr.registerDerivedVar("bTagSF_EventWeightSimple_Central"+myVarSuffix_, evtWeightSimple_Central);        
+        //tr.registerDerivedVar("bTagSF_EventWeightReshaping_Central"+myVarSuffix_, evtWeightReshaping_Central);        
 
         //// Method 1b) in different b-jet mullticipity bins.
         //std::vector<double> *evtWeightProb_Central = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
@@ -350,11 +467,13 @@ public:
         SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
         SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
         double evtWeightSimple_Up  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
+        //double evtWeightReshaping_Up  = GetShapeCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
         if( std::isnan( evtWeightSimple_Up) || std::isinf(evtWeightSimple_Up) )
         {
             evtWeightSimple_Up = 1.0;
         }
         tr.registerDerivedVar("bTagSF_EventWeightSimple_Up"+myVarSuffix_, evtWeightSimple_Up);
+        //tr.registerDerivedVar("bTagSF_EventWeightReshaping_Up"+myVarSuffix_, evtWeightReshaping_Up);
 
         //std::vector<double> *evtWeightProb_Up = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         //tr.registerDerivedVec("bTagSF_EventWeightProb_Up"+myVarSuffix_, evtWeightProb_Up);
@@ -367,15 +486,17 @@ public:
         SetCtagSFunc(switch_Unc); SetCtagCFunc(switch_Unc);
         SetMistagSFunc(switch_udsg_Unc); SetMistagCFunc(switch_udsg_Unc);
         double evtWeightSimple_Down  = GetSimpleCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
+        //double evtWeightReshaping_Down  = GetShapeCorrection(&inputJets,&jetMask,&recoJetsFlavor,&recoJetsBtag,wp);
         if( std::isnan( evtWeightSimple_Down) || std::isinf(evtWeightSimple_Down) )
         {
             evtWeightSimple_Down = 1.0;
         }
         tr.registerDerivedVar("bTagSF_EventWeightSimple_Down"+myVarSuffix_, evtWeightSimple_Down);
+        //tr.registerDerivedVar("bTagSF_EventWeightReshaping_Down"+myVarSuffix_, evtWeightReshaping_Down);
 
         //std::vector<double> *evtWeightProb_Down = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         //tr.registerDerivedVec("bTagSF_EventWeightProb_Down"+myVarSuffix_, evtWeightProb_Down);
-        
+         
         /*************************************************/
         // Mistag (udsg) Case 1: Up  value;                            
         /*************************************************/
@@ -409,6 +530,7 @@ public:
 
         //std::vector<double> *evtWeightProb_mistag_Down = GetCorrections(&inputJets,&jetMask,&recoJetsFlavor);
         //tr.registerDerivedVec("mistagSF_EventWeightProb_Down"+myVarSuffix_, evtWeightProb_mistag_Down);
+        
     }
 
     //Operator
@@ -423,8 +545,8 @@ public:
     int btagCFunc, ctagCFunc, mistagCFunc;
     std::shared_ptr<TH2F> h_eff_b, h_eff_c, h_eff_udsg;
     std::string inFileName, MCBranch, JetsVec, JetMask, BJetsVec, JetsFlavor, myVarSuffix_;
-    BTagCalibration calib;
-    BTagCalibrationReader reader, readerUp, readerDown;
+    BTagCalibration calib, calibReshaping;
+    BTagCalibrationReader reader, readerUp, readerDown, readerReshaping, readerUpReshaping, readerDownReshaping;
 };
 
 #endif
