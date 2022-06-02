@@ -112,6 +112,7 @@ public:
         float eval_auto_bounds(const std::string& sys, BTagEntry::JetFlavor jf, float eta, float pt, float discr) const;
 
         std::pair<float, float> min_max_pt(BTagEntry::JetFlavor jf, float eta, float discr) const;
+        std::pair<float, float> min_max_eta(BTagEntry::JetFlavor jf, float discr) const;
         BTagEntry::OperatingPoint op_;
         std::string sysType_;
         std::vector<std::vector<TmpEntry> > tmpData_;  // first index: jetFlavor
@@ -127,6 +128,7 @@ public:
     float eval(BTagEntry::JetFlavor jf, float eta, float pt, float discr=0.0) const;
     float eval_auto_bounds(const std::string& sys, BTagEntry::JetFlavor jf, float eta, float pt, float discr=0.0) const;
     std::pair<float, float> min_max_pt(BTagEntry::JetFlavor jf, float eta, float discr=0.0) const;
+    std::pair<float, float> min_max_eta(BTagEntry::JetFlavor jf, float discr) const;
     
 protected:
     BTagCalibrationReaderImpl* pimpl;

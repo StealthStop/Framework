@@ -190,7 +190,10 @@ private:
                                    ntops >= 2           &&
                                    NGoodBJets_pt30 >= 2 &&
                                    dR_bjets >= 1.0      ;
-        
+       
+        bool passBaseline0l_good_blind = passBaseline0l_good &&
+                                         passBlindHad_Good;
+ 
         bool passBaseline0l_good_noHEMveto = passBaseline0l_pre   &&
                                              NNonIsoMuons == 0    &&
                                              NGoodJets_pt30 >= 7  &&
@@ -283,7 +286,6 @@ private:
                                     passTrigger               &&
                                     passTriggerMC             &&
                                     (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
-                                    passBlindLep_Good         &&
                                     NGoodMuons == 1           && 
                                     NGoodElectrons == 0       &&
                                     NGoodJets_pt30 >= 7;
@@ -292,7 +294,6 @@ private:
                                     passTrigger               &&
                                     passTriggerMC             &&
                                     (runtype != "Data" || filetag.find("Data_SingleElectron") != std::string::npos) &&
-                                    passBlindLep_Good         &&
                                     NGoodElectrons == 1       &&
                                     NGoodMuons == 0           &&
                                     NGoodJets_pt30 >= 7;
@@ -301,6 +302,10 @@ private:
 
         bool passBaseline1l_Good = (passBaseline1mu_Good || passBaseline1el_Good) && 
                                     passElectronHEMveto;
+
+        bool passBaseline1l_Good_blind = (passBaseline1mu_Good || passBaseline1el_Good) && 
+                                         passElectronHEMveto &&
+                                         passBlindLep_Good;
 
         bool passBaseline1l_HT500_Good = passBaseline1l_Good &&
                                          passElectronHEMveto &&
@@ -411,6 +416,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline0l_old"+myVarSuffix_,            passBaseline0l_old);       
         tr.registerDerivedVar<bool>("passBaseline0l_pre"+myVarSuffix_,            passBaseline0l_pre); 
         tr.registerDerivedVar<bool>("passBaseline0l_good"+myVarSuffix_,           passBaseline0l_good);
+        tr.registerDerivedVar<bool>("passBaseline0l_good_blind"+myVarSuffix_,     passBaseline0l_good_blind);
         tr.registerDerivedVar<bool>("passBaseline0l_good_noHEMveto"+myVarSuffix_, passBaseline0l_good_noHEMveto);
         tr.registerDerivedVar<bool>("pass_qcdCR"+myVarSuffix_,                    pass_qcdCR);
         tr.registerDerivedVar<bool>("passBaseline0l_hadTrig"+myVarSuffix_,        passBaseline0l_hadTrig);    // 0l trigger study
@@ -421,6 +427,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline0l_pt45"+myVarSuffix_,           passBaseline0l_pt45);       // 0l trigger study
         tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"+myVarSuffix_,     passBaselineGoodOffline1l);
         tr.registerDerivedVar<bool>("passBaseline1l_Good"+myVarSuffix_,           passBaseline1l_Good);
+        tr.registerDerivedVar<bool>("passBaseline1l_Good_blind"+myVarSuffix_,     passBaseline1l_Good_blind);
         tr.registerDerivedVar<bool>("passBaseline1l_Good_noHEMveto"+myVarSuffix_, passBaseline1l_Good_noHEMveto);
         tr.registerDerivedVar<bool>("passBaseline1l_HT500_Good"+myVarSuffix_,     passBaseline1l_HT500_Good);
         tr.registerDerivedVar<bool>("passBaseline1l_HT700_Good"+myVarSuffix_,     passBaseline1l_HT700_Good);
@@ -469,7 +476,7 @@ private:
     bool PassTriggerAllHad2016(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         std::vector<std::string> mytriggers = {
-            "HLT PFJet450",
+            "HLT_PFJet450",
             //"HLT PFJet500",
             "HLT_PFHT900",
             "HLT_PFHT450_SixJet40_BTagCSV_p056",
@@ -481,7 +488,7 @@ private:
     bool PassTriggerAllHad2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         std::vector<std::string> mytriggers = {
-            "HLT PFJet500",
+            "HLT_PFJet500",
             //"HLT_PFJet550",
             "HLT_PFHT1050",
             "HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2",
@@ -497,16 +504,16 @@ private:
     bool PassTriggerAllHad2018(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass) 
     {
         std::vector<std::string> mytriggers = {
-            "HLT PFJet500",
+            "HLT_PFJet500",
             //"HLT_PFJet550",
             "HLT_PFHT1050",
             "HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2",
             "HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2",
             "HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5",
             // -- newer ones based on Semra's study
-            "HLT PFHT430_SixPFJet40_PFBTagDeepCSV_1p5",
-            "HLT PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94",
-            "HLT PFHT450_SixPFJet36_PFBTagDeepCSV_1p59",
+            "HLT_PFHT430_SixPFJet40_PFBTagDeepCSV_1p5",
+            "HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94",
+            "HLT_PFHT450_SixPFJet36_PFBTagDeepCSV_1p59",
         };
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }

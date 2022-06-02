@@ -29,8 +29,17 @@ BTagEntry::BTagEntry(const std::string& csvLine)
         }
         vec.push_back(token);
     }
+    if(vec.size() != 11)
+    {
+        vec.at(10) = vec.at(10) + "," + vec.at(11);
+        vec.erase(vec.end());
+    }
     if(vec.size() != 11) 
     {
+        for(auto& v : vec){
+            std::cerr << v << std::endl;
+        }
+        std::cerr << "Num Tokens: " << vec.size() << std::endl;
         std::cerr << "ERROR in BTagCalibration: Invalid csv line; num tokens != 11: " << csvLine << std::endl;
         throw std::exception();
     }
@@ -54,7 +63,9 @@ BTagEntry::BTagEntry(const std::string& csvLine)
     }
 
     // make parameters
-    char op = vec[0][0];
+    char op;
+    if(vec[0] == "shape") op = '3';
+    else op = vec[0][0];
     std::string check = "LMT3";
     if(check.find(op) == std::string::npos) 
     {
@@ -408,7 +419,7 @@ float BTagCalibrationReader::BTagCalibrationReaderImpl::eval(BTagEntry::JetFlavo
     for (unsigned i=0; i<entries.size(); ++i) 
     {
         const TmpEntry& e = entries.at(i);
-        if(e.etaMin <= eta && eta < e.etaMax && e.ptMin < pt && pt <= e.ptMax)
+        if(e.etaMin <= eta && eta <= e.etaMax && e.ptMin < pt && pt <= e.ptMax)
         {
             if(use_discr) 
             {
@@ -429,6 +440,18 @@ float BTagCalibrationReader::BTagCalibrationReaderImpl::eval(BTagEntry::JetFlavo
 
 float BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(const std::string& sys, BTagEntry::JetFlavor jf, float eta, float pt, float discr) const
 {
+    auto sf_bounds_eta = min_max_eta(jf, discr);
+    bool eta_is_out_of_bounds = false;
+
+    if (sf_bounds_eta.first < 0) sf_bounds_eta.first = -sf_bounds_eta.second;   
+    if (eta <= sf_bounds_eta.first || eta > sf_bounds_eta.second ) {
+        eta_is_out_of_bounds = true;
+    }
+
+    if (eta_is_out_of_bounds) {
+        return 1.;
+    }
+
     std::pair<float, float> sf_bounds = min_max_pt(jf, eta, discr);
     float pt_for_eval = pt;
     bool is_out_of_bounds = false;
@@ -445,6 +468,7 @@ float BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(const s
     }
 
     // get central SF (and maybe return)
+
     float sf = eval(jf, eta, pt_for_eval, discr);
     if(sys == sysType_) 
     {
@@ -481,7 +505,7 @@ std::pair<float, float> BTagCalibrationReader::BTagCalibrationReaderImpl::min_ma
     for(unsigned i=0; i<entries.size(); ++i) 
     {
         const TmpEntry& e = entries.at(i);
-        if(e.etaMin <= eta && eta < e.etaMax)
+        if(e.etaMin <= eta && eta <= e.etaMax)
         {
             if(min_pt < 0.) 
             {
@@ -506,6 +530,28 @@ std::pair<float, float> BTagCalibrationReader::BTagCalibrationReaderImpl::min_ma
         }
     }
     return std::make_pair(min_pt, max_pt);
+}
+
+std::pair<float, float> BTagCalibrationReader::BTagCalibrationReaderImpl::min_max_eta(BTagEntry::JetFlavor jf, float discr) const
+{
+    bool use_discr = (op_ == BTagEntry::OP_RESHAPING);
+
+    const auto &entries = tmpData_.at(jf);
+    float min_eta = 0., max_eta = 0.;
+    for (const auto & e: entries) {
+
+        if (use_discr) {                                    // discr. reshaping?
+            if (e.discrMin <= discr && discr < e.discrMax) {  // check discr
+                min_eta = min_eta < e.etaMin ? min_eta : e.etaMin;
+                max_eta = max_eta > e.etaMax ? max_eta : e.etaMax;
+            }
+        } else {
+            min_eta = min_eta < e.etaMin ? min_eta : e.etaMin;
+            max_eta = max_eta > e.etaMax ? max_eta : e.etaMax;
+        }
+    }
+
+    return std::make_pair(min_eta, max_eta);
 }
 
 BTagCalibrationReader::BTagCalibrationReader(BTagEntry::OperatingPoint op, const std::string & sysType)
@@ -536,4 +582,9 @@ float BTagCalibrationReader::eval_auto_bounds(const std::string& sys, BTagEntry:
 std::pair<float, float> BTagCalibrationReader::min_max_pt(BTagEntry::JetFlavor jf, float eta, float discr) const
 {
     return pimpl->min_max_pt(jf, eta, discr);
+}
+
+std::pair<float, float> BTagCalibrationReader::min_max_eta(BTagEntry::JetFlavor jf, float discr) const
+{
+    return pimpl->min_max_eta(jf, discr);
 }
