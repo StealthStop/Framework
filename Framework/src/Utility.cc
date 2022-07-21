@@ -65,7 +65,7 @@ namespace utility
             std::string substr;
             std::getline(ss, substr, delim);
 
-            vs.push_back(string);
+            vs.push_back(substr);
         }
 
         return vs;
