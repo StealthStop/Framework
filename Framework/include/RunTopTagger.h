@@ -167,10 +167,16 @@ private:
             else if(o->getType()==TopObject::RESOLVED_TOP) resolvedTops.push_back(o);
         }
 
-        // Get reconstructed tops and derive needed variables                            
-        std::vector<TopObject*> tops(mergedTops);                          // for whole top tagger
-        tops.insert(tops.end(), resolvedTops.begin(), resolvedTops.end()); // for whole top tagger
-        //std::vector<TopObject*> tops(resolvedTops);                        // this for using only Resolved one
+        // --------------------------------------------------
+        // Get reconstructed tops and derive needed variables
+        // --------------------------------------------------                            
+        // to get the whole top tagger
+        //std::vector<TopObject*> tops(mergedTops);                          
+        //tops.insert(tops.end(), resolvedTops.begin(), resolvedTops.end());
+
+        // to get only resolved top tagger for fake rate and efficiency  
+        std::vector<TopObject*> tops(resolvedTops);                        
+        
         countTops(tops);
         
         // -------------------------------------

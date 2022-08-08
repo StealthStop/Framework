@@ -454,6 +454,7 @@ private:
         tr.registerDerivedVar<bool>("passIsoMuTriggerMC"+myVarSuffix_,            passIsoMuTriggerMC);
         tr.registerDerivedVar<bool>("passMadHT"+myVarSuffix_,                     passMadHT);
         tr.registerDerivedVar<bool>("passMETFilters"+myVarSuffix_,                passMETFilters);
+        tr.registerDerivedVar<bool>("passElectronHEMveto"+myVarSuffix_,           passElectronHEMveto);
     }
 
     bool PassTriggerGeneral(std::vector<std::string>& mytriggers, const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
