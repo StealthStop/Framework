@@ -345,17 +345,19 @@ private:
         // -----------------------------------
         // -- Define 2 Lepton offZ Baseline
         // -----------------------------------
-        bool passBaseline2l_Good = JetID                &&
-                                   passMETFilters       &&
-                                   passMadHT            &&
-                                   passTrigger          &&
-                                   passTriggerMC        &&
-                                   passBlindLep_Good    &&                                  
-                                   !onZ                 &&
+        bool passBaseline2l_Good = JetID                  &&
+                                   passMETFilters         &&
+                                   passMadHT              &&
+                                   passTrigger            &&
+                                   passTriggerMC          &&
+                                   passElectronHEMveto    &&
+                                   HT_trigger_pt30 > 600  &&
+                                   //passBlindLep_Good      &&                                  
+                                   !onZ                   &&
                                    (runtype != "Data"  || (NGoodMuons >= 1 && filetag.find("Data_SingleMuon") != std::string::npos ) 
                                                        || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
-                                   NGoodBJets_pt30 >= 1 &&
-                                   NGoodJets_pt30 >= 4 &&
+                                   NGoodBJets_pt30 >= 1   &&
+                                   NGoodJets_pt30 >= 6    &&
                                    NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false;
 
         // -----------------------------------
