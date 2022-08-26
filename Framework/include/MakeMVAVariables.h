@@ -28,6 +28,9 @@ private:
         double flavc;
         double flavuds;
         double flavq;
+        double CSVb;
+        double CSVc;
+        double CSVudsg;
         double ptD;
         double axismajor;
         double axisminor;
@@ -146,16 +149,19 @@ private:
 
     void makeMVAVariables(NTupleReader& tr)
     {
-        const auto& Jets                             = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_                       );
+        const auto& Jets                             = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_              );
         const auto& Jets_bJetTagDeepFlavourtotb      = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotb"     );
         const auto& Jets_bJetTagDeepFlavourprobg     = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobg"    );
         const auto& Jets_bJetTagDeepFlavourtotq      = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotq"     );
         const auto& Jets_bJetTagDeepFlavourprobc     = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobc"    );
         const auto& Jets_bJetTagDeepFlavourprobuds   = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobuds"  );
+        const auto& Jets_bJetTagDeepCSVtotb          = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb"         );
+        const auto& Jets_bJetTagDeepCSVprobc         = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepCSVprobc"        );
+        const auto& Jets_bJetTagDeepCSVprobudsg      = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepCSVprobudsg"     );
         const auto& Jets_ptD                         = tr.getVec<float>("Jets"+myVarSuffix_+"_ptD"                        );
         const auto& Jets_axismajor                   = tr.getVec<float>("Jets"+myVarSuffix_+"_axismajor"                  );
         const auto& Jets_axisminor                   = tr.getVec<float>("Jets"+myVarSuffix_+"_axisminor"                  );
-        const auto& Jets_multiplicity                = tr.getVec<int>(   "Jets"+myVarSuffix_+"_multiplicity"               );
+        const auto& Jets_multiplicity                = tr.getVec<int>(   "Jets"+myVarSuffix_+"_multiplicity"              );
         const auto& Jets_neutralEmEnergyFraction     = tr.getVec<float>("Jets"+myVarSuffix_+"_neutralEmEnergyFraction"    );
         const auto& Jets_chargedEmEnergyFraction     = tr.getVec<float>("Jets"+myVarSuffix_+"_chargedEmEnergyFraction"    );
         const auto& Jets_neutralHadronEnergyFraction = tr.getVec<float>("Jets"+myVarSuffix_+"_neutralHadronEnergyFraction");
@@ -164,9 +170,10 @@ private:
         const auto& GoodJets           = tr.getVec<bool>(GoodJetsName_+myVarSuffix_                                     );
         const auto& NGoodJets          = tr.getVar<int>(NGoodJetsName_+myVarSuffix_                                     );
         const auto& GoodLeptons        = tr.getVec<std::pair<std::string, utility::LorentzVector>>(GoodLeptonsName_+myVarSuffix_);
-        const auto& NGoodLeptons       = tr.getVar<int>(NGoodLeptonsName_+myVarSuffix_                                  );
+        const auto& NGoodLeptons       = tr.getVar<int>(NGoodLeptonsName_+myVarSuffix_                                 );
         const auto& MET                = tr.getVar<float>("MET"                                                        ); 
         const auto& METPhi             = tr.getVar<float>("METPhi"                                                     );
+        const auto& HT_Trigger_pt30    = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_                               );
 
         // Get the 4-vec for the MET
         utility::LorentzVector lvMET;
@@ -193,11 +200,11 @@ private:
             if(!GoodJets[j]) continue;
             utility::LorentzVector jlv = Jets.at(j);            
             Jets_.push_back( jlv );
-            
             utility::LorentzVector jlvcm = utility::Boost(jlv, rec_boost_beta_vec );
             Jets_cm.push_back( {jlvcm, Jets_neutralEmEnergyFraction.at(j), Jets_chargedEmEnergyFraction.at(j), Jets_neutralHadronEnergyFraction.at(j),
                                        Jets_chargedHadronEnergyFraction.at(j), Jets_bJetTagDeepFlavourtotb.at(j), Jets_bJetTagDeepFlavourprobg.at(j),
                                        Jets_bJetTagDeepFlavourprobc.at(j), Jets_bJetTagDeepFlavourprobuds.at(j), Jets_bJetTagDeepFlavourtotq.at(j),
+                                       Jets_bJetTagDeepCSVtotb.at(j), Jets_bJetTagDeepCSVprobc.at(j), Jets_bJetTagDeepCSVprobudsg.at(j),
                                        Jets_ptD.at(j), Jets_axismajor.at(j), Jets_axisminor.at(j), static_cast<double>(Jets_multiplicity.at(j))} );
 
             math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() );
@@ -217,6 +224,7 @@ private:
 
         auto& Jets_cm_top6 = tr.createDerivedVec<utility::LorentzVector>(ESVarName_+"Jets_cm_top6"+channel_+myVarSuffix_);
         std::vector<double> Jets_cm_top6_flavb, Jets_cm_top6_flavg, Jets_cm_top6_flavc, Jets_cm_top6_flavuds, Jets_cm_top6_flavq;
+        std::vector<double> Jets_cm_top6_CSVb, Jets_cm_top6_CSVc, Jets_cm_top6_CSVudsg;
         std::vector<double> Jets_cm_top6_ptD, Jets_cm_top6_axismajor, Jets_cm_top6_axisminor, Jets_cm_top6_multiplicity;
         std::vector<double> Jets_cm_top6_nEF, Jets_cm_top6_cEF, Jets_cm_top6_nHF, Jets_cm_top6_cHF;
 
@@ -243,6 +251,9 @@ private:
                 Jets_cm_top6_flavc.push_back       ( Jets_cm_psort.at(ji).flavc        );
                 Jets_cm_top6_flavuds.push_back     ( Jets_cm_psort.at(ji).flavuds      );
                 Jets_cm_top6_flavq.push_back       ( Jets_cm_psort.at(ji).flavq        );
+                Jets_cm_top6_CSVb.push_back        ( Jets_cm_psort.at(ji).CSVb         );
+                Jets_cm_top6_CSVc.push_back        ( Jets_cm_psort.at(ji).CSVc         );
+                Jets_cm_top6_CSVudsg.push_back     ( Jets_cm_psort.at(ji).CSVudsg      );
                 Jets_cm_top6_nEF.push_back         ( Jets_cm_psort.at(ji).nEF          );
                 Jets_cm_top6_cEF.push_back         ( Jets_cm_psort.at(ji).cEF          );
                 Jets_cm_top6_nHF.push_back         ( Jets_cm_psort.at(ji).nHF          );
@@ -261,11 +272,11 @@ private:
             }
         } // ji
 
-        tr.registerDerivedVar("combined7thToLastJet_pt_cm"+myVarSuffix_,   combinedJetTLV.Pt() );
-        tr.registerDerivedVar("combined7thToLastJet_eta_cm"+myVarSuffix_,  combinedJetTLV.Eta());
-        tr.registerDerivedVar("combined7thToLastJet_phi_cm"+myVarSuffix_,  combinedJetTLV.Phi());
-        tr.registerDerivedVar("combined7thToLastJet_m_cm"+myVarSuffix_, combinedJetTLV.M()  );
-        tr.registerDerivedVar("combined7thToLastJet_E_cm"+myVarSuffix_, combinedJetTLV.E()  );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_pt_cm"+channel_+myVarSuffix_,   combinedJetTLV.Pt() );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_eta_cm"+channel_+myVarSuffix_,  combinedJetTLV.Eta());
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_phi_cm"+channel_+myVarSuffix_,  combinedJetTLV.Phi());
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_m_cm"+channel_+myVarSuffix_, combinedJetTLV.M()  );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_E_cm"+channel_+myVarSuffix_, combinedJetTLV.E()  );
 
         auto GoodLeptons_cm = std::make_unique<std::vector<utility::LorentzVector>>();
         for(unsigned int ilep = 0; ilep < GoodLeptons.size(); ilep++)
@@ -441,6 +452,7 @@ private:
         for(unsigned int i = 0; i < nTopJets_; i++)
         {
             tr.registerDerivedVar(MVAJetName_+"_pt_"+std::to_string(i+1)+channel_+myVarSuffix_,          static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Pt()         : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_ptrHT_"+std::to_string(i+1)+channel_+myVarSuffix_,          static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Pt() / HT_Trigger_pt30        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_eta_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Eta()        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_phi_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).Phi()        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_m_"+std::to_string(i+1)+channel_+myVarSuffix_,           static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6.at(i).M()          : 0.0));
@@ -450,6 +462,9 @@ private:
             tr.registerDerivedVar(MVAJetName_+"_flavc_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavc.at(i)        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_flavuds_"+std::to_string(i+1)+channel_+myVarSuffix_,     static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavuds.at(i)      : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_flavq_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavq.at(i)        : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_CSVb_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_CSVb.at(i)        : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_CSVc_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_CSVc.at(i)        : 0.0));
+            tr.registerDerivedVar(MVAJetName_+"_CSVudsg_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_CSVudsg.at(i)        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_nEF_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_nEF.at(i)          : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_cEF_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_cEF.at(i)          : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_nHF_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_nHF.at(i)          : 0.0));
@@ -498,7 +513,7 @@ private:
         tr.registerDerivedVar(ESVarName_+"fwm6_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm6_top6     ));
         tr.registerDerivedVar(ESVarName_+"fwm7_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm7_top6     ));
         tr.registerDerivedVar(ESVarName_+"fwm8_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm8_top6     ));
-        tr.registerDerivedVar(ESVarName_+"fwm9_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm9_top6     ));
+        tr.registerDerivedVar(ESVarName_+"fwm9_top6"+channel_+myVarSuffix_,    static_cast<double>( fwm9_top6     )); 
         tr.registerDerivedVar(ESVarName_+"fwm10_top6"+channel_+myVarSuffix_,   static_cast<double>( fwm10_top6    ));
         tr.registerDerivedVar(ESVarName_+"jmt_ev0_top6"+channel_+myVarSuffix_, static_cast<double>( jmt_ev0_top6  ));
         tr.registerDerivedVar(ESVarName_+"jmt_ev1_top6"+channel_+myVarSuffix_, static_cast<double>( jmt_ev1_top6  ));
