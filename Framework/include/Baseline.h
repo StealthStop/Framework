@@ -354,7 +354,7 @@ private:
                                    passTriggerMC          &&
                                    passElectronHEMveto    &&
                                    NNonIsoMuons == 0      &&
-                                   HT_trigger_pt30 > 600  &&
+                                   HT_trigger_pt30 > 500  &&
                                    //passBlindLep_Good      &&                                  
                                    !onZ                   &&
                                    (runtype != "Data"  || (NGoodMuons >= 1 && filetag.find("Data_SingleMuon") != std::string::npos ) 
