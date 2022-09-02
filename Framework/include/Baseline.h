@@ -276,7 +276,7 @@ private:
         // ------------------------------------
         bool passBaselineGoodOffline1l = JetID                 &&
                                          passMETFilters        &&
-                                         HT_trigger_pt30 > 300 &&
+                                         HT_trigger_pt30 > 500 &&
                                          passMadHT             &&
                                          NGoodBJets_pt30 >= 1  &&
                                          (50 < Mbl && Mbl < 250);
@@ -290,6 +290,7 @@ private:
                                     (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
                                     NGoodMuons == 1           && 
                                     NGoodElectrons == 0       &&
+                                    NGoodJets_pt45 >= 6       &&
                                     NGoodJets_pt30 >= 7;
 
         bool passBaseline1el_Good = passBaselineGoodOffline1l &&
@@ -298,6 +299,7 @@ private:
                                     (runtype != "Data" || filetag.find("Data_SingleElectron") != std::string::npos) &&
                                     NGoodElectrons == 1       &&
                                     NGoodMuons == 0           &&
+                                    NGoodJets_pt45 >= 6       &&
                                     NGoodJets_pt30 >= 7;
 
         bool passBaseline1l_Good_noHEMveto = passBaseline1mu_Good || passBaseline1el_Good;
@@ -360,6 +362,7 @@ private:
                                    (runtype != "Data"  || (NGoodMuons >= 1 && filetag.find("Data_SingleMuon") != std::string::npos ) 
                                                        || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
                                    NGoodBJets_pt30 >= 1   &&
+                                   NGoodJets_pt45 >= 5    &&
                                    NGoodJets_pt30 >= 6    &&
                                    NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false;
 
