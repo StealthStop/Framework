@@ -92,6 +92,7 @@ private:
         bool passIsoMuTriggerMC = true;
         bool passBlindHad_Good = true;
         bool passBlindLep_Good = true;        
+        bool passBlind2Lep_Good = true;
         if (runtype == "Data")
         {            
             // Pass the right trigger
@@ -106,6 +107,7 @@ private:
         // Blind data AND MC together, always
         if (NGoodJets_pt30 >= 9 && blind) passBlindHad_Good = false;
         if (NGoodJets_pt30 >= 9 && blind) passBlindLep_Good = false;
+        if (NGoodJets_pt30 >= 8 && blind) passBlind2Lep_Good = false;
 
         // ------------------------
         // -- MC dependent stuff - 
@@ -274,7 +276,7 @@ private:
         // ------------------------------------
         bool passBaselineGoodOffline1l = JetID                 &&
                                          passMETFilters        &&
-                                         HT_trigger_pt30 > 300 &&
+                                         HT_trigger_pt30 > 500 &&
                                          passMadHT             &&
                                          NGoodBJets_pt30 >= 1  &&
                                          (50 < Mbl && Mbl < 250);
@@ -345,18 +347,24 @@ private:
         // -----------------------------------
         // -- Define 2 Lepton offZ Baseline
         // -----------------------------------
-        bool passBaseline2l_Good = JetID                &&
-                                   passMETFilters       &&
-                                   passMadHT            &&
-                                   passTrigger          &&
-                                   passTriggerMC        &&
-                                   passBlindLep_Good    &&                                  
-                                   !onZ                 &&
+        bool passBaseline2l_Good = JetID                  &&
+                                   passMETFilters         &&
+                                   passMadHT              &&
+                                   passTrigger            &&
+                                   passTriggerMC          &&
+                                   passElectronHEMveto    &&
+                                   NNonIsoMuons == 0      &&
+                                   HT_trigger_pt30 > 500  &&
+                                   //passBlindLep_Good      &&                                  
+                                   !onZ                   &&
                                    (runtype != "Data"  || (NGoodMuons >= 1 && filetag.find("Data_SingleMuon") != std::string::npos ) 
                                                        || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
-                                   NGoodBJets_pt30 >= 1 &&
-                                   NGoodJets_pt30 >= 4 &&
+                                   NGoodBJets_pt30 >= 1   &&
+                                   NGoodJets_pt30 >= 6    &&
                                    NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false;
+
+        bool passBaseline2l_Good_blind = passBaseline2l_Good &&
+                                         passBlind2Lep_Good;
 
         // -----------------------------------
         // -- Define 2 Lepton pt20 Baseline
@@ -434,6 +442,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"+myVarSuffix_,     passBaseline1l_NonIsoMuon);
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"+myVarSuffix_,        passBaseline2lonZ_Good);
         tr.registerDerivedVar<bool>("passBaseline2l_Good"+myVarSuffix_,           passBaseline2l_Good);
+        tr.registerDerivedVar<bool>("passBaseline2l_Good_blind"+myVarSuffix_,     passBaseline2l_Good_blind);
         tr.registerDerivedVar<bool>("passBaseline2l_pt20"+myVarSuffix_,           passBaseline2l_pt20);
         tr.registerDerivedVar<bool>("passBaseline2l_pt30"+myVarSuffix_,           passBaseline2l_pt30);
         tr.registerDerivedVar<bool>("passBaseline1photon_Good"+myVarSuffix_,      passBaseline1photon_Good);
