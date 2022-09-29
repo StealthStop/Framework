@@ -272,11 +272,11 @@ private:
             }
         } // ji
 
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_pt_cm"+channel_+myVarSuffix_,   combinedJetTLV.Pt() );
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_eta_cm"+channel_+myVarSuffix_,  combinedJetTLV.Eta());
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_phi_cm"+channel_+myVarSuffix_,  combinedJetTLV.Phi());
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_m_cm"+channel_+myVarSuffix_, combinedJetTLV.M()  );
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_E_cm"+channel_+myVarSuffix_, combinedJetTLV.E()  );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_pt_cm"+channel_+myVarSuffix_,   static_cast<double>(combinedJetTLV.Pt())    );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_eta_cm"+channel_+myVarSuffix_,  static_cast<double>(combinedJetTLV.Eta())   );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_phi_cm"+channel_+myVarSuffix_,  static_cast<double>(combinedJetTLV.Phi())   );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_m_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedJetTLV.M())     );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_E_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedJetTLV.E())     );
 
         auto GoodLeptons_cm = std::make_unique<std::vector<utility::LorentzVector>>();
         for(unsigned int ilep = 0; ilep < GoodLeptons.size(); ilep++)
