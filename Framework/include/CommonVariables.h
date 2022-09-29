@@ -280,13 +280,13 @@ private:
         genMatch(tr);
         
         //Find single lepton for HistoContainer
-        utility::LorentzVector singleLepton;
+        TLorentzVector singleLepton;
         for(unsigned int i = 0; i < Muons.size(); ++i)
         {
             if(!GoodMuons[i]) continue;
             if(Muons[i].Pt() > 20)
             {
-                singleLepton = Muons[i];
+                singleLepton = utility::convertLV<TLorentzVector, utility::LorentzVector>(Muons[i]);
                 break;
             }
         }
@@ -295,7 +295,7 @@ private:
             if(!GoodElectrons[i]) continue;
             if(Electrons[i].Pt() > 20)
             {
-                singleLepton = Electrons[i];
+                singleLepton = utility::convertLV<TLorentzVector, utility::LorentzVector>(Electrons[i]);
                 break;
             }
         }
