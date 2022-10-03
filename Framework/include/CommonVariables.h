@@ -142,25 +142,20 @@ private:
             // Register lumi * xsec as its own variable for users
             // For 2018, if an event would be vetoed, use 2018 pre-HEM lumi in lumi * xsec
             // otherwise, use the nominal 2018 or respective year lumi
-            if (runYear == "2018")
+            const auto& Lumi = tr.getVar<double>("Lumi");
+            double FinalLumi = Lumi;
+            if (runYear == "2018" && vetoedHEMelectron)
             {
-                if (vetoedHEMelectron)
-                {
-                    const auto& Lumi_preHEM = tr.getVar<double>("Lumi_preHEM");
-                    tr.registerDerivedVar<double>("LumiXsec", w*weightAbsVal*Lumi_preHEM);
+                const auto& Lumi_preHEM = tr.getVar<double>("Lumi_preHEM");
+                tr.registerDerivedVar<double>("LumiXsec", w*weightAbsVal*Lumi_preHEM);
 
-                    // HEM veto is live, overwrite nominal lumi with preHEM
-                    tr.registerDerivedVar<double>("Lumi", Lumi_preHEM);
-                } else
-                {
-                    const auto& Lumi = tr.getVar<double>("Lumi");
-                    tr.registerDerivedVar<double>("LumiXsec", w*weightAbsVal*Lumi); 
-                }
+                FinalLumi = Lumi_preHEM;
+
             } else
             {
-                const auto& Lumi = tr.getVar<double>("Lumi");
                 tr.registerDerivedVar<double>("LumiXsec", w*weightAbsVal*Lumi);
             }
+            tr.registerDerivedVar<double>("FinalLumi", FinalLumi);
         }
 
         else if(runType == "Data")
