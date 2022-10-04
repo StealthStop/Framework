@@ -201,6 +201,7 @@ private:
             utility::LorentzVector jlv = Jets.at(j);            
             Jets_.push_back( jlv );
             utility::LorentzVector jlvcm = utility::Boost(jlv, rec_boost_beta_vec );
+
             Jets_cm.push_back( {jlvcm, Jets_neutralEmEnergyFraction.at(j), Jets_chargedEmEnergyFraction.at(j), Jets_neutralHadronEnergyFraction.at(j),
                                        Jets_chargedHadronEnergyFraction.at(j), Jets_bJetTagDeepFlavourtotb.at(j), Jets_bJetTagDeepFlavourprobg.at(j),
                                        Jets_bJetTagDeepFlavourprobc.at(j), Jets_bJetTagDeepFlavourprobuds.at(j), Jets_bJetTagDeepFlavourtotq.at(j),
@@ -272,10 +273,11 @@ private:
             }
         } // ji
 
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_pt_cm"+channel_+myVarSuffix_,   static_cast<double>(combinedJetTLV.Pt())    );
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_eta_cm"+channel_+myVarSuffix_,  static_cast<double>(combinedJetTLV.Eta())   );
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_phi_cm"+channel_+myVarSuffix_,  static_cast<double>(combinedJetTLV.Phi())   );
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_m_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedJetTLV.M())     );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_pt_cm"+channel_+myVarSuffix_,       static_cast<double>(combinedJetTLV.Pt())    );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_ptrHT_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedJetTLV.Pt() / HT_Trigger_pt30)    );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_eta_cm"+channel_+myVarSuffix_,      static_cast<double>(combinedJetTLV.Eta())   );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_phi_cm"+channel_+myVarSuffix_,      static_cast<double>(combinedJetTLV.Phi())   );
+        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_m_cm"+channel_+myVarSuffix_,        static_cast<double>(combinedJetTLV.M())     );
         tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_E_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedJetTLV.E())     );
 
         auto GoodLeptons_cm = std::make_unique<std::vector<utility::LorentzVector>>();
