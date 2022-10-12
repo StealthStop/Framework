@@ -177,8 +177,8 @@ private:
         tr.registerDerivedVar("Stop2_mass_PtRank_cm"+label_+myVarSuffix_, static_cast<double>(Stop2_PtRank_cm.M()));
         tr.registerDerivedVar("Stop1_pt_PtRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop1_PtRank_cm.Pt()));
         tr.registerDerivedVar("Stop2_pt_PtRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop2_PtRank_cm.Pt()));
-        tr.registerDerivedVar("Stop1_pt_PtRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop1_PtRank_cm.Pt())/HT_trigger_pt30);
-        tr.registerDerivedVar("Stop2_pt_PtRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop2_PtRank_cm.Pt())/HT_trigger_pt30);
+        tr.registerDerivedVar("Stop1_ptrHT_PtRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop1_PtRank_cm.Pt())/HT_trigger_pt30);
+        tr.registerDerivedVar("Stop2_ptrHT_PtRank_cm"  +label_+myVarSuffix_, static_cast<double>(Stop2_PtRank_cm.Pt())/HT_trigger_pt30);
         tr.registerDerivedVar("Stop1_phi_PtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop1_PtRank_cm.Phi()));
         tr.registerDerivedVar("Stop2_phi_PtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop2_PtRank_cm.Phi()));
         tr.registerDerivedVar("Stop1_eta_PtRank_cm" +label_+myVarSuffix_, static_cast<double>(Stop1_PtRank_cm.Eta()));
