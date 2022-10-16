@@ -27,6 +27,9 @@ private:
     std::shared_ptr<TGraph> muSFHistoReco_;
     std::shared_ptr<TH2F> L1Prefireing_;
     std::map<std::string, double> sfMeanMap_;
+    std::shared_ptr<TH2F> jetSFHistoTrigName_2bCut_;
+    std::shared_ptr<TH2F> jetSFHistoTrigName_3bCut_;
+    std::shared_ptr<TH2F> jetSFHistoTrigName_ge4bCut_;
 
     template<typename T> std::shared_ptr<T>& getHisto(TFile& f, std::shared_ptr<T>& h, const TString& name)
     {        
@@ -61,30 +64,23 @@ private:
 
     double htScaleFactor(const int nJets, const double HT, const std::string& runYear) const
     {
-        //All values updated for v1.0 on October 4, 2019. Commented out values are from the old setup (just 2016 and 2017).
+        // All values updated for v1.0 on October 4, 2019. Commented out values are from the old setup (just 2016 and 2017).
         double norm = 1.0;
         double expo = 0.0;
         if( runYear == "2016preVFP") 
         {
             norm = 0.04176*nJets + 0.8915;
             expo = (-0.02358*nJets - 0.08940)/1000;
-            //norm = 0.03422*nJets + 0.9367;
-            //expo = (-0.02310*nJets - 0.0940 )/1000;
         }
         else if( runYear == "2016postVFP")
         {
-            // Identical above, may need to be addressed   
             norm = 0.04176*nJets + 0.8915;
             expo = (-0.02358*nJets - 0.08940)/1000;
-            //norm = 0.03422*nJets + 0.9367;
-            //expo = (-0.02310*nJets - 0.0940 )/1000;
         }
         else if( runYear == "2017" ) 
         {
             norm = 0.03952*nJets + 0.9171;
             expo = (-0.03275*nJets - 0.03795)/1000;
-            //norm = 0.02565*nJets + 0.9635;
-            //expo = (-0.01418*nJets - 0.1101 )/1000;
         }
         else if( runYear == "2018pre" ) 
         {
@@ -112,23 +108,16 @@ private:
         {
             norm = 1.318;
             expo = -0.000349;
-            //norm = 1.307;
-            //expo = -0.0003416;
         }
         else if( runYear == "2016postVFP" ) 
         {
-            // Identical to above, may need to be addressed later
             norm = 1.318;
             expo = -0.000349;
-            //norm = 1.307;
-            //expo = -0.0003416;
         }
         else if( runYear == "2017" )
         {
             norm = 1.216;
             expo = -0.0003109;
-            //norm = 1.215;
-            //expo = -0.0002613;
         }
         else if( runYear == "2018pre" )
         {
@@ -154,7 +143,6 @@ private:
         }
         else if( runYear == "2016postVFP" ) 
         {
-            // Identical to above, may need to be addressed later
             norm = -0.002429*nJets + 1.044;
             expo = (0.01214*nJets - 0.1198)/1000;
         }
@@ -187,7 +175,6 @@ private:
         }
         else if( runYear == "2016postVFP" ) 
         {
-            // Identical to above, may need to be addressed later
             norm = 1.073;
             expo = -0.00009169;
         }
@@ -224,12 +211,12 @@ private:
 
     void scaleFactors(NTupleReader& tr)
     {
-        // --------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------------------------------
         // Calculate scale SF and variation
         // Following the example in SusyAnaTools PDFUncertainty.h
         // The scale weights are calculated using the envelope method and we ignore all anti-correlated variations (5 and 7)
-        // --------------------------------------------------------------------------------------
-        const auto& scaleWeights = tr.getVec<float>("ScaleWeights");
+        // -----------------------------------------------------------------------------------------------------------------
+        const auto& scaleWeights = tr.getVec<float>("ScaleWeights" );
         const auto& filetag      = tr.getVar<std::string>("filetag");
         const auto& runYear      = tr.getVar<std::string>("runYear");
         
@@ -237,7 +224,7 @@ private:
         std::vector<float>  myScaleWeights(6, 1.0);
         if( scaleWeights.size() == 9 ) 
         {
-            //If there are not exactly 9 scale factors, then the vector  was filled incorrectly
+            // If there are not exactly 9 scale factors, then the vector  was filled incorrectly
             scaleWeightNominal = scaleWeights[0];
             myScaleWeights[0]  = scaleWeights[1];
             myScaleWeights[1]  = scaleWeights[2];
@@ -251,8 +238,7 @@ private:
         double scaleWeightLowerBound = *std::min_element( std::begin(myScaleWeights), std::end(myScaleWeights) );
         if( !std::isfinite(scaleWeightNominal) || !std::isfinite(scaleWeightUpperBound) || !std::isfinite(scaleWeightLowerBound) ) 
         {
-            //TODO: There are some NaN/Inf values in the Diboson channel - still need to figure out why this is an issue.
-            scaleWeightNominal = 1.0;
+            scaleWeightNominal    = 1.0;
             scaleWeightUpperBound = 1.0;
             scaleWeightLowerBound = 1.0;
         }
@@ -261,24 +247,24 @@ private:
         double scaleWeightLowerBound_corr = scaleWeightLowerBound;
         if(sfMeanMap_.find(filetag+"_sclUp") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_sclDown") != sfMeanMap_.end()) 
         {            
-            const double meanUp = getMean(filetag+"_sclUp");
-            const double meanDown = getMean(filetag+"_sclDown");
+            const double meanUp        = getMean(filetag+"_sclUp");
+            const double meanDown      = getMean(filetag+"_sclDown");
             scaleWeightUpperBound_corr = (1/meanUp)*scaleWeightUpperBound;
             scaleWeightLowerBound_corr = (1/meanDown)*scaleWeightLowerBound;
         }
 
-        tr.registerDerivedVar("scaleWeightUp"+myVarSuffix_,   scaleWeightUpperBound_corr);
-        tr.registerDerivedVar("scaleWeightDown"+myVarSuffix_, scaleWeightLowerBound_corr);
-        tr.registerDerivedVar("scaleWeightUpUncor"+myVarSuffix_,   scaleWeightUpperBound);
-        tr.registerDerivedVar("scaleWeightDownUncor"+myVarSuffix_, scaleWeightLowerBound);
-        tr.registerDerivedVar("scaleWeightNom"+myVarSuffix_,  scaleWeightNominal);
+        tr.registerDerivedVar("scaleWeightUp"        +myVarSuffix_, scaleWeightUpperBound_corr);
+        tr.registerDerivedVar("scaleWeightDown"      +myVarSuffix_, scaleWeightLowerBound_corr);
+        tr.registerDerivedVar("scaleWeightUpUncor"   +myVarSuffix_, scaleWeightUpperBound     );
+        tr.registerDerivedVar("scaleWeightDownUncor" +myVarSuffix_, scaleWeightLowerBound     );
+        tr.registerDerivedVar("scaleWeightNom"       +myVarSuffix_, scaleWeightNominal        );
 
-        // --------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------
         // Calculate parton shower variation
-        // Note: not all samples have these weights stored, give them default value of 1. 
-        // --------------------------------------------------------------------------------------        
-        double PSweight_ISRUp = 1.0, PSweight_ISRDown = 1.0; 
-        double PSweight_FSRUp = 1.0, PSweight_FSRDown = 1.0; 
+        // Note: not all samples have these weights stored, give them default value of 1.
+        // ------------------------------------------------------------------------------        
+        double PSweight_ISRUp   = 1.0, PSweight_ISRDown   = 1.0; 
+        double PSweight_FSRUp   = 1.0, PSweight_FSRDown   = 1.0; 
         double PSweight_ISRUp_2 = 1.0, PSweight_ISRDown_2 = 1.0; 
         double PSweight_FSRUp_2 = 1.0, PSweight_FSRDown_2 = 1.0; 
         if(tr.hasVar("PSweights"))
@@ -289,8 +275,8 @@ private:
                 // Get nominal one so we can normalize it
                 double MEweight = PSweights[0];
                 // reduced variations, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/sqrt(2) and sqrt(2)
-                PSweight_ISRUp = PSweights[2]/MEweight;
-                PSweight_FSRUp = (PSweights[3]/MEweight < 10.0) ? PSweights[3]/MEweight : 1.0;
+                PSweight_ISRUp   = PSweights[2]/MEweight;
+                PSweight_FSRUp   = (PSweights[3]/MEweight < 10.0) ? PSweights[3]/MEweight : 1.0;
                 PSweight_ISRDown = PSweights[4]/MEweight;
                 PSweight_FSRDown = (PSweights[5]/MEweight < 10.0) ? PSweights[5]/MEweight : 1.0;
                 // nominal variations, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/2 and 2
@@ -300,33 +286,30 @@ private:
                 PSweight_FSRDown_2 = (PSweights[9]/MEweight < 10.0) ? PSweights[9]/MEweight : 1.0;
             }
         }
-        tr.registerDerivedVar("PSweight_ISRUp"+myVarSuffix_,   PSweight_ISRUp);
-        tr.registerDerivedVar("PSweight_ISRDown"+myVarSuffix_, PSweight_ISRDown);
-        tr.registerDerivedVar("PSweight_FSRUp"+myVarSuffix_,   PSweight_FSRUp);
-        tr.registerDerivedVar("PSweight_FSRDown"+myVarSuffix_, PSweight_FSRDown);
-        tr.registerDerivedVar("PSweight_ISRUp_2"+myVarSuffix_,   PSweight_ISRUp_2);
-        tr.registerDerivedVar("PSweight_ISRDown_2"+myVarSuffix_, PSweight_ISRDown_2);
-        tr.registerDerivedVar("PSweight_FSRUp_2"+myVarSuffix_,   PSweight_FSRUp_2);
-        tr.registerDerivedVar("PSweight_FSRDown_2"+myVarSuffix_, PSweight_FSRDown_2);
+        tr.registerDerivedVar("PSweight_ISRUp"     +myVarSuffix_, PSweight_ISRUp    );
+        tr.registerDerivedVar("PSweight_ISRDown"   +myVarSuffix_, PSweight_ISRDown  );
+        tr.registerDerivedVar("PSweight_FSRUp"     +myVarSuffix_, PSweight_FSRUp    );
+        tr.registerDerivedVar("PSweight_FSRDown"   +myVarSuffix_, PSweight_FSRDown  );
+        tr.registerDerivedVar("PSweight_ISRUp_2"   +myVarSuffix_, PSweight_ISRUp_2  );
+        tr.registerDerivedVar("PSweight_ISRDown_2" +myVarSuffix_, PSweight_ISRDown_2);
+        tr.registerDerivedVar("PSweight_FSRUp_2"   +myVarSuffix_, PSweight_FSRUp_2  );
+        tr.registerDerivedVar("PSweight_FSRDown_2" +myVarSuffix_, PSweight_FSRDown_2);
 
-        // --------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------
         // Now calculate the PDF scale factor and uncertainty 
         // Based on the 100 different replica values stored in PDFweights using envelope method and the median
-        // --------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------
         const auto& PDFweights = tr.getVec<float>("PDFweights");
         double central = 1.0, NNPDF_from_median_up = 1.0, NNPDF_from_median_down = 1.0;
         if(PDFweights.size() > 0)
         {
-            const double reqCL = 0.68; //Choose a confidence level for the uncertainty
-            std::vector<float> sortedPDFWeights = PDFweights; //Cannot sort a constant
+            const double reqCL = 0.68;                        // Choose a confidence level for the uncertainty
+            std::vector<float> sortedPDFWeights = PDFweights; // Cannot sort a constant
             std::sort( sortedPDFWeights.begin() + 1, sortedPDFWeights.end() );
         
-            const int upper = std::round( 0.5*(1 + reqCL)*100.0 );
-            //const int lower = 1 + std::round( 0.5*(1 - reqCL)*100.0 );
-
-            central  = 0.5*( sortedPDFWeights[50] + sortedPDFWeights[51] ); //Exactly 100 entries
-            //const double errminus = abs(central - sortedPDFWeights[lower]);
-            const double errplus  = abs(central - sortedPDFWeights[upper]);
+            const int upper      = std::round( 0.5*(1 + reqCL)*100.0 );
+            central              = 0.5*( sortedPDFWeights[50] + sortedPDFWeights[51] ); // Exactly 100 entries
+            const double errplus = abs(central - sortedPDFWeights[upper]);
 
             NNPDF_from_median_up   = central + errplus;
             NNPDF_from_median_down = central - errplus;
@@ -344,35 +327,94 @@ private:
         double NNPDF_from_median_down_corr = NNPDF_from_median_down;
         if(sfMeanMap_.find(filetag+"_pdf_Up") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_pdf_Down") != sfMeanMap_.end()) 
         {
-            const double meanUp = getMean(filetag+"_pdf_Up");
-            const double meanDown = getMean(filetag+"_pdf_Down");
-            NNPDF_from_median_up_corr = (1/meanUp)*NNPDF_from_median_up;
+            const double meanUp         = getMean(filetag+"_pdf_Up"  );
+            const double meanDown       = getMean(filetag+"_pdf_Down");
+            NNPDF_from_median_up_corr   = (1/meanUp)*NNPDF_from_median_up;
             NNPDF_from_median_down_corr = (1/meanDown)*NNPDF_from_median_down;
         }
 
-        tr.registerDerivedVar( "PDFweightUp"+myVarSuffix_,   NNPDF_from_median_up_corr );
-        tr.registerDerivedVar( "PDFweightDown"+myVarSuffix_, NNPDF_from_median_down_corr );
-        tr.registerDerivedVar( "PDFweightUpUncor"+myVarSuffix_,   NNPDF_from_median_up );
-        tr.registerDerivedVar( "PDFweightDownUncor"+myVarSuffix_, NNPDF_from_median_down );
-        tr.registerDerivedVar( "PDFweightNom"+myVarSuffix_,  central );
+        tr.registerDerivedVar("PDFweightUp"        +myVarSuffix_, NNPDF_from_median_up_corr  );
+        tr.registerDerivedVar("PDFweightDown"      +myVarSuffix_, NNPDF_from_median_down_corr);
+        tr.registerDerivedVar("PDFweightUpUncor"   +myVarSuffix_, NNPDF_from_median_up       );
+        tr.registerDerivedVar("PDFweightDownUncor" +myVarSuffix_, NNPDF_from_median_down     );
+        tr.registerDerivedVar("PDFweightNom"       +myVarSuffix_, central                    );
+       
+        // --------------------------------------------------
+        // Now calculate the jet scale factor and uncertainty
+        // --------------------------------------------------
+        const auto& Jets            = tr.getVec<utility::LorentzVector>(("Jets" +myVarSuffix_));
+        const auto& GoodJets_pt45   = tr.getVec<bool>("GoodJets_pt45"           +myVarSuffix_ ); 
+        const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"          +myVarSuffix_ );
+        const auto& HT_trigger_pt45 = tr.getVar<double>("HT_trigger_pt45"       +myVarSuffix_ );
+
+
+        // find the 6th jet and get its pt
+        int njetspt45       = 0;
+        double SixthJetPt45 = 0.0;
+
+        for (unsigned int j = 0; j < Jets.size(); j++)
+        {
+            if (!GoodJets_pt45[j]) continue;
+            njetspt45++;
+
+            if (njetspt45 == 6)
+            {
+                SixthJetPt45 = Jets.at(j).Pt();
+                break;
+            }
+        }
+      
+        int xbinJetTrig  = 0,   ybinJetTrig   = 0;
+        double jetTrigSF = 0.0, jetTrigSF_Err = 0.0; 
+        if (NGoodBJets_pt45 == 2)
+        {
+            xbinJetTrig   = findBin(jetSFHistoTrigName_2bCut_, HT_trigger_pt45, "X", "jet trigger x");
+            ybinJetTrig   = findBin(jetSFHistoTrigName_2bCut_, SixthJetPt45,    "Y", "jet trigger y");
+            jetTrigSF     = jetSFHistoTrigName_2bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);   
+            jetTrigSF_Err = jetSFHistoTrigName_2bCut_->GetBinError(xbinJetTrig, ybinJetTrig); 
+        }
+       
+        else if (NGoodBJets_pt45 == 3)
+        {
+            xbinJetTrig   = findBin(jetSFHistoTrigName_3bCut_, HT_trigger_pt45, "X", "jet trigger x");
+            ybinJetTrig   = findBin(jetSFHistoTrigName_3bCut_, SixthJetPt45,    "Y", "jet trigger y");
+            jetTrigSF     = jetSFHistoTrigName_3bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
+            jetTrigSF_Err = jetSFHistoTrigName_3bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
         
-        // --------------------------------------------------------------------------------------
-        // Now calculate the electron scale factor and uncertainty 
-        // --------------------------------------------------------------------------------------
-        const auto& electrons         = tr.getVec<utility::LorentzVector>("Electrons");
-        const auto& goodElectrons     = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
+        } 
+
+        else if (NGoodBJets_pt45 >= 4)
+        {
+            xbinJetTrig   = findBin(jetSFHistoTrigName_ge4bCut_, HT_trigger_pt45, "X", "jet trigger x");
+            ybinJetTrig   = findBin(jetSFHistoTrigName_ge4bCut_, SixthJetPt45,    "Y", "jet trigger y");
+            jetTrigSF     = jetSFHistoTrigName_ge4bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
+            jetTrigSF_Err = jetSFHistoTrigName_ge4bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
+        }
+
+        double jetTrigSF_Up   = jetTrigSF + jetTrigSF_Err;
+        double jetTrigSF_Down = jetTrigSF - jetTrigSF_Err;
+
+        tr.registerDerivedVar("jetTrigSF"      +myVarSuffix_, jetTrigSF     );
+        tr.registerDerivedVar("jetTrigSF_Err"  +myVarSuffix_, jetTrigSF_Err );
+        tr.registerDerivedVar("jetTrigSF_Up"   +myVarSuffix_, jetTrigSF_Up  );
+        tr.registerDerivedVar("jetTrigSF_Down" +myVarSuffix_, jetTrigSF_Down);
+
+        // -------------------------------------------------------
+        // Now calculate the electron scale factor and uncertainty
+        // -------------------------------------------------------
+        const auto& electrons       = tr.getVec<utility::LorentzVector>("Electrons");
+        const auto& goodElectrons   = tr.getVec<bool>("GoodElectrons" +myVarSuffix_);
+        double totGoodElectronSF    = 1.0, totGoodElectronSF_Up    = 1.0, totGoodElectronSF_Down    = 1.0;
+        double totGoodElectronSFErr = 0.0, totGoodElectronSFPErr2  = 0.0;
+        double noTrigGoodElectronSF = 1.0, noTrigGoodElectronSFErr = 0.0, noTrigGoodElectronSFPErr2 = 0.0;
         
-        double totGoodElectronSF      = 1.0, totGoodElectronSF_Up   = 1.0, totGoodElectronSF_Down = 1.0;
-        double totGoodElectronSFErr   = 0.0, totGoodElectronSFPErr2 = 0.0;
-        double noTrigGoodElectronSF   = 1.0, noTrigGoodElectronSFErr = 0.0, noTrigGoodElectronSFPErr2 = 0.0;
         for( unsigned int iel = 0; iel < electrons.size(); iel++ ) 
         {
             if( !goodElectrons.at(iel) ) continue;
             
-            //Get the scale factor from the rootfile
-            const double elpt  = electrons.at(iel).Pt();
-            const double eleta = electrons.at(iel).Eta();
-
+            // Get the scale factor from the rootfile
+            const double elpt     = electrons.at(iel).Pt();
+            const double eleta    = electrons.at(iel).Eta();
             const int xbinElTight = findBin(eleSFHistoTight_, eleta, "X", "el id x");
             const int ybinElTight = findBin(eleSFHistoTight_, elpt,  "Y", "el id y");                
             const int xbinElIso   = findBin(eleSFHistoIso_,   eleta, "X", "el iso x");
@@ -381,25 +423,26 @@ private:
             const int ybinElReco  = findBin(eleSFHistoReco_,  elpt,  "Y", "el reco y");
             const int xbinElTrig  = findBin(eleSFHistoTrig_,  elpt,  "X", "el trigger x");
             const int ybinElTrig  = findBin(eleSFHistoTrig_,  eleta, "Y", "el trigger y");
+        
             if( xbinElTight != -1 && ybinElTight != -1 && xbinElIso != -1 && ybinElIso != -1 && xbinElReco != -1 && ybinElReco != -1 ) 
             {
-                const double eleTightSF       = eleSFHistoTight_->GetBinContent( xbinElTight, ybinElTight );
-                const double eleTightSFErr    = eleSFHistoTight_->GetBinError( xbinElTight, ybinElTight );
-                const double eleTightPErr     = eleTightSFErr/eleTightSF;
-                double eleIsoSF               = eleSFHistoIso_->GetBinContent( xbinElIso, ybinElIso );
-                double eleIsoSFErr            = eleSFHistoIso_->GetBinError( xbinElIso, ybinElIso );
-                double eleIsoPErr             = eleIsoSFErr/eleIsoSF;
-                const double eleRecoSF        = eleSFHistoReco_->GetBinContent( xbinElReco, ybinElReco );
-                const double eleRecoSFErr     = eleSFHistoReco_->GetBinError( xbinElReco, ybinElReco );
-                const double eleRecoPErr      = eleRecoSFErr/eleRecoSF;
-                const double eleTrigSF        = (eleSFHistoTrig_) ? eleSFHistoTrig_->GetBinContent( xbinElTrig, ybinElTrig ) : 1.0;
-                const double eleTrigSFErr     = (eleSFHistoTrig_) ? eleSFHistoTrig_->GetBinError( xbinElTrig, ybinElTrig ) : 0.0;
-                const double eleTrigPErr      = eleTrigSFErr/eleTrigSF;
+                const double eleTightSF    = eleSFHistoTight_->GetBinContent( xbinElTight, ybinElTight );
+                const double eleTightSFErr = eleSFHistoTight_->GetBinError( xbinElTight, ybinElTight );
+                const double eleTightPErr  = eleTightSFErr/eleTightSF;
+                double eleIsoSF            = eleSFHistoIso_->GetBinContent( xbinElIso, ybinElIso );
+                double eleIsoSFErr         = eleSFHistoIso_->GetBinError( xbinElIso, ybinElIso );
+                double eleIsoPErr          = eleIsoSFErr/eleIsoSF;
+                const double eleRecoSF     = eleSFHistoReco_->GetBinContent( xbinElReco, ybinElReco );
+                const double eleRecoSFErr  = eleSFHistoReco_->GetBinError( xbinElReco, ybinElReco );
+                const double eleRecoPErr   = eleRecoSFErr/eleRecoSF;
+                const double eleTrigSF     = (eleSFHistoTrig_) ? eleSFHistoTrig_->GetBinContent( xbinElTrig, ybinElTrig ) : 1.0;
+                const double eleTrigSFErr  = (eleSFHistoTrig_) ? eleSFHistoTrig_->GetBinError( xbinElTrig, ybinElTrig ) : 0.0;
+                const double eleTrigPErr   = eleTrigSFErr/eleTrigSF;
                 
                 if( runYear.find("2016") != std::string::npos ) 
                 { 
-                    //The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
-                    //If this is the year 2016, we need to add the IP2D histogram scale factors into the Iso scale factor
+                    // The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
+                    // If this is the year 2016, we need to add the IP2D histogram scale factors into the Iso scale factor
                     const double eleIP2DSF    = eleSFHistoIP2D_->GetBinContent( xbinElIso, ybinElIso );
                     const double eleIP2DSFErr = eleSFHistoIP2D_->GetBinError( xbinElIso, ybinElIso );
                     const double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
@@ -409,14 +452,14 @@ private:
                     eleIsoSFErr = eleIsoPErr*eleIsoSF;
                 }
                 
-                const double eleNoTrigSF      = eleTightSF*eleIsoSF*eleRecoSF;
-                const double eleTotSF         = eleNoTrigSF*eleTrigSF; 
-                const double eleNoTrigPErr    = utility::addInQuad( eleTightPErr, eleIsoPErr, eleRecoPErr );
-                const double eleTotPErr       = utility::addInQuad( eleNoTrigPErr, eleTrigPErr );
+                const double eleNoTrigSF   = eleTightSF*eleIsoSF*eleRecoSF;
+                const double eleTotSF      = eleNoTrigSF*eleTrigSF; 
+                const double eleNoTrigPErr = utility::addInQuad( eleTightPErr, eleIsoPErr, eleRecoPErr );
+                const double eleTotPErr    = utility::addInQuad( eleNoTrigPErr, eleTrigPErr );
 
-                totGoodElectronSF       *= eleTotSF; 
-                noTrigGoodElectronSF    *= eleNoTrigSF;
-                totGoodElectronSFPErr2  += eleTotPErr*eleTotPErr;
+                totGoodElectronSF         *= eleTotSF; 
+                noTrigGoodElectronSF      *= eleNoTrigSF;
+                totGoodElectronSFPErr2    += eleTotPErr*eleTotPErr;
                 noTrigGoodElectronSFPErr2 += eleNoTrigPErr*eleNoTrigPErr;
             }            
         }
@@ -426,20 +469,19 @@ private:
         totGoodElectronSF_Up    = totGoodElectronSF + totGoodElectronSFErr;
         totGoodElectronSF_Down  = totGoodElectronSF - totGoodElectronSFErr;
 
-        tr.registerDerivedVar( "totGoodElectronSF"+myVarSuffix_,      totGoodElectronSF );
-        tr.registerDerivedVar( "totGoodElectronSFErr"+myVarSuffix_,   totGoodElectronSFErr );
-        tr.registerDerivedVar( "totGoodElectronSF_Up"+myVarSuffix_,   totGoodElectronSF_Up );
-        tr.registerDerivedVar( "totGoodElectronSF_Down"+myVarSuffix_, totGoodElectronSF_Down );
-        tr.registerDerivedVar( "noTrigGoodElectronSF"+myVarSuffix_,   noTrigGoodElectronSF );
-        tr.registerDerivedVar( "noTrigGoodElectronSFErr"+myVarSuffix_, noTrigGoodElectronSFErr );
+        tr.registerDerivedVar("totGoodElectronSF"       +myVarSuffix_, totGoodElectronSF      );
+        tr.registerDerivedVar("totGoodElectronSFErr"    +myVarSuffix_, totGoodElectronSFErr   );
+        tr.registerDerivedVar("totGoodElectronSF_Up"    +myVarSuffix_, totGoodElectronSF_Up   );
+        tr.registerDerivedVar("totGoodElectronSF_Down"  +myVarSuffix_, totGoodElectronSF_Down );
+        tr.registerDerivedVar("noTrigGoodElectronSF"    +myVarSuffix_, noTrigGoodElectronSF   );
+        tr.registerDerivedVar("noTrigGoodElectronSFErr" +myVarSuffix_, noTrigGoodElectronSFErr);
 
-        // --------------------------------------------------------------------------------------
+        // -----------------------------------------------
         // Adding code for implementing muon scale factors
-        // --------------------------------------------------------------------------------------
-        const auto& muons         = tr.getVec<utility::LorentzVector>("Muons");
-        const auto& goodMuons     = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
-        const auto& nonisoMuons     = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
-
+        // -----------------------------------------------
+        const auto& muons         = tr.getVec<utility::LorentzVector>("Muons" );
+        const auto& goodMuons     = tr.getVec<bool>("GoodMuons"+myVarSuffix_  );
+        const auto& nonisoMuons   = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
         double totGoodMuonSF      = 1.0, totGoodMuonSF_Up     = 1.0, totGoodMuonSF_Down    = 1.0;
         double totGoodMuonSFErr   = 0.0, totGoodMuonSFPErr2   = 0.0;
         double noTrigGoodMuonSF   = 1.0, noTrigGoodMuonSFErr  = 0.0, noTrigGoodMuonSFPErr2 = 0.0;
@@ -448,23 +490,23 @@ private:
 
         for( unsigned int imu = 0; imu < muons.size(); imu++ ) 
         {            
-            //Get the scale factor from the rootfile
+            // Get the scale factor from the rootfile
             const double mupt = muons.at(imu).Pt();
             const double mueta = muons.at(imu).Eta();
 
-            const int ybinMuMedium     = findBin(muSFHistoMedium_, mupt,       "Y", "mu id y");
-            const int xbinMuMedium     = findBin(muSFHistoMedium_, abs(mueta), "X", "mu id x");
-            const int ybinMuIso        = findBin(muSFHistoIso_,    mupt,       "Y", "mu iso y");
-            const int xbinMuIso        = findBin(muSFHistoIso_,    abs(mueta), "X", "mu iso x");            
-            const int ybinMuTrig       = findBin(muSFHistoTrig_,   mupt,       "Y", "mu trigger y");
-            const int xbinMuTrig       = findBin(muSFHistoTrig_,   mueta,      "X", "mu trigger x");
+            const int ybinMuMedium     = findBin(muSFHistoMedium_, mupt,       "Y", "mu id y"         );
+            const int xbinMuMedium     = findBin(muSFHistoMedium_, abs(mueta), "X", "mu id x"         );
+            const int ybinMuIso        = findBin(muSFHistoIso_,    mupt,       "Y", "mu iso y"        );
+            const int xbinMuIso        = findBin(muSFHistoIso_,    abs(mueta), "X", "mu iso x"        );            
+            const int ybinMuTrig       = findBin(muSFHistoTrig_,   mupt,       "Y", "mu trigger y"    );
+            const int xbinMuTrig       = findBin(muSFHistoTrig_,   mueta,      "X", "mu trigger x"    );
             const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,       "Y", "mu iso trigger y");
             const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,      "X", "mu iso trigger x");
             if( xbinMuMedium != -1 && ybinMuMedium != -1 && xbinMuIso != -1 && ybinMuIso != -1 ) 
             {
-                //The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
-                const double muMediumSF         = muSFHistoMedium_->GetBinContent( xbinMuMedium, ybinMuMedium );
-                const double muIsoSF            = muSFHistoIso_->GetBinContent( xbinMuIso, ybinMuIso );
+                // The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
+                const double muMediumSF         = muSFHistoMedium_->GetBinContent( xbinMuMedium, ybinMuMedium  );
+                const double muIsoSF            = muSFHistoIso_->GetBinContent( xbinMuIso, ybinMuIso           );
                 const double muTrigSF           = (muSFHistoTrig_) ? muSFHistoTrig_->GetBinContent( xbinMuTrig, ybinMuTrig ) : 1.0;
                 const double muNonIsoTrigSF     = (nimuSFHistoTrig_) ? nimuSFHistoTrig_->GetBinContent( xbinNonIsoMuTrig, ybinNonIsoMuTrig ) : 1.0;
                 const double muTrigSFErr        = (muSFHistoTrig_) ? muSFHistoTrig_->GetBinError( xbinMuTrig, ybinMuTrig ) : 0.0;
@@ -494,15 +536,15 @@ private:
                 
                 if( goodMuons.at(imu) )
                 {                
-                    totGoodMuonSF           *= muTotSF;
-                    noTrigGoodMuonSF        *= muNoTrigSF;
-                    totGoodMuonSFPErr2      += muTotSFPErr2;
-                    noTrigGoodMuonSFPErr2   += muNoTrigSFPErr2;
+                    totGoodMuonSF         *= muTotSF;
+                    noTrigGoodMuonSF      *= muNoTrigSF;
+                    totGoodMuonSFPErr2    += muTotSFPErr2;
+                    noTrigGoodMuonSFPErr2 += muNoTrigSFPErr2;
                 }
                 if( nonisoMuons.at(imu) )
                 {
-                    totNonIsoMuonSF         *= muNonIsoTotSF;
-                    totNonIsoMuonSFPErr2    += muNonIsoTotSFPErr2;
+                    totNonIsoMuonSF      *= muNonIsoTotSF;
+                    totNonIsoMuonSFPErr2 += muNonIsoTotSFPErr2;
                 }
             }
         }
@@ -515,20 +557,20 @@ private:
         totNonIsoMuonSF_Up   = totNonIsoMuonSF + totNonIsoMuonSFErr;
         totNonIsoMuonSF_Down = totNonIsoMuonSF - totNonIsoMuonSFErr;
 
-        tr.registerDerivedVar( "totGoodMuonSF"+myVarSuffix_,       totGoodMuonSF );
-        tr.registerDerivedVar( "totGoodMuonSFErr"+myVarSuffix_,    totGoodMuonSFErr );
-        tr.registerDerivedVar( "totGoodMuonSF_Up"+myVarSuffix_,    totGoodMuonSF_Up );
-        tr.registerDerivedVar( "totGoodMuonSF_Down"+myVarSuffix_,  totGoodMuonSF_Down );
-        tr.registerDerivedVar( "noTrigGoodMuonSF"+myVarSuffix_,    noTrigGoodMuonSF );
-        tr.registerDerivedVar( "noTrigGoodMuonSFErr"+myVarSuffix_, noTrigGoodMuonSFErr );
-        tr.registerDerivedVar( "totNonIsoMuonSF"+myVarSuffix_,     totNonIsoMuonSF );
-        tr.registerDerivedVar( "totNonIsoMuonSFErr"+myVarSuffix_,  totNonIsoMuonSFErr );
-        tr.registerDerivedVar( "totNonIsoMuonSF_Up"+myVarSuffix_,  totNonIsoMuonSF_Up );
-        tr.registerDerivedVar( "totNonIsoMuonSF_Down"+myVarSuffix_,totNonIsoMuonSF_Down );
+        tr.registerDerivedVar("totGoodMuonSF"        +myVarSuffix_, totGoodMuonSF       );
+        tr.registerDerivedVar("totGoodMuonSFErr"     +myVarSuffix_, totGoodMuonSFErr    );
+        tr.registerDerivedVar("totGoodMuonSF_Up"     +myVarSuffix_, totGoodMuonSF_Up    );
+        tr.registerDerivedVar("totGoodMuonSF_Down"   +myVarSuffix_, totGoodMuonSF_Down  );
+        tr.registerDerivedVar("noTrigGoodMuonSF"     +myVarSuffix_, noTrigGoodMuonSF    );
+        tr.registerDerivedVar("noTrigGoodMuonSFErr"  +myVarSuffix_, noTrigGoodMuonSFErr );
+        tr.registerDerivedVar("totNonIsoMuonSF"      +myVarSuffix_, totNonIsoMuonSF     );
+        tr.registerDerivedVar("totNonIsoMuonSFErr"   +myVarSuffix_, totNonIsoMuonSFErr  );
+        tr.registerDerivedVar("totNonIsoMuonSF_Up"   +myVarSuffix_, totNonIsoMuonSF_Up  );
+        tr.registerDerivedVar("totNonIsoMuonSF_Down" +myVarSuffix_, totNonIsoMuonSF_Down);
 
-        // --------------------------------------------------------------------------------------
+        // -------------------------------------------------------------------------------
         // Adding a scale factor that corrects the disagreement between data and MC for Ht
-        // --------------------------------------------------------------------------------------
+        // -------------------------------------------------------------------------------
         const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         const auto& HT_trigger_pt30 = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
         const auto& isSignal        = tr.getVar<bool>("isSignal");
@@ -552,7 +594,6 @@ private:
             htDerivedweightFlat2000 = (1.0/getMean(filetag+"_ht_flat2000"))*htDerivedweightFlat2000Uncor;
             htDerivedweightNJet7    = (1.0/getMean(filetag+"_ht_njet7"   ))*htDerivedweightNJet7Uncor;
             htDerivedweightMG       = (1.0/getMean(filetag+"_ht_MG"      ))*htDerivedweightMGUncor;
-
             htScaleUpUncor          = htDerivedweight*(fit2NJetBin8/fit2NJetBin567);
             htScaleDownUncor        = htDerivedweight*(fit2NJetBin567/fit2NJetBin8);
             htScaleUpMGUncor        = htDerivedweightMG*(fit2NJetBin8MG/fit2NJetBin567MG);
@@ -563,34 +604,34 @@ private:
             htScaleDownMG           = (1.0/getMean(filetag+"_ht_MGDown"))*htScaleDownMGUncor;
         }
 
-        tr.registerDerivedVar( "htDerivedweight"+myVarSuffix_, htDerivedweight);
-        tr.registerDerivedVar( "htDerivedweightFlat2000"+myVarSuffix_, htDerivedweightFlat2000 );
-        tr.registerDerivedVar( "htDerivedweightNJet7"+myVarSuffix_, htDerivedweightNJet7 );
-        tr.registerDerivedVar( "htDerivedweightMG"+myVarSuffix_, htDerivedweightMG);
-        tr.registerDerivedVar( "htDerivedweightUncor"+myVarSuffix_, htDerivedweightUncor);
-        tr.registerDerivedVar( "htDerivedweightFlat2000Uncor"+myVarSuffix_, htDerivedweightFlat2000Uncor);
-        tr.registerDerivedVar( "htDerivedweightNJet7Uncor"+myVarSuffix_, htDerivedweightNJet7Uncor );
-        tr.registerDerivedVar( "htDerivedweightMGUncor"+myVarSuffix_, htDerivedweightMGUncor);
-        tr.registerDerivedVar( "htScaleUpUncor"+myVarSuffix_, htScaleUpUncor);
-        tr.registerDerivedVar( "htScaleDownUncor"+myVarSuffix_, htScaleDownUncor);
-        tr.registerDerivedVar( "htScaleUpMGUncor"+myVarSuffix_, htScaleUpMGUncor);
-        tr.registerDerivedVar( "htScaleDownMGUncor"+myVarSuffix_, htScaleDownMGUncor);
-        tr.registerDerivedVar( "htScaleUp"+myVarSuffix_, htScaleUp);
-        tr.registerDerivedVar( "htScaleDown"+myVarSuffix_, htScaleDown);
-        tr.registerDerivedVar( "htScaleUpMG"+myVarSuffix_, htScaleUpMG);
-        tr.registerDerivedVar( "htScaleDownMG"+myVarSuffix_, htScaleDownMG);
+        tr.registerDerivedVar("htDerivedweight"              +myVarSuffix_, htDerivedweight             );
+        tr.registerDerivedVar("htDerivedweightFlat2000"      +myVarSuffix_, htDerivedweightFlat2000     );
+        tr.registerDerivedVar("htDerivedweightNJet7"         +myVarSuffix_, htDerivedweightNJet7        );
+        tr.registerDerivedVar("htDerivedweightMG"            +myVarSuffix_, htDerivedweightMG           );
+        tr.registerDerivedVar("htDerivedweightUncor"         +myVarSuffix_, htDerivedweightUncor        );
+        tr.registerDerivedVar("htDerivedweightFlat2000Uncor" +myVarSuffix_, htDerivedweightFlat2000Uncor);
+        tr.registerDerivedVar("htDerivedweightNJet7Uncor"    +myVarSuffix_, htDerivedweightNJet7Uncor   );
+        tr.registerDerivedVar("htDerivedweightMGUncor"       +myVarSuffix_, htDerivedweightMGUncor      );
+        tr.registerDerivedVar("htScaleUpUncor"               +myVarSuffix_, htScaleUpUncor              );
+        tr.registerDerivedVar("htScaleDownUncor"             +myVarSuffix_, htScaleDownUncor            );
+        tr.registerDerivedVar("htScaleUpMGUncor"             +myVarSuffix_, htScaleUpMGUncor            );
+        tr.registerDerivedVar("htScaleDownMGUncor"           +myVarSuffix_, htScaleDownMGUncor          );
+        tr.registerDerivedVar("htScaleUp"                    +myVarSuffix_, htScaleUp                   );
+        tr.registerDerivedVar("htScaleDown"                  +myVarSuffix_, htScaleDown                 );
+        tr.registerDerivedVar("htScaleUpMG"                  +myVarSuffix_, htScaleUpMG                 );
+        tr.registerDerivedVar("htScaleDownMG"                +myVarSuffix_, htScaleDownMG               );
 
-        //-----------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------------------------
         // Adding a scale factor for pileup 
         // For 2016 and 2018: Grab the individual pileup weight from the histogram found in PileupHistograms_*.root
         // For 2017: Using the puWeight stored in the nTuples
-        // ----------------------------------------------------------------------------        
-        const auto& puWeightUnCorr  = tr.getVar<float>("puWeight");
-        const auto& puSysUpUnCorr   = tr.getVar<float>("puSysUp");
+        // --------------------------------------------------------------------------------------------------------        
+        const auto& puWeightUnCorr  = tr.getVar<float>("puWeight" );
+        const auto& puSysUpUnCorr   = tr.getVar<float>("puSysUp"  );
         const auto& puSysDownUnCorr = tr.getVar<float>("puSysDown");
 
-        tr.registerDerivedVar( "puWeightUnCorr"+myVarSuffix_,  puWeightUnCorr);
-        tr.registerDerivedVar( "puSysUpUnCorr"+myVarSuffix_,   puSysUpUnCorr);
+        tr.registerDerivedVar( "puWeightUnCorr" +myVarSuffix_, puWeightUnCorr );
+        tr.registerDerivedVar( "puSysUpUnCorr"  +myVarSuffix_, puSysUpUnCorr  );
         tr.registerDerivedVar( "puSysDownUnCorr"+myVarSuffix_, puSysDownUnCorr);
 
         // Adding correction to the pileup weight
@@ -599,32 +640,32 @@ private:
         double puSysDownCorr = puSysDownUnCorr;
         if( sfMeanMap_.find(filetag+"_pu") != sfMeanMap_.end() && !isSignal )
         {
-            const double mean     = getMean(filetag+"_pu");
-            const double meanUp   = getMean(filetag+"_pu_Up");
+            const double mean     = getMean(filetag+"_pu"     );
+            const double meanUp   = getMean(filetag+"_pu_Up"  );
             const double meanDown = getMean(filetag+"_pu_Down");
             puWeightCorr = (1.0/mean)*puWeightUnCorr;
             puSysUpCorr  = (1.0/meanUp)*puSysUpUnCorr;
             puSysDownCorr= (1.0/meanDown)*puSysDownUnCorr;
         }
-        tr.registerDerivedVar( "puWeightCorr"+myVarSuffix_, puWeightCorr);
-        tr.registerDerivedVar( "puSysUpCorr"+myVarSuffix_, puSysUpCorr);
-        tr.registerDerivedVar( "puSysDownCorr"+myVarSuffix_, puSysDownCorr);
+        tr.registerDerivedVar("puWeightCorr"  +myVarSuffix_, puWeightCorr );
+        tr.registerDerivedVar("puSysUpCorr"   +myVarSuffix_, puSysUpCorr  );
+        tr.registerDerivedVar("puSysDownCorr" +myVarSuffix_, puSysDownCorr);
         
-        // --------------------------------------------------------------------------------------
+        // -------------------------------------------------------------
         // Adding top pt reweighting for ttbar MC (Powheg)
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting
         // 13 TeV all combined
-        // --------------------------------------------------------------------------------------
+        // -------------------------------------------------------------
         double topPtScaleFactor = 1.0;
-        auto* topPtVec = new std::vector<float>();
+        auto* topPtVec          = new std::vector<float>();
         if( filetag.find("TTTo") != std::string::npos )
         {
             const double a=0.103, b=-0.0118, c=-0.000134, d=0.973;
             auto SF = [&](const double pt){return a * exp(b * pt) + c * pt + d;};
             
             const auto& GenParticles        = tr.getVec<utility::LorentzVector>("GenParticles");
-            const auto& GenParticles_PdgId  = tr.getVec<int>("GenParticles_PdgId");
-            const auto& GenParticles_Status  = tr.getVec<int>("GenParticles_Status");
+            const auto& GenParticles_PdgId  = tr.getVec<int>("GenParticles_PdgId"             );
+            const auto& GenParticles_Status = tr.getVec<int>("GenParticles_Status"            );
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++)
             {   
@@ -637,145 +678,146 @@ private:
             topPtScaleFactor = sqrt(topPtScaleFactor);
         }
         
-        tr.registerDerivedVar( "topPtScaleFactor"+myVarSuffix_, topPtScaleFactor);
-        tr.registerDerivedVec( "topPtVec"+myVarSuffix_, topPtVec);
+        tr.registerDerivedVar("topPtScaleFactor" +myVarSuffix_, topPtScaleFactor);
+        tr.registerDerivedVec("topPtVec"         +myVarSuffix_, topPtVec        );
        
-        // --------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------------------------------
         // Adding reweighting recipe to emulate Level 1 ECAL prefiring
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
         // All prefiring recipes are now included in UL ntuples. Values are grabbed directly and registered with tree reader
-        // --------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------------------------------
         double prefiringScaleFactor = 1.0, prefiringScaleFactorUp = 1.0, prefiringScaleFactorDown = 1.0;
-        prefiringScaleFactor        = tr.getVar<float>("NonPrefiringProb");
-        prefiringScaleFactorUp      = tr.getVar<float>("NonPrefiringProbUp");
+        prefiringScaleFactor        = tr.getVar<float>("NonPrefiringProb"    );
+        prefiringScaleFactorUp      = tr.getVar<float>("NonPrefiringProbUp"  );
         prefiringScaleFactorDown    = tr.getVar<float>("NonPrefiringProbDown");
-        tr.registerDerivedVar( "prefiringScaleFactor"+myVarSuffix_, prefiringScaleFactor);                    
-        tr.registerDerivedVar( "prefiringScaleFactorUp"+myVarSuffix_, prefiringScaleFactorUp);                    
-        tr.registerDerivedVar( "prefiringScaleFactorDown"+myVarSuffix_, prefiringScaleFactorDown);                    
-        // --------------------------------------------------------------------------------------
+        tr.registerDerivedVar("prefiringScaleFactor"     +myVarSuffix_, prefiringScaleFactor    );                    
+        tr.registerDerivedVar("prefiringScaleFactorUp"   +myVarSuffix_, prefiringScaleFactorUp  );                    
+        tr.registerDerivedVar("prefiringScaleFactorDown" +myVarSuffix_, prefiringScaleFactorDown);                    
+
+        // --------------------------------------------------------------------------------------------------------------------
         // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
-        // --------------------------------------------------------------------------------------
-        const auto& Weight         = tr.getVar<float>("Weight");
-        const auto& bTagWeight     = tr.getVar<double>("bTagSF_EventWeightSimple_Central"+myVarSuffix_);
-        const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
-        const auto& NGoodMuons     = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
-        const auto& NNonIsoMuons   = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
-        
-        double totalEventWeight         = -1.0;
-        double totalEventWeightMG       = -1.0;
-        double totalEventWeightNIM      = -1.0;
-        double totalEventWeightNIM_ht   = -1.0;
+        // --------------------------------------------------------------------------------------------------------------------
+        const auto& Weight            = tr.getVar<float>("Weight");
+        const auto& bTagWeight        = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
+        const auto& NGoodElectrons    = tr.getVar<int>("NGoodElectrons"                      +myVarSuffix_);
+        const auto& NGoodMuons        = tr.getVar<int>("NGoodMuons"                          +myVarSuffix_);
+        const auto& NNonIsoMuons      = tr.getVar<int>("NNonIsoMuons"                        +myVarSuffix_);
+        double totalEventWeight       = -1.0;
+        double totalEventWeightMG     = -1.0;
+        double totalEventWeightNIM    = -1.0;
+        double totalEventWeightNIM_ht = -1.0;
         if( NGoodElectrons == 1 ) 
         {
-            totalEventWeight = Weight*bTagWeight*totGoodElectronSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
+            totalEventWeight   = Weight*bTagWeight*totGoodElectronSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
             totalEventWeightMG = Weight*bTagWeight*totGoodElectronSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
         }
         else if ( NGoodMuons == 1 ) 
         {
-            totalEventWeight = Weight*bTagWeight*totGoodMuonSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
+            totalEventWeight   = Weight*bTagWeight*totGoodMuonSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
             totalEventWeightMG = Weight*bTagWeight*totGoodMuonSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
         }
         if( NNonIsoMuons == 1 ) 
         {
-            totalEventWeightNIM = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr;
+            totalEventWeightNIM    = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr;
             totalEventWeightNIM_ht = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr*htDerivedweight;
         }
-
-        tr.registerDerivedVar( "totalEventWeight"+myVarSuffix_, totalEventWeight );
-        tr.registerDerivedVar( "totalEventWeightMG"+myVarSuffix_, totalEventWeightMG );
-        tr.registerDerivedVar( "totalEventWeightNIM"+myVarSuffix_, totalEventWeightNIM );
-        tr.registerDerivedVar( "totalEventWeightNIM_ht"+myVarSuffix_, totalEventWeightNIM_ht );
+        tr.registerDerivedVar("totalEventWeight"       +myVarSuffix_, totalEventWeight       );
+        tr.registerDerivedVar("totalEventWeightMG"     +myVarSuffix_, totalEventWeightMG     );
+        tr.registerDerivedVar("totalEventWeightNIM"    +myVarSuffix_, totalEventWeightNIM    );
+        tr.registerDerivedVar("totalEventWeightNIM_ht" +myVarSuffix_, totalEventWeightNIM_ht );
 
         if(printGetBinError_) firstPrint_ = false;
     }
 
 public:
-    ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
+    ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& hadronicFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
         : myVarSuffix_(myVarSuffix), firstPrint_(true), printMeanError_(false), printGetBinError_(false)
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
         TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
 
-        // Getting Lepton scale factor histograms
-        TFile SFRootFile( leptonFileName.c_str() );
-        TString eleSFHistoTightName, eleSFHistoIsoName, eleSFHistoRecoName, eleSFHistoTrigName;
-        TString muSFHistoMediumName,  muSFHistoIsoName,  muSFHistoRecoName,  muSFHistoTrigName, nimuSFHistoTrigName;
+        // Getting Leptonic and Hadronic scale factor histograms
+        TFile leptonic_SFRootFile( leptonFileName.c_str()    );
+        TFile hadronic_SFRootFile( hadronicFileName.c_str() );
+        TString eleSFHistoTightName,      eleSFHistoIsoName,        eleSFHistoRecoName,         eleSFHistoTrigName;
+        TString muSFHistoMediumName,      muSFHistoIsoName,         muSFHistoRecoName,          muSFHistoTrigName, nimuSFHistoTrigName;
+        TString jetSFHistoTrigName_2bCut, jetSFHistoTrigName_3bCut, jetSFHistoTrigName_ge4bCut;
 
         // Electron Iso root file not currently seen in recommendations. Working to determine if this is still necessary
         if( runYear == "2016preVFP")
         {
-            eleSFHistoTightName = "EGamma_SF2D_2016preVFP_UL_ID";
-            //eleSFHistoIsoName = "Run2016preVFP_Mini";
-            eleSFHistoRecoName = "EGamma_SF2D_2016preVFP_UL_RECO";
-            eleSFHistoTrigName = "TrigEff_2016preVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016preVFP_UL_ID";
-            muSFHistoIsoName = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016preVFP_UL_ISO";
-            muSFHistoTrigName = "TrigEff_2016preVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            //nimuSFHistoTrigName = "TrigEff_2016preVFP_num_nimu_pt40_trig_4jCut";
-            nimuSFHistoTrigName = ""; //just for calculating non iso muon scale factors
+            eleSFHistoTightName        = "EGamma_SF2D_2016preVFP_UL_ID";
+            //eleSFHistoIsoName         = "Run2016preVFP_Mini";
+            eleSFHistoRecoName         = "EGamma_SF2D_2016preVFP_UL_RECO";
+            eleSFHistoTrigName         = "TrigEff_2016preVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoMediumName        = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016preVFP_UL_ID";
+            muSFHistoIsoName           = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016preVFP_UL_ISO";
+            muSFHistoTrigName          = "TrigEff_2016preVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            //nimuSFHistoTrigName       = "TrigEff_2016preVFP_num_nimu_pt40_trig_4jCut";
+            nimuSFHistoTrigName        = ""; //just for calculating non iso muon scale factors
+            jetSFHistoTrigName_2bCut   = "h_2016preVFP_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_3bCut   = "h_2016preVFP_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_ge4bCut = "h_2016preVFP_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT"; 
         }
         else if( runYear == "2016postVFP")
         {
-            eleSFHistoTightName = "EGamma_SF2D_2016postVFP_UL_ID";
-            //eleSFHistoIsoName = "Run2016postVFP_Mini";
-            eleSFHistoRecoName = "EGamma_SF2D_2016postVFP_UL_RECO";
-            eleSFHistoTrigName = "TrigEff_2016postVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016postVFP_UL_ID";
-            muSFHistoIsoName = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016postVFP_UL_ISO";
-            muSFHistoTrigName = "TrigEff_2016postVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            //nimuSFHistoTrigName = "TrigEff_2016postVFP_num_nimu_pt40_trig_4jCut";
-            nimuSFHistoTrigName = ""; //just for calculating non iso muon scale factors
+            eleSFHistoTightName        = "EGamma_SF2D_2016postVFP_UL_ID";
+            //eleSFHistoIsoName          = "Run2016postVFP_Mini";
+            eleSFHistoRecoName         = "EGamma_SF2D_2016postVFP_UL_RECO";
+            eleSFHistoTrigName         = "TrigEff_2016postVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoMediumName        = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016postVFP_UL_ID";
+            muSFHistoIsoName           = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016postVFP_UL_ISO";
+            muSFHistoTrigName          = "TrigEff_2016postVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            //nimuSFHistoTrigName        = "TrigEff_2016postVFP_num_nimu_pt40_trig_4jCut";
+            nimuSFHistoTrigName        = ""; //just for calculating non iso muon scale factors
+            jetSFHistoTrigName_2bCut   = "h_2016postVFP_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_3bCut   = "h_2016postVFP_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_ge4bCut = "h_2016postVFP_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
         }
         else if( runYear == "2017")
         {
-            eleSFHistoTightName = "EGamma_SF2D_2017_UL_ID";
-            //eleSFHistoIsoName = "Run2017_MVAVLooseTightIP2DMini";
-            eleSFHistoRecoName = "EGamma_SF2D_2017_UL_RECO";
-            eleSFHistoTrigName = "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2017_UL_ID";
-            muSFHistoIsoName = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2017_UL_ISO";
-            muSFHistoTrigName = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            //nimuSFHistoTrigName = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
-            nimuSFHistoTrigName = ""; //just for calculating non iso muon scale factors
+            eleSFHistoTightName        = "EGamma_SF2D_2017_UL_ID";
+            //eleSFHistoIsoName          = "Run2017_MVAVLooseTightIP2DMini";
+            eleSFHistoRecoName         = "EGamma_SF2D_2017_UL_RECO";
+            eleSFHistoTrigName         = "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoMediumName        = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2017_UL_ID";
+            muSFHistoIsoName           = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2017_UL_ISO";
+            muSFHistoTrigName          = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            //nimuSFHistoTrigName        = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
+            nimuSFHistoTrigName        = ""; //just for calculating non iso muon scale factors
+            jetSFHistoTrigName_2bCut   = "h_2017_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_3bCut   = "h_2017_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_ge4bCut = "h_2017_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
         }
-        else if( runYear == "2018pre")
+        else if( runYear == "2018")
         {
-            eleSFHistoTightName = "EGamma_SF2D_2018_UL_ID";
-            //eleSFHistoIsoName = "Run2018_Mini";
-            eleSFHistoRecoName = "EGamma_SF2D_2018_UL_RECO";
-            eleSFHistoTrigName = "TrigEff_2018pre_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2018_UL_ID";
-            muSFHistoIsoName = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2018_UL_ISO";
-            muSFHistoTrigName = "TrigEff_2018pre_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            nimuSFHistoTrigName = "";
-        }
-        else if( runYear == "2018post")
-        {
-            eleSFHistoTightName = "EGamma_SF2D_2018_UL_ID";
-            //eleSFHistoIsoName = "Run2018_Mini";
-            eleSFHistoRecoName = "EGamma_SF2D_2018_UL_RECO";
-            eleSFHistoTrigName = "TrigEff_2018post_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2018_UL_ID";
-            muSFHistoIsoName = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2018_UL_ISO";
-            muSFHistoTrigName = "TrigEff_2018post_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            nimuSFHistoTrigName = "";
+            eleSFHistoTightName        = "EGamma_SF2D_2018_UL_ID";
+            //eleSFHistoIsoName          = "Run2018_Mini";
+            eleSFHistoRecoName         = "EGamma_SF2D_2018_UL_RECO";
+            eleSFHistoTrigName         = "TrigEff_2018_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoMediumName        = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2018_UL_ID";
+            muSFHistoIsoName           = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2018_UL_ISO";
+            muSFHistoTrigName          = "TrigEff_2018_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            nimuSFHistoTrigName        = "";
+            jetSFHistoTrigName_2bCut   = "h_2018_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_3bCut   = "h_2018_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_ge4bCut = "h_2018_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
         }
 
-        getHisto(SFRootFile, eleSFHistoTight_, eleSFHistoTightName);
-        //getHisto(SFRootFile, eleSFHistoIso_,   eleSFHistoIsoName);
-        getHisto(SFRootFile, eleSFHistoReco_,  eleSFHistoRecoName);
-        getHisto(SFRootFile, eleSFHistoTrig_,  eleSFHistoTrigName);
-        getHisto(SFRootFile, muSFHistoMedium_, muSFHistoMediumName);
-        getHisto(SFRootFile, muSFHistoIso_,    muSFHistoIsoName);
-        getHisto(SFRootFile, muSFHistoTrig_,   muSFHistoTrigName);
-        getHisto(SFRootFile, nimuSFHistoTrig_, nimuSFHistoTrigName);
-        /*if( runYear == "2016" ) 
-        {
-            getHisto(SFRootFile, eleSFHistoIP2D_, "Run2016_MVAVLooseIP2D");//In 2016, the isolation SF histogram is separate from the IP2D cut scale factor histogram.
-            getHisto(SFRootFile, muSFHistoReco_,  "ratio_eff_aeta_dr030e030_corr");//Only 2016 requires the track reconstruction efficiency.
-        }
-        */
-        SFRootFile.Close();
+        getHisto(leptonic_SFRootFile, eleSFHistoTight_,            eleSFHistoTightName       );
+        //getHisto(leptonic_SFRootFile, eleSFHistoIso_,              eleSFHistoIsoName         );
+        getHisto(leptonic_SFRootFile, eleSFHistoReco_,             eleSFHistoRecoName        );
+        getHisto(leptonic_SFRootFile, eleSFHistoTrig_,             eleSFHistoTrigName        );
+        getHisto(leptonic_SFRootFile, muSFHistoMedium_,            muSFHistoMediumName       );
+        getHisto(leptonic_SFRootFile, muSFHistoIso_,               muSFHistoIsoName          );
+        getHisto(leptonic_SFRootFile, muSFHistoTrig_,              muSFHistoTrigName         );
+        getHisto(leptonic_SFRootFile, nimuSFHistoTrig_,            nimuSFHistoTrigName       );
+        getHisto(hadronic_SFRootFile, jetSFHistoTrigName_2bCut_,   jetSFHistoTrigName_2bCut  );
+        getHisto(hadronic_SFRootFile, jetSFHistoTrigName_3bCut_,   jetSFHistoTrigName_3bCut  );
+        getHisto(hadronic_SFRootFile, jetSFHistoTrigName_ge4bCut_, jetSFHistoTrigName_ge4bCut);        
+
+        leptonic_SFRootFile.Close();
+        hadronic_SFRootFile.Close();        
 
         // Getting mean of some scale factors to keep total number of events the same after apply the scale factor
         TFile SFMeanRootFile( meanFileName.c_str() );
