@@ -124,7 +124,16 @@ private:
         nJetVar_     = cfgDoc->get("nJetVar",   localCxt, "NGoodJets");
         minNJet_     = cfgDoc->get("minNJet",   localCxt, 7);
         maxNJet_     = cfgDoc->get("maxNJet",   localCxt, 7);
+
+        // Try looking for the array of input variables with name mvaVar[0], mvaVar[1], etc...
         vars_        = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
+    
+        // If no variables were found with array name mvaVar, then try inputVar
+        if (vars_.size() == 0)
+        {
+            vars_ = getVecFromCfg<std::string>(cfgDoc, "inputVar", localCxt, "");
+        }
+
         regions_     = getVecFromCfg<std::string>(cfgDoc, "regions", localCxt, "");
 
         for (const auto region : regions_) {
@@ -238,7 +247,7 @@ private:
                       status);
 
         if(TF_GetCode(status) != TF_OK) std::cerr<<utility::color("ERROR: Unable to run graph: "+std::string(TF_Message(status)), "red")<<std::endl;
-       
+
         //Get output discriminators 
         std::vector<std::vector<double>> discriminators(outputs_.size());
 
