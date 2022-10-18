@@ -71,7 +71,6 @@ private:
                 int topIdx = findParent(6, gpi, GenParticles_ParentId, GenParticles_ParentIdx);
                 bool passWMomStatus = false;
 
-                //printf(" %6i: status: %6i pdg: %6i motherID: %6i motherIDX: %6i", gpi,  GenParticles_Status[gpi], GenParticles_PdgId[gpi], GenParticles_ParentId[gpi], GenParticles_ParentIdx[gpi]); fflush(stdout);
                 if((abs(momid) == 24) && (momstatus != 1 || status == 2 || momstatus != 22 || momstatus != 23 || momstatus != 52) )
                 {
                     passWMomStatus = true;
@@ -90,7 +89,6 @@ private:
                 }
                 if( topIdx >= 0 && (abs(pdgid) != 24) && (passWMomStatus || abs(pdgid) == 5))
                 {
-                    //printf(" topIdx: %i particle: %i\n", topIdx, pdgid); fflush(stdout);
                     
                     unsigned int position = 0;
                     for(;position < hadtops_idx_->size() && (*hadtops_idx_)[position] != topIdx; ++position);
@@ -107,10 +105,6 @@ private:
                         hadtopdaughters_id_->push_back( {static_cast<int>(gpi)} );
                     }
                 }
-                //else
-                //{
-                //    printf("\n");
-                //}
             }            
         }
     }
@@ -171,11 +165,11 @@ private:
         // Get reconstructed tops and derive needed variables
         // --------------------------------------------------                            
         // to get the whole top tagger
-        //std::vector<TopObject*> tops(mergedTops);                          
-        //tops.insert(tops.end(), resolvedTops.begin(), resolvedTops.end());
+        std::vector<TopObject*> tops(resolvedTops);                          
 
-        // to get only resolved top tagger for fake rate and efficiency  
-        std::vector<TopObject*> tops(resolvedTops);                        
+        // If not doing the resolved only tagger, add in the merged tops
+        if (taggerCfg_.find("Resolved") == std::string::npos)
+            tops.insert(tops.end(), mergedTops.begin(), mergedTops.end());
         
         countTops(tops);
         
@@ -376,21 +370,6 @@ private:
             }
         }
         
-        //for (int i = 0; i < hadtops_->size(); ++i)
-        //{
-        //    TLorentzVector dSum;
-        //    for (int j = 0; j < hadtopdaughters_->at(i).size(); j++)
-        //    {
-        //        dSum += *((hadtopdaughters_->at(i))[j]);
-        //    }
-        //    printf("nTops: %i ndaughters %i   top: (pt %4.5lf , eta %4.5lf, phi %4.5lf, mass %4.5lf) dSum: (pt %4.5lf , eta %4.5lf, phi %4.5lf, mass %4.5lf)\n", hadtops_->size(), hadtopdaughters_->at(i).size(), 
-        //           hadtops_->at(i).Pt(), hadtops_->at(i).Eta(), hadtops_->at(i).Phi(), hadtops_->at(i).M(), 
-        //           dSum.Pt(), dSum.Eta(), dSum.Phi(), dSum.M()
-        //          );
-        //
-        //}        
-        //printf("=========================================================================================\n");
-
         // Register Variables
         tr.registerDerivedVar("ttr"+myVarSuffix_, &ttr);
         tr.registerDerivedVar("ntops"+myVarSuffix_, ntops_);
