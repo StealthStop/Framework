@@ -164,10 +164,11 @@ private:
         // --------------------------------------------------
         // Get reconstructed tops and derive needed variables
         // --------------------------------------------------                            
-        // to get the whole top tagger
+        // Regardless of how we are running the top tagger, we will always include resolved tops
+        // Thus, initialize the general tops vector with resolved tops
         std::vector<TopObject*> tops(resolvedTops);                          
 
-        // If not doing the resolved only tagger, add in the merged tops
+        // If _not_ doing the resolved-only tagger i.e. doing whole merged+resolved tagger, add in the merged tops to the tops vector
         if (taggerCfg_.find("Resolved") == std::string::npos)
             tops.insert(tops.end(), mergedTops.begin(), mergedTops.end());
         
