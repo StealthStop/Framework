@@ -13,8 +13,6 @@ namespace utility
     typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float>> LorentzVector;
     typedef ROOT::Math::Boost BoostVector;
 
-    //double DeltaR(const LorentzVector& v1, const LorentzVector& v2);
-    //double DeltaPhi(const LorentzVector& v1, const LorentzVector& v2);
     LorentzVector RotateZ(const LorentzVector& v, const double r);
     LorentzVector Boost(const LorentzVector& v, const BoostVector& b);
     const std::string color(const std::string& text, const std::string& color);
