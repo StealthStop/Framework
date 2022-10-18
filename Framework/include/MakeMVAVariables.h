@@ -74,7 +74,7 @@ private:
                 {
                     for(unsigned int ijet = 0; ijet < lv_all.size(); ijet++)
                     {
-                        double deltaR = utility::DeltaR(utility::convertLV<utility::LorentzVector, TLorentzVector>(d), lv_all.at(ijet) );
+                        double deltaR = utility::DeltaR(d, lv_all.at(ijet));
                         if(deltaR < 0.4)
                         {
                             if(numMatchedJets != 1 && genMatched) genMatched = megaJetID == jetCombo[ijet]; 
