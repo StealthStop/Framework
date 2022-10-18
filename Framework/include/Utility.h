@@ -13,8 +13,8 @@ namespace utility
     typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float>> LorentzVector;
     typedef ROOT::Math::Boost BoostVector;
 
-    double DeltaR(const LorentzVector& v1, const LorentzVector& v2);
-    double DeltaPhi(const LorentzVector& v1, const LorentzVector& v2);
+    //double DeltaR(const LorentzVector& v1, const LorentzVector& v2);
+    //double DeltaPhi(const LorentzVector& v1, const LorentzVector& v2);
     LorentzVector RotateZ(const LorentzVector& v, const double r);
     LorentzVector Boost(const LorentzVector& v, const BoostVector& b);
     const std::string color(const std::string& text, const std::string& color);
@@ -28,6 +28,18 @@ namespace utility
     template<typename T> T sum2(T v) { return v*v; }
     template<typename T, typename... Args> T sum2(T v, Args... args) { return v*v + sum2(args...); }
     template<typename T, typename... Args> T addInQuad(T v, Args... args) { return sqrt(sum2(v, args...)); }
+
+    template<typename LV1, typename LV2>
+    double DeltaR(const LV1& v1, const LV2& v2)
+    {
+        return ROOT::Math::VectorUtil::DeltaR(v1, v2);
+    }    
+
+    template<typename LV1, typename LV2>
+    double DeltaPhi(const LV1& v1, const LV2& v2)
+    {
+        return ROOT::Math::VectorUtil::DeltaPhi(v1, v2);
+    }    
 
     template<typename LV1, typename LV2>
     double calcMT(const LV1& lepton, const LV2& met)

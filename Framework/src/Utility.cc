@@ -5,15 +5,15 @@
 namespace utility
 {
 
-    double DeltaR(const LorentzVector& v1, const LorentzVector& v2)
-    {
-        return ROOT::Math::VectorUtil::DeltaR(v1, v2);
-    }
+    //double DeltaR(const LorentzVector& v1, const LorentzVector& v2)
+    //{
+    //    return ROOT::Math::VectorUtil::DeltaR(v1, v2);
+    //}
 
-    double DeltaPhi(const LorentzVector& v1, const LorentzVector& v2)
-    {
-        return ROOT::Math::VectorUtil::DeltaPhi(v1, v2);
-    }
+    //double DeltaPhi(const LorentzVector& v1, const LorentzVector& v2)
+    //{
+    //    return ROOT::Math::VectorUtil::DeltaPhi(v1, v2);
+    //}
 
     LorentzVector Boost(const LorentzVector& v, const BoostVector& b)
     {
