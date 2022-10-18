@@ -34,7 +34,7 @@ private:
         const std::vector<TopObject*>& taggedObjects = ttr->getTops();
         for(auto* t : taggedObjects)
         {
-            if(t->getType()==TopObject::RESOLVED_TOP) 
+            if(t->getType()==TopObject::RESOLVED_TOP || t->getType()==TopObject::MERGED_TOP) 
             {
                 utility::LorentzVector top;
                 const std::vector<const Constituent*>& constituents = t->getConstituents();
