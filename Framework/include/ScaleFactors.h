@@ -498,10 +498,10 @@ private:
             const int xbinMuMedium     = findBin(muSFHistoMedium_, abs(mueta), "X", "mu id x"         );
             const int ybinMuIso        = findBin(muSFHistoIso_,    mupt,       "Y", "mu iso y"        );
             const int xbinMuIso        = findBin(muSFHistoIso_,    abs(mueta), "X", "mu iso x"        );            
-            const int ybinMuTrig       = findBin(muSFHistoTrig_,   mupt,       "Y", "mu trigger y"    );
-            const int xbinMuTrig       = findBin(muSFHistoTrig_,   mueta,      "X", "mu trigger x"    );
-            const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,       "Y", "mu iso trigger y");
-            const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,      "X", "mu iso trigger x");
+            const int ybinMuTrig       = findBin(muSFHistoTrig_,   mueta,      "Y", "mu trigger y"    );
+            const int xbinMuTrig       = findBin(muSFHistoTrig_,   mupt,       "X", "mu trigger x"    );
+            const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,      "Y", "mu iso trigger y");
+            const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,       "X", "mu iso trigger x");
             if( xbinMuMedium != -1 && ybinMuMedium != -1 && xbinMuIso != -1 && ybinMuIso != -1 ) 
             {
                 // The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
