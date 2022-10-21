@@ -698,7 +698,7 @@ private:
         // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
         // --------------------------------------------------------------------------------------------------------------------
         const auto& Weight            = tr.getVar<float>("Weight");
-        const auto* FinalLumi         = tr.getVar<double>("FinalLumi");
+        const auto& FinalLumi         = tr.getVar<double>("FinalLumi");
         const auto& bTagWeight        = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
         const auto& NGoodElectrons    = tr.getVar<int>("NGoodElectrons"                      +myVarSuffix_);
         const auto& NGoodMuons        = tr.getVar<int>("NGoodMuons"                          +myVarSuffix_);
