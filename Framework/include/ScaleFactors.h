@@ -698,33 +698,39 @@ private:
         // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
         // --------------------------------------------------------------------------------------------------------------------
         const auto& Weight            = tr.getVar<float>("Weight");
+        const auto* FinalLumi         = tr.getVar<double>("FinalLumi");
         const auto& bTagWeight        = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
         const auto& NGoodElectrons    = tr.getVar<int>("NGoodElectrons"                      +myVarSuffix_);
         const auto& NGoodMuons        = tr.getVar<int>("NGoodMuons"                          +myVarSuffix_);
+        const auto& NGoodLeptons      = tr.getVar<int>("NGoodLeptons"                        +myVarSuffix_);
         const auto& NNonIsoMuons      = tr.getVar<int>("NNonIsoMuons"                        +myVarSuffix_);
         double totalEventWeight       = -1.0;
-        double totalEventWeightMG     = -1.0;
         double totalEventWeightNIM    = -1.0;
-        double totalEventWeightNIM_ht = -1.0;
-        if( NGoodElectrons == 1 ) 
+
+        // Will need to sort out how to apply lepton SF when there is two leptons
+        if ( NGoodLeptons == 2 )
         {
-            totalEventWeight   = Weight*bTagWeight*totGoodElectronSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
-            totalEventWeightMG = Weight*bTagWeight*totGoodElectronSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
+            totalEventWeight   = Weight * FinalLumi * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        }
+        // Eventually, jetTrigSF will become totJetSF to incorporate the top tagger scale factor
+        else if ( NGoodLeptons == 0 ) 
+        {
+            totalEventWeight   = Weight * FinalLumi * bTagWeight * jetTrigSF * prefiringScaleFactor * puWeightCorr;
+        }
+        else if ( NGoodElectrons == 1 ) 
+        {
+            totalEventWeight   = Weight * FinalLumi * bTagWeight * totGoodElectronSF * prefiringScaleFactor * puWeightCorr;
         }
         else if ( NGoodMuons == 1 ) 
         {
-            totalEventWeight   = Weight*bTagWeight*totGoodMuonSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
-            totalEventWeightMG = Weight*bTagWeight*totGoodMuonSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
+            totalEventWeight   = Weight * FinalLumi * bTagWeight * totGoodMuonSF * prefiringScaleFactor * puWeightCorr;
         }
-        if( NNonIsoMuons == 1 ) 
+        if ( NNonIsoMuons == 1 ) 
         {
-            totalEventWeightNIM    = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr;
-            totalEventWeightNIM_ht = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr*htDerivedweight;
+            totalEventWeightNIM    = Weight * FinalLumi * totNonIsoMuonSF * prefiringScaleFactor * puWeightCorr;
         }
-        tr.registerDerivedVar("totalEventWeight"       +myVarSuffix_, totalEventWeight       );
-        tr.registerDerivedVar("totalEventWeightMG"     +myVarSuffix_, totalEventWeightMG     );
-        tr.registerDerivedVar("totalEventWeightNIM"    +myVarSuffix_, totalEventWeightNIM    );
-        tr.registerDerivedVar("totalEventWeightNIM_ht" +myVarSuffix_, totalEventWeightNIM_ht );
+        tr.registerDerivedVar("FinalWeight"           + myVarSuffix_, totalEventWeight       );
+        tr.registerDerivedVar("FinalWeightNonIsoMuon" + myVarSuffix_, totalEventWeightNIM    );
 
         if(printGetBinError_) firstPrint_ = false;
     }
