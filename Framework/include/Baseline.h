@@ -289,11 +289,11 @@ private:
                                    passTrigger            &&
                                    passTriggerMC          &&
                                    passElectronHEMveto    &&
-                                   NNonIsoMuons == 0      &&
-                                   HT_trigger_pt30 > 500  &&
                                    //passBlindLep_Good      &&                                  
                                    (runtype != "Data"  || (NGoodMuons >= 1 && filetag.find("Data_SingleMuon") != std::string::npos ) 
                                                        || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
+                                   NNonIsoMuons == 0      &&
+                                   HT_trigger_pt30 > 500  &&
                                    NGoodBJets_pt30 >= 1   &&
                                    NGoodJets_pt30 >= 6    &&
                                    NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false;
@@ -311,18 +311,18 @@ private:
         // Define QCD CR Selections
         //  -- common for all 3 channels for now !!!
         // -----------------------------------------
-        bool passBaseline1l_NonIsoMuon = HT_NonIsoMuon_pt30 > 500 &&
-                                         passElectronHEMveto      &&
-                                         passMETFilters           &&
-                                         passMadHT                &&
-                                         passNonIsoTrigger        &&
-                                         passNonIsoTriggerMC      &&
-                                         (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
-                                         NNonIsoMuons == 1        &&
-                                         NGoodMuons == 0          &&
-                                         NGoodElectrons == 0      &&
-                                         JetID                    &&
-                                         NNonIsoMuonJets_pt30 >= 7;
+        bool pass_qcdCR = JetID                    && 
+                          passMETFilters           &&
+                          passMadHT                &&
+                          passNonIsoTrigger        &&
+                          passNonIsoTriggerMC      &&
+                          passElectronHEMveto      &&
+                          (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
+                          HT_NonIsoMuon_pt30 > 500 &&
+                          NNonIsoMuons == 1        &&
+                          NGoodMuons == 0          &&
+                          NGoodElectrons == 0      &&
+                          NNonIsoMuonJets_pt30 >= 7;
 
 
         // -------------------
@@ -356,7 +356,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline2l_Good_blind"     +myVarSuffix_, passBaseline2l_Good_blind    );
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"        +myVarSuffix_, passBaseline2lonZ_Good       );
         // QCD CR things        
-        tr.registerDerivedVar<bool>("passBaseline1l_NonIsoMuon"     +myVarSuffix_, passBaseline1l_NonIsoMuon    );
+        tr.registerDerivedVar<bool>("pass_qcdCR"                    +myVarSuffix_, pass_qcdCR                   );
         tr.registerDerivedVar<bool>("passNonIsoTrigger"             +myVarSuffix_, passNonIsoTrigger            );
         tr.registerDerivedVar<bool>("passNonIsoTriggerMC"           +myVarSuffix_, passNonIsoTriggerMC          );
         // common things       
