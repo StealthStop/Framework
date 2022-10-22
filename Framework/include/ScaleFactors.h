@@ -701,7 +701,6 @@ private:
         const auto& NGoodLeptons      = tr.getVar<int>("NGoodLeptons"                        +myVarSuffix_);
         const auto& NNonIsoMuons      = tr.getVar<int>("NNonIsoMuons"                        +myVarSuffix_);
         double totalEventWeight       = -1.0;
-        double totalEventWeightNIM    = -1.0;
 
         double commonWeight = Weight * FinalLumi * bTagWeight * prefiringScaleFactor * puWeightCorr;
         tr.registerDerivedVar("CommonWeight" + myVarSuffix_, commonWeight);
@@ -714,7 +713,7 @@ private:
         }
         // 1-Lepton
         // Just choose either the muon or the electron weight
-        else if ( NGoodLeptons == 1 and NNonIsoMuons == 0 )
+        else if ( NGoodLeptons == 1 )
         { 
             double totLepWeight = totGoodElectronSF;
             if ( NGoodMuons == 1 ) 
@@ -730,13 +729,12 @@ private:
         }
         // QCDCR
         // With one non-isolated muon, use the totNonIsoMuonSF inside the total weight
-        else if ( NNonIsoMuons == 1 and NGoodLeptons == 0 ) 
+        else if ( NGoodLeptons == 0 and NNonIsoMuons == 1 ) 
         {
-            totalEventWeightNIM    = commonWeight * totNonIsoMuonSF;
+            totalEventWeight    = commonWeight * totNonIsoMuonSF;
         }
 
         tr.registerDerivedVar("TotalWeight"           + myVarSuffix_, totalEventWeight       );
-        tr.registerDerivedVar("TotalWeightNonIsoMuon" + myVarSuffix_, totalEventWeightNIM    );
 
         if(printGetBinError_) firstPrint_ = false;
     }
