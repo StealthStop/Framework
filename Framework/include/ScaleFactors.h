@@ -694,43 +694,49 @@ private:
         tr.registerDerivedVar("prefiringScaleFactorUp"   +myVarSuffix_, prefiringScaleFactorUp  );                    
         tr.registerDerivedVar("prefiringScaleFactorDown" +myVarSuffix_, prefiringScaleFactorDown);                    
 
-        // --------------------------------------------------------------------------------------------------------------------
-        // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
-        // --------------------------------------------------------------------------------------------------------------------
         const auto& Weight            = tr.getVar<float>("Weight");
         const auto& FinalLumi         = tr.getVar<double>("FinalLumi");
         const auto& bTagWeight        = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
-        const auto& NGoodElectrons    = tr.getVar<int>("NGoodElectrons"                      +myVarSuffix_);
         const auto& NGoodMuons        = tr.getVar<int>("NGoodMuons"                          +myVarSuffix_);
         const auto& NGoodLeptons      = tr.getVar<int>("NGoodLeptons"                        +myVarSuffix_);
         const auto& NNonIsoMuons      = tr.getVar<int>("NNonIsoMuons"                        +myVarSuffix_);
         double totalEventWeight       = -1.0;
         double totalEventWeightNIM    = -1.0;
 
-        // Will need to sort out how to apply lepton SF when there is two leptons
-        if ( NGoodLeptons == 2 )
-        {
-            totalEventWeight   = Weight * FinalLumi * bTagWeight * prefiringScaleFactor * puWeightCorr;
-        }
+        double commonWeight = Weight * FinalLumi * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        tr.registerDerivedVar("CommonWeight" + myVarSuffix_, commonWeight);
+
+        // 0-Lepton
         // Eventually, jetTrigSF will become totJetSF to incorporate the top tagger scale factor
-        else if ( NGoodLeptons == 0 ) 
+        if ( NGoodLeptons == 0 and NNonIsoMuons == 0 ) 
         {
-            totalEventWeight   = Weight * FinalLumi * bTagWeight * jetTrigSF * prefiringScaleFactor * puWeightCorr;
+            totalEventWeight = commonWeight * jetTrigSF;
         }
-        else if ( NGoodElectrons == 1 ) 
+        // 1-Lepton
+        // Just choose either the muon or the electron weight
+        else if ( NGoodLeptons == 1 and NNonIsoMuons == 0 )
+        { 
+            double totLepWeight = totGoodElectronSF;
+            if ( NGoodMuons == 1 ) 
+                totLepWeight = totGoodMuonSF;
+
+            totalEventWeight   = commonWeight * totLepWeight;
+        }
+        // 2-Lepton
+        // TODO: Figure out how to incorporate lep scale factor for more than one lepton
+        else if ( NGoodLeptons == 2 )
         {
-            totalEventWeight   = Weight * FinalLumi * bTagWeight * totGoodElectronSF * prefiringScaleFactor * puWeightCorr;
+            totalEventWeight   = commonWeight;// * totLepWeight;
         }
-        else if ( NGoodMuons == 1 ) 
+        // QCDCR
+        // With one non-isolated muon, use the totNonIsoMuonSF inside the total weight
+        else if ( NNonIsoMuons == 1 and NGoodLeptons == 0 ) 
         {
-            totalEventWeight   = Weight * FinalLumi * bTagWeight * totGoodMuonSF * prefiringScaleFactor * puWeightCorr;
+            totalEventWeightNIM    = commonWeight * totNonIsoMuonSF;
         }
-        if ( NNonIsoMuons == 1 ) 
-        {
-            totalEventWeightNIM    = Weight * FinalLumi * totNonIsoMuonSF * prefiringScaleFactor * puWeightCorr;
-        }
-        tr.registerDerivedVar("FinalWeight"           + myVarSuffix_, totalEventWeight       );
-        tr.registerDerivedVar("FinalWeightNonIsoMuon" + myVarSuffix_, totalEventWeightNIM    );
+
+        tr.registerDerivedVar("TotalWeight"           + myVarSuffix_, totalEventWeight       );
+        tr.registerDerivedVar("TotalWeightNonIsoMuon" + myVarSuffix_, totalEventWeightNIM    );
 
         if(printGetBinError_) firstPrint_ = false;
     }
