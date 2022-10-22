@@ -32,9 +32,10 @@ private:
         int NGoodPlusElectrons_pt20 = 0;
         int NGoodMinusElectrons_pt20 = 0;
         double ptCut = 0.0;
-        if      (runYear.find("2016") != std::string::npos) ptCut = 30.0;
-        else if (runYear == "2017") ptCut = 37.0; 
-        else if (runYear == "2018pre" || runYear == "2018post" || runYear == "2018") ptCut = 37.0; 
+        if (runYear.find("2016") != std::string::npos)
+            ptCut = 30.0;
+        else
+            ptCut = 37.0; 
         for(unsigned int iel = 0; iel < allElectrons.size(); ++iel)
         {
             utility::LorentzVector lvel = allElectrons.at(iel);

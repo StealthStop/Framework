@@ -89,6 +89,7 @@ private:
         const auto& MuonsCharge = tr.getVec<int>("Muons_charge");
         const auto& MuonsMiniIso = tr.getVec<float>("Muons_iso");
         const auto& GoodMuons = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
+        const auto& NonIsoMuons = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
         const auto& NGoodMuons = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& GoodMuons_pt20 = tr.getVec<bool>("GoodMuons_pt20"+myVarSuffix_);
         const auto& Electrons = tr.getVec<utility::LorentzVector>("Electrons");
@@ -197,6 +198,10 @@ private:
         auto* GoodLeptonsCharge_pt20 = new std::vector<int>();
         auto* GoodLeptonsMiniIso = new std::vector<double>();
         auto* GoodLeptonsMiniIso_pt20 = new std::vector<double>();
+
+        auto* GoodNonIsoMuonsCharge = new std::vector<int>();
+        auto* GoodNonIsoMuonsMiniIso = new std::vector<double>();
+
         int NGoodLeptons = 0;
         int NGoodLeptons_pt20 = 0;
         for(unsigned int imu = 0; imu < Muons.size(); ++imu)
@@ -216,6 +221,12 @@ private:
                 GoodLeptonsCharge_pt20->push_back( MuonsCharge.at(imu) );
                 GoodLeptonsMiniIso_pt20->push_back( MuonsMiniIso.at(imu) );
                 NGoodLeptons_pt20++;
+            }
+
+            if(NonIsoMuons[imu])
+            {
+                GoodNonIsoMuonsCharge->push_back( MuonsCharge.at(imu) );
+                GoodNonIsoMuonsMiniIso->push_back( MuonsMiniIso.at(imu) );
             }
         }
         for(unsigned int iel = 0; iel < Electrons.size(); ++iel)
@@ -242,6 +253,8 @@ private:
         tr.registerDerivedVar("NGoodLeptons"+myVarSuffix_, NGoodLeptons);
         tr.registerDerivedVec("GoodLeptonsCharge"+myVarSuffix_, GoodLeptonsCharge);
         tr.registerDerivedVec("GoodLeptonsMiniIso"+myVarSuffix_, GoodLeptonsMiniIso);
+        tr.registerDerivedVec("GoodNonIsoMuonsCharge"+myVarSuffix_, GoodNonIsoMuonsCharge);
+        tr.registerDerivedVec("GoodNonIsoMuonsMiniIso"+myVarSuffix_, GoodNonIsoMuonsMiniIso);
         tr.registerDerivedVec("GoodLeptons_pt20"+myVarSuffix_, GoodLeptons_pt20);
         tr.registerDerivedVar("NGoodLeptons_pt20"+myVarSuffix_, NGoodLeptons_pt20);
         tr.registerDerivedVec("GoodLeptonsCharge_pt20"+myVarSuffix_, GoodLeptonsCharge_pt20);

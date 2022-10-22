@@ -694,37 +694,49 @@ private:
         tr.registerDerivedVar("prefiringScaleFactorUp"   +myVarSuffix_, prefiringScaleFactorUp  );                    
         tr.registerDerivedVar("prefiringScaleFactorDown" +myVarSuffix_, prefiringScaleFactorDown);                    
 
-        // --------------------------------------------------------------------------------------------------------------------
-        // Registering a variable that is the nominal total weight with lepton scale factor, btag scale factor, ht scale factor
-        // --------------------------------------------------------------------------------------------------------------------
         const auto& Weight            = tr.getVar<float>("Weight");
+        const auto& FinalLumi         = tr.getVar<double>("FinalLumi");
         const auto& bTagWeight        = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
-        const auto& NGoodElectrons    = tr.getVar<int>("NGoodElectrons"                      +myVarSuffix_);
         const auto& NGoodMuons        = tr.getVar<int>("NGoodMuons"                          +myVarSuffix_);
+        const auto& NGoodLeptons      = tr.getVar<int>("NGoodLeptons"                        +myVarSuffix_);
         const auto& NNonIsoMuons      = tr.getVar<int>("NNonIsoMuons"                        +myVarSuffix_);
         double totalEventWeight       = -1.0;
-        double totalEventWeightMG     = -1.0;
         double totalEventWeightNIM    = -1.0;
-        double totalEventWeightNIM_ht = -1.0;
-        if( NGoodElectrons == 1 ) 
+
+        double commonWeight = Weight * FinalLumi * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        tr.registerDerivedVar("CommonWeight" + myVarSuffix_, commonWeight);
+
+        // 0-Lepton
+        // Eventually, jetTrigSF will become totJetSF to incorporate the top tagger scale factor
+        if ( NGoodLeptons == 0 and NNonIsoMuons == 0 ) 
         {
-            totalEventWeight   = Weight*bTagWeight*totGoodElectronSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
-            totalEventWeightMG = Weight*bTagWeight*totGoodElectronSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
+            totalEventWeight = commonWeight * jetTrigSF;
         }
-        else if ( NGoodMuons == 1 ) 
+        // 1-Lepton
+        // Just choose either the muon or the electron weight
+        else if ( NGoodLeptons == 1 and NNonIsoMuons == 0 )
+        { 
+            double totLepWeight = totGoodElectronSF;
+            if ( NGoodMuons == 1 ) 
+                totLepWeight = totGoodMuonSF;
+
+            totalEventWeight   = commonWeight * totLepWeight;
+        }
+        // 2-Lepton
+        // TODO: Figure out how to incorporate lep scale factor for more than one lepton
+        else if ( NGoodLeptons == 2 )
         {
-            totalEventWeight   = Weight*bTagWeight*totGoodMuonSF*htDerivedweight*prefiringScaleFactor*puWeightCorr;
-            totalEventWeightMG = Weight*bTagWeight*totGoodMuonSF*htDerivedweightMG*prefiringScaleFactor*puWeightCorr;
+            totalEventWeight   = commonWeight;// * totLepWeight;
         }
-        if( NNonIsoMuons == 1 ) 
+        // QCDCR
+        // With one non-isolated muon, use the totNonIsoMuonSF inside the total weight
+        else if ( NNonIsoMuons == 1 and NGoodLeptons == 0 ) 
         {
-            totalEventWeightNIM    = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr;
-            totalEventWeightNIM_ht = Weight*totNonIsoMuonSF*prefiringScaleFactor*puWeightCorr*htDerivedweight;
+            totalEventWeightNIM    = commonWeight * totNonIsoMuonSF;
         }
-        tr.registerDerivedVar("totalEventWeight"       +myVarSuffix_, totalEventWeight       );
-        tr.registerDerivedVar("totalEventWeightMG"     +myVarSuffix_, totalEventWeightMG     );
-        tr.registerDerivedVar("totalEventWeightNIM"    +myVarSuffix_, totalEventWeightNIM    );
-        tr.registerDerivedVar("totalEventWeightNIM_ht" +myVarSuffix_, totalEventWeightNIM_ht );
+
+        tr.registerDerivedVar("TotalWeight"           + myVarSuffix_, totalEventWeight       );
+        tr.registerDerivedVar("TotalWeightNonIsoMuon" + myVarSuffix_, totalEventWeightNIM    );
 
         if(printGetBinError_) firstPrint_ = false;
     }

@@ -208,6 +208,7 @@ private:
         double bestTopEta              = -9999.9;
         double bestTopPhi              = -9999.9;
         double bestTopPt               = -9999.9;
+        double bestTopDisc             = -9999.9;
         const TopObject* bestTopMassLV = nullptr;
         bool bestTopMassGenMatch       = false;
         bool bestTopMassTopTag         = false;
@@ -221,6 +222,7 @@ private:
                 bestTopEta    = top->p().Eta();
                 bestTopPhi    = top->p().Phi();
                 bestTopPt     = top->p().Pt();
+                bestTopDisc   = top->getDiscriminator();
                 bestTopMassLV = top;
             }     
         }
@@ -382,6 +384,7 @@ private:
         tr.registerDerivedVar("bestTopEta"+myVarSuffix_, bestTopEta);
         tr.registerDerivedVar("bestTopPt"+myVarSuffix_, bestTopPt);
         tr.registerDerivedVar("bestTopPhi"+myVarSuffix_, bestTopPhi);
+        tr.registerDerivedVar("bestTopDisc"+myVarSuffix_, bestTopDisc);
         tr.registerDerivedVar("bestTopMassLV"+myVarSuffix_, bestTopMassLV?(bestTopMassLV->p()):(TLorentzVector()));
         tr.registerDerivedVar("bestTopMassGenMatch"+myVarSuffix_, bestTopMassGenMatch);
         tr.registerDerivedVar("bestTopMassTopTag"+myVarSuffix_, bestTopMassTopTag);
