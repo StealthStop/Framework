@@ -266,19 +266,19 @@ private:
                 Jets_top6.push_back                ( Jets_psort.at(ji)                 );
             }
 
-            // Add all jets after and including the 7th jet (ji >= 6)
+            // Add all jets after and including the nth jet (ji >= n-1)
             if ( ji >= nTopJets_-1 )
             {
                 combinedJetTLV += Jet_cm_psort;
             }
         } // ji
 
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_pt_cm"+channel_+myVarSuffix_,       static_cast<double>(combinedJetTLV.Pt())    );
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_ptrHT_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedJetTLV.Pt() / HT_Trigger_pt30)    );
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_eta_cm"+channel_+myVarSuffix_,      static_cast<double>(combinedJetTLV.Eta())   );
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_phi_cm"+channel_+myVarSuffix_,      static_cast<double>(combinedJetTLV.Phi())   );
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_m_cm"+channel_+myVarSuffix_,        static_cast<double>(combinedJetTLV.M())     );
-        tr.registerDerivedVar("combined7thToLast"+MVAJetName_+"_E_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedJetTLV.E())     );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_) + "thToLast"+MVAJetName_+"_pt_cm"+channel_+myVarSuffix_,       static_cast<double>(combinedJetTLV.Pt())    );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_) + "thToLast"+MVAJetName_+"_ptrHT_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedJetTLV.Pt() / HT_Trigger_pt30)    );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_) + "thToLast"+MVAJetName_+"_eta_cm"+channel_+myVarSuffix_,      static_cast<double>(combinedJetTLV.Eta())   );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_) + "thToLast"+MVAJetName_+"_phi_cm"+channel_+myVarSuffix_,      static_cast<double>(combinedJetTLV.Phi())   );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_) + "thToLast"+MVAJetName_+"_m_cm"+channel_+myVarSuffix_,        static_cast<double>(combinedJetTLV.M())     );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_) + "thToLast"+MVAJetName_+"_E_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedJetTLV.E())     );
 
         auto GoodLeptons_cm = std::make_unique<std::vector<utility::LorentzVector>>();
         for(unsigned int ilep = 0; ilep < GoodLeptons.size(); ilep++)
@@ -522,7 +522,8 @@ private:
         tr.registerDerivedVar(ESVarName_+"jmt_ev2_top6"+channel_+myVarSuffix_, static_cast<double>( jmt_ev2_top6  ));
         tr.registerDerivedVar(ESVarName_+"event_beta_z"+myVarSuffix_,          static_cast<double>( event_beta_z  ));
         tr.registerDerivedVar(ESVarName_+"event_phi_rotate"+myVarSuffix_,      static_cast<double>( phiMax        ));
-        tr.registerDerivedVar(ESVarName_+"nMVAJets"+channel_+myVarSuffix_,        nTopJets_                           );
+        tr.registerDerivedVar(ESVarName_+"nMVAJets"+channel_+myVarSuffix_,                          nTopJets_      );
+        tr.registerDerivedVar(ESVarName_+"nMVALeptons"+channel_+myVarSuffix_,                       nLeptons_      );
 
         // Sum jets, leptons, and MET in the CM frame to reco the SUSY particles
         std::pair<utility::LorentzVector, utility::LorentzVector> BestCombo, genBestCombo;
