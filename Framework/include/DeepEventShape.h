@@ -270,7 +270,7 @@ private:
         // Register Variables and determine which regions/subregions an event is
         // based on inferencing with the Double DisCo NN
         double disc1   = discriminators[0][0];
-        double disc2   = discriminators[0][2];
+        double disc2   = discriminators[0][1];
         double massReg = discriminators[1][0];
         tr.registerDerivedVar("DoubleDisCo_disc1_"+name_+myVarSuffix_, disc1);
         tr.registerDerivedVar("DoubleDisCo_disc2_"+name_+myVarSuffix_, disc2);
