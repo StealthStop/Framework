@@ -280,7 +280,7 @@ private:
         const auto& NGoodJets = tr.getVar<int>(nJetVar_+myVarSuffix_);
 
         int kJet; // Iterator for edges, boundaries coming from Validation
-        for (const auto region : regions_) {
+        for (const auto& region : regions_) {
 
             if (binEdgesPerRegion_.find(region) == binEdgesPerRegion_.end())
                 continue;
@@ -334,8 +334,7 @@ private:
                             disc2 < disc2edge &&
                             withinBoundaries;
 
-            auto& passVec = tr.createDerivedVec<bool>("DoubleDisCo_"+region+"_"+name_+myVarSuffix_, 4);
-
+            auto& passVec = tr.createDerivedVec<bool>("DoubleDisCo_" + region + "_" + name_ + myVarSuffix_, 4, false);
             passVec.at(0) = passBinA;
             passVec.at(1) = passBinB;
             passVec.at(2) = passBinC;
@@ -384,6 +383,8 @@ public:
         , outputOpVec_(husk.outputOpVec_)
         , outputCmVec_(husk.outputCmVec_)
         , vars_(husk.vars_)
+        , binEdgesPerRegion_(husk.binEdgesPerRegion_)
+        , regions_(husk.regions_)
         , inputs_(husk.inputs_)
         , outputs_(husk.outputs_)
         , targets_(husk.targets_)
