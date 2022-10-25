@@ -405,8 +405,8 @@ public:
         std::string cfgText;
 
         FILE *f = fopen(cfgFileName.c_str(), "r");
-        char buff[4096];
-        for(; !feof(f) && fgets(buff, 4095, f);)
+        char buff[1024];
+        for(; !feof(f) && fgets(buff, 1023, f);)
         {
             cfgText += buff;
         }
