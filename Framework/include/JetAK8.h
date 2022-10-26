@@ -1,9 +1,9 @@
-#ifndef FATJETCOMBINE_H
-#define FATJETCOMBINE_H
+#ifndef JETAK8_H
+#define JETAK8_H
 
 #include "Framework/Framework/include/Utility.h"
 
-class FatJetCombine
+class JetAK8
 {
 private:
     std::string myVarSuffix_;
@@ -65,10 +65,10 @@ private:
         }
 
 public:
-    FatJetCombine(std::string myVarSuffix = "") 
+    JetAK8(std::string myVarSuffix = "") 
         : myVarSuffix_(myVarSuffix)
     {
-        std::cout<<"Setting up FatJetCombine"<<std::endl;   
+        std::cout<<"Setting up JetAK8"<<std::endl;   
     }
     
     void operator()(NTupleReader& tr)
