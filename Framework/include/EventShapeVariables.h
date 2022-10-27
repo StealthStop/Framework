@@ -20,7 +20,7 @@
 	   Christian Veelken, UC Davis
 */
 
-#include "Framework/Framework/include/Vector3D.h"
+#include "Framework/Framework/include/Utility.h"
 
 #include "TMatrixDSym.h"
 #include "TVectorD.h"
@@ -94,10 +94,6 @@ class EventShapeVariables {
   double fwmom_[fwmom_maxl_+1] ;
   bool   fwmom_computed_ ;
 
-
-
-
 };
 
 #endif
-
