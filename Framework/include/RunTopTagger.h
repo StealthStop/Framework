@@ -224,7 +224,7 @@ private:
                 bestTopPhi    = top->p().Phi();
                 bestTopPt     = top->p().Pt();
                 bestTopDisc   = top->getDiscriminator();
-                bestTopNconst = top->get();
+                bestTopNconst = top->getNConstituents();
                 bestTopMassLV = top;
             }     
         }
