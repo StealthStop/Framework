@@ -323,6 +323,10 @@ private:
                           NGoodElectrons == 0      &&
                           NNonIsoMuonJets_pt30 >= 7;
 
+        bool pass_qcdCR_1b    = pass_qcdCR && NGoodBJets_pt30 >= 1;
+        bool pass_qcdCR_1t    = pass_qcdCR                          && ntops >= 1;
+        bool pass_qcdCR_1b_1t = pass_qcdCR && NGoodBJets_pt30 >= 1  && ntops >= 1;
+        bool pass_qcdCR_2b    = pass_qcdCR && NGoodBJets_pt30 >= 2;
 
         // -------------------
         // Register all things
@@ -356,6 +360,10 @@ private:
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"        +myVarSuffix_, passBaseline2lonZ_Good       );
         // QCD CR things        
         tr.registerDerivedVar<bool>("pass_qcdCR"                    +myVarSuffix_, pass_qcdCR                   );
+        tr.registerDerivedVar<bool>("pass_qcdCR_1b"                 +myVarSuffix_, pass_qcdCR_1b                );
+        tr.registerDerivedVar<bool>("pass_qcdCR_1t"                 +myVarSuffix_, pass_qcdCR_1t                );
+        tr.registerDerivedVar<bool>("pass_qcdCR_1b_1t"              +myVarSuffix_, pass_qcdCR_1b_1t             );
+        tr.registerDerivedVar<bool>("pass_qcdCR_2b"                 +myVarSuffix_, pass_qcdCR_2b                );
         tr.registerDerivedVar<bool>("passNonIsoTrigger"             +myVarSuffix_, passNonIsoTrigger            );
         tr.registerDerivedVar<bool>("passNonIsoTriggerMC"           +myVarSuffix_, passNonIsoTriggerMC          );
         // common things       
