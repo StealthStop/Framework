@@ -85,13 +85,6 @@ private:
                 E .push_back(pair.second.E ());                
             }
 
-            if (!lostCauseEvent)
-            {
-                std::cout << "MAKESTOPHEMIS" << std::endl;
-                for (const auto& sj : Jets)
-                    std::cout << "    " << sj.Pt() << " " << sj.Eta() << " " << sj.Phi() << " " << sj.M() << std::endl;
-            }
-
 
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
