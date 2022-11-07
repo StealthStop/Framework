@@ -362,18 +362,18 @@ private:
         EventShapeVariables esv_top6( cm_jets_top6 ) ;
         TVectorD eigen_vals_norm_top6 = esv_top6.getEigenValues() ;
 
-        double fwm2_top6    = esv_top6.getFWmoment( 2 )  ;
-        double fwm3_top6    = esv_top6.getFWmoment( 3 )  ;
-        double fwm4_top6    = esv_top6.getFWmoment( 4 )  ;
-        double fwm5_top6    = esv_top6.getFWmoment( 5 )  ;
-        double fwm6_top6    = esv_top6.getFWmoment( 5)  ;
-        double fwm7_top6    = esv_top6.getFWmoment( 5)  ;
-        double fwm8_top6    = esv_top6.getFWmoment( 5)  ;
-        double fwm9_top6    = esv_top6.getFWmoment( 5)  ;
-        double fwm10_top6   = esv_top6.getFWmoment( 5 ) ;
-        double jmt_ev0_top6 = eigen_vals_norm_top6[0]    ;
-        double jmt_ev1_top6 = eigen_vals_norm_top6[1]    ;
-        double jmt_ev2_top6 = eigen_vals_norm_top6[2]    ;
+        double fwm2_top6    = esv_top6.getFWmoment( 2 ) ;
+        double fwm3_top6    = esv_top6.getFWmoment( 3 ) ;
+        double fwm4_top6    = esv_top6.getFWmoment( 4 ) ;
+        double fwm5_top6    = esv_top6.getFWmoment( 5 ) ;
+        double fwm6_top6    = esv_top6.getFWmoment( 6 ) ;
+        double fwm7_top6    = esv_top6.getFWmoment( 7 ) ;
+        double fwm8_top6    = esv_top6.getFWmoment( 8 ) ;
+        double fwm9_top6    = esv_top6.getFWmoment( 9 ) ;
+        double fwm10_top6   = esv_top6.getFWmoment( 10) ;
+        double jmt_ev0_top6 = eigen_vals_norm_top6[0]   ;
+        double jmt_ev1_top6 = eigen_vals_norm_top6[1]   ;
+        double jmt_ev2_top6 = eigen_vals_norm_top6[2]   ;
 
         // Register Variables
         for(unsigned int i = 0; i < nTopJets_; i++)

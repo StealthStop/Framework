@@ -151,10 +151,12 @@ private:
         bool passMETFilters  = globalSuperTightHalo2016Filter && PrimaryVertexFilter && BadPFMuonFilter && EcalDeadCellTriggerPrimitiveFilter && HBHEIsoNoiseFilter && HBHENoiseFilter;
 
         // With fast mode *off* (false), every event is considered and processed by all modules
-        // If fast mode is active (true), an event must "earn" its importance by passing any of 
-        // the main 0L, 1L, 2L baselines. If it does not, time-intensive modules can be skipped
-        // in the pipeline as long as the analyzer is also informed and also skips to next event
+        // in the pipeline. If fast mode is active (true), an event must "earn" its keep by passing any of 
+        // the main 0L, 1L, 2L baselines. If an event does not pass any of these main selections, time-intensive
+        // modules can be skipped in the pipeline as long as the relevant analyzer is also informed and also skips to the next event
         const auto& fastMode = tr.getVar<bool>("fastMode");
+
+        // If fastMode is false, then an event is never a "lost cause", implying it will go through the entire module pipeline
         bool lostCauseEvent = fastMode;
                 
         // -----------------------------------
@@ -338,12 +340,13 @@ private:
         bool pass_qcdCR_1b_1t = pass_qcdCR && NGoodBJets_pt30 >= 1  && ntops >= 1;
         bool pass_qcdCR_2b    = pass_qcdCR && NGoodBJets_pt30 >= 2;
 
-        // Now combine all relevant baselines into single bool
-        // Or in any useful event-level booleans
-        lostCauseEvent &= !passBaseline0l_Good_noHEMveto &&
-                          !passBaseline1l_Good_noHEMveto &&
-                          !passBaseline2l_Good_noHEMveto &&
-                          !pass_qcdCR                     ;
+        // Now combine all relevant baselines into a single bool
+        // Here we select the main baselines for all three channels
+        // If all four booleans are false, then the event is considered a "lost cause"
+        lostCauseEvent &= !passBaseline0l_Good &&
+                          !passBaseline1l_Good &&
+                          !passBaseline2l_Good &&
+                          !pass_qcdCR           ;
 
         // -------------------
         // Register all things
