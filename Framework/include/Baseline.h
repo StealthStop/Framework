@@ -150,14 +150,11 @@ private:
         const auto& HBHENoiseFilter                     = static_cast<bool>(tr.getVar<int>("HBHENoiseFilter")                   );
         bool passMETFilters  = globalSuperTightHalo2016Filter && PrimaryVertexFilter && BadPFMuonFilter && EcalDeadCellTriggerPrimitiveFilter && HBHEIsoNoiseFilter && HBHENoiseFilter;
 
-        // With fast mode *off* (false), every event is considered and processed by all modules
-        // in the pipeline. If fast mode is active (true), an event must "earn" its keep by passing any of 
-        // the main 0L, 1L, 2L baselines. If an event does not pass any of these main selections, time-intensive
+        // An event must "earn" its keep by passing any of the main 0L, 1L, 2L baselines.
+        // If an event does not pass any of these main selections, time-intensive
         // modules can be skipped in the pipeline as long as the relevant analyzer is also informed and also skips to the next event
-        const auto& fastMode = tr.getVar<bool>("fastMode");
-
-        // If fastMode is false, then an event is never a "lost cause", implying it will go through the entire module pipeline
-        bool lostCauseEvent = fastMode;
+        // This boolean only informs modules about an event, it does not make the final decision to skip an event
+        bool lostCauseEvent = true;
                 
         // -----------------------------------
         // Define 0-Lepton Baseline Selections

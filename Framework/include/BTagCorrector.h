@@ -537,7 +537,9 @@ public:
     void operator()(NTupleReader& tr)
     {
         const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
-        if (!lostCauseEvent)
+        const auto& fastMode       = tr.getVar<bool>("fastMode");
+
+        if (!lostCauseEvent or !fastMode)
             registerVarToNTuples(tr);
     }
 

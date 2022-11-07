@@ -61,6 +61,8 @@ private:
         double dR_Stop1Stop2_cm           = -1;
         double dPhi_Stop1Stop2_cm         = -1;
  
+        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
+
         if(NGoodJets >= 2)
         {
             utility::LorentzVector MET;
@@ -82,6 +84,14 @@ private:
                 pz.push_back(pair.second.Pz());
                 E .push_back(pair.second.E ());                
             }
+
+            if (!lostCauseEvent)
+            {
+                std::cout << "MAKESTOPHEMIS" << std::endl;
+                for (const auto& sj : Jets)
+                    std::cout << "    " << sj.Pt() << " " << sj.Eta() << " " << sj.Phi() << " " << sj.M() << std::endl;
+            }
+
 
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
@@ -234,7 +244,9 @@ public:
     void operator()(NTupleReader& tr)
     {
         const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
-        if (!lostCauseEvent)
+        const auto& fastMode       = tr.getVar<bool>("fastMode");
+
+        if (!lostCauseEvent or !fastMode)
             getHemispheres(tr);
     }
 };
