@@ -536,7 +536,9 @@ public:
     //Operator
     void operator()(NTupleReader& tr)
     {
-        registerVarToNTuples(tr);
+        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
+        if (!lostCauseEvent)
+            registerVarToNTuples(tr);
     }
 
     //member variables

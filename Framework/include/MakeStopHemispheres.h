@@ -233,7 +233,9 @@ public:
 
     void operator()(NTupleReader& tr)
     {
-        getHemispheres(tr);
+        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
+        if (!lostCauseEvent)
+            getHemispheres(tr);
     }
 };
 

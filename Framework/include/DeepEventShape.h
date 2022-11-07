@@ -196,7 +196,7 @@ private:
             const auto& runYear = tr.getVar<std::string>("runYear");
             try
             {                
-                if(runYear != year_)
+                if(runYear != year_ and year_ != "Run2")
                 {
                     throw "Warning: using DeepESM config file with \""+year_+"\" year but expected \""+runYear+"\" year";
                 }
@@ -431,7 +431,9 @@ public:
     
     void operator()(NTupleReader& tr)
     {
-        runDeepEventShape(tr);
+        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
+        if (!lostCauseEvent)
+            runDeepEventShape(tr);
     }
 };
 

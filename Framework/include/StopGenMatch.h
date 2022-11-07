@@ -446,7 +446,9 @@ public:
 
     void operator()(NTupleReader& tr)
     {
-        genMatch(tr);
+        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
+        if (!lostCauseEvent)
+            genMatch(tr);
     }
 };
 
