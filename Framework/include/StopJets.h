@@ -27,8 +27,6 @@ private:
         const auto& GoodJets_pt20         = tr.getVec<bool>("GoodJets_pt20"+myVarSuffix_);
         auto& StopJets                    = tr.createDerivedVec<utility::LorentzVector>("StopJets"+myVarSuffix_);
  
-        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
-
         // --------------------------------- 
         // create an index for resolved tops
         // --------------------------------- 
