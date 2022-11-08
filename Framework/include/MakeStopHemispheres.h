@@ -61,8 +61,6 @@ private:
         double dR_Stop1Stop2_cm           = -1;
         double dPhi_Stop1Stop2_cm         = -1;
  
-        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
-
         if(NGoodJets >= 2)
         {
             utility::LorentzVector MET;
