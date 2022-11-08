@@ -1,26 +1,7 @@
 #ifndef JET_H
 #define JET_H
 
-inline bool passesPuIdLoose(float pt, float eta){
-    constexpr float cuts[4][4] = {
-                     {0.71,-0.32,-0.30,-0.22},
-                     {0.87,-0.08,-0.16,-0.12},
-                     {0.94,0.24,0.05,0.10},
-                     {0.97,0.48,0.26,0.29}};
-    int ptidx = 0;
-    int etaidx = 0;
-    if( pt < 20) ptidx = 0;
-    else if( pt < 30) ptidx = 1;
-    else if( pt < 40) ptidx = 2;
-    else if( pt < 50) ptidx = 3;
-    if( std::abs(eta) < 2.5f) etaidx = 0;
-    else if( std::abs(eta) < 2.75f) etaidx = 1;
-    else if( std::abs(eta) < 3.0f) etaidx = 2;
-    else if( std::abs(eta) < 5.0f) etaidx = 3;
-    return cuts[ptidx][etaidx];
-}
-
-inline bool passesPuIdMedium(float pt, float eta){
+inline bool passesPuIdMedium(float pt, float eta, float disc_value){
      constexpr float cuts[4][4] = {
         { 0.20,-0.56,-0.43,-0.38},
         { 0.62,-0.39,-0.32,-0.29},
@@ -37,7 +18,7 @@ inline bool passesPuIdMedium(float pt, float eta){
     else if( std::abs(eta) < 2.75f) etaidx = 1;
     else if( std::abs(eta) < 3.0f) etaidx = 2;
     else if( std::abs(eta) < 5.0f) etaidx = 3;
-    return cuts[ptidx][etaidx];
+    return cuts[ptidx][etaidx] < disc_value || pt > 50.0f;
 }
 
 class Jet
@@ -69,6 +50,7 @@ private:
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NElectrons    = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& NonIsoMuons   = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
+        const auto& puId          = tr.getVec<bool>("Jets_pileupId"+myVarSuffix_);
 
         //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) 
         //if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same
@@ -167,7 +149,7 @@ private:
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 30 && goodjets_.at(i), goodjets_pt30_, NGoodJets_pt30);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 40 && goodjets_.at(i), goodjets_pt40_, NGoodJets_pt40);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 45 && goodjets_.at(i), goodjets_pt45_, NGoodJets_pt45);
-            setJetVar( abs(lv.Eta()) < etaCut && passesPuIdMedium(lv.Pt(), lv.Eta()) && lv.Pt() > 10 && goodjets_.at(i),
+            setJetVar( abs(lv.Eta()) < etaCut && passesPuIdMedium(lv.Pt(), lv.Eta(), puId.at(i)) && lv.Pt() > 10 && goodjets_.at(i),
                     goodjets_puid_, NGoodJetsPuIdMedium );
 
             setJetVar( abs(lv.Eta()) < etaCut &&             tempNonIsoMuonJets->at(i), nonIsoMuonjets_,      NNonIsoMuonJets     );
