@@ -83,6 +83,7 @@ private:
                 E .push_back(pair.second.E ());                
             }
 
+
             // Get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)  
             asymm_mt2_lester_bisect::disableCopyrightMessage();
             Hemisphere hemi(px, py, pz, E, seedMethod_, hemi_association); // to get hemisphere jets
@@ -233,7 +234,11 @@ public:
 
     void operator()(NTupleReader& tr)
     {
-        getHemispheres(tr);
+        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
+        const auto& fastMode       = tr.getVar<bool>("fastMode");
+
+        if (!lostCauseEvent or !fastMode)
+            getHemispheres(tr);
     }
 };
 

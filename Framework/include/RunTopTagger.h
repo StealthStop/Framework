@@ -145,7 +145,7 @@ private:
         const std::vector<Constituent>& constituents = st.getConstituents();
 
         // Run the top tagger             
-        tt_->runTagger(constituents);
+        tt_->runTagger(std::move(constituents));
 
         // Get the top tagger results object     
         const TopTaggerResults& ttr = tt_->getResults();
