@@ -1,6 +1,26 @@
 #ifndef JET_H
 #define JET_H
 
+inline bool passesPuIdMedium(float pt, float eta, float disc_value){
+     constexpr float cuts[4][4] = {
+        { 0.20,-0.56,-0.43,-0.38},
+        { 0.62,-0.39,-0.32,-0.29},
+        { 0.86,-0.10,-0.15,-0.08},
+        { 0.93,0.19,0.04,0.12}
+    };
+    int ptidx = 0;
+    int etaidx = 0;
+    if( pt < 20) ptidx = 0;
+    else if( pt < 30) ptidx = 1;
+    else if( pt < 40) ptidx = 2;
+    else if( pt < 50) ptidx = 3;
+    if( std::abs(eta) < 2.5f) etaidx = 0;
+    else if( std::abs(eta) < 2.75f) etaidx = 1;
+    else if( std::abs(eta) < 3.0f) etaidx = 2;
+    else if( std::abs(eta) < 5.0f) etaidx = 3;
+    return cuts[ptidx][etaidx] < disc_value || pt > 50.0f;
+}
+
 class Jet
 {
 private:
@@ -30,6 +50,7 @@ private:
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NElectrons    = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& NonIsoMuons   = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
+        const auto& puId          = tr.getVec<bool>("Jets_pileupId"+myVarSuffix_);
 
         //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) 
         //if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same
@@ -99,17 +120,19 @@ private:
         int NJets_pt20 = 0, NJets_pt30 = 0, NJets_pt40 = 0, NJets_pt45 = 0;
 
         auto& goodjets_      = tr.createDerivedVec<bool>("GoodJets"+myVarSuffix_);
+        auto& goodjets_puid_ = tr.createDerivedVec<bool>("GoodJetsPuIdMedium"+myVarSuffix_);
         auto& goodjets_pt20_ = tr.createDerivedVec<bool>("GoodJets_pt20"+myVarSuffix_);
         auto& goodjets_pt30_ = tr.createDerivedVec<bool>("GoodJets_pt30"+myVarSuffix_);
         auto& goodjets_pt40_ = tr.createDerivedVec<bool>("GoodJets_pt40"+myVarSuffix_);
         auto& goodjets_pt45_ = tr.createDerivedVec<bool>("GoodJets_pt45"+myVarSuffix_);
-        int NGoodJets = 0, NGoodJets_pt20 = 0, NGoodJets_pt30 = 0, NGoodJets_pt40 = 0, NGoodJets_pt45 = 0;
+        int NGoodJets = 0, NGoodJetsPuIdMedium=0, NGoodJets_pt20 = 0, NGoodJets_pt30 = 0, NGoodJets_pt40 = 0, NGoodJets_pt45 = 0;
 
         auto& nonIsoMuonjets_      = tr.createDerivedVec<bool>("NonIsoMuonJets"+myVarSuffix_);
         auto& nonIsoMuonjets_pt20_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt20"+myVarSuffix_);
         auto& nonIsoMuonjets_pt30_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
         auto& nonIsoMuonjets_pt40_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt40"+myVarSuffix_);
         auto& nonIsoMuonjets_pt45_ = tr.createDerivedVec<bool>("NonIsoMuonJets_pt45"+myVarSuffix_);
+
         int NNonIsoMuonJets = 0, NNonIsoMuonJets_pt20 = 0, NNonIsoMuonJets_pt30 = 0, NNonIsoMuonJets_pt40 = 0, NNonIsoMuonJets_pt45 = 0;
 
         for(unsigned int i = 0; i < Jets.size(); ++i ) 
@@ -126,6 +149,8 @@ private:
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 30 && goodjets_.at(i), goodjets_pt30_, NGoodJets_pt30);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 40 && goodjets_.at(i), goodjets_pt40_, NGoodJets_pt40);
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 45 && goodjets_.at(i), goodjets_pt45_, NGoodJets_pt45);
+            setJetVar( abs(lv.Eta()) < etaCut && passesPuIdMedium(lv.Pt(), lv.Eta(), puId.at(i)) && lv.Pt() > 10 && goodjets_.at(i),
+                    goodjets_puid_, NGoodJetsPuIdMedium );
 
             setJetVar( abs(lv.Eta()) < etaCut &&             tempNonIsoMuonJets->at(i), nonIsoMuonjets_,      NNonIsoMuonJets     );
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 20 && nonIsoMuonjets_.at(i), nonIsoMuonjets_pt20_, NNonIsoMuonJets_pt20);
@@ -140,6 +165,7 @@ private:
         tr.registerDerivedVar("NJets_pt45"+myVarSuffix_,  NJets_pt45);
 
         tr.registerDerivedVar("NGoodJets"     +myVarSuffix_, NGoodJets);       
+        tr.registerDerivedVar("NGoodJetsPuIdMedium"     +myVarSuffix_, NGoodJetsPuIdMedium);       
         tr.registerDerivedVar("NGoodJets_pt20"+myVarSuffix_, NGoodJets_pt20); 
         tr.registerDerivedVar("NGoodJets_pt20_double"+myVarSuffix_, static_cast<double>(NGoodJets_pt20)); 
         tr.registerDerivedVar("NGoodJets_pt30"+myVarSuffix_, NGoodJets_pt30);
@@ -162,6 +188,7 @@ private:
         tr.registerDerivedVar("NNonIsoMuonJets_pt30_inclusive"+myVarSuffix_, NNonIsoMuonJets_pt30_inclusive);
         tr.registerDerivedVar("NNonIsoMuonJets_pt30_inclusive_shift"+myVarSuffix_, NNonIsoMuonJets_pt30_inclusive - 7);
         tr.createDerivedVec<bool>("AllJets"+myVarSuffix_, Jets.size(), true);
+
     }
 
 public:
