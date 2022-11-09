@@ -73,6 +73,7 @@ private:
                 StopJets.push_back(Jets[i]);
             }
         }
+
         auto& GoodStopJets = tr.createDerivedVec<bool>("GoodStopJets"+myVarSuffix_, StopJets.size(), true);
         tr.createDerivedVar<int>("NGoodStopJets"+myVarSuffix_, GoodStopJets.size());   
 
@@ -87,7 +88,11 @@ public:
 
     void operator()(NTupleReader& tr)
     {
-        getStopJets(tr);
+        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
+        const auto& fastMode       = tr.getVar<bool>("fastMode");
+
+        if (!lostCauseEvent or !fastMode)
+            getStopJets(tr);
     }
 };
 

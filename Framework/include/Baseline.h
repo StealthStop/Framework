@@ -152,6 +152,12 @@ private:
         const auto& HBHEIsoNoiseFilter                  = static_cast<bool>(tr.getVar<int>("HBHEIsoNoiseFilter")                );
         const auto& HBHENoiseFilter                     = static_cast<bool>(tr.getVar<int>("HBHENoiseFilter")                   );
         bool passMETFilters  = globalSuperTightHalo2016Filter && PrimaryVertexFilter && BadPFMuonFilter && EcalDeadCellTriggerPrimitiveFilter && HBHEIsoNoiseFilter && HBHENoiseFilter;
+
+        // An event must "earn" its keep by passing any of the main 0L, 1L, 2L baselines.
+        // If an event does not pass any of these main selections, time-intensive
+        // modules can be skipped in the pipeline as long as the relevant analyzer is also informed and also skips to the next event
+        // This boolean only informs modules about an event, it does not make the final decision to skip an event
+        bool lostCauseEvent = true;
                 
         // -----------------------------------
         // Define 0-Lepton Baseline Selections
@@ -290,8 +296,6 @@ private:
                                    passMadHT              &&
                                    passTrigger            &&
                                    passTriggerMC          &&
-                                   passElectronHEMveto    &&
-                                   //passBlindLep_Good      &&                                  
                                    (runtype != "Data"  || (NGoodMuons >= 1 && filetag.find("Data_SingleMuon") != std::string::npos ) 
                                                        || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
                                    NNonIsoMuons == 0      &&
@@ -301,7 +305,12 @@ private:
                                    NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false;
         
         // ful baseline
-        bool passBaseline2l_Good       = passBaseline2l_base && !onZ;
+        bool passBaseline2l_Good           = passBaseline2l_base && 
+                                             passElectronHEMveto &&
+                                             !onZ;
+
+        bool passBaseline2l_Good_noHEMveto = passBaseline2l_base && 
+                                             !onZ;
 
         // full baseline for blind
         bool passBaseline2l_Good_blind = passBaseline2l_Good && passBlind2Lep_Good;
@@ -330,6 +339,14 @@ private:
         bool pass_qcdCR_1t    = pass_qcdCR                          && ntops >= 1;
         bool pass_qcdCR_1b_1t = pass_qcdCR && NGoodBJets_pt30 >= 1  && ntops >= 1;
         bool pass_qcdCR_2b    = pass_qcdCR && NGoodBJets_pt30 >= 2;
+
+        // Now combine all relevant baselines into a single bool
+        // Here we select the main baselines for all three channels
+        // If all four booleans are false, then the event is considered a "lost cause"
+        lostCauseEvent &= !passBaseline0l_Good &&
+                          !passBaseline1l_Good &&
+                          !passBaseline2l_Good &&
+                          !pass_qcdCR           ;
 
         // -------------------
         // Register all things
@@ -362,6 +379,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline2l_base "          +myVarSuffix_, passBaseline2l_base          ); 
         tr.registerDerivedVar<bool>("passBaseline2l_Good"           +myVarSuffix_, passBaseline2l_Good          );
         tr.registerDerivedVar<bool>("passBaseline2l_Good_blind"     +myVarSuffix_, passBaseline2l_Good_blind    );
+        tr.registerDerivedVar<bool>("passBaseline2l_Good_noHEMveto" +myVarSuffix_, passBaseline2l_Good_noHEMveto);
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"        +myVarSuffix_, passBaseline2lonZ_Good       );
         // QCD CR things        
         tr.registerDerivedVar<bool>("pass_qcdCR"                    +myVarSuffix_, pass_qcdCR                   );
@@ -377,6 +395,8 @@ private:
         tr.registerDerivedVar<bool>("passElectronHEMveto"           +myVarSuffix_, passElectronHEMveto          );
         tr.registerDerivedVar<bool>("passTrigger"                   +myVarSuffix_, passTrigger                  );
         tr.registerDerivedVar<bool>("passTriggerMC"                 +myVarSuffix_, passTriggerMC                );
+
+        tr.registerDerivedVar<bool>("lostCauseEvent"                +myVarSuffix_, lostCauseEvent               );
         
     }
 
