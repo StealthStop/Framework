@@ -1,13 +1,14 @@
 #include "MiniTupleMaker.h"
+#include "Framework/Framework/include/Utility.h"
 
 #include "TLorentzVector.h"
 #include <iostream>
 
-MiniTupleMaker::MiniTupleMaker(TTree * const t) : file_(nullptr), tree_(t)
+MiniTupleMaker::MiniTupleMaker(TTree* const t) : file_(nullptr), tree_(t)
 {
 }
 
-MiniTupleMaker::MiniTupleMaker(std::string fname, std::string treeName) : file_(new TFile(fname.c_str(), "RECREATE")), tree_(new TTree(treeName.c_str(), (fname + treeName).c_str()))
+MiniTupleMaker::MiniTupleMaker(const std::string& fname, const std::string& treeName) : file_(new TFile(fname.c_str(), "RECREATE")), tree_(new TTree(treeName.c_str(), (fname + treeName).c_str()))
 {
 }
 
@@ -21,7 +22,7 @@ MiniTupleMaker::~MiniTupleMaker()
     }
 }
 
-void MiniTupleMaker::setTupleVars(const std::set<std::string> tv)
+void MiniTupleMaker::setTupleVars(const std::set<std::string>& tv)
 {
     for(auto& var : tv) tupleVars_.insert(var);
 }
@@ -41,10 +42,13 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
             }
             else
             {
+
+                if (LVexceptions_.find(var) != LVexceptions_.end())       prepVec<utility::LorentzVector>(tr, var);
                 //Anyone reading this please forgive me, but root made me do it
-                if     (type.find("TLorentzVector") != std::string::npos) prepVec<TLorentzVector>(tr, var);
+                else if(type.find("TLorentzVector") != std::string::npos) prepVec<TLorentzVector>(tr, var);
                 else if(type.find("double")         != std::string::npos) prepVec<double>(tr, var);
                 else if(type.find("float")          != std::string::npos) prepVec<float>(tr, var);
+                else if(type.find("bool")           != std::string::npos) prepVec<bool>(tr, var);
                 else if(type.find("int")            != std::string::npos) prepVec<int>(tr, var);
                 else
                 {
