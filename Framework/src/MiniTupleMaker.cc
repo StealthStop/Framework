@@ -43,8 +43,7 @@ void MiniTupleMaker::initBranches(const NTupleReader& tr)
             else
             {
 
-                if (LVexceptions_.find(var) != LVexceptions_.end())       prepVec<utility::LorentzVector>(tr, var);
-                //Anyone reading this please forgive me, but root made me do it
+                if     (LVexceptions_.find(var) != LVexceptions_.end())   prepVec<utility::LorentzVector>(tr, var);
                 else if(type.find("TLorentzVector") != std::string::npos) prepVec<TLorentzVector>(tr, var);
                 else if(type.find("double")         != std::string::npos) prepVec<double>(tr, var);
                 else if(type.find("float")          != std::string::npos) prepVec<float>(tr, var);
