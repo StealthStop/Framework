@@ -109,14 +109,10 @@ private:
         {
             const auto& madHT  = tr.getVar<float>("madHT");
 
-            // Exclude events with MadGraph HT > 100 (70) from the WJets (DY) inclusive samples
+            // Exclude events with MadGraph HT > 70 from the WJets and DY inclusive samples
             // in order to avoid double counting with the HT-binned samples
-            // For DY, a special exception is made for 2016 and 2016APV where no HT-binned samples are present - 12 Oct 2022 JCH
-            if(filetag.find("DYJetsToLL_M-50_Incl") != std::string::npos && madHT > 70 && runYear.find("2016") == std::string::npos) passMadHT = false;
-
-            // For Wjets, 70to100 HT-binned samples are present for all years except 2016preVFP, which starts at 100to200
-            if(filetag.find("WJetsToLNu_Incl") != std::string::npos && madHT > 70  && runYear.find("2016preVFP") == std::string::npos) passMadHT = false;
-            if(filetag.find("WJetsToLNu_Incl") != std::string::npos && madHT > 100 && runYear.find("2016preVFP") != std::string::npos) passMadHT = false;
+            if(filetag.find("DYJetsToLL_M-50_Incl") != std::string::npos && madHT > 70.0) passMadHT = false;
+            if(filetag.find("WJetsToLNu_Incl")      != std::string::npos && madHT > 70.0) passMadHT = false;
 
             // Stitch TTbar samples together
             // remove HT overlap
