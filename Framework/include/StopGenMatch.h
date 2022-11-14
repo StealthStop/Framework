@@ -77,7 +77,6 @@ private:
                 // We only take care when a gen is used, thus it cannot be matched to multiple reco
                 // only matched to best reco. On the other hand, multiple gen are free to be matched
                 // to a single reco.
-                //if (std::get<0>(AllDR.at(d)) == std::get<0>(bestDR))
                 if (std::get<0>(AllDR.at(d)) == std::get<0>(bestDR) or (std::get<1>(AllDR.at(d)) == std::get<1>(bestDR)))
                 {
                     availableDR.at(d) = false;
@@ -103,8 +102,6 @@ private:
             const auto& Muons                   = tr.getVec<utility::LorentzVector>("Muons");
             const auto& MET                     = tr.getVar<float>("MET");
             const auto& METPhi                  = tr.getVar<float>("METPhi");
-            const auto& GenMET                  = tr.getVar<float>("GenMET");
-            const auto& GenMETPhi               = tr.getVar<float>("GenMETPhi");
 
             const auto& filetag                 = tr.getVar<std::string>("filetag");
 
@@ -114,9 +111,6 @@ private:
 
             utility::LorentzVector lvMET;
             lvMET.SetPt(MET); lvMET.SetEta(0.0); lvMET.SetPhi(METPhi); lvMET.SetE(MET);
-            
-            utility::LorentzVector lvGenMET;
-            lvGenMET.SetPt(GenMET); lvGenMET.SetEta(0.0); lvGenMET.SetPhi(GenMETPhi); lvGenMET.SetE(GenMET);
             
             std::vector<utility::LorentzVector> RecoParticles;
             for(unsigned int j=0; j < Jets.size(); j++)
@@ -247,45 +241,6 @@ private:
             std::vector<int> resParticleList{commonAncestor, -commonAncestor}; //gen match for stop, neutralino, and singlet
 
             std::vector<utility::LorentzVector> RecoSumList;
-            std::vector<utility::LorentzVector> GenSumList;
-            std::vector<std::pair<std::vector<double>, std::vector<double>>> DRandPTSumList;
-            std::vector<std::vector<int> > pdgsList;
-            std::vector<std::vector<int> > momList;
-            std::vector<std::vector<double> > genEtaList;
-            std::vector<std::vector<double> > recEtaList;
-            std::vector<std::vector<double> > genPhiList;
-            std::vector<std::vector<double> > recPhiList;
-            std::vector<std::vector<double> > genPtList;
-            std::vector<std::vector<double> > recPtList;
-
-            utility::LorentzVector AllGenSum,AllGenSumNlino;
-            for (unsigned int g = 0; g < GenParticles.size(); g++)
-            {
-                if (GoodGenParticles.at(g) && findParent(commonAncestor, g, GenParticles_ParentId, GenParticles_ParentIdx) == commonAncestor) AllGenSum += GenParticles.at(g);
-            }
-
-//     For tracking the DR and pT of matched particles to check matching
-
-            auto& GM_Stop1_DR     = tr.createDerivedVec<double>("GM_Stop1_DR"+myVarSuffix_);
-            auto& GM_Stop1_PT     = tr.createDerivedVec<double>("GM_Stop1_PT"+myVarSuffix_);
-            auto& GM_Stop2_DR     = tr.createDerivedVec<double>("GM_Stop2_DR"+myVarSuffix_);
-            auto& GM_Stop2_PT     = tr.createDerivedVec<double>("GM_Stop2_PT"+myVarSuffix_);
-            auto& GM_Stop1_pdgs    = tr.createDerivedVec<int>("GM_Stop1_pdgs"+myVarSuffix_);
-            auto& GM_Stop2_pdgs    = tr.createDerivedVec<int>("GM_Stop2_pdgs"+myVarSuffix_);
-            auto& GM_Stop1_mom    = tr.createDerivedVec<int>("GM_Stop1_mom"+myVarSuffix_);
-            auto& GM_Stop2_mom    = tr.createDerivedVec<int>("GM_Stop2_mom"+myVarSuffix_);
-            auto& GM_Stop1_genpts    = tr.createDerivedVec<double>("GM_Stop1_genpts"+myVarSuffix_);
-            auto& GM_Stop2_genpts    = tr.createDerivedVec<double>("GM_Stop2_genpts"+myVarSuffix_);
-            auto& GM_Stop1_genphis    = tr.createDerivedVec<double>("GM_Stop1_genphis"+myVarSuffix_);
-            auto& GM_Stop2_genphis    = tr.createDerivedVec<double>("GM_Stop2_genphis"+myVarSuffix_);
-            auto& GM_Stop1_genetas    = tr.createDerivedVec<double>("GM_Stop1_genetas"+myVarSuffix_);
-            auto& GM_Stop2_genetas    = tr.createDerivedVec<double>("GM_Stop2_genetas"+myVarSuffix_);
-            auto& GM_Stop1_recpts    = tr.createDerivedVec<double>("GM_Stop1_recpts"+myVarSuffix_);
-            auto& GM_Stop2_recpts    = tr.createDerivedVec<double>("GM_Stop2_recpts"+myVarSuffix_);
-            auto& GM_Stop1_recphis    = tr.createDerivedVec<double>("GM_Stop1_recphis"+myVarSuffix_);
-            auto& GM_Stop2_recphis    = tr.createDerivedVec<double>("GM_Stop2_recphis"+myVarSuffix_);
-            auto& GM_Stop1_recetas    = tr.createDerivedVec<double>("GM_Stop1_recetas"+myVarSuffix_);
-            auto& GM_Stop2_recetas    = tr.createDerivedVec<double>("GM_Stop2_recetas"+myVarSuffix_);
 
             for(unsigned int p=0; p < resParticleList.size(); p++)
             {
@@ -297,124 +252,28 @@ private:
 
                 std::vector<bool> availableDR(AllDR.size(), true);
 
-                getMatches( AllDR, Matches, availableDR);
+                getMatches(AllDR, Matches, availableDR);
 
                 utility::LorentzVector RecoMatchedSum;
-                utility::LorentzVector GenMatchedSum;
-                std::vector<double> DRvec;
-                std::vector<double> PTvec;
-                std::vector<int> pdgs;
-                std::vector<int> mom;
-                std::vector<double> genpts;
-                std::vector<double> genetas;
-                std::vector<double> genphis;
-                std::vector<double> recpts;
-                std::vector<double> recetas;
-                std::vector<double> recphis;
             
                 // Matches may have multiple GEN matched to a single RECO
                 // So let's do some sneaky processing
                 unsigned int skip = 0;
                 while (skip < Matches.size())
                 {
-                    auto theGen = GenParticles.at(Matches.at(skip).first);
                     auto theRec = RecoParticles.at(Matches.at(skip).second);
-                    //int recIdx = Matches.at(skip).second;
-                    int genIdx = Matches.at(skip).first;
 
-                    // Starting from this element onward we may have the same reco appearing in a row matched
-                    // to multiple gen, so try and add all those gen together.
-                    //for (unsigned int j = skip+1; j < Matches.size(); j++)
-                    //{
-
-                    //    int currentRecIdx = Matches.at(j).second;
-                    //    skip = j;
-   
-                    //    // Here find another gen with the same reco match
-                    //    if (recIdx == currentRecIdx)
-                    //    {
-                    //        theGen += GenParticles.at(Matches.at(j).first);
-                    //    } else {
-                    //        break;
-                    //    }
-                    //}
-
-                    //std::cout << "idx: " << genIdx << " sta: " << GenParticles_Status.at(genIdx) << " mom: " << GenParticles_ParentId.at(genIdx) << " dau: " << GenParticles_PdgId.at(genIdx) << " dR: " << theGen.DeltaR(theRec) << " PtR: " << theGen.Pt()/theRec.Pt() << " eta: " << theRec.Eta() << " Phi: " << theRec.Phi() << std::endl; 
-
-                    GenMatchedSum  += theGen;
                     RecoMatchedSum += theRec;
-                    DRvec.push_back(utility::DeltaR(theGen, theRec));
-                    PTvec.push_back(theGen.Pt()/theRec.Pt());
-                    pdgs.push_back(GenParticles_PdgId.at(genIdx));
-                    mom.push_back(GenParticles_ParentId.at(genIdx));
-                    genetas.push_back(theGen.Eta());
-                    genphis.push_back(theGen.Phi());
-                    genpts.push_back(theGen.Pt());
-                    recetas.push_back(theRec.Eta());
-                    recphis.push_back(theRec.Phi());
-                    recpts.push_back(theRec.Pt());
 
                     skip++;
                     if (skip == Matches.size()) {
                         break;
                     }
                 }
-                //std::cout << std::endl;
                 //save info for all resonance particles in vector         
                 RecoSumList.push_back(RecoMatchedSum);
-                GenSumList.push_back(GenMatchedSum);
-                DRandPTSumList.push_back(std::make_pair(DRvec, PTvec));
-                pdgsList.push_back(pdgs);
-                momList.push_back(mom);
-                genEtaList.push_back(genetas);
-                genPhiList.push_back(genphis);
-                genPtList.push_back(genpts);
-                recEtaList.push_back(recetas);
-                recPhiList.push_back(recphis);
-                recPtList.push_back(recpts);
             }
             
-            // Let's do some weird stuff
-            // For either signal or ttbar, we will have stops or "stops"
-            GM_Stop1_DR = DRandPTSumList.at(0).first;
-            GM_Stop1_PT = DRandPTSumList.at(0).second;
-
-            GM_Stop2_DR = DRandPTSumList.at(1).first;
-            GM_Stop2_PT = DRandPTSumList.at(1).second;
-
-            GM_Stop1_pdgs = pdgsList.at(0);
-            GM_Stop2_pdgs = pdgsList.at(1);
-
-            GM_Stop1_mom = momList.at(0);
-            GM_Stop2_mom = momList.at(1);
-
-            GM_Stop1_genetas = genEtaList.at(0);
-            GM_Stop2_genetas = genEtaList.at(1);
-
-            GM_Stop1_recetas = recEtaList.at(0);
-            GM_Stop2_recetas = recEtaList.at(1);
-
-            GM_Stop1_genpts = genPtList.at(0);
-            GM_Stop2_genpts = genPtList.at(1);
-
-            GM_Stop1_recpts = recPtList.at(0);
-            GM_Stop2_recpts = recPtList.at(1);
-
-            GM_Stop1_genphis = genPhiList.at(0);
-            GM_Stop2_genphis = genPhiList.at(1);
-
-            GM_Stop1_recphis = recPhiList.at(0);
-            GM_Stop2_recphis = recPhiList.at(1);
-
-            tr.registerDerivedVar("GM_StopMT2"+myVarSuffix_,        ttUtility::coreMT2calc(utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoSumList.at(0)),utility::convertLV<TLorentzVector, utility::LorentzVector>(RecoSumList.at(1)),utility::convertLV<TLorentzVector, utility::LorentzVector>(lvMET)));
-            tr.registerDerivedVar("GM_StopGenMT2"+myVarSuffix_,     ttUtility::coreMT2calc(utility::convertLV<TLorentzVector, utility::LorentzVector>(GenSumList.at(0)), utility::convertLV<TLorentzVector, utility::LorentzVector>(GenSumList.at(1)),utility::convertLV<TLorentzVector, utility::LorentzVector>(lvGenMET)));
-            tr.registerDerivedVar("GM_Stop1"+myVarSuffix_,      RecoSumList.at(0));
-            tr.registerDerivedVar("GM_Stop2"+myVarSuffix_,      RecoSumList.at(1));
-            tr.registerDerivedVar("GM_Stop1Gen"+myVarSuffix_,   GenSumList.at(0));
-            tr.registerDerivedVar("GM_Stop2Gen"+myVarSuffix_,   GenSumList.at(1));            
-            tr.registerDerivedVar("GM_AllGen"+myVarSuffix_,     AllGenSum);
-            tr.registerDerivedVar("GM_AllGenNlino"+myVarSuffix_,AllGenSumNlino);
-
             // For NN ntuples
             if (RecoSumList.at(0).Pt() > RecoSumList.at(1).Pt())
             {

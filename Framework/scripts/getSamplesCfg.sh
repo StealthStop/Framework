@@ -3,11 +3,11 @@
 cfgDir=${CMSSW_BASE}/src/Framework/Framework/cfg
 
 #Default options
-sampleSCfgFile="sampleSets_UL_v1.cfg"
-sampleCCfgFile="sampleCollections_UL_v1.cfg"
+sampleSCfgFile="sampleSets_UL_v2.cfg"
+sampleCCfgFile="sampleCollections_UL_v2.cfg"
 
-sampleSCfgFileSkim='sampleSets_v2_skim.cfg'
-sampleCCfgFileSkim='sampleCollections_v2_skim.cfg'
+sampleSCfgFileSkim='sampleSets_UL_v1_skim.cfg'
+sampleCCfgFileSkim='sampleCollections_UL_v1_skim.cfg'
 
 function print_help {
     echo "Usage:"
@@ -37,13 +37,7 @@ case "$subcommand" in
         sampleCCfgFile=$sampleCCfgFileSkim
 esac
 
-if [ ! -f sampleSets.cfg ] && [ ! -f sampleCollections.cfg ] 
-then
-    ln -s $cfgDir/$sampleSCfgFile sampleSets.cfg
-    ln -s $cfgDir/$sampleCCfgFile sampleCollections.cfg
-    echo "Made soft link: "$sampleSCfgFile
-    echo "Made soft link: "$sampleCCfgFile
-else
-    echo "Soft links for sampleSets.cfg and sampleCollections.cfg found"
-    echo "Remove soft links for sampleSets.cfg and sampleCollections.cfg and try again"
-fi
+ln -s -f $cfgDir/$sampleSCfgFile sampleSets.cfg
+ln -s -f $cfgDir/$sampleCCfgFile sampleCollections.cfg
+echo "Made soft link: "$sampleSCfgFile
+echo "Made soft link: "$sampleCCfgFile

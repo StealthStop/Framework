@@ -9,9 +9,7 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <utility>
 #include <string>
-#include <functional>
 
 #include <iostream>
 
@@ -20,13 +18,13 @@ class MiniTupleMaker
 public:
     MiniTupleMaker(TTree *);
 
-    MiniTupleMaker(std::string, std::string = "tree");
+    MiniTupleMaker(const std::string&, const std::string& = "tree");
 
     ~MiniTupleMaker();
 
-    void setTupleVars(const std::set<std::string>);
+    void setTupleVars(const std::set<std::string>&);
 
-    //To use derived variables initBranches must be called after the first tuple event is read
+    // To use derived variables initBranches must be called after the first tuple event is read
     void initBranches(const NTupleReader&);
 
     void fill();
@@ -34,7 +32,15 @@ public:
 private:
     TFile* const file_;
     TTree* const tree_;
+
     std::set<std::string> tupleVars_;
+
+    // These collections will appear to be vector<float> when MiniTupleMaker checks their type
+    // However, the type is actually ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<float>> 
+    // So this exception is here to correctly set the type when assigning a pointer
+    std::set<std::string> LVexceptions_ = {"Jets",         "JetsAK8",  "JetsAK8_subjets", 
+                                           "Electrons",    "Muons",    "Photons", 
+                                           "GenElectrons", "GenMuons", "GenTaus", "GenParticles"};
 
     template<typename T> void prepVar(const NTupleReader& tr, const std::string& name)
     {
