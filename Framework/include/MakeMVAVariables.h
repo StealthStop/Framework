@@ -145,6 +145,16 @@ private:
             MVALeptonName_    = "GoodLeptons"   ;
             ESVarName_        = ""              ;
         }
+        else if (jetColl == "GoodJetsPuIdMedium")
+        {
+            GoodJetsName_ = "GoodJetsPuIdMedium";
+            NGoodJetsName_ = "NGoodJetsPuIdMedium";
+            GoodLeptonsName_  = "GoodLeptons"   ;
+            NGoodLeptonsName_ = "NGoodLeptons"  ;
+            MVAJetName_       = "JetPuId"           ;
+            MVALeptonName_    = "GoodLeptons"   ;
+            ESVarName_        = "PuId_"              ;
+        }
     }
 
     void makeMVAVariables(NTupleReader& tr)

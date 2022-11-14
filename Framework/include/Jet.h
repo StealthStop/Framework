@@ -50,7 +50,7 @@ private:
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NElectrons    = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& NonIsoMuons   = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
-        const auto& puId          = tr.getVec<bool>("Jets_pileupId"+myVarSuffix_);
+        const auto& puId          = tr.getVec<float>("Jets_pileupId"+myVarSuffix_);
 
         //Adding code to create a vector of GoodJets -> defined as the jet collection that eliminates the closest jet to any good lepton (muon or electron) 
         //if that delta R is less than 0.4 and the pT of the jet and lepton is approximately the same
