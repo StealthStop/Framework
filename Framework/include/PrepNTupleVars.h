@@ -18,6 +18,7 @@ private:
         const std::vector<float>&                  Jets_bJetTagDeepCSVprobbb;
         const std::vector<float>&                  Jets_bJetTagDeepFlavourprobb;
         const std::vector<float>&                  Jets_bJetTagDeepFlavourprobbb;
+        const std::vector<float>&                  Jets_bJetTagDeepFlavourproblepb;
         const std::vector<float>&                  Jets_bJetTagDeepFlavourprobc;
         const std::vector<float>&                  Jets_bJetTagDeepFlavourprobuds;
         const std::vector<float>&                  Jets_bJetTagDeepFlavourprobg;
@@ -54,6 +55,7 @@ private:
             , Jets_bJetTagDeepCSVprobbb(tr.getVec<float>("Jets_bJetTagDeepCSVprobbb"))
             , Jets_bJetTagDeepFlavourprobb(tr.getVec<float>("Jets_bJetTagDeepFlavourprobb"))
             , Jets_bJetTagDeepFlavourprobbb(tr.getVec<float>("Jets_bJetTagDeepFlavourprobbb"))
+            , Jets_bJetTagDeepFlavourproblepb(tr.getVec<float>("Jets_bJetTagDeepFlavourproblepb"))
             , Jets_bJetTagDeepFlavourprobc(tr.getVec<float>("Jets_bJetTagDeepFlavourprobc"))
             , Jets_bJetTagDeepFlavourprobuds(tr.getVec<float>("Jets_bJetTagDeepFlavourprobuds"))
             , Jets_bJetTagDeepFlavourprobg(tr.getVec<float>("Jets_bJetTagDeepFlavourprobg"))
@@ -165,6 +167,7 @@ private:
         auto& newJets_bJetTagDeepCSVtotb          = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourprobb     = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobb", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourprobbb    = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobbb", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourproblepb  = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourproblepb", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourtotb      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourtotb", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourtotq      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourtotq", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourprobg     = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobg", jc.Jets.size());
@@ -208,7 +211,8 @@ private:
             newJets_bJetTagDeepCSVtotb.at(j)          = ( jc.Jets_bJetTagDeepCSVprobb.at(i) + jc.Jets_bJetTagDeepCSVprobbb.at(i) );
             newJets_bJetTagDeepFlavourprobb.at(j)     = jc.Jets_bJetTagDeepFlavourprobb.at(i);
             newJets_bJetTagDeepFlavourprobbb.at(j)    = jc.Jets_bJetTagDeepFlavourprobbb.at(i);
-            newJets_bJetTagDeepFlavourtotb.at(j)      = ( jc.Jets_bJetTagDeepFlavourprobb.at(i) + jc.Jets_bJetTagDeepFlavourprobbb.at(i) );
+            newJets_bJetTagDeepFlavourproblepb.at(j)  = jc.Jets_bJetTagDeepFlavourproblepb.at(i);
+            newJets_bJetTagDeepFlavourtotb.at(j)      = ( jc.Jets_bJetTagDeepFlavourprobb.at(i) + jc.Jets_bJetTagDeepFlavourprobbb.at(i) + jc.Jets_bJetTagDeepFlavourproblepb.at(i) );
             newJets_bJetTagDeepFlavourtotq.at(j)      = ( jc.Jets_bJetTagDeepFlavourprobc.at(i) + jc.Jets_bJetTagDeepFlavourprobuds.at(i) );
             newJets_bJetTagDeepFlavourprobg.at(j)     = jc.Jets_bJetTagDeepFlavourprobg.at(i); 
             newJets_bJetTagDeepFlavourprobc.at(j)     = jc.Jets_bJetTagDeepFlavourprobc.at(i); 
@@ -251,6 +255,7 @@ private:
         auto& newJets_bJetTagDeepCSVtotb          = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourprobb     = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobb", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourprobbb    = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobbb", jc.Jets.size());
+        auto& newJets_bJetTagDeepFlavourproblepb  = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourproblepb", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourtotb      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourtotb", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourtotq      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourtotq", jc.Jets.size());
         auto& newJets_bJetTagDeepFlavourprobg     = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepFlavourprobg", jc.Jets.size());
@@ -290,7 +295,8 @@ private:
             newJets_bJetTagDeepCSVtotb.at(j)          = ( jc.Jets_bJetTagDeepCSVprobb.at(j) + jc.Jets_bJetTagDeepCSVprobbb.at(j) );
             newJets_bJetTagDeepFlavourprobb.at(j)     = jc.Jets_bJetTagDeepFlavourprobb.at(j);
             newJets_bJetTagDeepFlavourprobbb.at(j)    = jc.Jets_bJetTagDeepFlavourprobbb.at(j);
-            newJets_bJetTagDeepFlavourtotb.at(j)      = ( jc.Jets_bJetTagDeepFlavourprobb.at(j) + jc.Jets_bJetTagDeepFlavourprobbb.at(j) );
+            newJets_bJetTagDeepFlavourproblepb.at(j)  = jc.Jets_bJetTagDeepFlavourproblepb.at(j);
+            newJets_bJetTagDeepFlavourtotb.at(j)      = ( jc.Jets_bJetTagDeepFlavourprobb.at(j) + jc.Jets_bJetTagDeepFlavourprobbb.at(j) + jc.Jets_bJetTagDeepFlavourproblepb.at(j) );
             newJets_bJetTagDeepFlavourtotq.at(j)      = ( jc.Jets_bJetTagDeepFlavourprobc.at(j) + jc.Jets_bJetTagDeepFlavourprobuds.at(j) );
             newJets_bJetTagDeepFlavourprobg.at(j)     = jc.Jets_bJetTagDeepFlavourprobg.at(j); 
             newJets_bJetTagDeepFlavourprobc.at(j)     = jc.Jets_bJetTagDeepFlavourprobc.at(j); 
@@ -430,20 +436,21 @@ private:
         derivePtMassScaledJetAK8Collection(tr, jcAK8, "mpTScaled", 1.0, 1.0);
 
         // Create DeepCSV b-jet discriminator vector
-        const auto& Jets_bJetTagDeepCSVprobb       = tr.getVec<float>("Jets_bJetTagDeepCSVprobb");
-        const auto& Jets_bJetTagDeepCSVprobbb      = tr.getVec<float>("Jets_bJetTagDeepCSVprobbb");
-              auto& Jets_bJetTagDeepCSVtotb        = tr.createDerivedVec<float>("Jets_bJetTagDeepCSVtotb", Jets_bJetTagDeepCSVprobbb.size());
-        const auto& Jets_bJetTagDeepFlavourprobb   = tr.getVec<float>("Jets_bJetTagDeepFlavourprobb");
-        const auto& Jets_bJetTagDeepFlavourprobbb  = tr.getVec<float>("Jets_bJetTagDeepFlavourprobbb");
-              auto& Jets_bJetTagDeepFlavourtotb    = tr.createDerivedVec<float>("Jets_bJetTagDeepFlavourtotb", Jets_bJetTagDeepFlavourprobbb.size());
-        const auto& Jets_bJetTagDeepFlavourprobc   = tr.getVec<float>("Jets_bJetTagDeepFlavourprobc");
-        const auto& Jets_bJetTagDeepFlavourprobuds = tr.getVec<float>("Jets_bJetTagDeepFlavourprobuds");
-              auto& Jets_bJetTagDeepFlavourtotq    = tr.createDerivedVec<float>("Jets_bJetTagDeepFlavourtotq", Jets_bJetTagDeepFlavourprobc.size());
+        const auto& Jets_bJetTagDeepCSVprobb        = tr.getVec<float>("Jets_bJetTagDeepCSVprobb");
+        const auto& Jets_bJetTagDeepCSVprobbb       = tr.getVec<float>("Jets_bJetTagDeepCSVprobbb");
+              auto& Jets_bJetTagDeepCSVtotb         = tr.createDerivedVec<float>("Jets_bJetTagDeepCSVtotb", Jets_bJetTagDeepCSVprobbb.size());
+        const auto& Jets_bJetTagDeepFlavourprobb    = tr.getVec<float>("Jets_bJetTagDeepFlavourprobb");
+        const auto& Jets_bJetTagDeepFlavourprobbb   = tr.getVec<float>("Jets_bJetTagDeepFlavourprobbb");
+        const auto& Jets_bJetTagDeepFlavourproblepb = tr.getVec<float>("Jets_bJetTagDeepFlavourproblepb");
+              auto& Jets_bJetTagDeepFlavourtotb     = tr.createDerivedVec<float>("Jets_bJetTagDeepFlavourtotb", Jets_bJetTagDeepFlavourprobbb.size());
+        const auto& Jets_bJetTagDeepFlavourprobc    = tr.getVec<float>("Jets_bJetTagDeepFlavourprobc");
+        const auto& Jets_bJetTagDeepFlavourprobuds  = tr.getVec<float>("Jets_bJetTagDeepFlavourprobuds");
+              auto& Jets_bJetTagDeepFlavourtotq     = tr.createDerivedVec<float>("Jets_bJetTagDeepFlavourtotq", Jets_bJetTagDeepFlavourprobc.size());
 
         for(unsigned j = 0; j < Jets_bJetTagDeepCSVprobb.size(); ++j)
         {
             Jets_bJetTagDeepCSVtotb.at(j)     = ( Jets_bJetTagDeepCSVprobb.at(j) + Jets_bJetTagDeepCSVprobbb.at(j) );
-            Jets_bJetTagDeepFlavourtotb.at(j) = ( Jets_bJetTagDeepFlavourprobb.at(j) + Jets_bJetTagDeepFlavourprobbb.at(j) );
+            Jets_bJetTagDeepFlavourtotb.at(j) = ( Jets_bJetTagDeepFlavourprobb.at(j) + Jets_bJetTagDeepFlavourprobbb.at(j) + Jets_bJetTagDeepFlavourproblepb.at(j) );
             Jets_bJetTagDeepFlavourtotq.at(j) = ( Jets_bJetTagDeepFlavourprobc.at(j) + Jets_bJetTagDeepFlavourprobuds.at(j) );
         }
  
