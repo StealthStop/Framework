@@ -46,14 +46,15 @@ private:
         // --------------------
         // Data dependent stuff
         // --------------------
-        bool passTriggerAllHad     = false, passTriggerMuonsRefAN = false; // 0-Lepton
-        bool passTriggerMuon       = false, passTriggerElectron   = false; // 1-Lepton
-        bool passTriggerNonIsoMuon = false;                                // QCD CR
+        bool passTriggerAllHad     = false, passTriggerMuonsRefAN = false, passTriggerQCD = false; // 0-Lepton
+        bool passTriggerMuon       = false, passTriggerElectron   = false;                         // 1-Lepton
+        bool passTriggerNonIsoMuon = false;                                                        // QCD CR
 
         if (runYear.find("2016") != std::string::npos)
         {
             passTriggerAllHad     = PassTriggerAllHad2016(TriggerNames,     TriggerPass);
             passTriggerMuonsRefAN = PassTriggerMuonsRefAN(TriggerNames,     TriggerPass);
+            passTriggerQCD        = PassTriggerQCD2016(TriggerNames,        TriggerPass);
             passTriggerMuon       = PassTriggerMuon2016(TriggerNames,       TriggerPass);
             passTriggerElectron   = PassTriggerElectron2016(TriggerNames,   TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2016(TriggerNames, TriggerPass);
@@ -63,14 +64,16 @@ private:
         {
             passTriggerAllHad     = PassTriggerAllHad2017(TriggerNames,     TriggerPass);
             passTriggerMuonsRefAN = PassTriggerMuonsRefAN(TriggerNames,     TriggerPass);
+            passTriggerQCD        = PassTriggerQCD2017(TriggerNames,        TriggerPass);
             passTriggerMuon       = PassTriggerMuon2017(TriggerNames,       TriggerPass);
             passTriggerElectron   = PassTriggerElectron2017(TriggerNames,   TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2017(TriggerNames, TriggerPass);           
         }
-        else if (runYear == "2018pre" || runYear == "2018post" || runYear == "2018")
+        else if (runYear == "2018")
         {
             passTriggerAllHad     = PassTriggerAllHad2018(TriggerNames,     TriggerPass);
             passTriggerMuonsRefAN = PassTriggerMuonsRefAN(TriggerNames,     TriggerPass); 
+            passTriggerQCD        = PassTriggerQCD2018(TriggerNames,        TriggerPass); 
             passTriggerMuon       = PassTriggerMuon2018(TriggerNames,       TriggerPass);
             passTriggerElectron   = PassTriggerElectron2018(TriggerNames,   TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2018(TriggerNames, TriggerPass);
@@ -106,14 +109,10 @@ private:
         {
             const auto& madHT  = tr.getVar<float>("madHT");
 
-            // Exclude events with MadGraph HT > 100 (70) from the WJets (DY) inclusive samples
+            // Exclude events with MadGraph HT > 70 from the WJets and DY inclusive samples
             // in order to avoid double counting with the HT-binned samples
-            // For DY, a special exception is made for 2016 and 2016APV where no HT-binned samples are present - 12 Oct 2022 JCH
-            if(filetag.find("DYJetsToLL_M-50_Incl") != std::string::npos && madHT > 70 && runYear.find("2016") == std::string::npos) passMadHT = false;
-
-            // For Wjets, 70to100 HT-binned samples are present for all years except 2016preVFP, which starts at 100to200
-            if(filetag.find("WJetsToLNu_Incl") != std::string::npos && madHT > 70  && runYear.find("2016preVFP") == std::string::npos) passMadHT = false;
-            if(filetag.find("WJetsToLNu_Incl") != std::string::npos && madHT > 100 && runYear.find("2016preVFP") != std::string::npos) passMadHT = false;
+            if(filetag.find("DYJetsToLL_M-50_Incl") != std::string::npos && madHT > 70.0) passMadHT = false;
+            if(filetag.find("WJetsToLNu_Incl")      != std::string::npos && madHT > 70.0) passMadHT = false;
 
             // Stitch TTbar samples together
             // remove HT overlap
@@ -359,6 +358,8 @@ private:
         tr.registerDerivedVar<bool>("passTriggerAllHad"             +myVarSuffix_, passTriggerAllHad            );
         tr.registerDerivedVar<bool>("passTriggerHadMC"              +myVarSuffix_, passTriggerHadMC             );
         tr.registerDerivedVar<bool>("passTriggerMuonsRefAN"         +myVarSuffix_, passTriggerMuonsRefAN        ); // muon trigger for preselection of trigger SF 
+        tr.registerDerivedVar<bool>("passTriggerQCD"                +myVarSuffix_, passTriggerQCD               ); // QCD trigger for preselection for top mistag SF 
+
         // 1-lepton things
         tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"     +myVarSuffix_, passBaselineGoodOffline1l    );
         tr.registerDerivedVar<bool>("passBaseline1l_Good"           +myVarSuffix_, passBaseline1l_Good          );
@@ -459,6 +460,27 @@ private:
     bool PassTriggerMuonsRefAN(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
         std::vector<std::string> mytriggers = {"HLT_IsoMu24", "HLT_IsoMu22_eta2p1"};
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+
+    // -------------------------------------------------
+    // Simple Hadronic Triggers for Top Tagger Mistag SF 
+    // -------------------------------------------------
+    bool PassTriggerQCD2016(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        std::vector<std::string> mytriggers = { "HLT_PFJet450", "HLT_PFHT900" };
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+
+    bool PassTriggerQCD2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        std::vector<std::string> mytriggers = { "HLT_PFJet500", "HLT_PFHT1050" };
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+
+    bool PassTriggerQCD2018(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass) 
+    {
+        std::vector<std::string> mytriggers = { "HLT_PFJet500", "HLT_PFHT1050" };
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
