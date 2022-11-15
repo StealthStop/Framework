@@ -31,6 +31,7 @@ private:
         // create an index for resolved tops
         // --------------------------------- 
         std::set<unsigned int> usedIndex;
+        std::vector<utility::LorentzVector> usedAK8;
         const std::vector<TopObject*>& taggedObjects = ttr->getTops();
         for(auto* t : taggedObjects)
         {
@@ -41,13 +42,21 @@ private:
                 for(const auto& c : constituents)
                 {
                     unsigned int index = c->getIndex(); 
-                    usedIndex.insert(index);
+    
+                    if (t->getType()!=TopObject::MERGED_TOP)
+                    {
+                        usedIndex.insert(index);
+                    }
                     top += utility::convertLV<utility::LorentzVector, TLorentzVector>(c->P());
                 }
          
                 // get top jets   
                 StopJets.push_back(top);
-                
+
+                if (t->getType()==TopObject::MERGED_TOP)
+                {
+                    usedAK8.push_back(top);
+                }
             }
         }
 
@@ -68,6 +77,17 @@ private:
         for(unsigned int i = 0; i < Jets.size(); ++i)
         {
             if(!GoodJets_pt20[i]) continue;
+
+            for(auto& ak8 : usedAK8)
+            {
+                double dR = utility::DeltaR(Jets.at(i), ak8);
+
+                
+                if (dR < 0.8)
+                {
+                    usedIndex.insert(i);
+                }
+            }
             if ( std::find(usedIndex.begin(), usedIndex.end(), i) == usedIndex.end() ) 
             {
                 StopJets.push_back(Jets[i]);
