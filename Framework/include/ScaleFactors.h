@@ -696,7 +696,17 @@ private:
 
         const auto& Weight            = tr.getVar<float>("Weight");
         const auto& FinalLumi         = tr.getVar<double>("FinalLumi");
-        const auto& bTagWeight        = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
+
+        const auto& analyzer = tr.getVar<std::string>("analyzer");
+
+        // For the CalculateSFMean analyzer, we do not need to run BTagCorrector
+        // and thus, we do not need to try and get the bTagSF here, so just default 1.0
+        double bTagWeight = 1.0;
+        if ( analyzer != "CalculateSFMean" )
+        {
+            bTagWeight = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
+        }
+
         const auto& NGoodMuons        = tr.getVar<int>("NGoodMuons"                          +myVarSuffix_);
         const auto& NGoodLeptons      = tr.getVar<int>("NGoodLeptons"                        +myVarSuffix_);
         const auto& NNonIsoMuons      = tr.getVar<int>("NNonIsoMuons"                        +myVarSuffix_);
