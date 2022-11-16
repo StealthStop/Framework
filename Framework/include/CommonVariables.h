@@ -36,6 +36,7 @@ private:
     {
         // Get needed branches
         const auto& runYear = tr.getVar<std::string>("runYear");
+        const auto& filetag = tr.getVar<std::string>("filetag");
         const auto& runType = tr.getVar<std::string>("runtype");
         const auto& Jets = tr.getVec<utility::LorentzVector>(("Jets"+myVarSuffix_));
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
@@ -58,9 +59,11 @@ private:
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& GoodElectrons_pt20 = tr.getVec<bool>("GoodElectrons_pt20"+myVarSuffix_);
         const auto& etaCut = tr.getVar<double>("etaCut");
+        const auto& NGoodJets_pt30       = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
         const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
         const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
-       
+        const auto& NNonIsoMuonJets_pt30 = tr.getVar<int>("NNonIsoMuonJets_pt30"+myVarSuffix_);
+
         // Define electron HEM15/16 veto
         bool vetoedHEMelectron = objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0);
         tr.registerDerivedVar("vetoedHEMelectron"+myVarSuffix_, vetoedHEMelectron);
@@ -83,6 +86,7 @@ private:
 
         // Create the eventCounter variable to keep track of processed events
         int w = 1;
+        bool passMadHT = true;
         if(runType == "MC")
         {
             // For MC, a "Weight" branch is provided by TreeMaker in the ntuples
@@ -116,8 +120,35 @@ private:
                 tr.registerDerivedVar<double>("LumiXsec", w*weightAbsVal*Lumi);
             }
             tr.registerDerivedVar<double>("FinalLumi", FinalLumi);
-        }
 
+            // --------------------
+            // Check passMadHT here
+            // --------------------
+            const auto& madHT  = tr.getVar<float>("madHT");
+
+            // Exclude events with MadGraph HT > 70 from the WJets and DY inclusive samples
+            // in order to avoid double counting with the HT-binned samples
+            if(filetag.find("DYJetsToLL_M-50_Incl") != std::string::npos && madHT > 70.0) passMadHT = false;
+            if(filetag.find("WJetsToLNu_Incl")      != std::string::npos && madHT > 70.0) passMadHT = false;
+
+            // Stitch TTbar samples together
+            // remove HT overlap
+            if((filetag.find("TTJets_Incl")               != std::string::npos || 
+                filetag.find("TTJets_SingleLeptFromT")    != std::string::npos || 
+                filetag.find("TTJets_SingleLeptFromTbar") != std::string::npos || 
+                filetag.find("TTJets_DiLept")             != std::string::npos) && madHT > 600) 
+            {
+                passMadHT = false;
+            }
+
+            // also remove lepton overlap from the inclusive sample
+            const auto& GenElectrons = tr.getVec<utility::LorentzVector>("GenElectrons");
+            const auto& GenMuons     = tr.getVec<utility::LorentzVector>("GenMuons");
+            const auto& GenTaus      = tr.getVec<utility::LorentzVector>("GenTaus");
+            int NGenLeptons          = GenElectrons.size() + GenMuons.size() + GenTaus.size();
+
+            if (filetag.find("TTJets_Incl") != std::string::npos && NGenLeptons > 0) passMadHT = false;
+        }
         else if(runType == "Data")
         {
             // For Data, no "Weight" branch is provided
@@ -126,6 +157,8 @@ private:
             tr.registerDerivedVar<float>("Weight",   1.0);
             tr.registerDerivedVar<float>("WeightTM", 1.0);
         }
+
+        tr.registerDerivedVar<bool>("passMadHT" + myVarSuffix_, passMadHT);
 
         tr.registerDerivedVar<int>("eventCounter",w);        
 
@@ -324,6 +357,20 @@ private:
             dR_bjets = *std::max_element(deltaRs.begin(), deltaRs.end());
         }
         tr.registerDerivedVar("dR_bjets"+myVarSuffix_, dR_bjets);
+
+        // An event must "earn" its keep by passing any of the main 0L, 1L, 2L baselines.
+        // If an event does not pass any of these main selections, time-intensive
+        // modules can be skipped in the pipeline as long as the relevant analyzer is also informed and also skips to the next event
+        // This boolean only informs modules about an event, it does not make the final decision to skip an event
+        bool lostCauseEvent = true;
+                
+        // Now combine all relevant baselines into a single bool
+        // Here we select the main baselines for all three channels
+        // If all four booleans are false, then the event is considered a "lost cause"
+        lostCauseEvent &= !(NGoodJets_pt30       >= 6 and ht_pt30            > 500.0 and NGoodBJets_pt30 >= 1) and
+                          !(NNonIsoMuonJets_pt30 >= 7 and ht_NonIsoMuon_pt30 > 500.0);
+
+        tr.registerDerivedVar<bool>("lostCauseEvent" + myVarSuffix_, lostCauseEvent);
     }
 
 public:

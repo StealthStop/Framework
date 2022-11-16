@@ -439,7 +439,11 @@ public:
 
     void operator()(NTupleReader& tr)
     {
-        runTopTagger(tr);
+        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
+        const auto& fastMode       = tr.getVar<bool>("fastMode");
+
+        if (!lostCauseEvent or !fastMode)
+            runTopTagger(tr);
     }
 };
 
