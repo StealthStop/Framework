@@ -243,6 +243,7 @@ private:
 
         double phiMax = (NGoodJets > 0) ? Jets_cm_psort[0].tlv.Phi() : 0.0;
 
+        utility::LorentzVector combinedNp1thJetTLV;
         utility::LorentzVector combinedNthJetTLV;
         utility::LorentzVector combinedN1thJetTLV;
         for(unsigned int ji=0; ji<cm_jets.size(); ji++ ) 
@@ -278,10 +279,18 @@ private:
             }
 
             // Add all jets after and including the nth jet (ji >= n-1)
-            if      ( ji >= nTopJets_-2 )
+            if ( ji >= nTopJets_-2 )
+            {
                 combinedN1thJetTLV += Jet_cm_psort;
-            else if ( ji >= nTopJets_-1 )
+            }
+            if ( ji >= nTopJets_-1 )
+            {
                 combinedNthJetTLV += Jet_cm_psort;
+            }
+            if ( ji >= nTopJets_ )
+            {
+                combinedNp1thJetTLV += Jet_cm_psort;
+            }
         } // ji
 
         tr.registerDerivedVar("combined" + std::to_string(nTopJets_-1) + "thToLast"+MVAJetName_+"_pt_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedN1thJetTLV.Pt())    );
@@ -297,6 +306,13 @@ private:
         tr.registerDerivedVar("combined" + std::to_string(nTopJets_) + "thToLast"+MVAJetName_+"_phi_cm"+channel_+myVarSuffix_,   static_cast<double>(combinedNthJetTLV.Phi())   );
         tr.registerDerivedVar("combined" + std::to_string(nTopJets_) + "thToLast"+MVAJetName_+"_m_cm"+channel_+myVarSuffix_,     static_cast<double>(combinedNthJetTLV.M())     );
         tr.registerDerivedVar("combined" + std::to_string(nTopJets_) + "thToLast"+MVAJetName_+"_E_cm"+channel_+myVarSuffix_,     static_cast<double>(combinedNthJetTLV.E())     );
+
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_ + 1) + "thToLast"+MVAJetName_+"_pt_cm"+channel_+myVarSuffix_,    static_cast<double>(combinedNp1thJetTLV.Pt())    );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_ + 1) + "thToLast"+MVAJetName_+"_ptrHT_cm"+channel_+myVarSuffix_, static_cast<double>(combinedNp1thJetTLV.Pt() / HT_Trigger_pt30)    );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_ + 1) + "thToLast"+MVAJetName_+"_eta_cm"+channel_+myVarSuffix_,   static_cast<double>(combinedNp1thJetTLV.Eta())   );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_ + 1) + "thToLast"+MVAJetName_+"_phi_cm"+channel_+myVarSuffix_,   static_cast<double>(combinedNp1thJetTLV.Phi())   );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_ + 1) + "thToLast"+MVAJetName_+"_m_cm"+channel_+myVarSuffix_,     static_cast<double>(combinedNp1thJetTLV.M())     );
+        tr.registerDerivedVar("combined" + std::to_string(nTopJets_ + 1) + "thToLast"+MVAJetName_+"_E_cm"+channel_+myVarSuffix_,     static_cast<double>(combinedNp1thJetTLV.E())     );
 
         auto GoodLeptons_cm = std::make_unique<std::vector<utility::LorentzVector>>();
         for(unsigned int ilep = 0; ilep < GoodLeptons.size(); ilep++)
