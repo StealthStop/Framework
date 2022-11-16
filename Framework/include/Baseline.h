@@ -8,7 +8,6 @@ private:
 
     void baseline(NTupleReader& tr)
     {
-        const auto& analyzer               = tr.getVar<std::string>("analyzer");
         const auto& runtype                = tr.getVar<std::string>("runtype");     
         const auto& filetag                = tr.getVar<std::string>("filetag");
         const auto& runYear                = tr.getVar<std::string>("runYear");
@@ -29,15 +28,7 @@ private:
         const auto& NGoodBJets_pt45        = tr.getVar<int>("NGoodBJets_pt45"       +myVarSuffix_);
         const auto& dR_bjets_old           = tr.getVar<double>("dR_bjets_old"       +myVarSuffix_);
         const auto& dR_bjets               = tr.getVar<double>("dR_bjets"           +myVarSuffix_);
-
-        // For the SF modules, we do not need to run the top tagger
-        // So avoid trying get a result for number of tops in that case
-        int ntops = -1;
-        if (analyzer != "CalculateSFMean" and analyzer != "CalculateBTagSF")
-        {
-            ntops = tr.getVar<int>("ntops"                 +myVarSuffix_);
-        }
-
+        const auto& ntops                  = tr.getVar<int>("ntops"                 +myVarSuffix_);
         // get variables for 1-Lepton
         const auto& Mbl                    = tr.getVar<double>("Mbl"                +myVarSuffix_);
         // get variables for 2-Lepton
