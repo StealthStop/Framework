@@ -104,34 +104,8 @@ private:
         // ------------------
         // MC dependent stuff
         // ------------------
-        bool passMadHT = true;
         if(runtype == "MC")
         {
-            const auto& madHT  = tr.getVar<float>("madHT");
-
-            // Exclude events with MadGraph HT > 70 from the WJets and DY inclusive samples
-            // in order to avoid double counting with the HT-binned samples
-            if(filetag.find("DYJetsToLL_M-50_Incl") != std::string::npos && madHT > 70.0) passMadHT = false;
-            if(filetag.find("WJetsToLNu_Incl")      != std::string::npos && madHT > 70.0) passMadHT = false;
-
-            // Stitch TTbar samples together
-            // remove HT overlap
-            if((filetag.find("TTJets_Incl")               != std::string::npos || 
-                filetag.find("TTJets_SingleLeptFromT")    != std::string::npos || 
-                filetag.find("TTJets_SingleLeptFromTbar") != std::string::npos || 
-                filetag.find("TTJets_DiLept")             != std::string::npos) && madHT > 600) 
-            {
-                passMadHT = false;
-            }
-
-            // also remove lepton overlap from the inclusive sample
-            const auto& GenElectrons = tr.getVec<utility::LorentzVector>("GenElectrons");
-            const auto& GenMuons     = tr.getVec<utility::LorentzVector>("GenMuons");
-            const auto& GenTaus      = tr.getVec<utility::LorentzVector>("GenTaus");
-            int NGenLeptons          = GenElectrons.size() + GenMuons.size() + GenTaus.size();
-
-            if (filetag.find("TTJets_Incl") != std::string::npos && NGenLeptons > 0) passMadHT = false;
-            
             // MC modeling of the trigger
             if( !passTriggerAllHad )                       passTriggerHadMC    = false;
             if( !passTriggerMuon && !passTriggerElectron ) passTriggerMC       = false;
@@ -149,12 +123,9 @@ private:
         const auto& HBHENoiseFilter                     = static_cast<bool>(tr.getVar<int>("HBHENoiseFilter")                   );
         bool passMETFilters  = globalSuperTightHalo2016Filter && PrimaryVertexFilter && BadPFMuonFilter && EcalDeadCellTriggerPrimitiveFilter && HBHEIsoNoiseFilter && HBHENoiseFilter;
 
-        // An event must "earn" its keep by passing any of the main 0L, 1L, 2L baselines.
-        // If an event does not pass any of these main selections, time-intensive
-        // modules can be skipped in the pipeline as long as the relevant analyzer is also informed and also skips to the next event
-        // This boolean only informs modules about an event, it does not make the final decision to skip an event
-        bool lostCauseEvent = true;
-                
+        // Will always be true for Data, based on logic in CommonVariables.h
+        const auto& passMadHT = tr.getVar<bool>("passMadHT" + myVarSuffix_);
+
         // -----------------------------------
         // Define 0-Lepton Baseline Selections
         // -----------------------------------
@@ -336,14 +307,6 @@ private:
         bool pass_qcdCR_1b_1t = pass_qcdCR && NGoodBJets_pt30 >= 1  && ntops >= 1;
         bool pass_qcdCR_2b    = pass_qcdCR && NGoodBJets_pt30 >= 2;
 
-        // Now combine all relevant baselines into a single bool
-        // Here we select the main baselines for all three channels
-        // If all four booleans are false, then the event is considered a "lost cause"
-        lostCauseEvent &= !passBaseline0l_Good &&
-                          !passBaseline1l_Good &&
-                          !passBaseline2l_Good &&
-                          !pass_qcdCR           ;
-
         // -------------------
         // Register all things
         // -------------------
@@ -386,14 +349,11 @@ private:
         tr.registerDerivedVar<bool>("passNonIsoTrigger"             +myVarSuffix_, passNonIsoTrigger            );
         tr.registerDerivedVar<bool>("passNonIsoTriggerMC"           +myVarSuffix_, passNonIsoTriggerMC          );
         // common things       
-        tr.registerDerivedVar<bool>("passMadHT"                     +myVarSuffix_, passMadHT                    );
         tr.registerDerivedVar<bool>("passMETFilters"                +myVarSuffix_, passMETFilters               );
         tr.registerDerivedVar<bool>("passElectronHEMveto"           +myVarSuffix_, passElectronHEMveto          );
         tr.registerDerivedVar<bool>("passTrigger"                   +myVarSuffix_, passTrigger                  );
         tr.registerDerivedVar<bool>("passTriggerMC"                 +myVarSuffix_, passTriggerMC                );
 
-        tr.registerDerivedVar<bool>("lostCauseEvent"                +myVarSuffix_, lostCauseEvent               );
-        
     }
 
     bool PassTriggerGeneral(std::vector<std::string>& mytriggers, const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
@@ -563,7 +523,11 @@ public:
     
     void operator()(NTupleReader& tr)
     {
-        baseline(tr);
+        const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
+        const auto& fastMode       = tr.getVar<bool>("fastMode");
+
+        if (!lostCauseEvent or !fastMode)
+            baseline(tr);
     }
 };
 

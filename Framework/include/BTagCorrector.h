@@ -66,6 +66,17 @@ public:
         if(suffix.size())
         {
             std::string suffix2 = suffix;
+
+            // If we run on a skim data set, there should be a "_skim" suffix
+            // at the end of the name, so scrape it off before trying
+            // to get the btag eff histograms
+            std::string scrapeOff = "_skim";
+            const size_t position = suffix2.find(scrapeOff);
+            if(position != std::string::npos)
+            {
+                suffix2.erase(position, scrapeOff.length());
+            }
+
             h_eff_b.reset( (TH2F*)file.Get(("n_eff_b_" + suffix2).c_str()) );
             
             if(!h_eff_b.get())
