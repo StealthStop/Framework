@@ -67,9 +67,9 @@ public:
         {
             std::string suffix2 = suffix;
 
-            // If we run on a skim data set, there is probably a _skim
+            // If we run on a skim data set, there should be a "_skim" suffix
             // at the end of the name, so scrape it off before trying
-            // to get the beff histograms
+            // to get the btag eff histograms
             std::string scrapeOff = "_skim";
             const size_t position = suffix2.find(scrapeOff);
             if(position != std::string::npos)
