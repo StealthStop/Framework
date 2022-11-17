@@ -22,14 +22,14 @@ private:
     void bjet(NTupleReader& tr)
     {
         const auto& Jets = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
-        const auto& Jets_bJetTagDeepCSVtotb = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb");
+        const auto& Jets_bJetTagDeepFlavourtotb = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotb");
         const auto& Jets_bDiscriminatorCSV = tr.getVec<float>("Jets"+myVarSuffix_+"_bDiscriminatorCSV"); //
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
-        const auto& loose = tr.getVar<double>("deepCSV_WP_loose");
-        const auto& medium = tr.getVar<double>("deepCSV_WP_medium");
-        const auto& tight = tr.getVar<double>("deepCSV_WP_tight");
+        const auto& loose = tr.getVar<double>("deepFlavour_WP_loose");
+        const auto& medium = tr.getVar<double>("deepFlavour_WP_medium");
+        const auto& tight = tr.getVar<double>("deepFlavour_WP_tight");
 
         double csv_medium = 0.8484;
 
@@ -70,7 +70,7 @@ private:
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
             utility::LorentzVector lv = Jets.at(ijet);
-            double bdisc = Jets_bJetTagDeepCSVtotb.at(ijet);
+            double bdisc = Jets_bJetTagDeepFlavourtotb.at(ijet);
             double csv_bdisc = Jets_bDiscriminatorCSV.at(ijet); 
 
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > loose                , bjets_loose_,      NBJets_loose     );
