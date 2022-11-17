@@ -712,7 +712,7 @@ private:
         const auto& NNonIsoMuons      = tr.getVar<int>("NNonIsoMuons"                        +myVarSuffix_);
         double totalEventWeight       = -1.0;
 
-        double commonWeight = Weight * FinalLumi * bTagWeight * prefiringScaleFactor * puWeightCorr * topPtScaleFactor;
+        double commonWeight = Weight * FinalLumi * bTagWeight * prefiringScaleFactor * puWeightCorr;
         tr.registerDerivedVar("CommonWeight" + myVarSuffix_, commonWeight);
 
         // 0-Lepton
