@@ -27,9 +27,9 @@ private:
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
-        const auto& loose = tr.getVar<double>("deepCSV_WP_loose");
-        const auto& medium = tr.getVar<double>("deepCSV_WP_medium");
-        const auto& tight = tr.getVar<double>("deepCSV_WP_tight");
+        const auto& loose = tr.getVar<double>("deepFlavour_WP_loose");
+        const auto& medium = tr.getVar<double>("deepFlavour_WP_medium");
+        const auto& tight = tr.getVar<double>("deepFlavour_WP_tight");
 
         double csv_medium = 0.8484;
 
