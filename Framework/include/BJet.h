@@ -23,6 +23,7 @@ private:
     {
         const auto& Jets = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
         const auto& Jets_bJetTagDeepFlavourtotb = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotb");
+
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
