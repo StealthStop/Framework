@@ -46,6 +46,7 @@ private:
         const std::vector<float>&                  Jets_chargedEmEnergyFraction;
         const std::vector<float>&                  Jets_neutralHadronEnergyFraction;
         const std::vector<float>&                  Jets_chargedHadronEnergyFraction;
+        const std::vector<float>&                  Jets_pileupId;
         
     JetCollection(const NTupleReader& tr) 
             : Jets(tr.getVec<utility::LorentzVector>("Jets"))
@@ -83,6 +84,7 @@ private:
             , Jets_chargedEmEnergyFraction(tr.getVec<float>("Jets_chargedEmEnergyFraction"))
             , Jets_neutralHadronEnergyFraction(tr.getVec<float>("Jets_neutralHadronEnergyFraction"))
             , Jets_chargedHadronEnergyFraction(tr.getVec<float>("Jets_chargedHadronEnergyFraction"))
+            , Jets_pileupId(tr.getVec<float>("Jets_pileupId"))
         {
         }
     };
@@ -196,6 +198,7 @@ private:
         auto& newJets_photonMultiplicity          = tr.createDerivedVec<int>("Jets"+name+"_photonMultiplicity", jc.Jets.size());
         auto& newJets_electronMultiplicity        = tr.createDerivedVec<int>("Jets"+name+"_electronMultiplicity", jc.Jets.size());
         auto& newJets_muonMultiplicity            = tr.createDerivedVec<int>("Jets"+name+"_muonMultiplicity", jc.Jets.size());
+        auto& newJets_pileupId                    = tr.createDerivedVec<float>("Jets"+name+"_pileupId", jc.Jets.size());
 
         for(unsigned j = 0; j < newJets_origIndex.size(); ++j)
         {
@@ -240,6 +243,11 @@ private:
             newJets_chargedEmEnergyFraction.at(j)     = jc.Jets_chargedEmEnergyFraction.at(i);
             newJets_neutralHadronEnergyFraction.at(j) = jc.Jets_neutralHadronEnergyFraction.at(i);
             newJets_chargedHadronEnergyFraction.at(j) = jc.Jets_chargedHadronEnergyFraction.at(i);
+            if (isinf(jc.Jets_pileupId.at(i))){
+                newJets_pileupId.at(j)                    = 999.0;
+            } else {
+                newJets_pileupId.at(j)                    = jc.Jets_pileupId.at(i);
+            }
         }
     }
 
@@ -284,6 +292,7 @@ private:
         auto& newJets_muonMultiplicity            = tr.createDerivedVec<int>("Jets"+name+"_muonMultiplicity", jc.Jets.size());
         auto& newJets_bJetTagDeepCSVprobc         = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobc", jc.Jets.size());
         auto& newJets_bJetTagDeepCSVprobudsg      = tr.createDerivedVec<float>("Jets"+name+"_bJetTagDeepCSVprobudsg", jc.Jets.size());
+        auto& newJets_pileupId                    = tr.createDerivedVec<float>("Jets"+name+"_pileupId", jc.Jets.size());
 
         for(unsigned j = 0; j < jc.Jets.size(); ++j)
         {
@@ -324,6 +333,11 @@ private:
             newJets_chargedEmEnergyFraction.at(j)     = jc.Jets_chargedEmEnergyFraction.at(j);
             newJets_neutralHadronEnergyFraction.at(j) = jc.Jets_neutralHadronEnergyFraction.at(j);
             newJets_chargedHadronEnergyFraction.at(j) = jc.Jets_chargedHadronEnergyFraction.at(j);
+            if (isinf(jc.Jets_pileupId.at(j))){
+                newJets_pileupId.at(j)                    = 999.0;
+            } else {
+                newJets_pileupId.at(j)                    = jc.Jets_pileupId.at(j);
+            }
         }
     }
 
