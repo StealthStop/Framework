@@ -28,10 +28,13 @@ public:
     void initBranches(const NTupleReader&);
 
     void fill();
+    void fill(const NTupleReader&);
 
 private:
     TFile* const file_;
     TTree* const tree_;
+
+    bool startedFilling_ = false;
 
     std::set<std::string> tupleVars_;
 
@@ -52,6 +55,7 @@ private:
     template<typename T> void prepVec(const NTupleReader& tr, const std::string& name)
     {
         TBranch *tb = tree_->GetBranch(name.c_str());
+
         if(!tb) tree_->Branch(name.c_str(), static_cast<std::vector<T>**>(const_cast<void*>(tr.getVecPtr<T>(name))));
         else       tb->SetAddress(const_cast<void*>(tr.getVecPtr<T>(name)));
     }
