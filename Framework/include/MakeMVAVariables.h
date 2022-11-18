@@ -28,9 +28,6 @@ private:
         double flavc;
         double flavuds;
         double flavq;
-        double CSVb;
-        double CSVc;
-        double CSVudsg;
         double ptD;
         double axismajor;
         double axisminor;
@@ -165,9 +162,6 @@ private:
         const auto& Jets_bJetTagDeepFlavourtotq      = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotq"     );
         const auto& Jets_bJetTagDeepFlavourprobc     = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobc"    );
         const auto& Jets_bJetTagDeepFlavourprobuds   = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourprobuds"  );
-        const auto& Jets_bJetTagDeepCSVtotb          = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepCSVtotb"         );
-        const auto& Jets_bJetTagDeepCSVprobc         = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepCSVprobc"        );
-        const auto& Jets_bJetTagDeepCSVprobudsg      = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepCSVprobudsg"     );
         const auto& Jets_ptD                         = tr.getVec<float>("Jets"+myVarSuffix_+"_ptD"                        );
         const auto& Jets_axismajor                   = tr.getVec<float>("Jets"+myVarSuffix_+"_axismajor"                  );
         const auto& Jets_axisminor                   = tr.getVec<float>("Jets"+myVarSuffix_+"_axisminor"                  );
@@ -215,7 +209,6 @@ private:
             Jets_cm.push_back( {jlvcm, Jets_neutralEmEnergyFraction.at(j), Jets_chargedEmEnergyFraction.at(j), Jets_neutralHadronEnergyFraction.at(j),
                                        Jets_chargedHadronEnergyFraction.at(j), Jets_bJetTagDeepFlavourtotb.at(j), Jets_bJetTagDeepFlavourprobg.at(j),
                                        Jets_bJetTagDeepFlavourprobc.at(j), Jets_bJetTagDeepFlavourprobuds.at(j), Jets_bJetTagDeepFlavourtotq.at(j),
-                                       Jets_bJetTagDeepCSVtotb.at(j), Jets_bJetTagDeepCSVprobc.at(j), Jets_bJetTagDeepCSVprobudsg.at(j),
                                        Jets_ptD.at(j), Jets_axismajor.at(j), Jets_axisminor.at(j), static_cast<double>(Jets_multiplicity.at(j))} );
 
             math::RThetaPhiVector cmvec( jlvcm.P(), jlvcm.Theta(), jlvcm.Phi() );
@@ -235,7 +228,6 @@ private:
 
         auto& Jets_cm_top6 = tr.createDerivedVec<utility::LorentzVector>(ESVarName_+"Jets_cm_top6"+channel_+myVarSuffix_);
         std::vector<double> Jets_cm_top6_flavb, Jets_cm_top6_flavg, Jets_cm_top6_flavc, Jets_cm_top6_flavuds, Jets_cm_top6_flavq;
-        std::vector<double> Jets_cm_top6_CSVb, Jets_cm_top6_CSVc, Jets_cm_top6_CSVudsg;
         std::vector<double> Jets_cm_top6_ptD, Jets_cm_top6_axismajor, Jets_cm_top6_axisminor, Jets_cm_top6_multiplicity;
         std::vector<double> Jets_cm_top6_nEF, Jets_cm_top6_cEF, Jets_cm_top6_nHF, Jets_cm_top6_cHF;
 
@@ -264,9 +256,6 @@ private:
                 Jets_cm_top6_flavc.push_back       ( Jets_cm_psort.at(ji).flavc        );
                 Jets_cm_top6_flavuds.push_back     ( Jets_cm_psort.at(ji).flavuds      );
                 Jets_cm_top6_flavq.push_back       ( Jets_cm_psort.at(ji).flavq        );
-                Jets_cm_top6_CSVb.push_back        ( Jets_cm_psort.at(ji).CSVb         );
-                Jets_cm_top6_CSVc.push_back        ( Jets_cm_psort.at(ji).CSVc         );
-                Jets_cm_top6_CSVudsg.push_back     ( Jets_cm_psort.at(ji).CSVudsg      );
                 Jets_cm_top6_nEF.push_back         ( Jets_cm_psort.at(ji).nEF          );
                 Jets_cm_top6_cEF.push_back         ( Jets_cm_psort.at(ji).cEF          );
                 Jets_cm_top6_nHF.push_back         ( Jets_cm_psort.at(ji).nHF          );
@@ -415,9 +404,6 @@ private:
             tr.registerDerivedVar(MVAJetName_+"_flavc_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavc.at(i)        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_flavuds_"+std::to_string(i+1)+channel_+myVarSuffix_,     static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavuds.at(i)      : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_flavq_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_flavq.at(i)        : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"_CSVb_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_CSVb.at(i)        : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"_CSVc_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_CSVc.at(i)        : 0.0));
-            tr.registerDerivedVar(MVAJetName_+"_CSVudsg_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_CSVudsg.at(i)        : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_nEF_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_nEF.at(i)          : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_cEF_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_cEF.at(i)          : 0.0));
             tr.registerDerivedVar(MVAJetName_+"_nHF_"+std::to_string(i+1)+channel_+myVarSuffix_,         static_cast<double>( (Jets_cm_top6.size() >= i+1) ? Jets_cm_top6_nHF.at(i)          : 0.0));

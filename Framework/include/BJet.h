@@ -23,15 +23,13 @@ private:
     {
         const auto& Jets = tr.getVec<utility::LorentzVector>("Jets"+myVarSuffix_);
         const auto& Jets_bJetTagDeepFlavourtotb = tr.getVec<float>("Jets"+myVarSuffix_+"_bJetTagDeepFlavourtotb");
-        const auto& Jets_bDiscriminatorCSV = tr.getVec<float>("Jets"+myVarSuffix_+"_bDiscriminatorCSV"); //
+
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
         const auto& loose = tr.getVar<double>("deepFlavour_WP_loose");
         const auto& medium = tr.getVar<double>("deepFlavour_WP_medium");
         const auto& tight = tr.getVar<double>("deepFlavour_WP_tight");
-
-        double csv_medium = 0.8484;
 
         auto& bjets_loose_ = tr.createDerivedVec<bool>("BJets_loose"+myVarSuffix_);
         auto& bjets_pt30_loose_ = tr.createDerivedVec<bool>("BJets_pt30_loose"+myVarSuffix_);
@@ -63,15 +61,10 @@ private:
         auto& goodbjets_pt45_tight_ = tr.createDerivedVec<bool>("GoodBJets_pt45_tight"+myVarSuffix_);
         int NGoodBJets_tight = 0, NGoodBJets_pt30_tight = 0, NGoodBJets_pt45_tight = 0;
 
-        // for trigger study
-        auto& goodbjetsCSV_pt30_ = tr.createDerivedVec<bool>("GoodBJetsCSV_pt30"+myVarSuffix_);
-        int NGoodBJetsCSV_pt30 = 0;
-
         for (unsigned int ijet = 0; ijet < Jets.size(); ++ijet)
         {
             utility::LorentzVector lv = Jets.at(ijet);
             double bdisc = Jets_bJetTagDeepFlavourtotb.at(ijet);
-            double csv_bdisc = Jets_bDiscriminatorCSV.at(ijet); 
 
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > loose                , bjets_loose_,      NBJets_loose     );
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > loose && lv.Pt() > 30, bjets_pt30_loose_, NBJets_pt30_loose);
@@ -96,10 +89,7 @@ private:
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight                 && GoodJets.at(ijet), goodbjets_tight_,      NGoodBJets_tight     );
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight && lv.Pt() > 30 && GoodJets.at(ijet), goodbjets_pt30_tight_, NGoodBJets_pt30_tight);
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight && lv.Pt() > 45 && GoodJets.at(ijet), goodbjets_pt45_tight_, NGoodBJets_pt45_tight);           
-    
-            // for trigger study
-            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && csv_bdisc > csv_medium && lv.Pt() > 30 && GoodJets.at(ijet), goodbjetsCSV_pt30_, NGoodBJetsCSV_pt30);    
-    }
+        }
 
         tr.registerDerivedVar("NBJets_loose"+myVarSuffix_,       NBJets_loose);
         tr.registerDerivedVar("NBJets_pt30_loose"+myVarSuffix_,  NBJets_pt30_loose);
@@ -126,9 +116,6 @@ private:
         tr.registerDerivedVar("NGoodBJets_tight"+myVarSuffix_,       NGoodBJets_tight);
         tr.registerDerivedVar("NGoodBJets_pt30_tight"+myVarSuffix_,  NGoodBJets_pt30_tight);
         tr.registerDerivedVar("NGoodBJets_pt45_tight"+myVarSuffix_,  NGoodBJets_pt45_tight);
-
-        // for trigger study
-        tr.registerDerivedVar("NGoodBJetsCSV_pt30"+myVarSuffix_,  NGoodBJetsCSV_pt30);
     }
 
 public:

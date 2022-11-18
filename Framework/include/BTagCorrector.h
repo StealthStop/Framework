@@ -259,7 +259,7 @@ public:
     //method 1a in twiki
     // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods  
     /***********************************************************************************/
-    double GetSimpleCorrection(const std::vector<utility::LorentzVector>* Jets, const std::vector<bool>* jetMask, const std::vector<int>* Jets_flavor, const std::vector<float>* Jets_bDiscriminatorCSV, const double wp)
+    double GetSimpleCorrection(const std::vector<utility::LorentzVector>* Jets, const std::vector<bool>* jetMask, const std::vector<int>* Jets_flavor, const std::vector<float>* Jets_bTag, const double wp)
     {
         double mcTag = 1.0, mcNoTag = 1.0, dataTag = 1.0, dataNoTag = 1.0;
         
@@ -280,7 +280,7 @@ public:
                 if(debug) std::cout<<"sfEffLists[ja][0] : "<<sfEffLists[ja][0]<<"  sfEffLists[ja][1] : "<<sfEffLists[ja][1]<<"  sfEffLists[ja][2] : "<<sfEffLists[ja][2]<<std::endl;
             }
             
-            if(Jets_bDiscriminatorCSV->at(ja) > wp)
+            if(Jets_bTag->at(ja) > wp)
             {
                 mcTag *= eff_a*cf_a;
                 dataTag *= eff_a*cf_a*sf_a;
@@ -301,7 +301,7 @@ public:
     // https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
     // Used for correcting the entire BTag discriminant distribution for NN
     /*********************************************************************************/
-    double GetShapeCorrection(const std::vector<utility::LorentzVector>* Jets, const std::vector<bool>* jetMask, const std::vector<int>* Jets_flavor, const std::vector<float>* Jets_bDiscriminatorCSV, const double wp)
+    double GetShapeCorrection(const std::vector<utility::LorentzVector>* Jets, const std::vector<bool>* jetMask, const std::vector<int>* Jets_flavor, const std::vector<float>* Jets_bTag, const double wp)
     {
         double weight = 1.0;
 
@@ -313,13 +313,13 @@ public:
             if(!jetMask->at(ja)) continue;
 
             // Get sf for each of the jet and multiply to get weight
-            InitSFShape(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), Jets_bDiscriminatorCSV->at(ja), sfList[ja]);
+            InitSFShape(Jets->at(ja).Pt(), Jets->at(ja).Eta(), Jets_flavor->at(ja), Jets_bTag->at(ja), sfList[ja]);
             double sf_a = sfList[ja];
 
             if(debug) std::cout<<"sfList[ja] : "<<sfList[ja]<<std::endl;
 
             //Total weight = product of all scale factors in shape csv
-            if(Jets_bDiscriminatorCSV->at(ja) > wp)
+            if(Jets_bTag->at(ja) > wp)
             {
                 weight *= sf_a;
             }
@@ -437,7 +437,7 @@ public:
         const auto& jetMask = tr.getVec<bool>(JetMask);
         const auto& recoJetsBtag = tr.getVec<float>(BJetsVec);
         const auto& recoJetsFlavor = tr.getVec<int>(JetsFlavor);
-        const auto& wp = tr.getVar<double>("deepCSV_WP_medium");
+        const auto& wp = tr.getVar<double>("deepFlavour_WP_medium");
         
         /*************************************************/
         // Here we define which(up, down or central
