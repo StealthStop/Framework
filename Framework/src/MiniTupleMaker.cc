@@ -82,3 +82,18 @@ void MiniTupleMaker::fill()
 {
     tree_->Fill();
 }
+
+void MiniTupleMaker::fill(const NTupleReader& tr)
+{
+    tree_->Fill();
+
+    // Special case fill to ensure we have a good pointer to the branches
+    // The title of the TriggerPass branch needs to be set to the same title
+    // coming from the ntuples, which is a concatenated string of trigger paths---useful !
+    // This title is unfortunately not passed on automatically when init'ing the branch
+    if (!startedFilling_)
+    {
+        tree_->GetBranch("TriggerPass")->SetTitle(tr.getBranchTitle("TriggerPass").c_str());
+        startedFilling_ = true;
+    }
+}
