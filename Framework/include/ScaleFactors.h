@@ -660,8 +660,8 @@ private:
         auto* topPtVec          = new std::vector<float>();
         if( filetag.find("TTTo") != std::string::npos )
         {
-            const double a=0.0615, b=-0.0005;
-            auto SF = [&](const double pt){return exp(a + b * pt);};
+            const double a=0.103, b=-0.0118, c=-0.000134, d=0.973;
+            auto SF = [&](const double pt){return a * exp(b * pt) + c * pt + d;};
             
             const auto& GenParticles        = tr.getVec<utility::LorentzVector>("GenParticles");
             const auto& GenParticles_PdgId  = tr.getVec<int>("GenParticles_PdgId"             );
@@ -712,7 +712,7 @@ private:
         const auto& NNonIsoMuons      = tr.getVar<int>("NNonIsoMuons"                        +myVarSuffix_);
         double totalEventWeight       = -1.0;
 
-        double commonWeight = Weight * FinalLumi * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double commonWeight = Weight * FinalLumi * bTagWeight * prefiringScaleFactor * puWeightCorr * topPtScaleFactor;
         tr.registerDerivedVar("CommonWeight" + myVarSuffix_, commonWeight);
 
         // 0-Lepton
