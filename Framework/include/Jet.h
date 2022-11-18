@@ -1,8 +1,11 @@
 #ifndef JET_H
 #define JET_H
 
-inline bool passesPuIdMedium(float pt, float eta, float disc_value, std::string runYear){
-     constexpr float cuts[2][4][4] = {
+class Jet
+{
+private:
+    std::string myVarSuffix_;
+    const float puIDcut_medium[2][4][4]= {
         {{ 0.20,-0.56,-0.43,-0.38},
         { 0.62,-0.39,-0.32,-0.29},
         { 0.86,-0.10,-0.15,-0.08},
@@ -12,23 +15,7 @@ inline bool passesPuIdMedium(float pt, float eta, float disc_value, std::string 
         {0.90,0.36,-0.16,-0.09},
         {0.96,0.61,0.14,0.12}}
     };
-    int yearidx = 0;
-    if (runYear.find("2016") == std::string::npos) yearidx = 1;
-    int ptidx = 0;
-    int etaidx = 0;
-    if( pt < 20) ptidx = 0;
-    else if( pt < 30) ptidx = 1;
-    else if( pt < 40) ptidx = 2;
-    else if( pt < 50) ptidx = 3;
-    if( std::abs(eta) < 2.5f) etaidx = 0;
-    else if( std::abs(eta) < 2.75f) etaidx = 1;
-    else if( std::abs(eta) < 3.0f) etaidx = 2;
-    else if( std::abs(eta) < 5.0f) etaidx = 3;
-    return cuts[yearidx][ptidx][etaidx] < disc_value || pt > 50.0f;
-}
-
-inline bool passesPuIdTight(float pt, float eta, float disc_value, std::string runYear){
-     constexpr float cuts[2][4][4] = {
+    const float puIDcut_tight[2][4][4] = {
         {{ 0.71,-0.32,-0.30,-0.22},
         { 0.87,-0.08,-0.16,-0.12},
         { 0.94,-0.24,0.05,0.10},
@@ -38,25 +25,22 @@ inline bool passesPuIdTight(float pt, float eta, float disc_value, std::string r
         {0.96,0.82,0.20,0.09},
         {0.98,0.92,0.47,0.29}}
     };
-    int yearidx = 0;
-    if (runYear.find("2016") == std::string::npos) yearidx = 1;
-    int ptidx = 0;
-    int etaidx = 0;
-    if( pt < 20) ptidx = 0;
-    else if( pt < 30) ptidx = 1;
-    else if( pt < 40) ptidx = 2;
-    else if( pt < 50) ptidx = 3;
-    if( std::abs(eta) < 2.5f) etaidx = 0;
-    else if( std::abs(eta) < 2.75f) etaidx = 1;
-    else if( std::abs(eta) < 3.0f) etaidx = 2;
-    else if( std::abs(eta) < 5.0f) etaidx = 3;
-    return cuts[yearidx][ptidx][etaidx] < disc_value || pt > 50.0f;
-}
 
-class Jet
-{
-private:
-    std::string myVarSuffix_;
+    bool passPuID(float pt, float eta, float disc_value, std::string runYear, const float cuts[2][4][4]){
+        int yearidx = 0;
+        if (runYear.find("2016") == std::string::npos) yearidx = 1;
+        int ptidx = 0;
+        int etaidx = 0;
+        if( pt < 20) ptidx = 0;
+        else if( pt < 30) ptidx = 1;
+        else if( pt < 40) ptidx = 2;
+        else if( pt < 50) ptidx = 3;
+        if( std::abs(eta) < 2.5f) etaidx = 0;
+        else if( std::abs(eta) < 2.75f) etaidx = 1;
+        else if( std::abs(eta) < 3.0f) etaidx = 2;
+        else if( std::abs(eta) < 5.0f) etaidx = 3;
+        return cuts[yearidx][ptidx][etaidx] < disc_value || pt > 50.0f;
+    }
 
     void setJetVar(bool pass, std::vector<bool>& boolVec, int& n)
     {
@@ -173,8 +157,8 @@ private:
         {               
             utility::LorentzVector lv = Jets.at(i);
          
-            bool puID_medium = passesPuIdMedium(lv.Pt(), lv.Eta(), puId.at(i), runYear);
-            bool puID_tight  = passesPuIdTight(lv.Pt(), lv.Eta(), puId.at(i), runYear);
+            bool puID_medium = passPuID(lv.Pt(), lv.Eta(), puId.at(i), runYear, puIDcut_medium);
+            bool puID_tight  = passPuID(lv.Pt(), lv.Eta(), puId.at(i), runYear, puIDcut_tight);
   
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 20, jets_pt20_, NJets_pt20); 
             setJetVar( abs(lv.Eta()) < etaCut && lv.Pt() > 30, jets_pt30_, NJets_pt30);
