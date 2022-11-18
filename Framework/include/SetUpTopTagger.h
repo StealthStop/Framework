@@ -19,7 +19,8 @@ private:
     ttUtility::ConstAK8Inputs<double>* AK8Inputs_;
     std::vector<uint8_t>* ak4Filter_;
     const std::vector<TLorentzVector>& Jets_;                      
-    const std::vector<float>& Jets_bJetTagDeepCSVtotb_;
+    //const std::vector<float>& Jets_bJetTagDeepCSVtotb_;
+    const std::vector<float>& Jets_bJetTagDeepFlavourtotb_;
     const std::vector<float>& Jets_qgLikelihood_;        
     const std::vector<bool>& GoodJets_;
     const std::vector<bool>& GoodJets_pt20_; 
