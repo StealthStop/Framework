@@ -169,7 +169,8 @@ private:
         std::vector<TopObject*> tops(resolvedTops);                          
 
         // If _not_ doing the resolved-only tagger i.e. doing whole merged+resolved tagger, add in the merged tops to the tops vector
-        if (taggerCfg_.find("Resolved") == std::string::npos)
+        const auto& analyzer = tr.getVar<std::string>("analyzer");        
+        if (analyzer.find("ResolvedTopTagger_Analyzer") == std::string::npos)
             tops.insert(tops.end(), mergedTops.begin(), mergedTops.end());
         
         countTops(tops);
