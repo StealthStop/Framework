@@ -72,16 +72,23 @@ namespace AnaSamples
     bool SampleSet::parseCfgLine(const char* buf)
     {
         char cDSname[256], cFPath[256], cfName[256], cTPath[256];
-        double f1, f2, f3, f4;
-        int nMatches = sscanf(buf, "%s %s %s %s %lf %lf %lf %lf", cDSname, cFPath, cfName, cTPath, &f1, &f2, &f3, &f4);
-        if(nMatches == 8) //this is MC 
+        double f1, f2, f3, f4, f5, f6;
+        int nMatches = sscanf(buf, "%s %s %s %s %lf %lf %lf %lf %lf %lf", cDSname, cFPath, cfName, cTPath, &f1, &f2, &f3, &f4, &f5, &f6);
+        if(nMatches == 10)
         {
-            //                                                        xsec   NEvts+ NEvts-  kfactor
-            if(!isCondor_) addSample(cDSname, cFPath, cfName, cTPath, f1,    f2 -  f3,     f4,     kGreen);
-            else           addSample(cDSname, "",     cfName, cTPath, f1,    f2 -  f3,     f4,     kGreen);
+            //                                                        xsec   NEvts+ NEvts-  NEvts+ NEvts- (skim) kfactor
+            if(!isCondor_) addSample(cDSname, cFPath, cfName, cTPath, f1,    f2  -  f3,     f4  -  f5,           f6,     kGreen);
+            else           addSample(cDSname, "",     cfName, cTPath, f1,    f2  -  f3,     f4  -  f5,           f6,     kGreen);
             return true;
         }
-        else if(nMatches == 6) //this is Data
+        else if(nMatches == 8) // contains no skimmed nEvts information
+        {
+            //                                                        xsec   NEvts+ NEvts-  kfactor
+            if(!isCondor_) addSample(cDSname, cFPath, cfName, cTPath, f1,    f2  -  f3,     f4,     kGreen);
+            else           addSample(cDSname, "",     cfName, cTPath, f1,    f2  -  f3,     f4,     kGreen);
+            return true;
+        }
+        else if(nMatches == 6) // only applicable for Data and no skim
         {
             //                                                        lumi  kfactor
             if(!isCondor_) addSample(cDSname, cFPath, cfName, cTPath, f1,   f2,     kBlack);
@@ -199,7 +206,7 @@ namespace AnaSamples
 
     bool operator== (const FileSummary& lhs, const FileSummary& rhs)
     {
-        return lhs.filePath == rhs.filePath && lhs.treePath == rhs.treePath && lhs.xsec == rhs.xsec && lhs.kfactor == rhs.kfactor && lhs.nEvts == rhs.nEvts;
+        return lhs.filePath == rhs.filePath && lhs.treePath == rhs.treePath && lhs.xsec == rhs.xsec && lhs.kfactor == rhs.kfactor && lhs.nGenEvts == rhs.nGenEvts && lhs.nActEvts == rhs.nActEvts;
     }
 
     bool operator!= (const FileSummary& lhs, const FileSummary& rhs)
