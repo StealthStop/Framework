@@ -51,17 +51,29 @@ extern "C" {
         return array;
     }
 
-    int const * SC_samples_nEvts(AnaSamples::SampleCollection* sc, char *scn)
+    int const * SC_samples_nGenEvts(AnaSamples::SampleCollection* sc, char *scn)
     {
         auto& sampleVec = (*sc)[std::string(scn)];
         int *array = new int[sampleVec.size()];
         int i = 0;
         for(auto& sample : sampleVec)
         {
-            array[i++] = sample.nEvts;
+            array[i++] = sample.nGenEvts;
         }
         return array;
     }
+    int const * SC_samples_nActEvts(AnaSamples::SampleCollection* sc, char *scn)
+    {
+        auto& sampleVec = (*sc)[std::string(scn)];
+        int *array = new int[sampleVec.size()];
+        int i = 0;
+        for(auto& sample : sampleVec)
+        {
+            array[i++] = sample.nActEvts;
+        }
+        return array;
+    }
+
     char const ** SS_samples(AnaSamples::SampleSet* ss)
     {
         const char **array = new const char*[ss->size()];

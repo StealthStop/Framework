@@ -19,19 +19,24 @@ namespace AnaSamples
    public:
     std::string tag;
     std::string filePath, fileName, treePath;
-    double xsec, kfactor, nEvts;
+    double xsec, kfactor, nGenEvts, nActEvts;
     int color;
     bool isData_;
         
     FileSummary() {}
-    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(xsec), kfactor(kfactor), nEvts(nEvts), color(color), isData_(false)
+    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double nGenEvts, double nActEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(xsec), kfactor(kfactor), nGenEvts(nGenEvts), nActEvts(nActEvts), color(color), isData_(false)
+    {
+      weight_ = xsec * kfactor / nGenEvts;
+    }
+
+    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double nEvts, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(xsec), kfactor(kfactor), nGenEvts(nEvts), nActEvts(nEvts), color(color), isData_(false)
     {
       weight_ = xsec * kfactor / nEvts;
     }
 
     //Constructor which doesn't make a xsec*kfactor/nEvts weighted sample, e.g. for use with data.
     //Initialize xsec, nEvts to 1 so that the comparison operators still work
-    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(1), kfactor(kfactor), nEvts(1), color(color), isData_(true)
+    FileSummary(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double kfactor, int color = kBlack) : tag(tag), filePath(filePath), fileName(fileName), treePath(treePath), xsec(1), kfactor(kfactor), nGenEvts(1), nActEvts(1), color(color), isData_(true)
     {
       weight_ = kfactor;
     }
@@ -148,6 +153,11 @@ namespace AnaSamples
    
    public:
     SampleSet(std::string file = "sampleSets.cfg", bool isCondor = false);
+    void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double nGenEvts, double nActEvts, double kfactor, int color = kBlack) 
+    {
+        sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, nGenEvts, nActEvts, kfactor, color);
+    }
+
     void addSample(const std::string& tag, const std::string& filePath, const std::string& fileName, const std::string& treePath, double xsec, double nEvts, double kfactor, int color = kBlack) 
     {
         sampleSet_[tag] = FileSummary(tag, filePath, fileName, treePath, xsec, nEvts, kfactor, color);
