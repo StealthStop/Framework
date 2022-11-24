@@ -866,7 +866,7 @@ public:
         const auto& lostCauseEvent = tr.getVar<bool>("lostCauseEvent" + myVarSuffix_);
         const auto& fastMode       = tr.getVar<bool>("fastMode");
 
-        if (!lostCauseEvent or !fastMode)
+        if (!lostCauseEvent or !fastMode or tr.isFirstEvent())
             scaleFactors(tr);
     }
 };
