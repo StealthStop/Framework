@@ -39,6 +39,7 @@ private:
         // get variables for QCD CR        
         const auto& HT_NonIsoMuon_pt30     = tr.getVar<double>("HT_NonIsoMuon_pt30" +myVarSuffix_);
         const auto& NNonIsoMuonJets_pt30   = tr.getVar<int>("NNonIsoMuonJets_pt30"  +myVarSuffix_);
+        const auto& NNonIsoMuonJets_pt45   = tr.getVar<int>("NNonIsoMuonJets_pt45"  +myVarSuffix_);
         // get variables for HEM veto 
         const auto& vetoedHEMelectron      = tr.getVar<bool>("vetoedHEMelectron"    +myVarSuffix_);
         bool passElectronHEMveto = !(vetoedHEMelectron && runtype == "Data" && runYear == "2018" && RunNum >= 319077);
@@ -159,7 +160,7 @@ private:
         bool passBaseline0l_Good = passBaseline0l_pre   &&
                                    passElectronHEMveto  &&
                                    NNonIsoMuons == 0    &&
-                                   NGoodJets_pt30 >= 7  &&
+                                   NGoodJets_pt30 >= 8  &&
                                    ntops >= 2           &&
                                    NGoodBJets_pt30 >= 2 &&
                                    dR_bjets >= 1.0      ;
@@ -306,6 +307,14 @@ private:
         bool pass_qcdCR_1t    = pass_qcdCR                          && ntops >= 1;
         bool pass_qcdCR_1b_1t = pass_qcdCR && NGoodBJets_pt30 >= 1  && ntops >= 1;
         bool pass_qcdCR_2b    = pass_qcdCR && NGoodBJets_pt30 >= 2;
+        bool pass_qcdCR_45       = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6; 
+        bool pass_qcdCR_45_1b    = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6 && NGoodBJets_pt45 >= 1; 
+        bool pass_qcdCR_45_2b    = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6 && NGoodBJets_pt45 >= 1 && NGoodBJets_pt30 >= 2; 
+        bool pass_qcdCR_45_1t    = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6 && ntops >= 1; 
+        bool pass_qcdCR_45_2t    = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6 && ntops >= 2; 
+        bool pass_qcdCR_45_1b_1t = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6 && NGoodBJets_pt45 >= 1 && NGoodBJets_pt30 >= 1 && ntops >= 1; 
+        bool pass_qcdCR_45_2b_1t = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6 && NGoodBJets_pt45 >= 1 && NGoodBJets_pt30 >= 2 && ntops >= 1; 
+        bool pass_qcdCR_all      = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6 && NGoodBJets_pt45 >= 1 && NGoodBJets_pt30 >= 2 && ntops >= 2; 
 
         // -------------------
         // Register all things
@@ -346,6 +355,14 @@ private:
         tr.registerDerivedVar<bool>("pass_qcdCR_1t"                 +myVarSuffix_, pass_qcdCR_1t                );
         tr.registerDerivedVar<bool>("pass_qcdCR_1b_1t"              +myVarSuffix_, pass_qcdCR_1b_1t             );
         tr.registerDerivedVar<bool>("pass_qcdCR_2b"                 +myVarSuffix_, pass_qcdCR_2b                );
+        tr.registerDerivedVar<bool>("pass_qcdCR_45"                 +myVarSuffix_, pass_qcdCR_45                );
+        tr.registerDerivedVar<bool>("pass_qcdCR_45_1b"              +myVarSuffix_, pass_qcdCR_45_1b             );
+        tr.registerDerivedVar<bool>("pass_qcdCR_45_2b"              +myVarSuffix_, pass_qcdCR_45_2b             );
+        tr.registerDerivedVar<bool>("pass_qcdCR_45_1t"              +myVarSuffix_, pass_qcdCR_45_1t             );
+        tr.registerDerivedVar<bool>("pass_qcdCR_45_2t"              +myVarSuffix_, pass_qcdCR_45_2t             );
+        tr.registerDerivedVar<bool>("pass_qcdCR_45_1b_1t"           +myVarSuffix_, pass_qcdCR_45_1b_1t          );
+        tr.registerDerivedVar<bool>("pass_qcdCR_45_2b_1t"           +myVarSuffix_, pass_qcdCR_45_2b_1t          );
+        tr.registerDerivedVar<bool>("pass_qcdCR_all"                +myVarSuffix_, pass_qcdCR_all               );
         tr.registerDerivedVar<bool>("passNonIsoTrigger"             +myVarSuffix_, passNonIsoTrigger            );
         tr.registerDerivedVar<bool>("passNonIsoTriggerMC"           +myVarSuffix_, passNonIsoTriggerMC          );
         // common things       
