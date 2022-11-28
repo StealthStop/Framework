@@ -165,9 +165,8 @@ private:
                                    NGoodBJets_pt30 >= 2 &&
                                    dR_bjets >= 1.0      ;
         
-        // full baseline for bilind
-        bool passBaseline0l_Good_blind = passBaseline0l_Good &&
-                                         passBlindHad_Good;
+        // full baseline for blind
+        bool passBaseline0l_Good_blind = passBaseline0l_Good && passBlindHad_Good;
        
         // baseline for HEM study 
         bool passBaseline0l_Good_noHEMveto = passBaseline0l_pre   &&
@@ -216,12 +215,11 @@ private:
 
         // full baseline 
         bool passBaseline1l_Good = (passBaseline1mu_Good || passBaseline1el_Good) &&
-                                    passElectronHEMveto;
+                                    passElectronHEMveto &&
+                                    NNonIsoMuons == 0;
 
         // full baseline for blind
-        bool passBaseline1l_Good_blind = (passBaseline1mu_Good || passBaseline1el_Good) &&
-                                         passElectronHEMveto &&
-                                         passBlindLep_Good;
+        bool passBaseline1l_Good_blind = passBaseline1l_Good && passBlindLep_Good; 
 
         // baseline for HEM study  
         bool passBaseline1l_Good_noHEMveto = passBaseline1mu_Good || passBaseline1el_Good;
