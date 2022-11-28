@@ -702,49 +702,133 @@ private:
         // For the CalculateSFMean analyzer, we do not need to run BTagCorrector
         // and thus, we do not need to try and get the bTagSF here, so just default 1.0
         double bTagWeight = 1.0;
+        double bTagWeightUp = 1.0;
+        double bTagWeightDown = 1.0;
+
         if ( analyzer != "CalculateSFMean" )
         {
             bTagWeight = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
+            bTagWeightUp = tr.getVar<double>("bTagSF_EventWeightSimple_Up" +myVarSuffix_);
+            bTagWeightDown = tr.getVar<double>("bTagSF_EventWeightSimple_Down" +myVarSuffix_);
         }
 
-        const auto& NGoodMuons        = tr.getVar<int>("NGoodMuons"                          +myVarSuffix_);
-        const auto& NGoodLeptons      = tr.getVar<int>("NGoodLeptons"                        +myVarSuffix_);
-        const auto& NNonIsoMuons      = tr.getVar<int>("NNonIsoMuons"                        +myVarSuffix_);
-        double totalEventWeight       = -1.0;
+        double CommonWeight = Weight * FinalLumi * topPtScaleFactor;
 
-        double commonWeight = Weight * FinalLumi * bTagWeight * prefiringScaleFactor * puWeightCorr * topPtScaleFactor;
-        tr.registerDerivedVar("CommonWeight" + myVarSuffix_, commonWeight);
+        double totalEventWeight_0l         = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_BtgUp   = CommonWeight * jetTrigSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_BtgDown = CommonWeight * jetTrigSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_JetUp   = CommonWeight * jetTrigSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_JetDown = CommonWeight * jetTrigSF_Down * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_PUup    = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puSysUpCorr;
+        double totalEventWeight_0l_PUdown  = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
+        double totalEventWeight_0l_PrfUp   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
+        double totalEventWeight_0l_PrfDown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
+        double totalEventWeight_0l_SclUp   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightUpperBound_corr;
+        double totalEventWeight_0l_SclDown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightLowerBound_corr;
+        double totalEventWeight_0l_PDFup   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_up_corr;
+        double totalEventWeight_0l_PDFdown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_down_corr;
+        double totalEventWeight_0l_ISRup   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRUp;
+        double totalEventWeight_0l_ISRdown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRDown;
+        double totalEventWeight_0l_FSRup   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRUp;
+        double totalEventWeight_0l_FSRdown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRDown;
 
-        // 0-Lepton
-        // Eventually, jetTrigSF will become totJetSF to incorporate the top tagger scale factor
-        if ( NGoodLeptons == 0 and NNonIsoMuons == 0 ) 
-        {
-            totalEventWeight = commonWeight * jetTrigSF;
-        }
-        // 1-Lepton
-        // Just choose either the muon or the electron weight
-        else if ( NGoodLeptons == 1 )
-        { 
-            double totLepWeight = totGoodElectronSF;
-            if ( NGoodMuons == 1 ) 
-                totLepWeight = totGoodMuonSF;
+        double totalEventWeight_1l         = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_1l_BtgUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_1l_BtgDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_1l_LepUp   = CommonWeight * totGoodElectronSF_Up   * totGoodMuonSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_1l_LepDown = CommonWeight * totGoodElectronSF_Down * totGoodMuonSF_Down * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_1l_PUup    = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysUpCorr;
+        double totalEventWeight_1l_PUdown  = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
+        double totalEventWeight_1l_PrfUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
+        double totalEventWeight_1l_PrfDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
+        double totalEventWeight_1l_SclUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightUpperBound_corr;
+        double totalEventWeight_1l_SclDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightLowerBound_corr;
+        double totalEventWeight_1l_PDFup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_up_corr;
+        double totalEventWeight_1l_PDFdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_down_corr;
+        double totalEventWeight_1l_ISRup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRUp;
+        double totalEventWeight_1l_ISRdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRDown;
+        double totalEventWeight_1l_FSRup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRUp;
+        double totalEventWeight_1l_FSRdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRDown;
 
-            totalEventWeight   = commonWeight * totLepWeight;
-        }
-        // 2-Lepton
-        // TODO: Figure out how to incorporate lep scale factor for more than one lepton
-        else if ( NGoodLeptons == 2 )
-        {
-            totalEventWeight   = commonWeight;// * totLepWeight;
-        }
-        // QCDCR
-        // With one non-isolated muon, use the totNonIsoMuonSF inside the total weight
-        else if ( NGoodLeptons == 0 and NNonIsoMuons == 1 ) 
-        {
-            totalEventWeight    = commonWeight * totNonIsoMuonSF;
-        }
+        double totalEventWeight_2l         = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_2l_BtgUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_2l_BtgDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_2l_LepUp   = CommonWeight * totGoodElectronSF_Up   * totGoodMuonSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_2l_LepDown = CommonWeight * totGoodElectronSF_Down * totGoodMuonSF_Down * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_2l_PUup    = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysUpCorr;
+        double totalEventWeight_2l_PUdown  = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
+        double totalEventWeight_2l_PrfUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
+        double totalEventWeight_2l_PrfDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
+        double totalEventWeight_2l_SclUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightUpperBound_corr;
+        double totalEventWeight_2l_SclDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightLowerBound_corr;
+        double totalEventWeight_2l_PDFup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_up_corr;
+        double totalEventWeight_2l_PDFdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_down_corr;
+        double totalEventWeight_2l_ISRup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRUp;
+        double totalEventWeight_2l_ISRdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRDown;
+        double totalEventWeight_2l_FSRup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRUp;
+        double totalEventWeight_2l_FSRdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRDown;
 
-        tr.registerDerivedVar("TotalWeight"           + myVarSuffix_, totalEventWeight       );
+        double totalEventWeight_0l_QCDCR   = CommonWeight * totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double totalEventWeight_1l_QCDCR   = CommonWeight * totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double totalEventWeight_2l_QCDCR   = CommonWeight * totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+
+        tr.registerDerivedVar("TotalWeight_0l_QCDCR"     + myVarSuffix_, totalEventWeight_0l_QCDCR);
+        tr.registerDerivedVar("TotalWeight_1l_QCDCR"     + myVarSuffix_, totalEventWeight_1l_QCDCR);
+        tr.registerDerivedVar("TotalWeight_2l_QCDCR"     + myVarSuffix_, totalEventWeight_2l_QCDCR);
+
+        tr.registerDerivedVar("TotalWeight_0l"           + myVarSuffix_, totalEventWeight_0l);
+        tr.registerDerivedVar("TotalWeight_0l_BtgUp"     + myVarSuffix_, totalEventWeight_0l_BtgUp);
+        tr.registerDerivedVar("TotalWeight_0l_BtgDown"   + myVarSuffix_, totalEventWeight_0l_BtgDown);
+        tr.registerDerivedVar("TotalWeight_0l_JetUp"     + myVarSuffix_, totalEventWeight_0l_JetUp);
+        tr.registerDerivedVar("TotalWeight_0l_JetDown"   + myVarSuffix_, totalEventWeight_0l_JetDown);
+        tr.registerDerivedVar("TotalWeight_0l_PUup"      + myVarSuffix_, totalEventWeight_0l_PUup);
+        tr.registerDerivedVar("TotalWeight_0l_PUdown"    + myVarSuffix_, totalEventWeight_0l_PUdown);
+        tr.registerDerivedVar("TotalWeight_0l_PrfUp"     + myVarSuffix_, totalEventWeight_0l_PrfUp);
+        tr.registerDerivedVar("TotalWeight_0l_PrfDown"   + myVarSuffix_, totalEventWeight_0l_PrfDown);
+        tr.registerDerivedVar("TotalWeight_0l_SclUp"     + myVarSuffix_, totalEventWeight_0l_SclUp);
+        tr.registerDerivedVar("TotalWeight_0l_SclDown"   + myVarSuffix_, totalEventWeight_0l_SclDown);
+        tr.registerDerivedVar("TotalWeight_0l_PDFup"     + myVarSuffix_, totalEventWeight_0l_PDFup);
+        tr.registerDerivedVar("TotalWeight_0l_PDFdown"   + myVarSuffix_, totalEventWeight_0l_PDFdown);
+        tr.registerDerivedVar("TotalWeight_0l_ISRup"     + myVarSuffix_, totalEventWeight_0l_ISRup);
+        tr.registerDerivedVar("TotalWeight_0l_ISRdown"   + myVarSuffix_, totalEventWeight_0l_ISRdown);
+        tr.registerDerivedVar("TotalWeight_0l_FSRup"     + myVarSuffix_, totalEventWeight_0l_FSRup);
+        tr.registerDerivedVar("TotalWeight_0l_FSRdown"   + myVarSuffix_, totalEventWeight_0l_FSRdown);
+
+        tr.registerDerivedVar("TotalWeight_1l"           + myVarSuffix_, totalEventWeight_1l);
+        tr.registerDerivedVar("TotalWeight_1l_BtgUp"     + myVarSuffix_, totalEventWeight_1l_BtgUp);
+        tr.registerDerivedVar("TotalWeight_1l_BtgDown"   + myVarSuffix_, totalEventWeight_1l_BtgDown);
+        tr.registerDerivedVar("TotalWeight_1l_LepUp"     + myVarSuffix_, totalEventWeight_1l_LepUp);
+        tr.registerDerivedVar("TotalWeight_1l_LepDown"   + myVarSuffix_, totalEventWeight_1l_LepDown);
+        tr.registerDerivedVar("TotalWeight_1l_PUup"      + myVarSuffix_, totalEventWeight_1l_PUup);
+        tr.registerDerivedVar("TotalWeight_1l_PUdown"    + myVarSuffix_, totalEventWeight_1l_PUdown);
+        tr.registerDerivedVar("TotalWeight_1l_PrfUp"     + myVarSuffix_, totalEventWeight_1l_PrfUp);
+        tr.registerDerivedVar("TotalWeight_1l_PrfDown"   + myVarSuffix_, totalEventWeight_1l_PrfDown);
+        tr.registerDerivedVar("TotalWeight_1l_SclUp"     + myVarSuffix_, totalEventWeight_1l_SclUp);
+        tr.registerDerivedVar("TotalWeight_1l_SclDown"   + myVarSuffix_, totalEventWeight_1l_SclDown);
+        tr.registerDerivedVar("TotalWeight_1l_PDFup"     + myVarSuffix_, totalEventWeight_1l_PDFup);
+        tr.registerDerivedVar("TotalWeight_1l_PDFdown"   + myVarSuffix_, totalEventWeight_1l_PDFdown);
+        tr.registerDerivedVar("TotalWeight_1l_ISRup"     + myVarSuffix_, totalEventWeight_1l_ISRup);
+        tr.registerDerivedVar("TotalWeight_1l_ISRdown"   + myVarSuffix_, totalEventWeight_1l_ISRdown);
+        tr.registerDerivedVar("TotalWeight_1l_FSRup"     + myVarSuffix_, totalEventWeight_1l_FSRup);
+        tr.registerDerivedVar("TotalWeight_1l_FSRdown"   + myVarSuffix_, totalEventWeight_1l_FSRdown);
+
+        tr.registerDerivedVar("TotalWeight_2l"           + myVarSuffix_, totalEventWeight_2l);
+        tr.registerDerivedVar("TotalWeight_2l_BtgUp"     + myVarSuffix_, totalEventWeight_2l_BtgUp);
+        tr.registerDerivedVar("TotalWeight_2l_BtgDown"   + myVarSuffix_, totalEventWeight_2l_BtgDown);
+        tr.registerDerivedVar("TotalWeight_2l_LepUp"     + myVarSuffix_, totalEventWeight_2l_LepUp);
+        tr.registerDerivedVar("TotalWeight_2l_LepDown"   + myVarSuffix_, totalEventWeight_2l_LepDown);
+        tr.registerDerivedVar("TotalWeight_2l_PUup"      + myVarSuffix_, totalEventWeight_2l_PUup);
+        tr.registerDerivedVar("TotalWeight_2l_PUdown"    + myVarSuffix_, totalEventWeight_2l_PUdown);
+        tr.registerDerivedVar("TotalWeight_2l_PrfUp"     + myVarSuffix_, totalEventWeight_2l_PrfUp);
+        tr.registerDerivedVar("TotalWeight_2l_PrfDown"   + myVarSuffix_, totalEventWeight_2l_PrfDown);
+        tr.registerDerivedVar("TotalWeight_2l_SclUp"     + myVarSuffix_, totalEventWeight_2l_SclUp);
+        tr.registerDerivedVar("TotalWeight_2l_SclDown"   + myVarSuffix_, totalEventWeight_2l_SclDown);
+        tr.registerDerivedVar("TotalWeight_2l_PDFup"     + myVarSuffix_, totalEventWeight_2l_PDFup);
+        tr.registerDerivedVar("TotalWeight_2l_PDFdown"   + myVarSuffix_, totalEventWeight_2l_PDFdown);
+        tr.registerDerivedVar("TotalWeight_2l_ISRup"     + myVarSuffix_, totalEventWeight_2l_ISRup);
+        tr.registerDerivedVar("TotalWeight_2l_ISRdown"   + myVarSuffix_, totalEventWeight_2l_ISRdown);
+        tr.registerDerivedVar("TotalWeight_2l_FSRup"     + myVarSuffix_, totalEventWeight_2l_FSRup);
+        tr.registerDerivedVar("TotalWeight_2l_FSRdown"   + myVarSuffix_, totalEventWeight_2l_FSRdown);
 
         if(printGetBinError_) firstPrint_ = false;
     }
