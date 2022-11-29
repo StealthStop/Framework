@@ -712,9 +712,12 @@ private:
             bTagWeightDown = tr.getVar<double>("bTagSF_EventWeightSimple_Down" +myVarSuffix_);
         }
 
-        double CommonWeight = Weight * FinalLumi * topPtScaleFactor;
+        double CommonWeight   = Weight * FinalLumi * topPtScaleFactor;
+        double CommonWeight0l = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeight1l = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeight2l = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
 
-        double totalEventWeight_0l         = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l         = CommonWeight * CommonWeight0l;
         double totalEventWeight_0l_BtgUp   = CommonWeight * jetTrigSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_0l_BtgDown = CommonWeight * jetTrigSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_0l_JetUp   = CommonWeight * jetTrigSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
@@ -723,16 +726,16 @@ private:
         double totalEventWeight_0l_PUdown  = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
         double totalEventWeight_0l_PrfUp   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
         double totalEventWeight_0l_PrfDown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
-        double totalEventWeight_0l_SclUp   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightUpperBound_corr;
-        double totalEventWeight_0l_SclDown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightLowerBound_corr;
-        double totalEventWeight_0l_PDFup   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_up_corr;
-        double totalEventWeight_0l_PDFdown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_down_corr;
-        double totalEventWeight_0l_ISRup   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRUp;
-        double totalEventWeight_0l_ISRdown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRDown;
-        double totalEventWeight_0l_FSRup   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRUp;
-        double totalEventWeight_0l_FSRdown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRDown;
+        double totalEventWeight_0l_SclUp   = CommonWeight * CommonWeight0l * scaleWeightUpperBound_corr;
+        double totalEventWeight_0l_SclDown = CommonWeight * CommonWeight0l * scaleWeightLowerBound_corr;
+        double totalEventWeight_0l_PDFup   = CommonWeight * CommonWeight0l * NNPDF_from_median_up_corr;
+        double totalEventWeight_0l_PDFdown = CommonWeight * CommonWeight0l * NNPDF_from_median_down_corr;
+        double totalEventWeight_0l_ISRup   = CommonWeight * CommonWeight0l * PSweight_ISRUp;
+        double totalEventWeight_0l_ISRdown = CommonWeight * CommonWeight0l * PSweight_ISRDown;
+        double totalEventWeight_0l_FSRup   = CommonWeight * CommonWeight0l * PSweight_FSRUp;
+        double totalEventWeight_0l_FSRdown = CommonWeight * CommonWeight0l * PSweight_FSRDown;
 
-        double totalEventWeight_1l         = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_1l         = CommonWeight * CommonWeight1l;
         double totalEventWeight_1l_BtgUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_1l_BtgDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_1l_LepUp   = CommonWeight * totGoodElectronSF_Up   * totGoodMuonSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
@@ -741,16 +744,16 @@ private:
         double totalEventWeight_1l_PUdown  = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
         double totalEventWeight_1l_PrfUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
         double totalEventWeight_1l_PrfDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
-        double totalEventWeight_1l_SclUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightUpperBound_corr;
-        double totalEventWeight_1l_SclDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightLowerBound_corr;
-        double totalEventWeight_1l_PDFup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_up_corr;
-        double totalEventWeight_1l_PDFdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_down_corr;
-        double totalEventWeight_1l_ISRup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRUp;
-        double totalEventWeight_1l_ISRdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRDown;
-        double totalEventWeight_1l_FSRup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRUp;
-        double totalEventWeight_1l_FSRdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRDown;
+        double totalEventWeight_1l_SclUp   = CommonWeight * CommonWeight1l * scaleWeightUpperBound_corr;
+        double totalEventWeight_1l_SclDown = CommonWeight * CommonWeight1l * scaleWeightLowerBound_corr;
+        double totalEventWeight_1l_PDFup   = CommonWeight * CommonWeight1l * NNPDF_from_median_up_corr;
+        double totalEventWeight_1l_PDFdown = CommonWeight * CommonWeight1l * NNPDF_from_median_down_corr;
+        double totalEventWeight_1l_ISRup   = CommonWeight * CommonWeight1l * PSweight_ISRUp;
+        double totalEventWeight_1l_ISRdown = CommonWeight * CommonWeight1l * PSweight_ISRDown;
+        double totalEventWeight_1l_FSRup   = CommonWeight * CommonWeight1l * PSweight_FSRUp;
+        double totalEventWeight_1l_FSRdown = CommonWeight * CommonWeight1l * PSweight_FSRDown;
 
-        double totalEventWeight_2l         = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_2l         = CommonWeight * CommonWeight2l;
         double totalEventWeight_2l_BtgUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_2l_BtgDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_2l_LepUp   = CommonWeight * totGoodElectronSF_Up   * totGoodMuonSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
@@ -759,14 +762,14 @@ private:
         double totalEventWeight_2l_PUdown  = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
         double totalEventWeight_2l_PrfUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
         double totalEventWeight_2l_PrfDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
-        double totalEventWeight_2l_SclUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightUpperBound_corr;
-        double totalEventWeight_2l_SclDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightLowerBound_corr;
-        double totalEventWeight_2l_PDFup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_up_corr;
-        double totalEventWeight_2l_PDFdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_down_corr;
-        double totalEventWeight_2l_ISRup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRUp;
-        double totalEventWeight_2l_ISRdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRDown;
-        double totalEventWeight_2l_FSRup   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRUp;
-        double totalEventWeight_2l_FSRdown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRDown;
+        double totalEventWeight_2l_SclUp   = CommonWeight * CommonWeight2l * scaleWeightUpperBound_corr;
+        double totalEventWeight_2l_SclDown = CommonWeight * CommonWeight2l * scaleWeightLowerBound_corr;
+        double totalEventWeight_2l_PDFup   = CommonWeight * CommonWeight2l * NNPDF_from_median_up_corr;
+        double totalEventWeight_2l_PDFdown = CommonWeight * CommonWeight2l * NNPDF_from_median_down_corr;
+        double totalEventWeight_2l_ISRup   = CommonWeight * CommonWeight2l * PSweight_ISRUp;
+        double totalEventWeight_2l_ISRdown = CommonWeight * CommonWeight2l * PSweight_ISRDown;
+        double totalEventWeight_2l_FSRup   = CommonWeight * CommonWeight2l * PSweight_FSRUp;
+        double totalEventWeight_2l_FSRdown = CommonWeight * CommonWeight2l * PSweight_FSRDown;
 
         double totalEventWeight_0l_QCDCR   = CommonWeight * totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
         double totalEventWeight_1l_QCDCR   = CommonWeight * totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
