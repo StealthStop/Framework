@@ -46,14 +46,13 @@ private:
         // --------------------
         // Data dependent stuff
         // --------------------
-        bool passTriggerAllHad     = false, passTriggerMuonsRefAN = false, passTriggerQCD = false; // 0-Lepton
-        bool passTriggerMuon       = false, passTriggerElectron   = false;                         // 1-Lepton
-        bool passTriggerNonIsoMuon = false;                                                        // QCD CR
+        bool passTriggerAllHad     = false, passTriggerQCD      = false; // 0-Lepton
+        bool passTriggerMuon       = false, passTriggerElectron = false; // 1-Lepton
+        bool passTriggerNonIsoMuon = false;                              // QCD CR
 
         if (runYear.find("2016") != std::string::npos)
         {
             passTriggerAllHad     = PassTriggerAllHad2016(TriggerNames,     TriggerPass);
-            passTriggerMuonsRefAN = PassTriggerMuonsRefAN(TriggerNames,     TriggerPass);
             passTriggerQCD        = PassTriggerQCD2016(TriggerNames,        TriggerPass);
             passTriggerMuon       = PassTriggerMuon2016(TriggerNames,       TriggerPass);
             passTriggerElectron   = PassTriggerElectron2016(TriggerNames,   TriggerPass);
@@ -63,7 +62,6 @@ private:
         else if (runYear == "2017")
         {
             passTriggerAllHad     = PassTriggerAllHad2017(TriggerNames,     TriggerPass);
-            passTriggerMuonsRefAN = PassTriggerMuonsRefAN(TriggerNames,     TriggerPass);
             passTriggerQCD        = PassTriggerQCD2017(TriggerNames,        TriggerPass);
             passTriggerMuon       = PassTriggerMuon2017(TriggerNames,       TriggerPass);
             passTriggerElectron   = PassTriggerElectron2017(TriggerNames,   TriggerPass);
@@ -72,7 +70,6 @@ private:
         else if (runYear == "2018")
         {
             passTriggerAllHad     = PassTriggerAllHad2018(TriggerNames,     TriggerPass);
-            passTriggerMuonsRefAN = PassTriggerMuonsRefAN(TriggerNames,     TriggerPass); 
             passTriggerQCD        = PassTriggerQCD2018(TriggerNames,        TriggerPass); 
             passTriggerMuon       = PassTriggerMuon2018(TriggerNames,       TriggerPass);
             passTriggerElectron   = PassTriggerElectron2018(TriggerNames,   TriggerPass);
@@ -327,7 +324,6 @@ private:
         tr.registerDerivedVar<bool>("passBlindHad_Good"             +myVarSuffix_, passBlindHad_Good            );
         tr.registerDerivedVar<bool>("passTriggerAllHad"             +myVarSuffix_, passTriggerAllHad            );
         tr.registerDerivedVar<bool>("passTriggerHadMC"              +myVarSuffix_, passTriggerHadMC             );
-        tr.registerDerivedVar<bool>("passTriggerMuonsRefAN"         +myVarSuffix_, passTriggerMuonsRefAN        ); // muon trigger for preselection of trigger SF 
         tr.registerDerivedVar<bool>("passTriggerQCD"                +myVarSuffix_, passTriggerQCD               ); // QCD trigger for preselection for top mistag SF 
 
         // 1-lepton things
@@ -417,13 +413,6 @@ private:
             "HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94",
             "HLT_PFHT450_SixPFJet36_PFBTagDeepCSV_1p59",
         };
-        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
-    }
-
-    // muon trigger for preselection of trigger SF (0-Lepton)
-    bool PassTriggerMuonsRefAN(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
-    {
-        std::vector<std::string> mytriggers = {"HLT_IsoMu24", "HLT_IsoMu22_eta2p1"};
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
