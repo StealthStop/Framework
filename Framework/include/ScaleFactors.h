@@ -32,9 +32,18 @@ private:
     std::shared_ptr<TH2F> jetSFHistoTrigName_ge4bCut_;
 
     template<typename T> std::shared_ptr<T>& getHisto(TFile& f, std::shared_ptr<T>& h, const TString& name)
-    {        
-        if(name != "") h.reset( static_cast<T*>(f.Get(name)) );   
-        else std::cerr<<utility::color("Warning: A needed scale factor histogram, \"" + std::string(name) + "\", is set to nullptr, therefore using 1.0 as the default", "red")<<std::endl;
+    {
+        const auto& ptr = static_cast<T*>(f.Get(name));
+        if(name != "" and ptr)
+        {
+            h.reset( ptr );
+        }
+        else
+        {
+            std::cerr<<utility::color("Warning: A needed scale factor histogram, \"" + std::string(name) + "\", is set to nullptr, therefore using 1.0 as the default", "red")<<std::endl;
+            h = nullptr;
+        }
+
         return h;
     }
 
