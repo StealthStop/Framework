@@ -1044,17 +1044,17 @@ public:
         TString muSFHistoMediumName,      muSFHistoIsoName,         muSFHistoRecoName,          muSFHistoTrigName, nimuSFHistoTrigName;
         TString jetSFHistoTrigName_2bCut, jetSFHistoTrigName_3bCut, jetSFHistoTrigName_ge4bCut;
 
-        TString topTagSFHistoName_Res_Njet8, topTagSFHistoName_Res_Njet9incl;
-        TString topTagSFHistoName_Mrg_Njet8, topTagSFHistoName_Mrg_Njet9incl;
+        TString topTagSFHistoName_Res_Njet8,    topTagSFHistoName_Res_Njet9incl;
+        TString topTagSFHistoName_Mrg_Njet8,    topTagSFHistoName_Mrg_Njet9incl;
         TString topMistagSFHistoName_Res_Njet8, topMistagSFHistoName_Res_Njet9incl;
         TString topMistagSFHistoName_Mrg_Njet8, topMistagSFHistoName_Mrg_Njet9incl;
 
         TString topTagEffHistoName_Mrg_den = "d_eff_mrg_" + filetag;
         TString topTagEffHistoName_Res_den = "d_eff_res_" + filetag;
-        TString topTagEffHistoName_Mrg_den = "n_eff_mrg_" + filetag;
-        TString topTagEffHistoName_Res_den = "n_eff_res_" + filetag;
-        TString topTagMisHistoName_Mrg_num = "d_mis_mrg_" + filetag;
-        TString topTagMisHistoName_Res_num = "d_mis_res_" + filetag;
+        TString topTagEffHistoName_Mrg_num = "n_eff_mrg_" + filetag;
+        TString topTagEffHistoName_Res_num = "n_eff_res_" + filetag;
+        TString topTagMisHistoName_Mrg_den = "d_mis_mrg_" + filetag;
+        TString topTagMisHistoName_Res_den = "d_mis_res_" + filetag;
         TString topTagMisHistoName_Mrg_num = "n_mis_mrg_" + filetag;
         TString topTagMisHistoName_Res_num = "n_mis_res_" + filetag;
 
