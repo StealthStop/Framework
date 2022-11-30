@@ -6,6 +6,9 @@
 #include "TKey.h"
 #include "Framework/Framework/include/Utility.h"
 
+#include "TopTagger/TopTagger/interface/TopTaggerResults.h"
+#include "TopTagger/TopTagger/interface/TopObject.h"
+
 class ScaleFactors
 {
 private:
@@ -30,6 +33,22 @@ private:
     std::shared_ptr<TH2F> jetSFHistoTrigName_2bCut_;
     std::shared_ptr<TH2F> jetSFHistoTrigName_3bCut_;
     std::shared_ptr<TH2F> jetSFHistoTrigName_ge4bCut_;
+    std::shared_ptr<TH1F> topTagSFHisto_Res_Njet8_;
+    std::shared_ptr<TH1F> topTagSFHisto_Res_Njet9incl_;
+    std::shared_ptr<TH1F> topTagSFHisto_Mrg_Njet8_;
+    std::shared_ptr<TH1F> topTagSFHisto_Mrg_Njet9incl_;
+    std::shared_ptr<TH1F> topMistagSFHisto_Res_Njet8_;
+    std::shared_ptr<TH1F> topMistagSFHisto_Res_Njet9incl_;
+    std::shared_ptr<TH1F> topMistagSFHisto_Mrg_Njet8_;
+    std::shared_ptr<TH1F> topMistagSFHisto_Mrg_Njet9incl_;
+    std::shared_ptr<TH2F> topTagEffHisto_Mrg_den_;
+    std::shared_ptr<TH2F> topTagEffHisto_Res_den_;
+    std::shared_ptr<TH2F> topTagMisHisto_Mrg_den_;
+    std::shared_ptr<TH2F> topTagMisHisto_Res_den_;
+    std::shared_ptr<TH2F> topTagEffHisto_Mrg_num_;
+    std::shared_ptr<TH2F> topTagEffHisto_Res_num_;
+    std::shared_ptr<TH2F> topTagMisHisto_Mrg_num_;
+    std::shared_ptr<TH2F> topTagMisHisto_Res_num_;
 
     template<typename T> std::shared_ptr<T>& getHisto(TFile& f, std::shared_ptr<T>& h, const TString& name)
     {        
@@ -569,6 +588,177 @@ private:
         tr.registerDerivedVar("totNonIsoMuonSF_Down" +myVarSuffix_, totNonIsoMuonSF_Down);
 
         // -------------------------------------------------------------------------------
+        // Adding a top tagging scale factor in the spirit of b tag sf via "method 1a"
+        // -------------------------------------------------------------------------------
+        const auto& Njets = tr.getVar<int>("NGoodJets_pt30" + myVarSuffix_);
+
+        double mcTag     = 1.0, mcNoTag     = 1.0, dataTag     = 1.0, dataNoTag     = 1.0;
+        double mcTagUp   = 1.0, mcNoTagUp   = 1.0, dataTagUp   = 1.0, dataNoTagUp   = 1.0;
+        double mcTagDown = 1.0, mcNoTagDown = 1.0, dataTagDown = 1.0, dataNoTagDown = 1.0;
+     
+        // Distinguish if the best top candidate is resolved or merged
+        double resolvedWP = 0.95;
+        double mergedWP   = 0.937;
+        if ( runYear.find("2016") == std::string::npos )
+            mergedWP = 0.895;
+
+        //loop over jets
+        const auto* topTagRes = tr.getVar<TopTaggerResults*>("ttr");
+        const auto& tops      = topTagRes->getTops();
+        for(const auto& top : tops)
+        {
+            const auto* genTop = top->getBestGenTopMatch();
+
+            bool isResolved = top->getType() == TopObject::RESOLVED_TOP;
+            bool isMerged   = top->getType() == TopObject::MERGED_TOP;
+ 
+            double num = 1.0, numUnc = 1.0, den = 1.0, denUnc = 1.0, sf = 1.0;
+            int xBinTopNum = -1, yBinTopNum = -1, xBinTopDen = -1, yBinTopDen = -1, binTopSF = -1;
+            // Efficiency when dealing with an actual top
+            if (genTop)
+            {
+                if (isResolved)
+                {
+                    xBinTopNum = findBin(topTagEffHisto_Res_num_, top->P().Pt(),  "X", "top tag eff num x");
+                    yBinTopNum = findBin(topTagEffHisto_Res_num_, top->P().Eta(), "Y", "top tag eff num y");
+                    xBinTopDen = findBin(topTagEffHisto_Res_den_, top->P().Pt(),  "X", "top tag eff den x");
+                    yBinTopDen = findBin(topTagEffHisto_Res_den_, top->P().Eta(), "Y", "top tag eff den y");
+
+                    num    = topTagEffHisto_Res_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                    numUnc = topTagEffHisto_Res_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                    den    = topTagEffHisto_Res_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                    denUnc = topTagEffHisto_Res_den_->GetBinError(xBinTopDen,   yBinTopDen);
+
+                    if      (Njets == 8)
+                    {
+                        binTopSF = findBin(topTagSFHisto_Res_Njet8_, top->P().Pt(), "X", "top tag sf x");
+                        sf = topTagSFHisto_Res_Njet8_->GetBinContent(binTopSF);
+                    }
+                    else if (Njets >= 9)
+                    {
+                        binTopSF = findBin(topTagSFHisto_Res_Njet9incl_, top->P().Pt(), "X", "top tag sf x");
+                        sf = topTagSFHisto_Res_Njet9incl_->GetBinContent(binTopSF); 
+                    }
+                }
+                else if (isMerged)
+                {
+                    xBinTopNum = findBin(topTagEffHisto_Mrg_num_, top->P().Pt(),  "X", "top tag eff num x");
+                    yBinTopNum = findBin(topTagEffHisto_Mrg_num_, top->P().Eta(), "Y", "top tag eff num y");
+                    xBinTopDen = findBin(topTagEffHisto_Mrg_den_, top->P().Pt(),  "X", "top tag eff den x");
+                    yBinTopDen = findBin(topTagEffHisto_Mrg_den_, top->P().Eta(), "Y", "top tag eff den y");
+
+                    num    = topTagEffHisto_Mrg_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                    numUnc = topTagEffHisto_Mrg_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                    den    = topTagEffHisto_Mrg_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                    denUnc = topTagEffHisto_Mrg_den_->GetBinError(xBinTopDen,   yBinTopDen);
+
+                    if      (Njets == 8)
+                    {
+                        binTopSF = findBin(topTagSFHisto_Mrg_Njet8_, top->P().Pt(), "X", "top tag sf x");
+                        sf = topTagSFHisto_Mrg_Njet8_->GetBinContent(binTopSF);
+                    }
+                    else if (Njets >= 9)
+                    {
+                        binTopSF = findBin(topTagSFHisto_Mrg_Njet9incl_, top->P().Pt(), "X", "top tag sf x");
+                        sf = topTagSFHisto_Mrg_Njet9incl_->GetBinContent(binTopSF); 
+                    }
+                }
+            }
+            // Mistag when dealing with a fake top i.e. no GEN top present
+            else
+            {
+                if (isResolved)
+                {
+                    xBinTopNum = findBin(topTagMisHisto_Res_num_, top->P().Pt(),  "X", "top tag eff num x");
+                    yBinTopNum = findBin(topTagMisHisto_Res_num_, top->P().Eta(), "Y", "top tag eff num y");
+                    xBinTopDen = findBin(topTagMisHisto_Res_den_, top->P().Pt(),  "X", "top tag eff den x");
+                    yBinTopDen = findBin(topTagMisHisto_Res_den_, top->P().Eta(), "Y", "top tag eff den y");
+
+                    num    = topTagMisHisto_Res_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                    numUnc = topTagMisHisto_Res_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                    den    = topTagMisHisto_Res_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                    denUnc = topTagMisHisto_Res_den_->GetBinError(xBinTopDen,   yBinTopDen);
+
+                    if      (Njets == 8)
+                    {
+                        binTopSF = findBin(topMistagSFHisto_Res_Njet8_, top->P().Pt(), "X", "top tag sf x");
+                        sf = topMistagSFHisto_Res_Njet8_->GetBinContent(binTopSF);
+                    }
+                    else if (Njets >= 9)
+                    {
+                        binTopSF = findBin(topMistagSFHisto_Res_Njet9incl_, top->P().Pt(), "X", "top tag sf x");
+                        sf = topMistagSFHisto_Res_Njet9incl_->GetBinContent(binTopSF); 
+                    }
+                }
+                else if (isMerged)
+                {
+                    xBinTopNum = findBin(topTagMisHisto_Mrg_num_, top->P().Pt(),  "X", "top tag eff num x");
+                    yBinTopNum = findBin(topTagMisHisto_Mrg_num_, top->P().Eta(), "Y", "top tag eff num y");
+                    xBinTopDen = findBin(topTagMisHisto_Mrg_den_, top->P().Pt(),  "X", "top tag eff den x");
+                    yBinTopDen = findBin(topTagMisHisto_Mrg_den_, top->P().Eta(), "Y", "top tag eff den y");
+
+                    num    = topTagMisHisto_Mrg_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                    numUnc = topTagMisHisto_Mrg_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                    den    = topTagMisHisto_Mrg_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                    denUnc = topTagMisHisto_Mrg_den_->GetBinError(xBinTopDen,   yBinTopDen);
+
+                    if      (Njets == 8)
+                    {
+                        binTopSF = findBin(topMistagSFHisto_Mrg_Njet8_,     top->P().Pt(), "X", "top tag sf x");
+                        sf = topMistagSFHisto_Mrg_Njet8_->GetBinContent(binTopSF);
+                    }
+                    else if (Njets >= 9)
+                    {
+                        binTopSF = findBin(topMistagSFHisto_Mrg_Njet9incl_, top->P().Pt(), "X", "top tag sf x");
+                        sf = topMistagSFHisto_Mrg_Njet9incl_->GetBinContent(binTopSF); 
+                    }
+                }
+            }
+
+            double eff = 1.0, effUnc = 1.0, effUp = 1.0, effDown = 1.0;
+            if (den != 0.0)
+            {
+                eff     = num / den;
+                effUnc  = eff * pow(pow(denUnc / den, 2) + pow(numUnc / num, 2), 0.5);
+
+                effUp   = eff + effUnc;
+                effDown = eff - effUnc;
+            }
+   
+            if ((isResolved and top->getDiscriminator() > resolvedWP) or
+                (isMerged   and top->getDiscriminator() > mergedWP))
+            {
+                mcTag       *= eff;
+                dataTag     *= eff * sf;
+
+                mcTagUp     *= effUp;
+                dataTagUp   *= effUp * sf;
+
+                mcTagDown   *= effDown;
+                dataTagDown *= effDown * sf;
+            } 
+            else if (isResolved) 
+            {
+                mcNoTag       *= (1.0 - eff);
+                dataNoTag     *= (1.0 - eff * sf);
+
+                mcNoTagUp     *= (1.0 - effUp);
+                dataNoTagUp   *= (1.0 - effUp * sf);
+
+                mcNoTagDown   *= (1.0 - effDown);
+                dataNoTagDown *= (1.0 - effDown * sf);
+            }
+        }
+        
+        double topTaggerScaleFactor     = (mcNoTag     * mcTag     == 0) ? 1.0 : (dataNoTag     * dataTag    ) / (mcNoTag     * mcTag    );
+        double topTaggerScaleFactorup   = (mcNoTagUp   * mcTagUp   == 0) ? 1.0 : (dataNoTagUp   * dataTagUp  ) / (mcNoTagUp   * mcTagUp  );
+        double topTaggerScaleFactordown = (mcNoTagDown * mcTagDown == 0) ? 1.0 : (dataNoTagDown * dataTagDown) / (mcNoTagDown * mcTagDown);
+
+        tr.registerDerivedVar("topTaggerScaleFactor"     + myVarSuffix_, topTaggerScaleFactor    );
+        tr.registerDerivedVar("topTaggerScaleFactorup"   + myVarSuffix_, topTaggerScaleFactorup  );
+        tr.registerDerivedVar("topTaggerScaleFactordown" + myVarSuffix_, topTaggerScaleFactordown);
+
+        // -------------------------------------------------------------------------------
         // Adding a scale factor that corrects the disagreement between data and MC for Ht
         // -------------------------------------------------------------------------------
         const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
@@ -713,7 +903,7 @@ private:
         }
 
         double CommonWeight   = Weight * FinalLumi * topPtScaleFactor;
-        double CommonWeight0l = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeight0l = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr * topTaggerScaleFactor;
         double CommonWeight1l = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
         double CommonWeight2l = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
 
@@ -837,94 +1027,161 @@ private:
     }
 
 public:
-    ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& hadronicFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
+    ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& hadronicFileName, const std::string& toptaggerFileName, const std::string& meanFileName, const std::string& filetag, const std::string& myVarSuffix = "" )
         : myVarSuffix_(myVarSuffix), firstPrint_(true), printMeanError_(false), printGetBinError_(false)
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
-        TH1::AddDirectory(false); //According to Joe, this is a magic incantation that lets the root file close - if this is not here, there are segfaults?
+
+        // Force histograms to reside in memory rather than a TFile buffer, thus, can close the ROOT file safely
+        TH1::AddDirectory(false);
 
         // Getting Leptonic and Hadronic scale factor histograms
-        TFile leptonic_SFRootFile( leptonFileName.c_str()    );
+        TFile leptonic_SFRootFile( leptonFileName.c_str()   );
         TFile hadronic_SFRootFile( hadronicFileName.c_str() );
+        TFile toptagger_SFRootFile( toptaggerFileName.c_str() );
+
         TString eleSFHistoTightName,      eleSFHistoIsoName,        eleSFHistoRecoName,         eleSFHistoTrigName;
         TString muSFHistoMediumName,      muSFHistoIsoName,         muSFHistoRecoName,          muSFHistoTrigName, nimuSFHistoTrigName;
         TString jetSFHistoTrigName_2bCut, jetSFHistoTrigName_3bCut, jetSFHistoTrigName_ge4bCut;
 
+        TString topTagSFHistoName_Res_Njet8, topTagSFHistoName_Res_Njet9incl;
+        TString topTagSFHistoName_Mrg_Njet8, topTagSFHistoName_Mrg_Njet9incl;
+        TString topMistagSFHistoName_Res_Njet8, topMistagSFHistoName_Res_Njet9incl;
+        TString topMistagSFHistoName_Mrg_Njet8, topMistagSFHistoName_Mrg_Njet9incl;
+
+        TString topTagEffHistoName_Mrg_den = "d_eff_mrg_" + filetag;
+        TString topTagEffHistoName_Res_den = "d_eff_res_" + filetag;
+        TString topTagMisHistoName_Mrg_den = "n_eff_mrg_" + filetag;
+        TString topTagMisHistoName_Res_den = "n_eff_res_" + filetag;
+        TString topTagEffHistoName_Mrg_num = "d_mis_mrg_" + filetag;
+        TString topTagEffHistoName_Res_num = "d_mis_res_" + filetag;
+        TString topTagMisHistoName_Mrg_num = "n_mis_mrg_" + filetag;
+        TString topTagMisHistoName_Res_num = "n_mis_res_" + filetag;
+
         // Electron Iso root file not currently seen in recommendations. Working to determine if this is still necessary
         if( runYear == "2016preVFP")
         {
-            eleSFHistoTightName        = "EGamma_SF2D_2016preVFP_UL_ID";
-            //eleSFHistoIsoName         = "Run2016preVFP_Mini";
-            eleSFHistoRecoName         = "EGamma_SF2D_2016preVFP_UL_RECO";
-            eleSFHistoTrigName         = "TrigEff_2016preVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName        = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016preVFP_UL_ID";
-            muSFHistoIsoName           = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016preVFP_UL_ISO";
-            muSFHistoTrigName          = "TrigEff_2016preVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            //nimuSFHistoTrigName       = "TrigEff_2016preVFP_num_nimu_pt40_trig_4jCut";
-            nimuSFHistoTrigName        = ""; //just for calculating non iso muon scale factors
-            jetSFHistoTrigName_2bCut   = "h_2016preVFP_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_3bCut   = "h_2016preVFP_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_ge4bCut = "h_2016preVFP_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT"; 
+            eleSFHistoTightName                = "EGamma_SF2D_2016preVFP_UL_ID";
+            //eleSFHistoIsoName                 = "Run2016preVFP_Mini";
+            eleSFHistoRecoName                 = "EGamma_SF2D_2016preVFP_UL_RECO";
+            eleSFHistoTrigName                 = "TrigEff_2016preVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016preVFP_UL_ID";
+            muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016preVFP_UL_ISO";
+            muSFHistoTrigName                  = "TrigEff_2016preVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            //nimuSFHistoTrigName               = "TrigEff_2016preVFP_num_nimu_pt40_trig_4jCut";
+            nimuSFHistoTrigName                = ""; //just for calculating non iso muon scale factors
+            jetSFHistoTrigName_2bCut           = "h_2016preVFP_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_3bCut           = "h_2016preVFP_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_ge4bCut         = "h_2016preVFP_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT"; 
+            topTagSFHistoName_Res_Njet8        = "2016preVFP_TagRateSF_vs_topPt_Resolved_Njet8";
+            topTagSFHistoName_Res_Njet9incl    = "2016preVFP_TagRateSF_vs_topPt_Resolved_Njet9incl";
+            topTagSFHistoName_Mrg_Njet8        = "2016preVFP_TagRateSF_vs_topPt_Merged_Njet8";
+            topTagSFHistoName_Mrg_Njet9incl    = "2016preVFP_TagRateSF_vs_topPt_Merged_Njet9incl";
+            topMistagSFHistoName_Res_Njet8     = "2016preVFP_MisTagSF_vs_topPt_Resolved_Njet8";
+            topMistagSFHistoName_Res_Njet9incl = "2016preVFP_MisTagSF_vs_topPt_Resolved_Njet9incl";
+            topMistagSFHistoName_Mrg_Njet8     = "2016preVFP_MisTagSF_vs_topPt_Merged_Njet8";
+            topMistagSFHistoName_Mrg_Njet9incl = "2016preVFP_MisTagSF_vs_topPt_Merged_Njet9incl";
         }
         else if( runYear == "2016postVFP")
         {
-            eleSFHistoTightName        = "EGamma_SF2D_2016postVFP_UL_ID";
-            //eleSFHistoIsoName          = "Run2016postVFP_Mini";
-            eleSFHistoRecoName         = "EGamma_SF2D_2016postVFP_UL_RECO";
-            eleSFHistoTrigName         = "TrigEff_2016postVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName        = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016postVFP_UL_ID";
-            muSFHistoIsoName           = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016postVFP_UL_ISO";
-            muSFHistoTrigName          = "TrigEff_2016postVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            //nimuSFHistoTrigName        = "TrigEff_2016postVFP_num_nimu_pt40_trig_4jCut";
-            nimuSFHistoTrigName        = ""; //just for calculating non iso muon scale factors
-            jetSFHistoTrigName_2bCut   = "h_2016postVFP_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_3bCut   = "h_2016postVFP_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_ge4bCut = "h_2016postVFP_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            eleSFHistoTightName                = "EGamma_SF2D_2016postVFP_UL_ID";
+            //eleSFHistoIsoName                  = "Run2016postVFP_Mini";
+            eleSFHistoRecoName                 = "EGamma_SF2D_2016postVFP_UL_RECO";
+            eleSFHistoTrigName                 = "TrigEff_2016postVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016postVFP_UL_ID";
+            muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016postVFP_UL_ISO";
+            muSFHistoTrigName                  = "TrigEff_2016postVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            //nimuSFHistoTrigName                = "TrigEff_2016postVFP_num_nimu_pt40_trig_4jCut";
+            nimuSFHistoTrigName                = ""; //just for calculating non iso muon scale factors
+            jetSFHistoTrigName_2bCut           = "h_2016postVFP_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_3bCut           = "h_2016postVFP_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_ge4bCut         = "h_2016postVFP_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            topTagSFHistoName_Res_Njet8        = "2016postVFP_TagRateSF_vs_topPt_Resolved_Njet8";
+            topTagSFHistoName_Res_Njet9incl    = "2016postVFP_TagRateSF_vs_topPt_Resolved_Njet9incl";
+            topTagSFHistoName_Mrg_Njet8        = "2016postVFP_TagRateSF_vs_topPt_Merged_Njet8";
+            topTagSFHistoName_Mrg_Njet9incl    = "2016postVFP_TagRateSF_vs_topPt_Merged_Njet9incl";
+            topMistagSFHistoName_Res_Njet8     = "2016postVFP_MisTagSF_vs_topPt_Resolved_Njet8";
+            topMistagSFHistoName_Res_Njet9incl = "2016postVFP_MisTagSF_vs_topPt_Resolved_Njet9incl";
+            topMistagSFHistoName_Mrg_Njet8     = "2016postVFP_MisTagSF_vs_topPt_Merged_Njet8";
+            topMistagSFHistoName_Mrg_Njet9incl = "2016postVFP_MisTagSF_vs_topPt_Merged_Njet9incl";
         }
         else if( runYear == "2017")
         {
-            eleSFHistoTightName        = "EGamma_SF2D_2017_UL_ID";
-            //eleSFHistoIsoName          = "Run2017_MVAVLooseTightIP2DMini";
-            eleSFHistoRecoName         = "EGamma_SF2D_2017_UL_RECO";
-            eleSFHistoTrigName         = "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName        = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2017_UL_ID";
-            muSFHistoIsoName           = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2017_UL_ISO";
-            muSFHistoTrigName          = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            //nimuSFHistoTrigName        = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
-            nimuSFHistoTrigName        = ""; //just for calculating non iso muon scale factors
-            jetSFHistoTrigName_2bCut   = "h_2017_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_3bCut   = "h_2017_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_ge4bCut = "h_2017_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            eleSFHistoTightName                = "EGamma_SF2D_2017_UL_ID";
+            //eleSFHistoIsoName                  = "Run2017_MVAVLooseTightIP2DMini";
+            eleSFHistoRecoName                 = "EGamma_SF2D_2017_UL_RECO";
+            eleSFHistoTrigName                 = "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2017_UL_ID";
+            muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2017_UL_ISO";
+            muSFHistoTrigName                  = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            //nimuSFHistoTrigName                = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
+            nimuSFHistoTrigName                = ""; //just for calculating non iso muon scale factors
+            jetSFHistoTrigName_2bCut           = "h_2017_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_3bCut           = "h_2017_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_ge4bCut         = "h_2017_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            topTagSFHistoName_Res_Njet8        = "2017_TagRateSF_vs_topPt_Resolved_Njet8";
+            topTagSFHistoName_Res_Njet9incl    = "2017_TagRateSF_vs_topPt_Resolved_Njet9incl";
+            topTagSFHistoName_Mrg_Njet8        = "2017_TagRateSF_vs_topPt_Merged_Njet8";
+            topTagSFHistoName_Mrg_Njet9incl    = "2017_TagRateSF_vs_topPt_Merged_Njet9incl";
+            topMistagSFHistoName_Res_Njet8     = "2017_MisTagSF_vs_topPt_Resolved_Njet8";
+            topMistagSFHistoName_Res_Njet9incl = "2017_MisTagSF_vs_topPt_Resolved_Njet9incl";
+            topMistagSFHistoName_Mrg_Njet8     = "2017_MisTagSF_vs_topPt_Merged_Njet8";
+            topMistagSFHistoName_Mrg_Njet9incl = "2017_MisTagSF_vs_topPt_Merged_Njet9incl";
         }
         else if( runYear == "2018")
         {
-            eleSFHistoTightName        = "EGamma_SF2D_2018_UL_ID";
-            //eleSFHistoIsoName          = "Run2018_Mini";
-            eleSFHistoRecoName         = "EGamma_SF2D_2018_UL_RECO";
-            eleSFHistoTrigName         = "TrigEff_2018_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName        = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2018_UL_ID";
-            muSFHistoIsoName           = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2018_UL_ISO";
-            muSFHistoTrigName          = "TrigEff_2018_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            nimuSFHistoTrigName        = "";
-            jetSFHistoTrigName_2bCut   = "h_2018_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_3bCut   = "h_2018_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_ge4bCut = "h_2018_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            eleSFHistoTightName                = "EGamma_SF2D_2018_UL_ID";
+            //eleSFHistoIsoName                  = "Run2018_Mini";
+            eleSFHistoRecoName                 = "EGamma_SF2D_2018_UL_RECO";
+            eleSFHistoTrigName                 = "TrigEff_2018_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+            muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2018_UL_ID";
+            muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2018_UL_ISO";
+            muSFHistoTrigName                  = "TrigEff_2018_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+            nimuSFHistoTrigName                = "";
+            jetSFHistoTrigName_2bCut           = "h_2018_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_3bCut           = "h_2018_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            jetSFHistoTrigName_ge4bCut         = "h_2018_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+            topTagSFHistoName_Res_Njet8        = "2018_TagRateSF_vs_topPt_Resolved_Njet8";
+            topTagSFHistoName_Res_Njet9incl    = "2018_TagRateSF_vs_topPt_Resolved_Njet9incl";
+            topTagSFHistoName_Mrg_Njet8        = "2018_TagRateSF_vs_topPt_Merged_Njet8";
+            topTagSFHistoName_Mrg_Njet9incl    = "2018_TagRateSF_vs_topPt_Merged_Njet9incl";
+            topMistagSFHistoName_Res_Njet8     = "2018_MisTagSF_vs_topPt_Resolved_Njet8";
+            topMistagSFHistoName_Res_Njet9incl = "2018_MisTagSF_vs_topPt_Resolved_Njet9incl";
+            topMistagSFHistoName_Mrg_Njet8     = "2018_MisTagSF_vs_topPt_Merged_Njet8";
+            topMistagSFHistoName_Mrg_Njet9incl = "2018_MisTagSF_vs_topPt_Merged_Njet9incl";
         }
 
-        getHisto(leptonic_SFRootFile, eleSFHistoTight_,            eleSFHistoTightName       );
-        //getHisto(leptonic_SFRootFile, eleSFHistoIso_,              eleSFHistoIsoName         );
-        getHisto(leptonic_SFRootFile, eleSFHistoReco_,             eleSFHistoRecoName        );
-        getHisto(leptonic_SFRootFile, eleSFHistoTrig_,             eleSFHistoTrigName        );
-        getHisto(leptonic_SFRootFile, muSFHistoMedium_,            muSFHistoMediumName       );
-        getHisto(leptonic_SFRootFile, muSFHistoIso_,               muSFHistoIsoName          );
-        getHisto(leptonic_SFRootFile, muSFHistoTrig_,              muSFHistoTrigName         );
-        getHisto(leptonic_SFRootFile, nimuSFHistoTrig_,            nimuSFHistoTrigName       );
-        getHisto(hadronic_SFRootFile, jetSFHistoTrigName_2bCut_,   jetSFHistoTrigName_2bCut  );
-        getHisto(hadronic_SFRootFile, jetSFHistoTrigName_3bCut_,   jetSFHistoTrigName_3bCut  );
-        getHisto(hadronic_SFRootFile, jetSFHistoTrigName_ge4bCut_, jetSFHistoTrigName_ge4bCut);        
+        getHisto(leptonic_SFRootFile,  eleSFHistoTight_,                   eleSFHistoTightName               );
+        //getHisto(leptonic_SFRootFile, eleSFHistoIso_,                     eleSFHistoIsoName                 );
+        getHisto(leptonic_SFRootFile,  eleSFHistoReco_,                    eleSFHistoRecoName                );
+        getHisto(leptonic_SFRootFile,  eleSFHistoTrig_,                    eleSFHistoTrigName                );
+        getHisto(leptonic_SFRootFile,  muSFHistoMedium_,                   muSFHistoMediumName               );
+        getHisto(leptonic_SFRootFile,  muSFHistoIso_,                      muSFHistoIsoName                  );
+        getHisto(leptonic_SFRootFile,  muSFHistoTrig_,                     muSFHistoTrigName                 );
+        getHisto(leptonic_SFRootFile,  nimuSFHistoTrig_,                   nimuSFHistoTrigName               );
+        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_2bCut_,          jetSFHistoTrigName_2bCut          );
+        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_3bCut_,          jetSFHistoTrigName_3bCut          );
+        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_ge4bCut_,        jetSFHistoTrigName_ge4bCut        );        
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Res_Njet8_,           topTagSFHistoName_Res_Njet8       );
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Res_Njet9incl_,       topTagSFHistoName_Res_Njet9incl   );
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_Njet8_,           topTagSFHistoName_Mrg_Njet8       );
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_Njet9incl_,       topTagSFHistoName_Mrg_Njet9incl   );
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_Njet8_,        topMistagSFHistoName_Res_Njet8    );
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_Njet9incl_,    topMistagSFHistoName_Res_Njet9incl);
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Mrg_Njet8_,        topMistagSFHistoName_Mrg_Njet8    );
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Mrg_Njet9incl_,    topMistagSFHistoName_Mrg_Njet9incl);
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Mrg_den_,            topTagEffHistoName_Mrg_den        );
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Res_den_,            topTagEffHistoName_Res_den        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Mrg_den_,            topTagMisHistoName_Mrg_den        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Res_den_,            topTagMisHistoName_Res_den        );
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Mrg_num_,            topTagEffHistoName_Mrg_num        );
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Res_num_,            topTagEffHistoName_Res_num        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Mrg_num_,            topTagMisHistoName_Mrg_num        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Res_num_,            topTagMisHistoName_Res_num        );
 
         leptonic_SFRootFile.Close();
         hadronic_SFRootFile.Close();        
+        toptagger_SFRootFile.Close();
 
         // Getting mean of some scale factors to keep total number of events the same after apply the scale factor
         TFile SFMeanRootFile( meanFileName.c_str() );
