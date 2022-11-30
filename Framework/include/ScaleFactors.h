@@ -34,7 +34,7 @@ private:
     template<typename T> std::shared_ptr<T>& getHisto(TFile& f, std::shared_ptr<T>& h, const TString& name)
     {        
         if(name != "") h.reset( static_cast<T*>(f.Get(name)) );   
-        else std::cerr<<utility::color("Warning: A needed scale factor histogram is set to nullptr and using 1.0 as the default: \"" + std::string(name) + "\"", "red")<<std::endl;
+        else std::cerr<<utility::color("Warning: A needed scale factor histogram, \"" + std::string(name) + "\", is set to nullptr, therefore using 1.0 as the default", "red")<<std::endl;
         return h;
     }
 
