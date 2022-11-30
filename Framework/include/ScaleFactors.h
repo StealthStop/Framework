@@ -1051,10 +1051,10 @@ public:
 
         TString topTagEffHistoName_Mrg_den = "d_eff_mrg_" + filetag;
         TString topTagEffHistoName_Res_den = "d_eff_res_" + filetag;
-        TString topTagMisHistoName_Mrg_den = "n_eff_mrg_" + filetag;
-        TString topTagMisHistoName_Res_den = "n_eff_res_" + filetag;
-        TString topTagEffHistoName_Mrg_num = "d_mis_mrg_" + filetag;
-        TString topTagEffHistoName_Res_num = "d_mis_res_" + filetag;
+        TString topTagEffHistoName_Mrg_den = "n_eff_mrg_" + filetag;
+        TString topTagEffHistoName_Res_den = "n_eff_res_" + filetag;
+        TString topTagMisHistoName_Mrg_num = "d_mis_mrg_" + filetag;
+        TString topTagMisHistoName_Res_num = "d_mis_res_" + filetag;
         TString topTagMisHistoName_Mrg_num = "n_mis_mrg_" + filetag;
         TString topTagMisHistoName_Res_num = "n_mis_res_" + filetag;
 
