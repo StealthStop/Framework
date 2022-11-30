@@ -48,7 +48,7 @@ private:
         // Data dependent stuff
         // --------------------
         bool passTriggerAllHad     = false, passTriggerQCD      = false; // 0-Lepton
-        bool passTriggerMuon       = false, passTriggerElectron = false; // 1-Lepton
+        bool passTriggerMuon       = false, passTriggerElectron = false; // 1-Lepton, 2l-lepton
         bool passTriggerNonIsoMuon = false;                              // QCD CR
 
         if (runYear.find("2016") != std::string::npos)
@@ -175,13 +175,13 @@ private:
                                              dR_bjets >= 1.0      ;
 
         // baseline for trigger eff. & SF
-        bool passBaseline0l_pt45 = JetID                 &&
-                                   passMETFilters        &&
-                                   passMadHT             &&
-                                   passElectronHEMveto   &&
-                                   NGoodMuons == 1       &&
-                                   HT_trigger_pt45 > 500 &&
-                                   NGoodJets_pt45 >= 6   ;
+        bool passBaseline0l_trigEff = JetID                 &&
+                                      passMETFilters        &&
+                                      passMadHT             &&
+                                      NGoodMuons == 1       &&
+                                      HT_trigger_pt45 > 500 &&
+                                      NGoodJets_pt45 >= 6   &&
+                                      NGoodBJets_pt45 >= 1  ;
 
         // -----------------------------------
         // Define 1-Lepton Baseline Selections
@@ -189,8 +189,8 @@ private:
         // proto baseline
         bool passBaselineGoodOffline1l = JetID                 &&
                                          passMETFilters        &&
-                                         HT_trigger_pt30 > 500 &&
                                          passMadHT             &&
+                                         HT_trigger_pt30 > 500 &&
                                          NGoodBJets_pt30 >= 1  &&
                                          (50 < Mbl && Mbl < 250);
         // good muons for full baseline
@@ -202,7 +202,7 @@ private:
                                     NGoodElectrons == 0       &&
                                     NGoodJets_pt30 >= 7;
         
-        // good lecetrons for full baseline
+        // good electrons for full baseline
         bool passBaseline1el_Good = passBaselineGoodOffline1l &&
                                     passTrigger               &&
                                     passTriggerMC             &&
@@ -222,6 +222,14 @@ private:
         // baseline for HEM study  
         bool passBaseline1l_Good_noHEMveto = passBaseline1mu_Good || passBaseline1el_Good;
 
+        // baseline for trigger eff. & SF
+        bool passBaseline1l_trigEff = JetID                 &&
+                                      passMETFilters        &&
+                                      passMadHT             &&
+                                      HT_trigger_pt30 > 300 &&
+                                      NGoodJets_pt30 >= 1   &&
+                                      NGoodBJets_pt30 >= 1  ;
+
         // -----------------------------------
         // Define 2-Lepton Baseline Selections
         // ----------------------------------- 
@@ -239,10 +247,10 @@ private:
                                    NGoodJets_pt30 >= 6    &&
                                    NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false;
         
-        // ful baseline
-        bool passBaseline2l_Good           = passBaseline2l_base && 
-                                             passElectronHEMveto &&
-                                             !onZ;
+        // full baseline
+        bool passBaseline2l_Good = passBaseline2l_base && 
+                                   passElectronHEMveto &&
+                                   !onZ;
 
         // full baseline for blind
         bool passBaseline2l_Good_blind = passBaseline2l_Good && passBlind2Lep_Good;
@@ -267,10 +275,10 @@ private:
                           NGoodElectrons == 0      &&
                           NNonIsoMuonJets_pt30 >= 7;
 
-        bool pass_qcdCR_1b    = pass_qcdCR && NGoodBJets_pt30 >= 1;
-        bool pass_qcdCR_1t    = pass_qcdCR                          && ntops >= 1;
-        bool pass_qcdCR_1b_1t = pass_qcdCR && NGoodBJets_pt30 >= 1  && ntops >= 1;
-        bool pass_qcdCR_2b    = pass_qcdCR && NGoodBJets_pt30 >= 2;
+        bool pass_qcdCR_1b       = pass_qcdCR && NGoodBJets_pt30 >= 1;
+        bool pass_qcdCR_1t       = pass_qcdCR                          && ntops >= 1;
+        bool pass_qcdCR_1b_1t    = pass_qcdCR && NGoodBJets_pt30 >= 1  && ntops >= 1;
+        bool pass_qcdCR_2b       = pass_qcdCR && NGoodBJets_pt30 >= 2;
         bool pass_qcdCR_45       = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6; 
         bool pass_qcdCR_45_1b    = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6 && NGoodBJets_pt45 >= 1; 
         bool pass_qcdCR_45_2b    = pass_qcdCR && NNonIsoMuonJets_pt45 >= 6 && NGoodBJets_pt45 >= 1 && NGoodBJets_pt30 >= 2; 
@@ -285,26 +293,26 @@ private:
         // -------------------
         // 0-lepton things 
         tr.registerDerivedVar<bool>("passBaseline0l_old"            +myVarSuffix_, passBaseline0l_old           ); // old baseline based on jet triggers      
-        tr.registerDerivedVar<bool>("passBaseline0l_pre"            +myVarSuffix_, passBaseline0l_pre           ); 
-        tr.registerDerivedVar<bool>("passBaseline0l_Good"           +myVarSuffix_, passBaseline0l_Good          );
+        tr.registerDerivedVar<bool>("passBaseline0l_pre"            +myVarSuffix_, passBaseline0l_pre           ); // proto baseline 
+        tr.registerDerivedVar<bool>("passBaseline0l_Good"           +myVarSuffix_, passBaseline0l_Good          ); // full baseline
         tr.registerDerivedVar<bool>("passBaseline0l_Good_blind"     +myVarSuffix_, passBaseline0l_Good_blind    ); // for blinding
         tr.registerDerivedVar<bool>("passBaseline0l_Good_noHEMveto" +myVarSuffix_, passBaseline0l_Good_noHEMveto); // for HEM study
-        tr.registerDerivedVar<bool>("passBaseline0l_pt45"           +myVarSuffix_, passBaseline0l_pt45          ); // for trigger SF
+        tr.registerDerivedVar<bool>("passBaseline0l_trigEff"        +myVarSuffix_, passBaseline0l_trigEff       ); // for trigger SF
         tr.registerDerivedVar<bool>("passBlindHad_Good"             +myVarSuffix_, passBlindHad_Good            );
         tr.registerDerivedVar<bool>("passTriggerAllHad"             +myVarSuffix_, passTriggerAllHad            );
         tr.registerDerivedVar<bool>("passTriggerHadMC"              +myVarSuffix_, passTriggerHadMC             );
         tr.registerDerivedVar<bool>("passTriggerQCD"                +myVarSuffix_, passTriggerQCD               ); // QCD trigger for preselection for top mistag SF 
-
         // 1-lepton things
         tr.registerDerivedVar<bool>("passBaselineGoodOffline1l"     +myVarSuffix_, passBaselineGoodOffline1l    );
         tr.registerDerivedVar<bool>("passBaseline1l_Good"           +myVarSuffix_, passBaseline1l_Good          );
         tr.registerDerivedVar<bool>("passBaseline1l_Good_blind"     +myVarSuffix_, passBaseline1l_Good_blind    );
         tr.registerDerivedVar<bool>("passBaseline1l_Good_noHEMveto" +myVarSuffix_, passBaseline1l_Good_noHEMveto);
+        tr.registerDerivedVar<bool>("passBaseline1l_trigEff"        +myVarSuffix_, passBaseline1l_trigEff       ); 
         tr.registerDerivedVar<bool>("passBlindLep_Good"             +myVarSuffix_, passBlindLep_Good            );
         tr.registerDerivedVar<bool>("passTriggerMuon"               +myVarSuffix_, passTriggerMuon              );
         tr.registerDerivedVar<bool>("passTriggerElectron"           +myVarSuffix_, passTriggerElectron          );
         // 2-lepton things
-        tr.registerDerivedVar<bool>("passBaseline2l_base "          +myVarSuffix_, passBaseline2l_base          ); 
+        tr.registerDerivedVar<bool>("passBaseline2l_base"           +myVarSuffix_, passBaseline2l_base          ); 
         tr.registerDerivedVar<bool>("passBaseline2l_Good"           +myVarSuffix_, passBaseline2l_Good          );
         tr.registerDerivedVar<bool>("passBaseline2l_Good_blind"     +myVarSuffix_, passBaseline2l_Good_blind    );
         tr.registerDerivedVar<bool>("passBaseline2l_Good_noHEMveto" +myVarSuffix_, passBaseline2l_Good_noHEMveto);
