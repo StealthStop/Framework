@@ -53,7 +53,7 @@ private:
     template<typename T> std::shared_ptr<T>& getHisto(TFile& f, std::shared_ptr<T>& h, const TString& name)
     {        
         if(name != "") h.reset( static_cast<T*>(f.Get(name)) );   
-        else std::cerr<<utility::color("Warning: A needed scale factor histogram is set to nullptr and using 1.0 as the default", "red")<<std::endl;
+        else std::cerr<<utility::color("Warning: A needed scale factor histogram, \"" + std::string(name) + "\", is set to nullptr, therefore using 1.0 as the default", "red")<<std::endl;
         return h;
     }
 
@@ -79,140 +79,6 @@ private:
             printGetBinError_ = true;
         }
         return bin;
-    }
-
-    double htScaleFactor(const int nJets, const double HT, const std::string& runYear) const
-    {
-        // All values updated for v1.0 on October 4, 2019. Commented out values are from the old setup (just 2016 and 2017).
-        double norm = 1.0;
-        double expo = 0.0;
-        if( runYear == "2016preVFP") 
-        {
-            norm = 0.04176*nJets + 0.8915;
-            expo = (-0.02358*nJets - 0.08940)/1000;
-        }
-        else if( runYear == "2016postVFP")
-        {
-            norm = 0.04176*nJets + 0.8915;
-            expo = (-0.02358*nJets - 0.08940)/1000;
-        }
-        else if( runYear == "2017" ) 
-        {
-            norm = 0.03952*nJets + 0.9171;
-            expo = (-0.03275*nJets - 0.03795)/1000;
-        }
-        else if( runYear == "2018pre" ) 
-        {
-            norm = 0.03953*nJets + 0.8934;
-            expo = (-0.03832*nJets + 0.01108)/1000;
-        }
-        else if( runYear == "2018post" ) 
-        {
-            norm = 0.01953*nJets + 1.0150;
-            expo = (-0.01409*nJets - 0.1325)/1000;
-        }
-        return norm*exp( expo*HT ); 
-    }
-
-    double htScaleFactorFlat2000(const int nJets, const double HT, const std::string& runYear) const
-    {
-        return ( HT > 2000.0 ) ? htScaleFactor(nJets,2000.0,runYear) : htScaleFactor(nJets,HT,runYear);
-    }
-
-    double htScaleFactorNJet8(const double HT, const std::string& runYear) const
-    {
-        double norm = 1.0;
-        double expo = 0.0;      
-        if( runYear == "2016preVFP" ) 
-        {
-            norm = 1.318;
-            expo = -0.000349;
-        }
-        else if( runYear == "2016postVFP" ) 
-        {
-            norm = 1.318;
-            expo = -0.000349;
-        }
-        else if( runYear == "2017" )
-        {
-            norm = 1.216;
-            expo = -0.0003109;
-        }
-        else if( runYear == "2018pre" )
-        {
-            norm = 1.229;
-            expo = -0.0002752;
-        }
-        else if( runYear == "2018post" )
-        {
-            norm = 1.299;
-            expo = -0.0003484;
-        }
-        return norm*exp( expo*HT );
-    }
-
-    double htScaleFactorMG(const int nJets, const double HT, const std::string& runYear) const
-    {
-        double norm = 1.0;
-        double expo = 0.0;
-        if( runYear == "2016preVFP" ) 
-        {
-            norm = -0.002429*nJets + 1.044;
-            expo = (0.01214*nJets - 0.1198)/1000;
-        }
-        else if( runYear == "2016postVFP" ) 
-        {
-            norm = -0.002429*nJets + 1.044;
-            expo = (0.01214*nJets - 0.1198)/1000;
-        }
-        else if( runYear == "2017" ) 
-        {
-            norm = 0.1086*nJets + 0.5567;
-            expo = (-0.8978*nJets + 0.2198)/1000;
-        }
-        else if( runYear == "2018pre" ) 
-        {
-            norm = 0.03349*nJets + 0.9464;
-            expo = (-0.02058*nJets - 0.1488)/1000;
-        }
-        else if( runYear == "2018post" ) 
-        {
-            norm = 0.02729*nJets + 0.9632;
-            expo = (-0.01304*nJets - 0.1637)/1000;
-        }
-        return norm*exp( expo*HT );
-    }
-
-    double htScaleFactorNJet8MG(const double HT, const std::string& runYear) const
-    {
-        double norm = 1.0;
-        double expo = 0.0;
-        if( runYear == "2016preVFP" ) 
-        {
-            norm = 1.073;
-            expo = -0.00009169;
-        }
-        else if( runYear == "2016postVFP" ) 
-        {
-            norm = 1.073;
-            expo = -0.00009169;
-        }
-        else if( runYear == "2017" )
-        {
-            norm = 1.236;
-            expo = -0.0002949;
-        }
-        else if( runYear == "2018pre" )
-        {
-            norm = 1.2;
-            expo = -0.0002516;
-        }
-        else if( runYear == "2018post" )
-        {
-            norm = 1.273;
-            expo = -0.0003242;
-        }
-        return norm*exp( expo*HT );
     }
 
     double getMean(const std::string& name)
@@ -539,20 +405,7 @@ private:
                 const double muTotSFPErr2       = muNoTrigSFPErr2 + muTrigSFPErr*muTrigSFPErr;
                 const double muNonIsoTotSFPErr2 = muNoTrigSFPErr2 + muNonIsoTrigSFPErr*muNonIsoTrigSFPErr;
                 
-                
                 // The RECO scale factor for muons have been shown to be close to unity and are not required by the Muon POG for UL (see https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonTnPOverview). Confirmation from the SUSY Muon contact is still needed
-
-                /*if( runYear.find("2016") != std::string::npos ) 
-                {
-                    //For the general track reconstruction they claim that the errors for the systematic still need to be finalized - does not seem to have been finalized as of Dec 2018
-                    //This reconstruction value only exists for 2016 - SUS SF people say the 3% will include the reco scale factor uncertainty for now
-                    const double muRecoSF    = muSFHistoReco_->Eval( mueta );
-                    muTotSF                 *= muRecoSF;
-                    muNoTrigSF              *= muRecoSF;
-                    muNonIsoTotSF           *= muRecoSF;
-                }
-                */
-                
                 if( goodMuons.at(imu) )
                 {                
                     totGoodMuonSF         *= muTotSF;
@@ -758,67 +611,14 @@ private:
         tr.registerDerivedVar("topTaggerScaleFactorup"   + myVarSuffix_, topTaggerScaleFactorup  );
         tr.registerDerivedVar("topTaggerScaleFactordown" + myVarSuffix_, topTaggerScaleFactordown);
 
-        // -------------------------------------------------------------------------------
-        // Adding a scale factor that corrects the disagreement between data and MC for Ht
-        // -------------------------------------------------------------------------------
-        const auto& NGoodJets_pt30  = tr.getVar<int>("NGoodJets_pt30"+myVarSuffix_);
-        const auto& HT_trigger_pt30 = tr.getVar<double>("HT_trigger_pt30"+myVarSuffix_);
-        const auto& isSignal        = tr.getVar<bool>("isSignal");
-
-        // Get the uncorrected ht scale factors
-        const double htDerivedweightUncor         = htScaleFactor(NGoodJets_pt30, HT_trigger_pt30, runYear);
-        const double htDerivedweightFlat2000Uncor = htScaleFactorFlat2000(NGoodJets_pt30, HT_trigger_pt30, runYear);
-        const double htDerivedweightNJet7Uncor    = htScaleFactor(7, HT_trigger_pt30, runYear);
-        const double htDerivedweightMGUncor       = htScaleFactorMG(NGoodJets_pt30, HT_trigger_pt30, runYear);
-        const double fit2NJetBin8                 = htScaleFactorNJet8(HT_trigger_pt30, runYear);
-        const double fit2NJetBin567               = htScaleFactor(8, HT_trigger_pt30, runYear);
-        const double fit2NJetBin8MG               = htScaleFactorNJet8MG(HT_trigger_pt30, runYear);
-        const double fit2NJetBin567MG             = htScaleFactor(8, HT_trigger_pt30, runYear);
-                
-        double htDerivedweight = 1.0, htDerivedweightFlat2000 = 1.0, htDerivedweightNJet7 = 1.0, htDerivedweightMG = 1.0;
-        double htScaleUpUncor = 1.0, htScaleDownUncor = 1.0, htScaleUpMGUncor = 1.0, htScaleDownMGUncor = 1.0;
-        double htScaleUp = 1.0, htScaleDown = 1.0, htScaleUpMG = 1.0, htScaleDownMG = 1.0;
-        if( sfMeanMap_.find(filetag+"_ht") != sfMeanMap_.end() && !isSignal ) 
-        {
-            htDerivedweight         = (1.0/getMean(filetag+"_ht"         ))*htDerivedweightUncor;
-            htDerivedweightFlat2000 = (1.0/getMean(filetag+"_ht_flat2000"))*htDerivedweightFlat2000Uncor;
-            htDerivedweightNJet7    = (1.0/getMean(filetag+"_ht_njet7"   ))*htDerivedweightNJet7Uncor;
-            htDerivedweightMG       = (1.0/getMean(filetag+"_ht_MG"      ))*htDerivedweightMGUncor;
-            htScaleUpUncor          = htDerivedweight*(fit2NJetBin8/fit2NJetBin567);
-            htScaleDownUncor        = htDerivedweight*(fit2NJetBin567/fit2NJetBin8);
-            htScaleUpMGUncor        = htDerivedweightMG*(fit2NJetBin8MG/fit2NJetBin567MG);
-            htScaleDownMGUncor      = htDerivedweightMG*(fit2NJetBin567MG/fit2NJetBin8MG);
-            htScaleUp               = (1.0/getMean(filetag+"_htUp"     ))*htScaleUpUncor;
-            htScaleDown             = (1.0/getMean(filetag+"_htDown"   ))*htScaleDownUncor;
-            htScaleUpMG             = (1.0/getMean(filetag+"_ht_MGUp"  ))*htScaleUpMGUncor;
-            htScaleDownMG           = (1.0/getMean(filetag+"_ht_MGDown"))*htScaleDownMGUncor;
-        }
-
-        tr.registerDerivedVar("htDerivedweight"              +myVarSuffix_, htDerivedweight             );
-        tr.registerDerivedVar("htDerivedweightFlat2000"      +myVarSuffix_, htDerivedweightFlat2000     );
-        tr.registerDerivedVar("htDerivedweightNJet7"         +myVarSuffix_, htDerivedweightNJet7        );
-        tr.registerDerivedVar("htDerivedweightMG"            +myVarSuffix_, htDerivedweightMG           );
-        tr.registerDerivedVar("htDerivedweightUncor"         +myVarSuffix_, htDerivedweightUncor        );
-        tr.registerDerivedVar("htDerivedweightFlat2000Uncor" +myVarSuffix_, htDerivedweightFlat2000Uncor);
-        tr.registerDerivedVar("htDerivedweightNJet7Uncor"    +myVarSuffix_, htDerivedweightNJet7Uncor   );
-        tr.registerDerivedVar("htDerivedweightMGUncor"       +myVarSuffix_, htDerivedweightMGUncor      );
-        tr.registerDerivedVar("htScaleUpUncor"               +myVarSuffix_, htScaleUpUncor              );
-        tr.registerDerivedVar("htScaleDownUncor"             +myVarSuffix_, htScaleDownUncor            );
-        tr.registerDerivedVar("htScaleUpMGUncor"             +myVarSuffix_, htScaleUpMGUncor            );
-        tr.registerDerivedVar("htScaleDownMGUncor"           +myVarSuffix_, htScaleDownMGUncor          );
-        tr.registerDerivedVar("htScaleUp"                    +myVarSuffix_, htScaleUp                   );
-        tr.registerDerivedVar("htScaleDown"                  +myVarSuffix_, htScaleDown                 );
-        tr.registerDerivedVar("htScaleUpMG"                  +myVarSuffix_, htScaleUpMG                 );
-        tr.registerDerivedVar("htScaleDownMG"                +myVarSuffix_, htScaleDownMG               );
-
         //---------------------------------------------------------------------------------------------------------
-        // Adding a scale factor for pileup 
-        // For 2016 and 2018: Grab the individual pileup weight from the histogram found in PileupHistograms_*.root
-        // For 2017: Using the puWeight stored in the nTuples
+        // Adding a scale factor for pileup, which comes directly from the nTuples
         // --------------------------------------------------------------------------------------------------------        
         const auto& puWeightUnCorr  = tr.getVar<float>("puWeight" );
         const auto& puSysUpUnCorr   = tr.getVar<float>("puSysUp"  );
         const auto& puSysDownUnCorr = tr.getVar<float>("puSysDown");
+
+        const auto& isSignal        = tr.getVar<bool>("isSignal");
 
         tr.registerDerivedVar( "puWeightUnCorr" +myVarSuffix_, puWeightUnCorr );
         tr.registerDerivedVar( "puSysUpUnCorr"  +myVarSuffix_, puSysUpUnCorr  );
@@ -1032,7 +832,7 @@ public:
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
 
-        // Force histograms to reside in memory rather than a TFile buffer, thus, can close the ROOT file safely
+        // Force histograms to reside in memory rather than a TFile buffer on disk, allowing the TFile to be closed safely
         TH1::AddDirectory(false);
 
         // Getting Leptonic and Hadronic scale factor histograms
@@ -1040,144 +840,59 @@ public:
         TFile hadronic_SFRootFile( hadronicFileName.c_str() );
         TFile toptagger_SFRootFile( toptaggerFileName.c_str() );
 
-        TString eleSFHistoTightName,      eleSFHistoIsoName,        eleSFHistoRecoName,         eleSFHistoTrigName;
-        TString muSFHistoMediumName,      muSFHistoIsoName,         muSFHistoRecoName,          muSFHistoTrigName, nimuSFHistoTrigName;
-        TString jetSFHistoTrigName_2bCut, jetSFHistoTrigName_3bCut, jetSFHistoTrigName_ge4bCut;
+        TString topTagSFHistoName_Res_Njet8        = runYear + "_TagRateSF_vs_topPt_Resolved_Njet8";
+        TString topTagSFHistoName_Res_Njet9incl    = runYear + "_TagRateSF_vs_topPt_Resolved_Njet9incl";
+        TString topTagSFHistoName_Mrg_Njet8        = runYear + "_TagRateSF_vs_topPt_Merged_Njet8";
+        TString topTagSFHistoName_Mrg_Njet9incl    = runYear + "_TagRateSF_vs_topPt_Merged_Njet9incl";
+        TString topMistagSFHistoName_Res_Njet8     = runYear + "_MisTagSF_vs_topPt_Resolved_Njet8";
+        TString topMistagSFHistoName_Res_Njet9incl = runYear + "_MisTagSF_vs_topPt_Resolved_Njet9incl";
+        TString topMistagSFHistoName_Mrg_Njet8     = runYear + "_MisTagSF_vs_topPt_Merged_Njet8";
+        TString topMistagSFHistoName_Mrg_Njet9incl = runYear + "_MisTagSF_vs_topPt_Merged_Njet9incl";
+        TString topTagEffHistoName_Mrg_den         = "d_eff_mrg_" + filetag;
+        TString topTagEffHistoName_Res_den         = "d_eff_res_" + filetag;
+        TString topTagEffHistoName_Mrg_num         = "n_eff_mrg_" + filetag;
+        TString topTagEffHistoName_Res_num         = "n_eff_res_" + filetag;
+        TString topTagMisHistoName_Mrg_den         = "d_mis_mrg_" + filetag;
+        TString topTagMisHistoName_Res_den         = "d_mis_res_" + filetag;
+        TString topTagMisHistoName_Mrg_num         = "n_mis_mrg_" + filetag;
+        TString topTagMisHistoName_Res_num         = "n_mis_res_" + filetag;
+        TString eleSFHistoTightName                = "EGamma_SF2D_" + runYear + "_UL_ID";
+        TString eleSFHistoRecoName                 = "EGamma_SF2D_" + runYear + "_UL_RECO";
+        TString eleSFHistoTrigName                 = "TrigEff_" + runYear + "_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+        TString muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_" + runYear + "_UL_ID";
+        TString muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_" + runYear + "_UL_ISO";
+        TString muSFHistoTrigName                  = "TrigEff_" + runYear + "_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+        TString nimuSFHistoTrigName                = ""; //just for calculating non iso muon scale factors
+        TString jetSFHistoTrigName_2bCut           = "h_" + runYear + "_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+        TString jetSFHistoTrigName_3bCut           = "h_" + runYear + "_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+        TString jetSFHistoTrigName_ge4bCut         = "h_" + runYear + "_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT"; 
 
-        TString topTagSFHistoName_Res_Njet8,    topTagSFHistoName_Res_Njet9incl;
-        TString topTagSFHistoName_Mrg_Njet8,    topTagSFHistoName_Mrg_Njet9incl;
-        TString topMistagSFHistoName_Res_Njet8, topMistagSFHistoName_Res_Njet9incl;
-        TString topMistagSFHistoName_Mrg_Njet8, topMistagSFHistoName_Mrg_Njet9incl;
-
-        TString topTagEffHistoName_Mrg_den = "d_eff_mrg_" + filetag;
-        TString topTagEffHistoName_Res_den = "d_eff_res_" + filetag;
-        TString topTagEffHistoName_Mrg_num = "n_eff_mrg_" + filetag;
-        TString topTagEffHistoName_Res_num = "n_eff_res_" + filetag;
-        TString topTagMisHistoName_Mrg_den = "d_mis_mrg_" + filetag;
-        TString topTagMisHistoName_Res_den = "d_mis_res_" + filetag;
-        TString topTagMisHistoName_Mrg_num = "n_mis_mrg_" + filetag;
-        TString topTagMisHistoName_Res_num = "n_mis_res_" + filetag;
-
-        // Electron Iso root file not currently seen in recommendations. Working to determine if this is still necessary
-        if( runYear == "2016preVFP")
-        {
-            eleSFHistoTightName                = "EGamma_SF2D_2016preVFP_UL_ID";
-            //eleSFHistoIsoName                 = "Run2016preVFP_Mini";
-            eleSFHistoRecoName                 = "EGamma_SF2D_2016preVFP_UL_RECO";
-            eleSFHistoTrigName                 = "TrigEff_2016preVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016preVFP_UL_ID";
-            muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016preVFP_UL_ISO";
-            muSFHistoTrigName                  = "TrigEff_2016preVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            //nimuSFHistoTrigName               = "TrigEff_2016preVFP_num_nimu_pt40_trig_4jCut";
-            nimuSFHistoTrigName                = ""; //just for calculating non iso muon scale factors
-            jetSFHistoTrigName_2bCut           = "h_2016preVFP_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_3bCut           = "h_2016preVFP_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_ge4bCut         = "h_2016preVFP_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT"; 
-            topTagSFHistoName_Res_Njet8        = "2016preVFP_TagRateSF_vs_topPt_Resolved_Njet8";
-            topTagSFHistoName_Res_Njet9incl    = "2016preVFP_TagRateSF_vs_topPt_Resolved_Njet9incl";
-            topTagSFHistoName_Mrg_Njet8        = "2016preVFP_TagRateSF_vs_topPt_Merged_Njet8";
-            topTagSFHistoName_Mrg_Njet9incl    = "2016preVFP_TagRateSF_vs_topPt_Merged_Njet9incl";
-            topMistagSFHistoName_Res_Njet8     = "2016preVFP_MisTagSF_vs_topPt_Resolved_Njet8";
-            topMistagSFHistoName_Res_Njet9incl = "2016preVFP_MisTagSF_vs_topPt_Resolved_Njet9incl";
-            topMistagSFHistoName_Mrg_Njet8     = "2016preVFP_MisTagSF_vs_topPt_Merged_Njet8";
-            topMistagSFHistoName_Mrg_Njet9incl = "2016preVFP_MisTagSF_vs_topPt_Merged_Njet9incl";
-        }
-        else if( runYear == "2016postVFP")
-        {
-            eleSFHistoTightName                = "EGamma_SF2D_2016postVFP_UL_ID";
-            //eleSFHistoIsoName                  = "Run2016postVFP_Mini";
-            eleSFHistoRecoName                 = "EGamma_SF2D_2016postVFP_UL_RECO";
-            eleSFHistoTrigName                 = "TrigEff_2016postVFP_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2016postVFP_UL_ID";
-            muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2016postVFP_UL_ISO";
-            muSFHistoTrigName                  = "TrigEff_2016postVFP_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            //nimuSFHistoTrigName                = "TrigEff_2016postVFP_num_nimu_pt40_trig_4jCut";
-            nimuSFHistoTrigName                = ""; //just for calculating non iso muon scale factors
-            jetSFHistoTrigName_2bCut           = "h_2016postVFP_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_3bCut           = "h_2016postVFP_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_ge4bCut         = "h_2016postVFP_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            topTagSFHistoName_Res_Njet8        = "2016postVFP_TagRateSF_vs_topPt_Resolved_Njet8";
-            topTagSFHistoName_Res_Njet9incl    = "2016postVFP_TagRateSF_vs_topPt_Resolved_Njet9incl";
-            topTagSFHistoName_Mrg_Njet8        = "2016postVFP_TagRateSF_vs_topPt_Merged_Njet8";
-            topTagSFHistoName_Mrg_Njet9incl    = "2016postVFP_TagRateSF_vs_topPt_Merged_Njet9incl";
-            topMistagSFHistoName_Res_Njet8     = "2016postVFP_MisTagSF_vs_topPt_Resolved_Njet8";
-            topMistagSFHistoName_Res_Njet9incl = "2016postVFP_MisTagSF_vs_topPt_Resolved_Njet9incl";
-            topMistagSFHistoName_Mrg_Njet8     = "2016postVFP_MisTagSF_vs_topPt_Merged_Njet8";
-            topMistagSFHistoName_Mrg_Njet9incl = "2016postVFP_MisTagSF_vs_topPt_Merged_Njet9incl";
-        }
-        else if( runYear == "2017")
-        {
-            eleSFHistoTightName                = "EGamma_SF2D_2017_UL_ID";
-            //eleSFHistoIsoName                  = "Run2017_MVAVLooseTightIP2DMini";
-            eleSFHistoRecoName                 = "EGamma_SF2D_2017_UL_RECO";
-            eleSFHistoTrigName                 = "TrigEff_2017_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2017_UL_ID";
-            muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2017_UL_ISO";
-            muSFHistoTrigName                  = "TrigEff_2017_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            //nimuSFHistoTrigName                = "TrigEff_2017_num_nimu_pt40_trig_4jCut";
-            nimuSFHistoTrigName                = ""; //just for calculating non iso muon scale factors
-            jetSFHistoTrigName_2bCut           = "h_2017_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_3bCut           = "h_2017_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_ge4bCut         = "h_2017_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            topTagSFHistoName_Res_Njet8        = "2017_TagRateSF_vs_topPt_Resolved_Njet8";
-            topTagSFHistoName_Res_Njet9incl    = "2017_TagRateSF_vs_topPt_Resolved_Njet9incl";
-            topTagSFHistoName_Mrg_Njet8        = "2017_TagRateSF_vs_topPt_Merged_Njet8";
-            topTagSFHistoName_Mrg_Njet9incl    = "2017_TagRateSF_vs_topPt_Merged_Njet9incl";
-            topMistagSFHistoName_Res_Njet8     = "2017_MisTagSF_vs_topPt_Resolved_Njet8";
-            topMistagSFHistoName_Res_Njet9incl = "2017_MisTagSF_vs_topPt_Resolved_Njet9incl";
-            topMistagSFHistoName_Mrg_Njet8     = "2017_MisTagSF_vs_topPt_Merged_Njet8";
-            topMistagSFHistoName_Mrg_Njet9incl = "2017_MisTagSF_vs_topPt_Merged_Njet9incl";
-        }
-        else if( runYear == "2018")
-        {
-            eleSFHistoTightName                = "EGamma_SF2D_2018_UL_ID";
-            //eleSFHistoIsoName                  = "Run2018_Mini";
-            eleSFHistoRecoName                 = "EGamma_SF2D_2018_UL_RECO";
-            eleSFHistoTrigName                 = "TrigEff_2018_num_el_pt40_trig_5jCut_htCut_DeepCSV";
-            muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_2018_UL_ID";
-            muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_2018_UL_ISO";
-            muSFHistoTrigName                  = "TrigEff_2018_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
-            nimuSFHistoTrigName                = "";
-            jetSFHistoTrigName_2bCut           = "h_2018_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_3bCut           = "h_2018_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            jetSFHistoTrigName_ge4bCut         = "h_2018_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-            topTagSFHistoName_Res_Njet8        = "2018_TagRateSF_vs_topPt_Resolved_Njet8";
-            topTagSFHistoName_Res_Njet9incl    = "2018_TagRateSF_vs_topPt_Resolved_Njet9incl";
-            topTagSFHistoName_Mrg_Njet8        = "2018_TagRateSF_vs_topPt_Merged_Njet8";
-            topTagSFHistoName_Mrg_Njet9incl    = "2018_TagRateSF_vs_topPt_Merged_Njet9incl";
-            topMistagSFHistoName_Res_Njet8     = "2018_MisTagSF_vs_topPt_Resolved_Njet8";
-            topMistagSFHistoName_Res_Njet9incl = "2018_MisTagSF_vs_topPt_Resolved_Njet9incl";
-            topMistagSFHistoName_Mrg_Njet8     = "2018_MisTagSF_vs_topPt_Merged_Njet8";
-            topMistagSFHistoName_Mrg_Njet9incl = "2018_MisTagSF_vs_topPt_Merged_Njet9incl";
-        }
-
-        getHisto(leptonic_SFRootFile,  eleSFHistoTight_,                   eleSFHistoTightName               );
-        //getHisto(leptonic_SFRootFile, eleSFHistoIso_,                     eleSFHistoIsoName                 );
-        getHisto(leptonic_SFRootFile,  eleSFHistoReco_,                    eleSFHistoRecoName                );
-        getHisto(leptonic_SFRootFile,  eleSFHistoTrig_,                    eleSFHistoTrigName                );
-        getHisto(leptonic_SFRootFile,  muSFHistoMedium_,                   muSFHistoMediumName               );
-        getHisto(leptonic_SFRootFile,  muSFHistoIso_,                      muSFHistoIsoName                  );
-        getHisto(leptonic_SFRootFile,  muSFHistoTrig_,                     muSFHistoTrigName                 );
-        getHisto(leptonic_SFRootFile,  nimuSFHistoTrig_,                   nimuSFHistoTrigName               );
-        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_2bCut_,          jetSFHistoTrigName_2bCut          );
-        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_3bCut_,          jetSFHistoTrigName_3bCut          );
-        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_ge4bCut_,        jetSFHistoTrigName_ge4bCut        );        
-        getHisto(toptagger_SFRootFile, topTagSFHisto_Res_Njet8_,           topTagSFHistoName_Res_Njet8       );
-        getHisto(toptagger_SFRootFile, topTagSFHisto_Res_Njet9incl_,       topTagSFHistoName_Res_Njet9incl   );
-        getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_Njet8_,           topTagSFHistoName_Mrg_Njet8       );
-        getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_Njet9incl_,       topTagSFHistoName_Mrg_Njet9incl   );
-        getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_Njet8_,        topMistagSFHistoName_Res_Njet8    );
-        getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_Njet9incl_,    topMistagSFHistoName_Res_Njet9incl);
-        getHisto(toptagger_SFRootFile, topMistagSFHisto_Mrg_Njet8_,        topMistagSFHistoName_Mrg_Njet8    );
-        getHisto(toptagger_SFRootFile, topMistagSFHisto_Mrg_Njet9incl_,    topMistagSFHistoName_Mrg_Njet9incl);
-        getHisto(toptagger_SFRootFile, topTagEffHisto_Mrg_den_,            topTagEffHistoName_Mrg_den        );
-        getHisto(toptagger_SFRootFile, topTagEffHisto_Res_den_,            topTagEffHistoName_Res_den        );
-        getHisto(toptagger_SFRootFile, topTagMisHisto_Mrg_den_,            topTagMisHistoName_Mrg_den        );
-        getHisto(toptagger_SFRootFile, topTagMisHisto_Res_den_,            topTagMisHistoName_Res_den        );
-        getHisto(toptagger_SFRootFile, topTagEffHisto_Mrg_num_,            topTagEffHistoName_Mrg_num        );
-        getHisto(toptagger_SFRootFile, topTagEffHisto_Res_num_,            topTagEffHistoName_Res_num        );
-        getHisto(toptagger_SFRootFile, topTagMisHisto_Mrg_num_,            topTagMisHistoName_Mrg_num        );
-        getHisto(toptagger_SFRootFile, topTagMisHisto_Res_num_,            topTagMisHistoName_Res_num        );
+        getHisto(leptonic_SFRootFile,  eleSFHistoTight_,                eleSFHistoTightName               );
+        getHisto(leptonic_SFRootFile,  eleSFHistoReco_,                 eleSFHistoRecoName                );
+        getHisto(leptonic_SFRootFile,  eleSFHistoTrig_,                 eleSFHistoTrigName                );
+        getHisto(leptonic_SFRootFile,  muSFHistoMedium_,                muSFHistoMediumName               );
+        getHisto(leptonic_SFRootFile,  muSFHistoIso_,                   muSFHistoIsoName                  );
+        getHisto(leptonic_SFRootFile,  muSFHistoTrig_,                  muSFHistoTrigName                 );
+        getHisto(leptonic_SFRootFile,  nimuSFHistoTrig_,                nimuSFHistoTrigName               );
+        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_2bCut_,       jetSFHistoTrigName_2bCut          );
+        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_3bCut_,       jetSFHistoTrigName_3bCut          );
+        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_ge4bCut_,     jetSFHistoTrigName_ge4bCut        );        
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Res_Njet8_,        topTagSFHistoName_Res_Njet8       );
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Res_Njet9incl_,    topTagSFHistoName_Res_Njet9incl   );
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_Njet8_,        topTagSFHistoName_Mrg_Njet8       );
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_Njet9incl_,    topTagSFHistoName_Mrg_Njet9incl   );
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_Njet8_,     topMistagSFHistoName_Res_Njet8    );
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_Njet9incl_, topMistagSFHistoName_Res_Njet9incl);
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Mrg_Njet8_,     topMistagSFHistoName_Mrg_Njet8    );
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Mrg_Njet9incl_, topMistagSFHistoName_Mrg_Njet9incl);
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Mrg_den_,         topTagEffHistoName_Mrg_den        );
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Res_den_,         topTagEffHistoName_Res_den        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Mrg_den_,         topTagMisHistoName_Mrg_den        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Res_den_,         topTagMisHistoName_Res_den        );
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Mrg_num_,         topTagEffHistoName_Mrg_num        );
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Res_num_,         topTagEffHistoName_Res_num        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Mrg_num_,         topTagMisHistoName_Mrg_num        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Res_num_,         topTagMisHistoName_Res_num        );
 
         leptonic_SFRootFile.Close();
         hadronic_SFRootFile.Close();        
