@@ -131,6 +131,7 @@ private:
         bool passBaseline0l_old = JetID                  &&
                                   passMETFilters         &&
                                   passMadHT              &&
+                                  passElectronHEMveto    &&
                                   passTrigger            &&
                                   passTriggerHadMC       &&
                                   (runtype != "Data"     || filetag.find("Data_JetHT") != std::string::npos) &&
@@ -168,7 +169,7 @@ private:
         // baseline for HEM study 
         bool passBaseline0l_Good_noHEMveto = passBaseline0l_pre   &&
                                              NNonIsoMuons == 0    &&
-                                             NGoodJets_pt30 >= 7  &&
+                                             NGoodJets_pt30 >= 8  &&
                                              ntops >= 2           &&
                                              NGoodBJets_pt30 >= 2 &&
                                              dR_bjets >= 1.0      ;
@@ -221,35 +222,6 @@ private:
         // baseline for HEM study  
         bool passBaseline1l_Good_noHEMveto = passBaseline1mu_Good || passBaseline1el_Good;
 
-        // NOT sure what they are for !!!
-        bool passBaseline1mu_Good_loose = passBaselineGoodOffline1l &&
-                                          passTrigger               &&
-                                          passTriggerMC             &&
-                                          (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
-                                          NGoodMuons == 1           && 
-                                          NGoodElectrons == 0       &&
-                                          NGoodJets_pt30 >= 5;
-
-        bool passBaseline1el_Good_loose = passBaselineGoodOffline1l &&
-                                          passTrigger               &&
-                                          passTriggerMC             &&
-                                          (runtype != "Data" || filetag.find("Data_SingleElectron") != std::string::npos) &&
-                                          NGoodElectrons == 1       &&
-                                          NGoodMuons == 0           &&
-                                          NGoodJets_pt30 >= 5;
-
-        bool passBaseline1l_Good_loose = (passBaseline1mu_Good_loose || passBaseline1el_Good_loose) && 
-                                         passElectronHEMveto &&
-                                         passBlindLep_Good;
-
-        bool passBaseline1l_HT500_Good = passBaseline1l_Good &&
-                                         passElectronHEMveto &&
-                                         HT_trigger_pt30 > 500;
-                                         
-        bool passBaseline1l_HT700_Good = passBaseline1l_Good &&
-                                         passElectronHEMveto &&
-                                         HT_trigger_pt30 > 700;
-
         // -----------------------------------
         // Define 2-Lepton Baseline Selections
         // ----------------------------------- 
@@ -272,14 +244,11 @@ private:
                                              passElectronHEMveto &&
                                              !onZ;
 
-        bool passBaseline2l_Good_noHEMveto = passBaseline2l_base && 
-                                             !onZ;
-
         // full baseline for blind
         bool passBaseline2l_Good_blind = passBaseline2l_Good && passBlind2Lep_Good;
 
-        // NOT sure what it is for !!! 
-        bool passBaseline2lonZ_Good    = passBaseline2l_base &&  onZ;
+        // baseline for HEM study
+        bool passBaseline2l_Good_noHEMveto = passBaseline2l_base && !onZ;
 
         // -----------------------------------------
         // Define QCD CR Selections
@@ -331,9 +300,6 @@ private:
         tr.registerDerivedVar<bool>("passBaseline1l_Good"           +myVarSuffix_, passBaseline1l_Good          );
         tr.registerDerivedVar<bool>("passBaseline1l_Good_blind"     +myVarSuffix_, passBaseline1l_Good_blind    );
         tr.registerDerivedVar<bool>("passBaseline1l_Good_noHEMveto" +myVarSuffix_, passBaseline1l_Good_noHEMveto);
-        tr.registerDerivedVar<bool>("passBaseline1l_Good_loose"     +myVarSuffix_, passBaseline1l_Good_loose    );
-        tr.registerDerivedVar<bool>("passBaseline1l_HT500_Good"     +myVarSuffix_, passBaseline1l_HT500_Good    );
-        tr.registerDerivedVar<bool>("passBaseline1l_HT700_Good"     +myVarSuffix_, passBaseline1l_HT700_Good    );
         tr.registerDerivedVar<bool>("passBlindLep_Good"             +myVarSuffix_, passBlindLep_Good            );
         tr.registerDerivedVar<bool>("passTriggerMuon"               +myVarSuffix_, passTriggerMuon              );
         tr.registerDerivedVar<bool>("passTriggerElectron"           +myVarSuffix_, passTriggerElectron          );
@@ -342,7 +308,6 @@ private:
         tr.registerDerivedVar<bool>("passBaseline2l_Good"           +myVarSuffix_, passBaseline2l_Good          );
         tr.registerDerivedVar<bool>("passBaseline2l_Good_blind"     +myVarSuffix_, passBaseline2l_Good_blind    );
         tr.registerDerivedVar<bool>("passBaseline2l_Good_noHEMveto" +myVarSuffix_, passBaseline2l_Good_noHEMveto);
-        tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"        +myVarSuffix_, passBaseline2lonZ_Good       );
         // QCD CR things        
         tr.registerDerivedVar<bool>("pass_qcdCR"                    +myVarSuffix_, pass_qcdCR                   );
         tr.registerDerivedVar<bool>("pass_qcdCR_1b"                 +myVarSuffix_, pass_qcdCR_1b                );
