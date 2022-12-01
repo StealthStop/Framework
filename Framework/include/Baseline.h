@@ -178,7 +178,8 @@ private:
         bool passBaseline0l_trigEff = JetID                 &&
                                       passMETFilters        &&
                                       passMadHT             &&
-                                      NGoodMuons == 1       &&
+                                      passElectronHEMveto   &&
+                                      NGoodMuons >= 1       &&
                                       HT_trigger_pt45 > 500 &&
                                       NGoodJets_pt45 >= 6   &&
                                       NGoodBJets_pt45 >= 1  ;
@@ -226,6 +227,7 @@ private:
         bool passBaseline1l_trigEff = JetID                 &&
                                       passMETFilters        &&
                                       passMadHT             &&
+                                      passElectronHEMveto   &&
                                       HT_trigger_pt30 > 300 &&
                                       NGoodJets_pt30 >= 1   &&
                                       NGoodBJets_pt30 >= 1  ;
