@@ -284,32 +284,32 @@ private:
         // Define QCD CR Selections
         //  -- common for all 3 channels for now !!!
         // -----------------------------------------
-         bool pass_qcdCR_0l = JetID                    && 
-                              passMETFilters           &&
-                              passMadHT                &&
-                              passNonIsoTrigger        &&
-                              passNonIsoTriggerMC      &&
-                              passElectronHEMveto      &&
-                              (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
-                              HT_NonIsoMuon_pt30 > 500 &&
-                              NNonIsoMuons == 1        &&
-                              NGoodMuons == 0          &&
-                              NGoodElectrons == 0      &&
-                              NGoodJets_pt30 >= 8      &&
-                              NGoodJets_pt45 >= 6;
+        bool pass_qcdCR_0l = JetID                    && 
+                             passMETFilters           &&
+                             passMadHT                &&
+                             passNonIsoTrigger        &&
+                             passNonIsoTriggerMC      &&
+                             passElectronHEMveto      &&
+                             (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
+                             HT_NonIsoMuon_pt30 > 500 &&
+                             NNonIsoMuons == 1        &&
+                             NGoodMuons == 0          &&
+                             NGoodElectrons == 0      &&
+                             NGoodJets_pt30 >= 8      &&
+                             NGoodJets_pt45 >= 6;
 
-        bool pass_qcdCR = JetID                    && 
-                          passMETFilters           &&
-                          passMadHT                &&
-                          passNonIsoTrigger        &&
-                          passNonIsoTriggerMC      &&
-                          passElectronHEMveto      &&
-                          (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
-                          HT_NonIsoMuon_pt30 > 500 &&
-                          NNonIsoMuons == 1        &&
-                          NGoodMuons == 0          &&
-                          NGoodElectrons == 0      &&
-                          NNonIsoMuonJets_pt30 >= 7;
+        bool pass_qcdCR_1l = JetID                    && 
+                             passMETFilters           &&
+                             passMadHT                &&
+                             passNonIsoTrigger        &&
+                             passNonIsoTriggerMC      &&
+                             passElectronHEMveto      &&
+                             (runtype != "Data" || filetag.find("Data_SingleMuon") != std::string::npos) &&
+                             HT_NonIsoMuon_pt30 > 500 &&
+                             NNonIsoMuons == 1        &&
+                             NGoodMuons == 0          &&
+                             NGoodElectrons == 0      &&
+                             NNonIsoMuonJets_pt30 >= 7;
 
         // -------------------
         // Register all things
@@ -345,7 +345,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline2lonZ_Good"        +myVarSuffix_, passBaseline2lonZ_Good       );
         // QCD CR things        
         tr.registerDerivedVar<bool>("pass_qcdCR_0l"                 +myVarSuffix_, pass_qcdCR_0l                );
-        tr.registerDerivedVar<bool>("pass_qcdCR"                    +myVarSuffix_, pass_qcdCR                   );
+        tr.registerDerivedVar<bool>("pass_qcdCR_1l"                 +myVarSuffix_, pass_qcdCR_1l                );
         tr.registerDerivedVar<bool>("passNonIsoTrigger"             +myVarSuffix_, passNonIsoTrigger            );
         tr.registerDerivedVar<bool>("passNonIsoTriggerMC"           +myVarSuffix_, passNonIsoTriggerMC          );
         // common things       
