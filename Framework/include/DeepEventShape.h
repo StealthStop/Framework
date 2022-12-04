@@ -65,6 +65,7 @@ private:
     double discriminator_;
     std::string modelFile_, inputOp_, outputOp_, year_, name_, nJetVar_, myVarSuffix_;
     int minNJet_, maxNJet_;
+    double massRegScale_;
     bool firstEvent_;
 
     //Tensoflow session pointer
@@ -115,15 +116,16 @@ private:
         //Construct contexts
         cfg::Context localCxt(localContextName);
 
-        inputOp_     = cfgDoc->get("inputOp",   localCxt, "main_input");
-        outputOp_    = cfgDoc->get("outputOp",  localCxt, "");
-        outputOpVec_ = getVecFromCfg<std::string>(cfgDoc, "outputOpVec", localCxt, "");       
-        outputCmVec_ = getVecFromCfg<int>(        cfgDoc, "outputCmVec", localCxt, -1);       
-        year_        = cfgDoc->get("year",      localCxt, "");
-        name_        = cfgDoc->get("name",      localCxt, "");
-        nJetVar_     = cfgDoc->get("nJetVar",   localCxt, "NGoodJets");
-        minNJet_     = cfgDoc->get("minNJet",   localCxt, 7);
-        maxNJet_     = cfgDoc->get("maxNJet",   localCxt, 7);
+        inputOp_      = cfgDoc->get("inputOp",   localCxt, "main_input");
+        outputOp_     = cfgDoc->get("outputOp",  localCxt, "");
+        outputOpVec_  = getVecFromCfg<std::string>(cfgDoc, "outputOpVec", localCxt, "");       
+        outputCmVec_  = getVecFromCfg<int>(        cfgDoc, "outputCmVec", localCxt, -1);       
+        year_         = cfgDoc->get("year",      localCxt, "");
+        name_         = cfgDoc->get("name",      localCxt, "");
+        nJetVar_      = cfgDoc->get("nJetVar",   localCxt, "NGoodJets");
+        minNJet_      = cfgDoc->get("minNJet",   localCxt, 7);
+        maxNJet_      = cfgDoc->get("maxNJet",   localCxt, 7);
+        massRegScale_ = cfgDoc->get("massScale", localCxt, 1.0);
 
         // Try looking for the array of input variables with name mvaVar[0], mvaVar[1], etc...
         vars_        = getVecFromCfg<std::string>(cfgDoc, "mvaVar", localCxt, "");
@@ -271,7 +273,7 @@ private:
         // based on inferencing with the Double DisCo NN
         double disc1   = discriminators[0][0];
         double disc2   = discriminators[0][1];
-        double massReg = discriminators[1][0];
+        double massReg = massRegScale_ * discriminators[1][0];
         tr.registerDerivedVar("DoubleDisCo_disc1_"+name_+myVarSuffix_, disc1);
         tr.registerDerivedVar("DoubleDisCo_disc2_"+name_+myVarSuffix_, disc2);
         tr.registerDerivedVar("DoubleDisCo_massReg_"+name_+myVarSuffix_, massReg);
@@ -378,6 +380,7 @@ public:
         , myVarSuffix_(husk.myVarSuffix_)
         , minNJet_(husk.minNJet_)
         , maxNJet_(husk.maxNJet_)
+        , massRegScale_(husk.massRegScale_)
         , firstEvent_(husk.firstEvent_)
         , session_(husk.session_)
         , outputOpVec_(husk.outputOpVec_)
