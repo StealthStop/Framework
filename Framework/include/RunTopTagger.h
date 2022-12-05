@@ -19,7 +19,6 @@ private:
     std::vector<int>* hadtops_idx_;
     int ntops_;
     int ntops_3jet_;
-    int ntops_2jet_;
     int ntops_1jet_;
     
     inline int findParent(const int p, const int idx, const std::vector<int>& GenParticles_ParentId, const std::vector<int>& GenParticles_ParentIdx) const
@@ -113,22 +112,17 @@ private:
     {
         ntops_ = 0;
         ntops_3jet_ = 0;
-        ntops_2jet_ = 0;
         ntops_1jet_ = 0;
        
         for (const TopObject* top : tops)
         {
             ntops_++;
 
-            if(top->getNConstituents() == 3 )
+            if(top->getNConstituents())
             {
                 ntops_3jet_++;
             }
-            else if(top->getNConstituents() == 2 )
-            {
-                ntops_2jet_++;
-            }
-            else if(top->getNConstituents() == 1 )
+            else if(top->getNConstituents() == 1)
             {
                 ntops_1jet_++;
             }
@@ -150,6 +144,10 @@ private:
         // Get the top tagger results object     
         const TopTaggerResults& ttr = tt_->getResults();
        
+        // Get the working points decide if we are considering top as tagged
+        const auto& resolvedTop_WP = tr.getVar<double>("resolvedTop_WP");
+        const auto& mergedTop_WP   = tr.getVar<double>("mergedTop_WP");
+
         // Get tagged objects the new top tagger returns more than just tops now (MERGED_TOP, SEMIMERGEDWB_TOP, RESOLVED_TOP, MERGED_W, SEMIMERGEDQB_TOP)
         // For now we will only use merged and resolved tops
         const std::vector<TopObject*>& taggedObjects = ttr.getTops();
@@ -157,8 +155,8 @@ private:
         std::vector<TopObject*> resolvedTops;
         for(auto* o : taggedObjects)
         {
-            if     (o->getType()==TopObject::MERGED_TOP)   mergedTops.push_back(o);
-            else if(o->getType()==TopObject::RESOLVED_TOP) resolvedTops.push_back(o);
+            if     (o->getType()==TopObject::MERGED_TOP   and o->getDiscriminator() > mergedTop_WP)   mergedTops.push_back(o);
+            else if(o->getType()==TopObject::RESOLVED_TOP and o->getDiscriminator() > resolvedTop_WP) resolvedTops.push_back(o);
         }
 
         // --------------------------------------------------
@@ -380,7 +378,6 @@ private:
         tr.registerDerivedVar("ttr"+myVarSuffix_, &ttr);
         tr.registerDerivedVar("ntops"+myVarSuffix_, ntops_);
         tr.registerDerivedVar("ntops_3jet"+myVarSuffix_, ntops_3jet_);
-        tr.registerDerivedVar("ntops_2jet"+myVarSuffix_, ntops_2jet_);
         tr.registerDerivedVar("ntops_1jet"+myVarSuffix_, ntops_1jet_);
         tr.registerDerivedVar("dR_top1_top2"+myVarSuffix_,dR_top1_top2);
         tr.registerDerivedVar("bestTopMass"+myVarSuffix_, bestTopMass);
