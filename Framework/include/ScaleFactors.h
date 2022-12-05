@@ -464,10 +464,8 @@ private:
         double mcTagDown = 1.0, mcNoTagDown = 1.0, dataTagDown = 1.0, dataNoTagDown = 1.0;
 
         // Distinguish if the best top candidate is resolved or merged
-        double resolvedWP = 0.95;
-        double mergedWP   = 0.937;
-        if ( runYear.find("2016") == std::string::npos )
-            mergedWP = 0.895;
+        const auto& resolvedWP = tr.getVar<double>("resolvedTop_WP");
+        const auto& mergedWP   = tr.getVar<double>("mergedTop_WP");
 
         //loop over jets
         const auto* topTagRes = tr.getVar<TopTaggerResults*>("ttr");
