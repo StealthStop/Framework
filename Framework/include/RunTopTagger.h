@@ -118,7 +118,7 @@ private:
         {
             ntops_++;
 
-            if(top->getNConstituents())
+            if(top->getNConstituents() == 3)
             {
                 ntops_3jet_++;
             }
