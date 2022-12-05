@@ -33,14 +33,10 @@ private:
     std::shared_ptr<TH2F> jetSFHistoTrigName_2bCut_;
     std::shared_ptr<TH2F> jetSFHistoTrigName_3bCut_;
     std::shared_ptr<TH2F> jetSFHistoTrigName_ge4bCut_;
-    std::shared_ptr<TH1F> topTagSFHisto_Res_Njet8_;
-    std::shared_ptr<TH1F> topTagSFHisto_Res_Njet9incl_;
-    std::shared_ptr<TH1F> topTagSFHisto_Mrg_Njet8_;
-    std::shared_ptr<TH1F> topTagSFHisto_Mrg_Njet9incl_;
-    std::shared_ptr<TH1F> topMistagSFHisto_Res_Njet8_;
-    std::shared_ptr<TH1F> topMistagSFHisto_Res_Njet9incl_;
-    std::shared_ptr<TH1F> topMistagSFHisto_Mrg_Njet8_;
-    std::shared_ptr<TH1F> topMistagSFHisto_Mrg_Njet9incl_;
+    std::shared_ptr<TH1F> topTagSFHisto_Res_;
+    std::shared_ptr<TH1F> topTagSFHisto_Mrg_;
+    std::shared_ptr<TH1F> topMistagSFHisto_Res_;
+    std::shared_ptr<TH1F> topMistagSFHisto_Mrg_;
     std::shared_ptr<TH2F> topTagEffHisto_Mrg_den_;
     std::shared_ptr<TH2F> topTagEffHisto_Res_den_;
     std::shared_ptr<TH2F> topTagMisHisto_Mrg_den_;
@@ -264,25 +260,36 @@ private:
         {
             xbinJetTrig   = findBin(jetSFHistoTrigName_2bCut_, HT_trigger_pt45, "X", "jet trigger x");
             ybinJetTrig   = findBin(jetSFHistoTrigName_2bCut_, SixthJetPt45,    "Y", "jet trigger y");
-            jetTrigSF     = jetSFHistoTrigName_2bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
-            jetTrigSF_Err = jetSFHistoTrigName_2bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
+
+            if (xbinJetTrig != -1 and ybinJetTrig != -1)
+            {
+                jetTrigSF     = jetSFHistoTrigName_2bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
+                jetTrigSF_Err = jetSFHistoTrigName_2bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
+            }
         }
 
         else if (NGoodBJets_pt45 == 3)
         {
             xbinJetTrig   = findBin(jetSFHistoTrigName_3bCut_, HT_trigger_pt45, "X", "jet trigger x");
             ybinJetTrig   = findBin(jetSFHistoTrigName_3bCut_, SixthJetPt45,    "Y", "jet trigger y");
-            jetTrigSF     = jetSFHistoTrigName_3bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
-            jetTrigSF_Err = jetSFHistoTrigName_3bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
 
+            if (xbinJetTrig != -1 and ybinJetTrig != -1)
+            {
+                jetTrigSF     = jetSFHistoTrigName_3bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
+                jetTrigSF_Err = jetSFHistoTrigName_3bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
+            }
         }
 
         else if (NGoodBJets_pt45 >= 4)
         {
             xbinJetTrig   = findBin(jetSFHistoTrigName_ge4bCut_, HT_trigger_pt45, "X", "jet trigger x");
             ybinJetTrig   = findBin(jetSFHistoTrigName_ge4bCut_, SixthJetPt45,    "Y", "jet trigger y");
-            jetTrigSF     = jetSFHistoTrigName_ge4bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
-            jetTrigSF_Err = jetSFHistoTrigName_ge4bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
+
+            if (xbinJetTrig != -1 and ybinJetTrig != -1)
+            {
+                jetTrigSF     = jetSFHistoTrigName_ge4bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
+                jetTrigSF_Err = jetSFHistoTrigName_ge4bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
+            }
         }
 
         double jetTrigSF_Up   = jetTrigSF + jetTrigSF_Err;
@@ -320,8 +327,6 @@ private:
 
             if( xbinElTight != -1 && ybinElTight != -1 && xbinElIso != -1 && ybinElIso != -1 && xbinElReco != -1 && ybinElReco != -1 )
             {
-                std::cout << "WE ARE NEVE HERE" << std::endl;
-
                 const double eleTightSF    = eleSFHistoTight_->GetBinContent( xbinElTight, ybinElTight );
                 const double eleTightSFErr = eleSFHistoTight_->GetBinError( xbinElTight, ybinElTight );
                 const double eleTightPErr  = eleTightSFErr/eleTightSF;
@@ -454,8 +459,6 @@ private:
         // -------------------------------------------------------------------------------
         // Adding a top tagging scale factor in the spirit of b tag sf via "method 1a"
         // -------------------------------------------------------------------------------
-        const auto& Njets = tr.getVar<int>("NGoodJets_pt30" + myVarSuffix_);
-
         double mcTag     = 1.0, mcNoTag     = 1.0, dataTag     = 1.0, dataNoTag     = 1.0;
         double mcTagUp   = 1.0, mcNoTagUp   = 1.0, dataTagUp   = 1.0, dataNoTagUp   = 1.0;
         double mcTagDown = 1.0, mcNoTagDown = 1.0, dataTagDown = 1.0, dataNoTagDown = 1.0;
@@ -496,18 +499,9 @@ private:
                         denUnc = topTagEffHisto_Res_den_->GetBinError(xBinTopDen,   yBinTopDen);
                     }
 
-                    if      (Njets == 8)
-                    {
-                        binTopSF = findBin(topTagSFHisto_Res_Njet8_, top->P().Pt(), "X", "top tag sf x");
-                        if (binTopSF != -1)
-                            sf = topTagSFHisto_Res_Njet8_->GetBinContent(binTopSF);
-                    }
-                    else if (Njets >= 9)
-                    {
-                        binTopSF = findBin(topTagSFHisto_Res_Njet9incl_, top->P().Pt(), "X", "top tag sf x");
-                        if (binTopSF != -1)
-                            sf = topTagSFHisto_Res_Njet9incl_->GetBinContent(binTopSF);
-                    }
+                    binTopSF = findBin(topTagSFHisto_Res_, top->P().Pt(), "X", "top tag sf x");
+                    if (binTopSF != -1)
+                        sf = topTagSFHisto_Res_->GetBinContent(binTopSF);
                 }
                 else if (isMerged)
                 {
@@ -524,18 +518,9 @@ private:
                         denUnc = topTagEffHisto_Mrg_den_->GetBinError(xBinTopDen,   yBinTopDen);
                     }
 
-                    if      (Njets == 8)
-                    {
-                        binTopSF = findBin(topTagSFHisto_Mrg_Njet8_, top->P().Pt(), "X", "top tag sf x");
-                        if (binTopSF != -1)
-                            sf = topTagSFHisto_Mrg_Njet8_->GetBinContent(binTopSF);
-                    }
-                    else if (Njets >= 9)
-                    {
-                        binTopSF = findBin(topTagSFHisto_Mrg_Njet9incl_, top->P().Pt(), "X", "top tag sf x");
-                        if (binTopSF != -1)
-                            sf = topTagSFHisto_Mrg_Njet9incl_->GetBinContent(binTopSF);
-                    }
+                    binTopSF = findBin(topTagSFHisto_Mrg_, top->P().Pt(), "X", "top tag sf x");
+                    if (binTopSF != -1)
+                        sf = topTagSFHisto_Mrg_->GetBinContent(binTopSF);
                 }
             }
             // Mistag when dealing with a fake top i.e. no GEN top present
@@ -556,18 +541,9 @@ private:
                         denUnc = topTagMisHisto_Res_den_->GetBinError(xBinTopDen,   yBinTopDen);
                     }
 
-                    if      (Njets == 8)
-                    {
-                        binTopSF = findBin(topMistagSFHisto_Res_Njet8_, top->P().Pt(), "X", "top tag sf x");
-                        if (binTopSF != -1)
-                            sf = topMistagSFHisto_Res_Njet8_->GetBinContent(binTopSF);
-                    }
-                    else if (Njets >= 9)
-                    {
-                        binTopSF = findBin(topMistagSFHisto_Res_Njet9incl_, top->P().Pt(), "X", "top tag sf x");
-                        if (binTopSF != -1)
-                            sf = topMistagSFHisto_Res_Njet9incl_->GetBinContent(binTopSF);
-                    }
+                    binTopSF = findBin(topMistagSFHisto_Res_, top->P().Pt(), "X", "top tag sf x");
+                    if (binTopSF != -1)
+                        sf = topMistagSFHisto_Res_->GetBinContent(binTopSF);
                 }
                 else if (isMerged)
                 {
@@ -584,18 +560,9 @@ private:
                         denUnc = topTagMisHisto_Mrg_den_->GetBinError(xBinTopDen,   yBinTopDen);
                     }
 
-                    if      (Njets == 8)
-                    {
-                        binTopSF = findBin(topMistagSFHisto_Mrg_Njet8_,     top->P().Pt(), "X", "top tag sf x");
-                        if (binTopSF != -1)
-                            sf = topMistagSFHisto_Mrg_Njet8_->GetBinContent(binTopSF);
-                    }
-                    else if (Njets >= 9)
-                    {
-                        binTopSF = findBin(topMistagSFHisto_Mrg_Njet9incl_, top->P().Pt(), "X", "top tag sf x");
-                        if (binTopSF != -1)
-                            sf = topMistagSFHisto_Mrg_Njet9incl_->GetBinContent(binTopSF);
-                    }
+                    binTopSF = findBin(topMistagSFHisto_Mrg_,     top->P().Pt(), "X", "top tag sf x");
+                    if (binTopSF != -1)
+                        sf = topMistagSFHisto_Mrg_->GetBinContent(binTopSF);
                 }
             }
 
@@ -871,14 +838,10 @@ public:
         TFile hadronic_SFRootFile( hadronicFileName.c_str() );
         TFile toptagger_SFRootFile( toptaggerFileName.c_str() );
 
-        TString topTagSFHistoName_Res_Njet8        = runYear + "_TagRateSF_vs_topPt_Resolved_Njet8";
-        TString topTagSFHistoName_Res_Njet9incl    = runYear + "_TagRateSF_vs_topPt_Resolved_Njet9incl";
-        TString topTagSFHistoName_Mrg_Njet8        = runYear + "_TagRateSF_vs_topPt_Merged_Njet8";
-        TString topTagSFHistoName_Mrg_Njet9incl    = runYear + "_TagRateSF_vs_topPt_Merged_Njet9incl";
-        TString topMistagSFHistoName_Res_Njet8     = runYear + "_MisTagSF_vs_topPt_Resolved_Njet8";
-        TString topMistagSFHistoName_Res_Njet9incl = runYear + "_MisTagSF_vs_topPt_Resolved_Njet9incl";
-        TString topMistagSFHistoName_Mrg_Njet8     = runYear + "_MisTagSF_vs_topPt_Merged_Njet8";
-        TString topMistagSFHistoName_Mrg_Njet9incl = runYear + "_MisTagSF_vs_topPt_Merged_Njet9incl";
+        TString topTagSFHistoName_Res              = runYear + "_TagRateSF_vs_topPt_Resolved";
+        TString topTagSFHistoName_Mrg              = runYear + "_TagRateSF_vs_topPt_Merged";
+        TString topMistagSFHistoName_Res           = runYear + "_MisTagSF_vs_topPt_Resolved";
+        TString topMistagSFHistoName_Mrg           = runYear + "_MisTagSF_vs_topPt_Merged";
         TString topTagEffHistoName_Mrg_den         = "d_eff_mrg_" + filetag;
         TString topTagEffHistoName_Res_den         = "d_eff_res_" + filetag;
         TString topTagEffHistoName_Mrg_num         = "n_eff_mrg_" + filetag;
@@ -908,14 +871,10 @@ public:
         getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_2bCut_,       jetSFHistoTrigName_2bCut          );
         getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_3bCut_,       jetSFHistoTrigName_3bCut          );
         getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_ge4bCut_,     jetSFHistoTrigName_ge4bCut        );
-        getHisto(toptagger_SFRootFile, topTagSFHisto_Res_Njet8_,        topTagSFHistoName_Res_Njet8       );
-        getHisto(toptagger_SFRootFile, topTagSFHisto_Res_Njet9incl_,    topTagSFHistoName_Res_Njet9incl   );
-        getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_Njet8_,        topTagSFHistoName_Mrg_Njet8       );
-        getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_Njet9incl_,    topTagSFHistoName_Mrg_Njet9incl   );
-        getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_Njet8_,     topMistagSFHistoName_Res_Njet8    );
-        getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_Njet9incl_, topMistagSFHistoName_Res_Njet9incl);
-        getHisto(toptagger_SFRootFile, topMistagSFHisto_Mrg_Njet8_,     topMistagSFHistoName_Mrg_Njet8    );
-        getHisto(toptagger_SFRootFile, topMistagSFHisto_Mrg_Njet9incl_, topMistagSFHistoName_Mrg_Njet9incl);
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Res_,              topTagSFHistoName_Res             );
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_,              topTagSFHistoName_Mrg             );
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_,           topMistagSFHistoName_Res          );
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Mrg_,           topMistagSFHistoName_Mrg          );
         getHisto(toptagger_SFRootFile, topTagEffHisto_Mrg_den_,         topTagEffHistoName_Mrg_den        );
         getHisto(toptagger_SFRootFile, topTagEffHisto_Res_den_,         topTagEffHistoName_Res_den        );
         getHisto(toptagger_SFRootFile, topTagMisHisto_Mrg_den_,         topTagMisHistoName_Mrg_den        );
