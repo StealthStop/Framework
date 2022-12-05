@@ -94,9 +94,9 @@ private:
         }
         
         // Blind data AND MC together, always
-        if (NGoodJets_pt30 >= 9 && blind) passBlindHad_Good  = false;
-        if (NGoodJets_pt30 >= 9 && blind) passBlindLep_Good  = false;
-        if (NGoodJets_pt30 >= 8 && blind) passBlind2Lep_Good = false;
+        if (NGoodJets_pt30 >= 10 && blind) passBlindHad_Good  = false;
+        if (NGoodJets_pt30 >= 9  && blind) passBlindLep_Good  = false;
+        if (NGoodJets_pt30 >= 8  && blind) passBlind2Lep_Good = false;
 
         // ------------------
         // MC dependent stuff
