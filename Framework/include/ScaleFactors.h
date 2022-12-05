@@ -30,9 +30,8 @@ private:
     std::shared_ptr<TGraph> muSFHistoReco_;
     std::shared_ptr<TH2F> L1Prefireing_;
     std::map<std::string, double> sfMeanMap_;
-    std::shared_ptr<TH2F> jetSFHistoTrigName_2bCut_;
-    std::shared_ptr<TH2F> jetSFHistoTrigName_3bCut_;
-    std::shared_ptr<TH2F> jetSFHistoTrigName_ge4bCut_;
+    std::shared_ptr<TH2F> jetSFHistoTrigName_1bCut_;
+    std::shared_ptr<TH2F> jetSFHistoTrigName_ge2bCut_;
     std::shared_ptr<TH1F> topTagSFHisto_Res_;
     std::shared_ptr<TH1F> topTagSFHisto_Mrg_;
     std::shared_ptr<TH1F> topMistagSFHisto_Res_;
@@ -255,40 +254,28 @@ private:
         }
 
         int xbinJetTrig  = 0,   ybinJetTrig   = 0;
-        double jetTrigSF = 0.0, jetTrigSF_Err = 0.0;
-        if (NGoodBJets_pt45 == 2)
+        double jetTrigSF = 0.0, jetTrigSF_Err = 0.0; 
+        if (NGoodBJets_pt45 == 1)
         {
-            xbinJetTrig   = findBin(jetSFHistoTrigName_2bCut_, HT_trigger_pt45, "X", "jet trigger x");
-            ybinJetTrig   = findBin(jetSFHistoTrigName_2bCut_, SixthJetPt45,    "Y", "jet trigger y");
+            xbinJetTrig   = findBin(jetSFHistoTrigName_1bCut_, HT_trigger_pt45, "X", "jet trigger x");
+            ybinJetTrig   = findBin(jetSFHistoTrigName_1bCut_, SixthJetPt45,    "Y", "jet trigger y");
 
             if (xbinJetTrig != -1 and ybinJetTrig != -1)
             {
-                jetTrigSF     = jetSFHistoTrigName_2bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
-                jetTrigSF_Err = jetSFHistoTrigName_2bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
+                jetTrigSF     = jetSFHistoTrigName_1bCut_->GetBinContent(xbinJetTrig, ybinJetTrig       );   
+                jetTrigSF_Err = jetSFHistoTrigName_1bCut_->GetBinError(xbinJetTrig, ybinJetTrig         ); 
             }
         }
 
-        else if (NGoodBJets_pt45 == 3)
+        else if (NGoodBJets_pt45 >= 2)
         {
-            xbinJetTrig   = findBin(jetSFHistoTrigName_3bCut_, HT_trigger_pt45, "X", "jet trigger x");
-            ybinJetTrig   = findBin(jetSFHistoTrigName_3bCut_, SixthJetPt45,    "Y", "jet trigger y");
+            xbinJetTrig   = findBin(jetSFHistoTrigName_ge2bCut_, HT_trigger_pt45, "X", "jet trigger x");
+            ybinJetTrig   = findBin(jetSFHistoTrigName_ge2bCut_, SixthJetPt45,    "Y", "jet trigger y");
 
             if (xbinJetTrig != -1 and ybinJetTrig != -1)
             {
-                jetTrigSF     = jetSFHistoTrigName_3bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
-                jetTrigSF_Err = jetSFHistoTrigName_3bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
-            }
-        }
-
-        else if (NGoodBJets_pt45 >= 4)
-        {
-            xbinJetTrig   = findBin(jetSFHistoTrigName_ge4bCut_, HT_trigger_pt45, "X", "jet trigger x");
-            ybinJetTrig   = findBin(jetSFHistoTrigName_ge4bCut_, SixthJetPt45,    "Y", "jet trigger y");
-
-            if (xbinJetTrig != -1 and ybinJetTrig != -1)
-            {
-                jetTrigSF     = jetSFHistoTrigName_ge4bCut_->GetBinContent(xbinJetTrig, ybinJetTrig);
-                jetTrigSF_Err = jetSFHistoTrigName_ge4bCut_->GetBinError(xbinJetTrig, ybinJetTrig);
+                jetTrigSF     = jetSFHistoTrigName_ge2bCut_->GetBinContent(xbinJetTrig, ybinJetTrig       );
+                jetTrigSF_Err = jetSFHistoTrigName_ge2bCut_->GetBinError(xbinJetTrig, ybinJetTrig         );
             }
         }
 
@@ -850,25 +837,23 @@ public:
         TString topTagMisHistoName_Res_num         = "n_mis_res_" + filetag;
         TString eleSFHistoTightName                = "EGamma_SF2D_" + runYear + "_UL_ID";
         TString eleSFHistoRecoName                 = "EGamma_SF2D_" + runYear + "_UL_RECO";
-        TString eleSFHistoTrigName                 = "TrigEff_" + runYear + "_num_el_pt40_trig_5jCut_htCut_DeepCSV";
+        TString eleSFHistoTrigName                 = runYear + "_el_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
         TString muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_" + runYear + "_UL_ID";
         TString muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_" + runYear + "_UL_ISO";
-        TString muSFHistoTrigName                  = "TrigEff_" + runYear + "_num_mu_pt40_trig_5jCut_htCut_DeepCSV";
+        TString muSFHistoTrigName                  = runYear + "_mu_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
         TString nimuSFHistoTrigName                = ""; //just for calculating non iso muon scale factors
-        TString jetSFHistoTrigName_2bCut           = "h_" + runYear + "_CombHadIsoMu_trig_2bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-        TString jetSFHistoTrigName_3bCut           = "h_" + runYear + "_CombHadIsoMu_trig_3bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
-        TString jetSFHistoTrigName_ge4bCut         = "h_" + runYear + "_CombHadIsoMu_trig_ge4bjetCut_pt45_HTvs6thJetPt_SingleMuon_TT";
+        TString jetSFHistoTrigName_1bCut           = runYear + "_jet_trig_1bjetCut_wJetHt6thJetPtBin_TriggerSF";
+        TString jetSFHistoTrigName_ge2bCut         = runYear + "_jet_trig_ge2bjetCut_wJetHt6thJetPtBin_TriggerSF"; 
 
-        getHisto(leptonic_SFRootFile,  eleSFHistoTight_,                eleSFHistoTightName               );
-        getHisto(leptonic_SFRootFile,  eleSFHistoReco_,                 eleSFHistoRecoName                );
-        getHisto(leptonic_SFRootFile,  eleSFHistoTrig_,                 eleSFHistoTrigName                );
-        getHisto(leptonic_SFRootFile,  muSFHistoMedium_,                muSFHistoMediumName               );
-        getHisto(leptonic_SFRootFile,  muSFHistoIso_,                   muSFHistoIsoName                  );
-        getHisto(leptonic_SFRootFile,  muSFHistoTrig_,                  muSFHistoTrigName                 );
-        getHisto(leptonic_SFRootFile,  nimuSFHistoTrig_,                nimuSFHistoTrigName               );
-        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_2bCut_,       jetSFHistoTrigName_2bCut          );
-        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_3bCut_,       jetSFHistoTrigName_3bCut          );
-        getHisto(hadronic_SFRootFile,  jetSFHistoTrigName_ge4bCut_,     jetSFHistoTrigName_ge4bCut        );
+        getHisto(leptonic_SFRootFile, eleSFHistoTight_,            eleSFHistoTightName       );
+        getHisto(leptonic_SFRootFile, eleSFHistoReco_,             eleSFHistoRecoName        );
+        getHisto(leptonic_SFRootFile, eleSFHistoTrig_,             eleSFHistoTrigName        );
+        getHisto(leptonic_SFRootFile, muSFHistoMedium_,            muSFHistoMediumName       );
+        getHisto(leptonic_SFRootFile, muSFHistoIso_,               muSFHistoIsoName          );
+        getHisto(leptonic_SFRootFile, muSFHistoTrig_,              muSFHistoTrigName         );
+        getHisto(leptonic_SFRootFile, nimuSFHistoTrig_,            nimuSFHistoTrigName       );
+        getHisto(hadronic_SFRootFile, jetSFHistoTrigName_1bCut_,   jetSFHistoTrigName_1bCut  );
+        getHisto(hadronic_SFRootFile, jetSFHistoTrigName_ge2bCut_, jetSFHistoTrigName_ge2bCut);        
         getHisto(toptagger_SFRootFile, topTagSFHisto_Res_,              topTagSFHistoName_Res             );
         getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_,              topTagSFHistoName_Mrg             );
         getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_,           topMistagSFHistoName_Res          );
