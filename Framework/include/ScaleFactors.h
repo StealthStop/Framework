@@ -106,8 +106,19 @@ private:
         // The scale weights are calculated using the envelope method and we ignore all anti-correlated variations (5 and 7)
         // -----------------------------------------------------------------------------------------------------------------
         const auto& scaleWeights = tr.getVec<float>("ScaleWeights" );
-        const auto& filetag      = tr.getVar<std::string>("filetag");
+              auto  filetagTemp  = tr.getVar<std::string>("filetag");
         const auto& runYear      = tr.getVar<std::string>("runYear");
+
+        // If we run on a skim data set, there should be a "_skim" suffix
+        // at the end of the name, so scrape it off before trying
+        // to get anything that requires the filetag
+        std::string scrapeOff = "_skim";
+        const size_t position = filetagTemp.find(scrapeOff);
+        if(position != std::string::npos)
+        {
+            filetagTemp.erase(position, scrapeOff.length());
+        }
+        std::string filetag = filetagTemp;
 
         double scaleWeightNominal = 1.0;
         std::vector<float>  myScaleWeights(6, 1.0);
@@ -815,6 +826,17 @@ public:
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
 
+        // If we run on a skim data set, there should be a "_skim" suffix
+        // at the end of the name, so scrape it off before trying
+        // to get anything that requires the filetag
+        std::string scrapeOff    = "_skim";
+        std::string filetagClean = filetag;
+        const size_t position = filetag.find(scrapeOff);
+        if(position != std::string::npos)
+        {
+            filetagClean.erase(position, scrapeOff.length());
+        }
+
         // Force histograms to reside in memory rather than a TFile buffer on disk, allowing the TFile to be closed safely
         TH1::AddDirectory(false);
 
@@ -827,14 +849,14 @@ public:
         TString topTagSFHistoName_Mrg              = runYear + "_TagRateSF_vs_topPt_Merged";
         TString topMistagSFHistoName_Res           = runYear + "_MisTagSF_vs_topPt_Resolved";
         TString topMistagSFHistoName_Mrg           = runYear + "_MisTagSF_vs_topPt_Merged";
-        TString topTagEffHistoName_Mrg_den         = "d_eff_mrg_" + filetag;
-        TString topTagEffHistoName_Res_den         = "d_eff_res_" + filetag;
-        TString topTagEffHistoName_Mrg_num         = "n_eff_mrg_" + filetag;
-        TString topTagEffHistoName_Res_num         = "n_eff_res_" + filetag;
-        TString topTagMisHistoName_Mrg_den         = "d_mis_mrg_" + filetag;
-        TString topTagMisHistoName_Res_den         = "d_mis_res_" + filetag;
-        TString topTagMisHistoName_Mrg_num         = "n_mis_mrg_" + filetag;
-        TString topTagMisHistoName_Res_num         = "n_mis_res_" + filetag;
+        TString topTagEffHistoName_Mrg_den         = "d_eff_mrg_" + filetagClean;
+        TString topTagEffHistoName_Res_den         = "d_eff_res_" + filetagClean;
+        TString topTagEffHistoName_Mrg_num         = "n_eff_mrg_" + filetagClean;
+        TString topTagEffHistoName_Res_num         = "n_eff_res_" + filetagClean;
+        TString topTagMisHistoName_Mrg_den         = "d_mis_mrg_" + filetagClean;
+        TString topTagMisHistoName_Res_den         = "d_mis_res_" + filetagClean;
+        TString topTagMisHistoName_Mrg_num         = "n_mis_mrg_" + filetagClean;
+        TString topTagMisHistoName_Res_num         = "n_mis_res_" + filetagClean;
         TString eleSFHistoTightName                = "EGamma_SF2D_" + runYear + "_UL_ID";
         TString eleSFHistoRecoName                 = "EGamma_SF2D_" + runYear + "_UL_RECO";
         TString eleSFHistoTrigName                 = runYear + "_el_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
