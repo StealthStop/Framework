@@ -584,7 +584,7 @@ private:
                 mcTagDown   *= effDown;
                 dataTagDown *= effDown * sf;
             }
-            else if (isResolved)
+            else if (isResolved or isMerged)
             {
                 mcNoTag       *= (1.0 - eff);
                 dataNoTag     *= (1.0 - eff * sf);
