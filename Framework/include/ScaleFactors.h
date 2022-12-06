@@ -6,6 +6,9 @@
 #include "TKey.h"
 #include "Framework/Framework/include/Utility.h"
 
+#include "TopTagger/TopTagger/interface/TopTaggerResults.h"
+#include "TopTagger/TopTagger/interface/TopObject.h"
+
 class ScaleFactors
 {
 private:
@@ -15,7 +18,7 @@ private:
     bool printGetBinError_;
     std::set<std::string> binError_message_;
 
-    std::shared_ptr<TH2F> eleSFHistoTight_;        
+    std::shared_ptr<TH2F> eleSFHistoTight_;
     std::shared_ptr<TH2F> eleSFHistoIso_;
     std::shared_ptr<TH2F> eleSFHistoIP2D_;
     std::shared_ptr<TH2F> eleSFHistoReco_;
@@ -29,6 +32,18 @@ private:
     std::map<std::string, double> sfMeanMap_;
     std::shared_ptr<TH2F> jetSFHistoTrigName_1bCut_;
     std::shared_ptr<TH2F> jetSFHistoTrigName_ge2bCut_;
+    std::shared_ptr<TH1F> topTagSFHisto_Res_;
+    std::shared_ptr<TH1F> topTagSFHisto_Mrg_;
+    std::shared_ptr<TH1F> topMistagSFHisto_Res_;
+    std::shared_ptr<TH1F> topMistagSFHisto_Mrg_;
+    std::shared_ptr<TH2F> topTagEffHisto_Mrg_den_;
+    std::shared_ptr<TH2F> topTagEffHisto_Res_den_;
+    std::shared_ptr<TH2F> topTagMisHisto_Mrg_den_;
+    std::shared_ptr<TH2F> topTagMisHisto_Res_den_;
+    std::shared_ptr<TH2F> topTagEffHisto_Mrg_num_;
+    std::shared_ptr<TH2F> topTagEffHisto_Res_num_;
+    std::shared_ptr<TH2F> topTagMisHisto_Mrg_num_;
+    std::shared_ptr<TH2F> topTagMisHisto_Res_num_;
 
     template<typename T> std::shared_ptr<T>& getHisto(TFile& f, std::shared_ptr<T>& h, const TString& name)
     {
@@ -59,12 +74,12 @@ private:
             else if(axis=="Y")
             {
                 bin = h->GetYaxis()->FindBin(v);
-                if( v >= h->GetYaxis()->GetBinUpEdge(h->GetNbinsY()) ) bin = h->GetNbinsY();           
+                if( v >= h->GetYaxis()->GetBinUpEdge(h->GetNbinsY()) ) bin = h->GetNbinsY();
             }
         }
         if(bin == -1 && firstPrint_)
         {
-            binError_message_.insert(message); 
+            binError_message_.insert(message);
             printGetBinError_ = true;
         }
         return bin;
@@ -93,10 +108,10 @@ private:
         const auto& scaleWeights = tr.getVec<float>("ScaleWeights" );
         const auto& filetag      = tr.getVar<std::string>("filetag");
         const auto& runYear      = tr.getVar<std::string>("runYear");
-        
+
         double scaleWeightNominal = 1.0;
         std::vector<float>  myScaleWeights(6, 1.0);
-        if( scaleWeights.size() == 9 ) 
+        if( scaleWeights.size() == 9 )
         {
             // If there are not exactly 9 scale factors, then the vector  was filled incorrectly
             scaleWeightNominal = scaleWeights[0];
@@ -107,10 +122,10 @@ private:
             myScaleWeights[4]  = scaleWeights[6];
             myScaleWeights[5]  = scaleWeights[8];
         }
-        
+
         double scaleWeightUpperBound = *std::max_element( std::begin(myScaleWeights), std::end(myScaleWeights) );
         double scaleWeightLowerBound = *std::min_element( std::begin(myScaleWeights), std::end(myScaleWeights) );
-        if( !std::isfinite(scaleWeightNominal) || !std::isfinite(scaleWeightUpperBound) || !std::isfinite(scaleWeightLowerBound) ) 
+        if( !std::isfinite(scaleWeightNominal) || !std::isfinite(scaleWeightUpperBound) || !std::isfinite(scaleWeightLowerBound) )
         {
             scaleWeightNominal    = 1.0;
             scaleWeightUpperBound = 1.0;
@@ -119,8 +134,8 @@ private:
 
         double scaleWeightUpperBound_corr = scaleWeightUpperBound;
         double scaleWeightLowerBound_corr = scaleWeightLowerBound;
-        if(sfMeanMap_.find(filetag+"_sclUp") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_sclDown") != sfMeanMap_.end()) 
-        {            
+        if(sfMeanMap_.find(filetag+"_sclUp") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_sclDown") != sfMeanMap_.end())
+        {
             const double meanUp        = getMean(filetag+"_sclUp");
             const double meanDown      = getMean(filetag+"_sclDown");
             scaleWeightUpperBound_corr = (1/meanUp)*scaleWeightUpperBound;
@@ -136,11 +151,11 @@ private:
         // ------------------------------------------------------------------------------
         // Calculate parton shower variation
         // Note: not all samples have these weights stored, give them default value of 1.
-        // ------------------------------------------------------------------------------        
-        double PSweight_ISRUp   = 1.0, PSweight_ISRDown   = 1.0; 
-        double PSweight_FSRUp   = 1.0, PSweight_FSRDown   = 1.0; 
-        double PSweight_ISRUp_2 = 1.0, PSweight_ISRDown_2 = 1.0; 
-        double PSweight_FSRUp_2 = 1.0, PSweight_FSRDown_2 = 1.0; 
+        // ------------------------------------------------------------------------------
+        double PSweight_ISRUp   = 1.0, PSweight_ISRDown   = 1.0;
+        double PSweight_FSRUp   = 1.0, PSweight_FSRDown   = 1.0;
+        double PSweight_ISRUp_2 = 1.0, PSweight_ISRDown_2 = 1.0;
+        double PSweight_FSRUp_2 = 1.0, PSweight_FSRDown_2 = 1.0;
         if(tr.hasVar("PSweights"))
         {
             const auto& PSweights = tr.getVec<float>("PSweights");
@@ -170,7 +185,7 @@ private:
         tr.registerDerivedVar("PSweight_FSRDown_2" +myVarSuffix_, PSweight_FSRDown_2);
 
         // ---------------------------------------------------------------------------------------------------
-        // Now calculate the PDF scale factor and uncertainty 
+        // Now calculate the PDF scale factor and uncertainty
         // Based on the 100 different replica values stored in PDFweights using envelope method and the median
         // ---------------------------------------------------------------------------------------------------
         const auto& PDFweights = tr.getVec<float>("PDFweights");
@@ -180,26 +195,26 @@ private:
             const double reqCL = 0.68;                        // Choose a confidence level for the uncertainty
             std::vector<float> sortedPDFWeights = PDFweights; // Cannot sort a constant
             std::sort( sortedPDFWeights.begin() + 1, sortedPDFWeights.end() );
-        
+
             const int upper      = std::round( 0.5*(1 + reqCL)*100.0 );
             central              = 0.5*( sortedPDFWeights[50] + sortedPDFWeights[51] ); // Exactly 100 entries
             const double errplus = abs(central - sortedPDFWeights[upper]);
 
             NNPDF_from_median_up   = central + errplus;
             NNPDF_from_median_down = central - errplus;
-            NNPDF_from_median_up   = NNPDF_from_median_up/central   > 2.0 ? 1.0 : NNPDF_from_median_up/central   < -2.0 ? 1.0 : NNPDF_from_median_up/central;        
+            NNPDF_from_median_up   = NNPDF_from_median_up/central   > 2.0 ? 1.0 : NNPDF_from_median_up/central   < -2.0 ? 1.0 : NNPDF_from_median_up/central;
             NNPDF_from_median_down = NNPDF_from_median_down/central > 2.0 ? 1.0 : NNPDF_from_median_down/central < -2.0 ? 1.0 : NNPDF_from_median_down/central;
         }
-        if( !std::isfinite(central) || !std::isfinite(NNPDF_from_median_up) || !std::isfinite(NNPDF_from_median_down) ) 
+        if( !std::isfinite(central) || !std::isfinite(NNPDF_from_median_up) || !std::isfinite(NNPDF_from_median_down) )
         {
             NNPDF_from_median_up    = 1.0;
             NNPDF_from_median_down  = 1.0;
             central                 = 1.0;
         }
-        
+
         double NNPDF_from_median_up_corr = NNPDF_from_median_up;
         double NNPDF_from_median_down_corr = NNPDF_from_median_down;
-        if(sfMeanMap_.find(filetag+"_pdf_Up") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_pdf_Down") != sfMeanMap_.end()) 
+        if(sfMeanMap_.find(filetag+"_pdf_Up") != sfMeanMap_.end() && sfMeanMap_.find(filetag+"_pdf_Down") != sfMeanMap_.end())
         {
             const double meanUp         = getMean(filetag+"_pdf_Up"  );
             const double meanDown       = getMean(filetag+"_pdf_Down");
@@ -212,12 +227,12 @@ private:
         tr.registerDerivedVar("PDFweightUpUncor"   +myVarSuffix_, NNPDF_from_median_up       );
         tr.registerDerivedVar("PDFweightDownUncor" +myVarSuffix_, NNPDF_from_median_down     );
         tr.registerDerivedVar("PDFweightNom"       +myVarSuffix_, central                    );
-       
+
         // --------------------------------------------------
         // Now calculate the jet scale factor and uncertainty
         // --------------------------------------------------
         const auto& Jets            = tr.getVec<utility::LorentzVector>(("Jets" +myVarSuffix_));
-        const auto& GoodJets_pt45   = tr.getVec<bool>("GoodJets_pt45"           +myVarSuffix_ ); 
+        const auto& GoodJets_pt45   = tr.getVec<bool>("GoodJets_pt45"           +myVarSuffix_ );
         const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"          +myVarSuffix_ );
         const auto& HT_trigger_pt45 = tr.getVar<double>("HT_trigger_pt45"       +myVarSuffix_ );
 
@@ -237,23 +252,31 @@ private:
                 break;
             }
         }
-      
+
         int xbinJetTrig  = 0,   ybinJetTrig   = 0;
         double jetTrigSF = 0.0, jetTrigSF_Err = 0.0; 
         if (NGoodBJets_pt45 == 1)
         {
             xbinJetTrig   = findBin(jetSFHistoTrigName_1bCut_, HT_trigger_pt45, "X", "jet trigger x");
             ybinJetTrig   = findBin(jetSFHistoTrigName_1bCut_, SixthJetPt45,    "Y", "jet trigger y");
-            jetTrigSF     = jetSFHistoTrigName_1bCut_->GetBinContent(xbinJetTrig, ybinJetTrig       );   
-            jetTrigSF_Err = jetSFHistoTrigName_1bCut_->GetBinError(xbinJetTrig, ybinJetTrig         ); 
+
+            if (xbinJetTrig != -1 and ybinJetTrig != -1)
+            {
+                jetTrigSF     = jetSFHistoTrigName_1bCut_->GetBinContent(xbinJetTrig, ybinJetTrig       );   
+                jetTrigSF_Err = jetSFHistoTrigName_1bCut_->GetBinError(xbinJetTrig, ybinJetTrig         ); 
+            }
         }
 
         else if (NGoodBJets_pt45 >= 2)
         {
             xbinJetTrig   = findBin(jetSFHistoTrigName_ge2bCut_, HT_trigger_pt45, "X", "jet trigger x");
             ybinJetTrig   = findBin(jetSFHistoTrigName_ge2bCut_, SixthJetPt45,    "Y", "jet trigger y");
-            jetTrigSF     = jetSFHistoTrigName_ge2bCut_->GetBinContent(xbinJetTrig, ybinJetTrig       );
-            jetTrigSF_Err = jetSFHistoTrigName_ge2bCut_->GetBinError(xbinJetTrig, ybinJetTrig         );
+
+            if (xbinJetTrig != -1 and ybinJetTrig != -1)
+            {
+                jetTrigSF     = jetSFHistoTrigName_ge2bCut_->GetBinContent(xbinJetTrig, ybinJetTrig       );
+                jetTrigSF_Err = jetSFHistoTrigName_ge2bCut_->GetBinError(xbinJetTrig, ybinJetTrig         );
+            }
         }
 
         double jetTrigSF_Up   = jetTrigSF + jetTrigSF_Err;
@@ -272,24 +295,24 @@ private:
         double totGoodElectronSF    = 1.0, totGoodElectronSF_Up    = 1.0, totGoodElectronSF_Down    = 1.0;
         double totGoodElectronSFErr = 0.0, totGoodElectronSFPErr2  = 0.0;
         double noTrigGoodElectronSF = 1.0, noTrigGoodElectronSFErr = 0.0, noTrigGoodElectronSFPErr2 = 0.0;
-        
-        for( unsigned int iel = 0; iel < electrons.size(); iel++ ) 
+
+        for( unsigned int iel = 0; iel < electrons.size(); iel++ )
         {
             if( !goodElectrons.at(iel) ) continue;
-            
+
             // Get the scale factor from the rootfile
             const double elpt     = electrons.at(iel).Pt();
             const double eleta    = electrons.at(iel).Eta();
             const int xbinElTight = findBin(eleSFHistoTight_, eleta, "X", "el id x");
-            const int ybinElTight = findBin(eleSFHistoTight_, elpt,  "Y", "el id y");                
+            const int ybinElTight = findBin(eleSFHistoTight_, elpt,  "Y", "el id y");
             const int xbinElIso   = findBin(eleSFHistoIso_,   eleta, "X", "el iso x");
             const int ybinElIso   = findBin(eleSFHistoIso_,   elpt,  "Y", "el iso y");
             const int xbinElReco  = findBin(eleSFHistoReco_,  eleta, "X", "el reco x");
             const int ybinElReco  = findBin(eleSFHistoReco_,  elpt,  "Y", "el reco y");
             const int xbinElTrig  = findBin(eleSFHistoTrig_,  elpt,  "X", "el trigger x");
             const int ybinElTrig  = findBin(eleSFHistoTrig_,  eleta, "Y", "el trigger y");
-        
-            if( xbinElTight != -1 && ybinElTight != -1 && xbinElIso != -1 && ybinElIso != -1 && xbinElReco != -1 && ybinElReco != -1 ) 
+
+            if( xbinElTight != -1 && ybinElTight != -1 && xbinElIso != -1 && ybinElIso != -1 && xbinElReco != -1 && ybinElReco != -1 )
             {
                 const double eleTightSF    = eleSFHistoTight_->GetBinContent( xbinElTight, ybinElTight );
                 const double eleTightSFErr = eleSFHistoTight_->GetBinError( xbinElTight, ybinElTight );
@@ -303,9 +326,9 @@ private:
                 const double eleTrigSF     = (eleSFHistoTrig_) ? eleSFHistoTrig_->GetBinContent( xbinElTrig, ybinElTrig ) : 1.0;
                 const double eleTrigSFErr  = (eleSFHistoTrig_) ? eleSFHistoTrig_->GetBinError( xbinElTrig, ybinElTrig ) : 0.0;
                 const double eleTrigPErr   = eleTrigSFErr/eleTrigSF;
-                
-                if( runYear.find("2016") != std::string::npos ) 
-                { 
+
+                if( runYear.find("2016") != std::string::npos )
+                {
                     // The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
                     // If this is the year 2016, we need to add the IP2D histogram scale factors into the Iso scale factor
                     const double eleIP2DSF    = eleSFHistoIP2D_->GetBinContent( xbinElIso, ybinElIso );
@@ -316,17 +339,17 @@ private:
                     eleIsoPErr  = utility::addInQuad( eleIsoPErr, eleIP2DPErr );
                     eleIsoSFErr = eleIsoPErr*eleIsoSF;
                 }
-                
+
                 const double eleNoTrigSF   = eleTightSF*eleIsoSF*eleRecoSF;
-                const double eleTotSF      = eleNoTrigSF*eleTrigSF; 
+                const double eleTotSF      = eleNoTrigSF*eleTrigSF;
                 const double eleNoTrigPErr = utility::addInQuad( eleTightPErr, eleIsoPErr, eleRecoPErr );
                 const double eleTotPErr    = utility::addInQuad( eleNoTrigPErr, eleTrigPErr );
 
-                totGoodElectronSF         *= eleTotSF; 
+                totGoodElectronSF         *= eleTotSF;
                 noTrigGoodElectronSF      *= eleNoTrigSF;
                 totGoodElectronSFPErr2    += eleTotPErr*eleTotPErr;
                 noTrigGoodElectronSFPErr2 += eleNoTrigPErr*eleNoTrigPErr;
-            }            
+            }
         }
 
         totGoodElectronSFErr    = sqrt(totGoodElectronSFPErr2) * totGoodElectronSF;
@@ -351,10 +374,10 @@ private:
         double totGoodMuonSFErr   = 0.0, totGoodMuonSFPErr2   = 0.0;
         double noTrigGoodMuonSF   = 1.0, noTrigGoodMuonSFErr  = 0.0, noTrigGoodMuonSFPErr2 = 0.0;
         double totNonIsoMuonSF    = 1.0, totNonIsoMuonSF_Up   = 1.0, totNonIsoMuonSF_Down  = 1.0;
-        double totNonIsoMuonSFErr = 0.0, totNonIsoMuonSFPErr2 = 0.0;        
+        double totNonIsoMuonSFErr = 0.0, totNonIsoMuonSFPErr2 = 0.0;
 
-        for( unsigned int imu = 0; imu < muons.size(); imu++ ) 
-        {            
+        for( unsigned int imu = 0; imu < muons.size(); imu++ )
+        {
             // Get the scale factor from the rootfile
             const double mupt = muons.at(imu).Pt();
             const double mueta = muons.at(imu).Eta();
@@ -362,12 +385,12 @@ private:
             const int ybinMuMedium     = findBin(muSFHistoMedium_, mupt,       "Y", "mu id y"         );
             const int xbinMuMedium     = findBin(muSFHistoMedium_, abs(mueta), "X", "mu id x"         );
             const int ybinMuIso        = findBin(muSFHistoIso_,    mupt,       "Y", "mu iso y"        );
-            const int xbinMuIso        = findBin(muSFHistoIso_,    abs(mueta), "X", "mu iso x"        );            
+            const int xbinMuIso        = findBin(muSFHistoIso_,    abs(mueta), "X", "mu iso x"        );
             const int ybinMuTrig       = findBin(muSFHistoTrig_,   mueta,      "Y", "mu trigger y"    );
             const int xbinMuTrig       = findBin(muSFHistoTrig_,   mupt,       "X", "mu trigger x"    );
             const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,      "Y", "mu iso trigger y");
             const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,       "X", "mu iso trigger x");
-            if( xbinMuMedium != -1 && ybinMuMedium != -1 && xbinMuIso != -1 && ybinMuIso != -1 ) 
+            if( xbinMuMedium != -1 && ybinMuMedium != -1 && xbinMuIso != -1 && ybinMuIso != -1 )
             {
                 // The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
                 const double muMediumSF         = muSFHistoMedium_->GetBinContent( xbinMuMedium, ybinMuMedium  );
@@ -378,16 +401,16 @@ private:
                 const double muNonIsoTrigSFErr  = (nimuSFHistoTrig_) ? nimuSFHistoTrig_->GetBinError( xbinNonIsoMuTrig, ybinNonIsoMuTrig ) : 0.0;
                 const double muTrigSFPErr       = muTrigSFErr/muTrigSF;
                 const double muNonIsoTrigSFPErr = muNonIsoTrigSFErr/muNonIsoTrigSF;
-                double muNoTrigSF               = muMediumSF*muIsoSF; 
+                double muNoTrigSF               = muMediumSF*muIsoSF;
                 double muTotSF                  = muNoTrigSF*muTrigSF;
                 double muNonIsoTotSF            = muNoTrigSF*muNonIsoTrigSF;
                 const double muNoTrigSFPErr2    = 0.03*0.03;
                 const double muTotSFPErr2       = muNoTrigSFPErr2 + muTrigSFPErr*muTrigSFPErr;
                 const double muNonIsoTotSFPErr2 = muNoTrigSFPErr2 + muNonIsoTrigSFPErr*muNonIsoTrigSFPErr;
-                
+
                 // The RECO scale factor for muons have been shown to be close to unity and are not required by the Muon POG for UL (see https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonTnPOverview). Confirmation from the SUSY Muon contact is still needed
                 if( goodMuons.at(imu) )
-                {                
+                {
                     totGoodMuonSF         *= muTotSF;
                     noTrigGoodMuonSF      *= muNoTrigSF;
                     totGoodMuonSFPErr2    += muTotSFPErr2;
@@ -420,9 +443,160 @@ private:
         tr.registerDerivedVar("totNonIsoMuonSF_Up"   +myVarSuffix_, totNonIsoMuonSF_Up  );
         tr.registerDerivedVar("totNonIsoMuonSF_Down" +myVarSuffix_, totNonIsoMuonSF_Down);
 
+        // -------------------------------------------------------------------------------
+        // Adding a top tagging scale factor in the spirit of b tag sf via "method 1a"
+        // -------------------------------------------------------------------------------
+        double mcTag     = 1.0, mcNoTag     = 1.0, dataTag     = 1.0, dataNoTag     = 1.0;
+        double mcTagUp   = 1.0, mcNoTagUp   = 1.0, dataTagUp   = 1.0, dataNoTagUp   = 1.0;
+        double mcTagDown = 1.0, mcNoTagDown = 1.0, dataTagDown = 1.0, dataNoTagDown = 1.0;
+
+        // Distinguish if the best top candidate is resolved or merged
+        const auto& resolvedWP = tr.getVar<double>("resolvedTop_WP");
+        const auto& mergedWP   = tr.getVar<double>("mergedTop_WP");
+
+        //loop over jets
+        const auto* topTagRes = tr.getVar<TopTaggerResults*>("ttr");
+        const auto& tops      = topTagRes->getTops();
+        for(const auto& top : tops)
+        {
+            const auto* genTop = top->getBestGenTopMatch();
+
+            bool isResolved = top->getType() == TopObject::RESOLVED_TOP;
+            bool isMerged   = top->getType() == TopObject::MERGED_TOP;
+
+            double num = 1.0, numUnc = 1.0, den = 1.0, denUnc = 1.0, sf = 1.0;
+            int xBinTopNum = -1, yBinTopNum = -1, xBinTopDen = -1, yBinTopDen = -1, binTopSF = -1;
+            // Efficiency when dealing with an actual top
+            if (genTop)
+            {
+                if (isResolved)
+                {
+                    xBinTopNum = findBin(topTagEffHisto_Res_num_, top->P().Pt(),  "X", "top tag eff num x");
+                    yBinTopNum = findBin(topTagEffHisto_Res_num_, top->P().Eta(), "Y", "top tag eff num y");
+                    xBinTopDen = findBin(topTagEffHisto_Res_den_, top->P().Pt(),  "X", "top tag eff den x");
+                    yBinTopDen = findBin(topTagEffHisto_Res_den_, top->P().Eta(), "Y", "top tag eff den y");
+                
+                    if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
+                    {
+                        num    = topTagEffHisto_Res_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                        numUnc = topTagEffHisto_Res_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                        den    = topTagEffHisto_Res_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                        denUnc = topTagEffHisto_Res_den_->GetBinError(xBinTopDen,   yBinTopDen);
+                    }
+
+                    binTopSF = findBin(topTagSFHisto_Res_, top->P().Pt(), "X", "top tag sf x");
+                    if (binTopSF != -1)
+                        sf = topTagSFHisto_Res_->GetBinContent(binTopSF);
+                }
+                else if (isMerged)
+                {
+                    xBinTopNum = findBin(topTagEffHisto_Mrg_num_, top->P().Pt(),  "X", "top tag eff num x");
+                    yBinTopNum = findBin(topTagEffHisto_Mrg_num_, top->P().Eta(), "Y", "top tag eff num y");
+                    xBinTopDen = findBin(topTagEffHisto_Mrg_den_, top->P().Pt(),  "X", "top tag eff den x");
+                    yBinTopDen = findBin(topTagEffHisto_Mrg_den_, top->P().Eta(), "Y", "top tag eff den y");
+
+                    if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
+                    {
+                        num    = topTagEffHisto_Mrg_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                        numUnc = topTagEffHisto_Mrg_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                        den    = topTagEffHisto_Mrg_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                        denUnc = topTagEffHisto_Mrg_den_->GetBinError(xBinTopDen,   yBinTopDen);
+                    }
+
+                    binTopSF = findBin(topTagSFHisto_Mrg_, top->P().Pt(), "X", "top tag sf x");
+                    if (binTopSF != -1)
+                        sf = topTagSFHisto_Mrg_->GetBinContent(binTopSF);
+                }
+            }
+            // Mistag when dealing with a fake top i.e. no GEN top present
+            else
+            {
+                if (isResolved)
+                {
+                    xBinTopNum = findBin(topTagMisHisto_Res_num_, top->P().Pt(),  "X", "top tag eff num x");
+                    yBinTopNum = findBin(topTagMisHisto_Res_num_, top->P().Eta(), "Y", "top tag eff num y");
+                    xBinTopDen = findBin(topTagMisHisto_Res_den_, top->P().Pt(),  "X", "top tag eff den x");
+                    yBinTopDen = findBin(topTagMisHisto_Res_den_, top->P().Eta(), "Y", "top tag eff den y");
+
+                    if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
+                    {
+                        num    = topTagMisHisto_Res_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                        numUnc = topTagMisHisto_Res_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                        den    = topTagMisHisto_Res_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                        denUnc = topTagMisHisto_Res_den_->GetBinError(xBinTopDen,   yBinTopDen);
+                    }
+
+                    binTopSF = findBin(topMistagSFHisto_Res_, top->P().Pt(), "X", "top tag sf x");
+                    if (binTopSF != -1)
+                        sf = topMistagSFHisto_Res_->GetBinContent(binTopSF);
+                }
+                else if (isMerged)
+                {
+                    xBinTopNum = findBin(topTagMisHisto_Mrg_num_, top->P().Pt(),  "X", "top tag eff num x");
+                    yBinTopNum = findBin(topTagMisHisto_Mrg_num_, top->P().Eta(), "Y", "top tag eff num y");
+                    xBinTopDen = findBin(topTagMisHisto_Mrg_den_, top->P().Pt(),  "X", "top tag eff den x");
+                    yBinTopDen = findBin(topTagMisHisto_Mrg_den_, top->P().Eta(), "Y", "top tag eff den y");
+
+                    if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
+                    {
+                        num    = topTagMisHisto_Mrg_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                        numUnc = topTagMisHisto_Mrg_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                        den    = topTagMisHisto_Mrg_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                        denUnc = topTagMisHisto_Mrg_den_->GetBinError(xBinTopDen,   yBinTopDen);
+                    }
+
+                    binTopSF = findBin(topMistagSFHisto_Mrg_,     top->P().Pt(), "X", "top tag sf x");
+                    if (binTopSF != -1)
+                        sf = topMistagSFHisto_Mrg_->GetBinContent(binTopSF);
+                }
+            }
+
+            double eff = 1.0, effUnc = 1.0, effUp = 1.0, effDown = 1.0;
+            if (den != 0.0)
+            {
+                eff     = num / den;
+                effUnc  = eff * pow(pow(denUnc / den, 2) + pow(numUnc / num, 2), 0.5);
+
+                effUp   = eff + effUnc;
+                effDown = eff - effUnc;
+            }
+
+            if ((isResolved and top->getDiscriminator() > resolvedWP) or
+                (isMerged   and top->getDiscriminator() > mergedWP))
+            {
+                mcTag       *= eff;
+                dataTag     *= eff * sf;
+
+                mcTagUp     *= effUp;
+                dataTagUp   *= effUp * sf;
+
+                mcTagDown   *= effDown;
+                dataTagDown *= effDown * sf;
+            }
+            else if (isResolved)
+            {
+                mcNoTag       *= (1.0 - eff);
+                dataNoTag     *= (1.0 - eff * sf);
+
+                mcNoTagUp     *= (1.0 - effUp);
+                dataNoTagUp   *= (1.0 - effUp * sf);
+
+                mcNoTagDown   *= (1.0 - effDown);
+                dataNoTagDown *= (1.0 - effDown * sf);
+            }
+        }
+
+        double topTaggerScaleFactor     = (mcNoTag     * mcTag     == 0) ? 1.0 : (dataNoTag     * dataTag    ) / (mcNoTag     * mcTag    );
+        double topTaggerScaleFactorup   = (mcNoTagUp   * mcTagUp   == 0) ? 1.0 : (dataNoTagUp   * dataTagUp  ) / (mcNoTagUp   * mcTagUp  );
+        double topTaggerScaleFactordown = (mcNoTagDown * mcTagDown == 0) ? 1.0 : (dataNoTagDown * dataTagDown) / (mcNoTagDown * mcTagDown);
+
+        tr.registerDerivedVar("topTaggerScaleFactor"     + myVarSuffix_, topTaggerScaleFactor    );
+        tr.registerDerivedVar("topTaggerScaleFactorup"   + myVarSuffix_, topTaggerScaleFactorup  );
+        tr.registerDerivedVar("topTaggerScaleFactordown" + myVarSuffix_, topTaggerScaleFactordown);
+
         //---------------------------------------------------------------------------------------------------------
         // Adding a scale factor for pileup, which comes directly from the nTuples
-        // --------------------------------------------------------------------------------------------------------        
+        // --------------------------------------------------------------------------------------------------------
         const auto& puWeightUnCorr  = tr.getVar<float>("puWeight" );
         const auto& puSysUpUnCorr   = tr.getVar<float>("puSysUp"  );
         const auto& puSysDownUnCorr = tr.getVar<float>("puSysDown");
@@ -449,7 +623,7 @@ private:
         tr.registerDerivedVar("puWeightCorr"  +myVarSuffix_, puWeightCorr );
         tr.registerDerivedVar("puSysUpCorr"   +myVarSuffix_, puSysUpCorr  );
         tr.registerDerivedVar("puSysDownCorr" +myVarSuffix_, puSysDownCorr);
-        
+
         // -------------------------------------------------------------
         // Adding top pt reweighting for ttbar MC (Powheg)
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopPtReweighting
@@ -461,13 +635,13 @@ private:
         {
             const double a=0.103, b=-0.0118, c=-0.000134, d=0.973;
             auto SF = [&](const double pt){return a * exp(b * pt) + c * pt + d;};
-            
+
             const auto& GenParticles        = tr.getVec<utility::LorentzVector>("GenParticles");
             const auto& GenParticles_PdgId  = tr.getVec<int>("GenParticles_PdgId"             );
             const auto& GenParticles_Status = tr.getVec<int>("GenParticles_Status"            );
 
             for(unsigned int gpi=0; gpi < GenParticles.size(); gpi++)
-            {   
+            {
                 if( abs(GenParticles_PdgId[gpi]) == 6 && GenParticles_Status[gpi] == 62 )
                 {
                     topPtScaleFactor *= SF( GenParticles[gpi].Pt() );
@@ -476,10 +650,10 @@ private:
             }
             topPtScaleFactor = sqrt(topPtScaleFactor);
         }
-        
+
         tr.registerDerivedVar("topPtScaleFactor" +myVarSuffix_, topPtScaleFactor);
         tr.registerDerivedVec("topPtVec"         +myVarSuffix_, topPtVec        );
-       
+
         // -----------------------------------------------------------------------------------------------------------------
         // Adding reweighting recipe to emulate Level 1 ECAL prefiring
         // https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
@@ -489,9 +663,9 @@ private:
         prefiringScaleFactor        = tr.getVar<float>("NonPrefiringProb"    );
         prefiringScaleFactorUp      = tr.getVar<float>("NonPrefiringProbUp"  );
         prefiringScaleFactorDown    = tr.getVar<float>("NonPrefiringProbDown");
-        tr.registerDerivedVar("prefiringScaleFactor"     +myVarSuffix_, prefiringScaleFactor    );                    
-        tr.registerDerivedVar("prefiringScaleFactorUp"   +myVarSuffix_, prefiringScaleFactorUp  );                    
-        tr.registerDerivedVar("prefiringScaleFactorDown" +myVarSuffix_, prefiringScaleFactorDown);                    
+        tr.registerDerivedVar("prefiringScaleFactor"     +myVarSuffix_, prefiringScaleFactor    );
+        tr.registerDerivedVar("prefiringScaleFactorUp"   +myVarSuffix_, prefiringScaleFactorUp  );
+        tr.registerDerivedVar("prefiringScaleFactorDown" +myVarSuffix_, prefiringScaleFactorDown);
 
         const auto& Weight            = tr.getVar<float>("Weight");
         const auto& FinalLumi         = tr.getVar<double>("FinalLumi");
@@ -512,7 +686,7 @@ private:
         }
 
         double CommonWeight   = Weight * FinalLumi * topPtScaleFactor;
-        double CommonWeight0l = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeight0l = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr * topTaggerScaleFactor;
         double CommonWeight1l = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
         double CommonWeight2l = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
 
@@ -636,27 +810,40 @@ private:
     }
 
 public:
-    ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& hadronicFileName, const std::string& meanFileName, const std::string& myVarSuffix = "" )
+    ScaleFactors( const std::string& runYear, const std::string& leptonFileName, const std::string& hadronicFileName, const std::string& toptaggerFileName, const std::string& meanFileName, const std::string& filetag, const std::string& myVarSuffix = "" )
         : myVarSuffix_(myVarSuffix), firstPrint_(true), printMeanError_(false), printGetBinError_(false)
     {
         std::cout<<"Setting up ScaleFactors"<<std::endl;
 
-        // Force histograms to reside in memory rather than a TFile buffer on disk, allowing the TFile to be closed
+        // Force histograms to reside in memory rather than a TFile buffer on disk, allowing the TFile to be closed safely
         TH1::AddDirectory(false);
 
         // Getting Leptonic and Hadronic scale factor histograms
-        TFile leptonic_SFRootFile( leptonFileName.c_str()    );
+        TFile leptonic_SFRootFile( leptonFileName.c_str()   );
         TFile hadronic_SFRootFile( hadronicFileName.c_str() );
+        TFile toptagger_SFRootFile( toptaggerFileName.c_str() );
 
-        TString eleSFHistoTightName        = "EGamma_SF2D_" + runYear + "_UL_ID";
-        TString eleSFHistoRecoName         = "EGamma_SF2D_" + runYear + "_UL_RECO";
-        TString eleSFHistoTrigName         = runYear + "_el_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
-        TString muSFHistoMediumName        = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_" + runYear + "_UL_ID";
-        TString muSFHistoIsoName           = "NUM_TightRelIso_DEN_MediumID_abseta_pt_" + runYear + "_UL_ISO";
-        TString muSFHistoTrigName          = runYear + "_mu_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
-        TString nimuSFHistoTrigName        = ""; //just for calculating non iso muon scale factors
-        TString jetSFHistoTrigName_1bCut   = runYear + "_jet_trig_1bjetCut_wJetHt6thJetPtBin_TriggerSF";
-        TString jetSFHistoTrigName_ge2bCut = runYear + "_jet_trig_ge2bjetCut_wJetHt6thJetPtBin_TriggerSF"; 
+        TString topTagSFHistoName_Res              = runYear + "_TagRateSF_vs_topPt_Resolved";
+        TString topTagSFHistoName_Mrg              = runYear + "_TagRateSF_vs_topPt_Merged";
+        TString topMistagSFHistoName_Res           = runYear + "_MisTagSF_vs_topPt_Resolved";
+        TString topMistagSFHistoName_Mrg           = runYear + "_MisTagSF_vs_topPt_Merged";
+        TString topTagEffHistoName_Mrg_den         = "d_eff_mrg_" + filetag;
+        TString topTagEffHistoName_Res_den         = "d_eff_res_" + filetag;
+        TString topTagEffHistoName_Mrg_num         = "n_eff_mrg_" + filetag;
+        TString topTagEffHistoName_Res_num         = "n_eff_res_" + filetag;
+        TString topTagMisHistoName_Mrg_den         = "d_mis_mrg_" + filetag;
+        TString topTagMisHistoName_Res_den         = "d_mis_res_" + filetag;
+        TString topTagMisHistoName_Mrg_num         = "n_mis_mrg_" + filetag;
+        TString topTagMisHistoName_Res_num         = "n_mis_res_" + filetag;
+        TString eleSFHistoTightName                = "EGamma_SF2D_" + runYear + "_UL_ID";
+        TString eleSFHistoRecoName                 = "EGamma_SF2D_" + runYear + "_UL_RECO";
+        TString eleSFHistoTrigName                 = runYear + "_el_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
+        TString muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_" + runYear + "_UL_ID";
+        TString muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_" + runYear + "_UL_ISO";
+        TString muSFHistoTrigName                  = runYear + "_mu_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
+        TString nimuSFHistoTrigName                = ""; //just for calculating non iso muon scale factors
+        TString jetSFHistoTrigName_1bCut           = runYear + "_jet_trig_1bjetCut_wJetHt6thJetPtBin_TriggerSF";
+        TString jetSFHistoTrigName_ge2bCut         = runYear + "_jet_trig_ge2bjetCut_wJetHt6thJetPtBin_TriggerSF"; 
 
         getHisto(leptonic_SFRootFile, eleSFHistoTight_,            eleSFHistoTightName       );
         getHisto(leptonic_SFRootFile, eleSFHistoReco_,             eleSFHistoRecoName        );
@@ -667,9 +854,22 @@ public:
         getHisto(leptonic_SFRootFile, nimuSFHistoTrig_,            nimuSFHistoTrigName       );
         getHisto(hadronic_SFRootFile, jetSFHistoTrigName_1bCut_,   jetSFHistoTrigName_1bCut  );
         getHisto(hadronic_SFRootFile, jetSFHistoTrigName_ge2bCut_, jetSFHistoTrigName_ge2bCut);        
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Res_,              topTagSFHistoName_Res             );
+        getHisto(toptagger_SFRootFile, topTagSFHisto_Mrg_,              topTagSFHistoName_Mrg             );
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Res_,           topMistagSFHistoName_Res          );
+        getHisto(toptagger_SFRootFile, topMistagSFHisto_Mrg_,           topMistagSFHistoName_Mrg          );
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Mrg_den_,         topTagEffHistoName_Mrg_den        );
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Res_den_,         topTagEffHistoName_Res_den        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Mrg_den_,         topTagMisHistoName_Mrg_den        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Res_den_,         topTagMisHistoName_Res_den        );
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Mrg_num_,         topTagEffHistoName_Mrg_num        );
+        getHisto(toptagger_SFRootFile, topTagEffHisto_Res_num_,         topTagEffHistoName_Res_num        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Mrg_num_,         topTagMisHistoName_Mrg_num        );
+        getHisto(toptagger_SFRootFile, topTagMisHisto_Res_num_,         topTagMisHistoName_Res_num        );
 
         leptonic_SFRootFile.Close();
-        hadronic_SFRootFile.Close();        
+        hadronic_SFRootFile.Close();
+        toptagger_SFRootFile.Close();
 
         // Getting mean of some scale factors to keep total number of events the same after apply the scale factor
         TFile SFMeanRootFile( meanFileName.c_str() );
@@ -684,7 +884,7 @@ public:
         SFMeanRootFile.Close();
     }
 
-    ~ScaleFactors() 
+    ~ScaleFactors()
     {
         if(printMeanError_)   std::cerr<<utility::color("Error: Scale Factor mean is 0.0 setting it to 1.0", "red")<<std::endl;
 
