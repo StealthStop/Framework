@@ -697,7 +697,7 @@ private:
         }
 
         double CommonWeight      = Weight * FinalLumi * topPtScaleFactor;
-        double CommonWeightQCDCR = totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeightQCDCR = totNonIsoMuonSF * prefiringScaleFactor * puWeightCorr;
         double CommonWeight0l    = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr * topTaggerScaleFactor;
         double CommonWeight1l    = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
         double CommonWeight2l    = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
@@ -761,8 +761,6 @@ private:
         double totalEventWeight_QCDCR          = CommonWeight * CommonWeightQCDCR;
         double totalEventWeight_QCDCR_NimUp    = CommonWeight * totNonIsoMuonSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_QCDCR_NimDown  = CommonWeight * totNonIsoMuonSF_Down * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
-        double totalEventWeight_QCDCR_BtgUp    = CommonWeight * totNonIsoMuonSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
-        double totalEventWeight_QCDCR_BtgDown  = CommonWeight * totNonIsoMuonSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_QCDCR_PrfUp    = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
         double totalEventWeight_QCDCR_PrfDown  = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
         double totalEventWeight_QCDCR_PUup     = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysUpCorr;
@@ -777,8 +775,6 @@ private:
         double totalEventWeight_QCDCR_FSRdown  = CommonWeight * CommonWeightQCDCR * PSweight_FSRDown;
 
         tr.registerDerivedVar("TotalWeight_QCDCR"          + myVarSuffix_, totalEventWeight_QCDCR);
-        tr.registerDerivedVar("TotalWeight_QCDCR_BtgUp"    + myVarSuffix_, totalEventWeight_QCDCR_BtgUp);
-        tr.registerDerivedVar("TotalWeight_QCDCR_BtgDown"  + myVarSuffix_, totalEventWeight_QCDCR_BtgDown);
         tr.registerDerivedVar("TotalWeight_QCDCR_NimUp"    + myVarSuffix_, totalEventWeight_QCDCR_NimUp);
         tr.registerDerivedVar("TotalWeight_QCDCR_NimDown"  + myVarSuffix_, totalEventWeight_QCDCR_NimDown);
         tr.registerDerivedVar("TotalWeight_QCDCR_PUup"     + myVarSuffix_, totalEventWeight_QCDCR_PUup);
