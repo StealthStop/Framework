@@ -696,10 +696,11 @@ private:
             bTagWeightDown = tr.getVar<double>("bTagSF_EventWeightSimple_Down" +myVarSuffix_);
         }
 
-        double CommonWeight   = Weight * FinalLumi * topPtScaleFactor;
-        double CommonWeight0l = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr * topTaggerScaleFactor;
-        double CommonWeight1l = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
-        double CommonWeight2l = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeight      = Weight * FinalLumi * topPtScaleFactor;
+        double CommonWeightQCDCR = totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeight0l    = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr * topTaggerScaleFactor;
+        double CommonWeight1l    = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeight2l    = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
 
         double totalEventWeight_0l         = CommonWeight * CommonWeight0l;
         double totalEventWeight_0l_TtgUp   = CommonWeight * topTaggerScaleFactorUp   * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
@@ -757,7 +758,7 @@ private:
         double totalEventWeight_2l_FSRup   = CommonWeight * CommonWeight2l * PSweight_FSRUp;
         double totalEventWeight_2l_FSRdown = CommonWeight * CommonWeight2l * PSweight_FSRDown;
 
-        double totalEventWeight_QCDCR          = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_QCDCR          = CommonWeight * CommonWeightQCDCR;
         double totalEventWeight_QCDCR_NimUp    = CommonWeight * totNonIsoMuonSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_QCDCR_NimDown  = CommonWeight * totNonIsoMuonSF_Down * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_QCDCR_BtgUp    = CommonWeight * totNonIsoMuonSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
@@ -766,14 +767,14 @@ private:
         double totalEventWeight_QCDCR_PrfDown  = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
         double totalEventWeight_QCDCR_PUup     = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysUpCorr;
         double totalEventWeight_QCDCR_PUdown   = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
-        double totalEventWeight_QCDCR_SclUp    = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightUpperBound_corr;
-        double totalEventWeight_QCDCR_SclDown  = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * scaleWeightLowerBound_corr;
-        double totalEventWeight_QCDCR_PDFup    = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_up_corr;
-        double totalEventWeight_QCDCR_PDFdown  = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * NNPDF_from_median_down_corr;
-        double totalEventWeight_QCDCR_ISRup    = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRUp;
-        double totalEventWeight_QCDCR_ISRdown  = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_ISRDown;
-        double totalEventWeight_QCDCR_FSRup    = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRUp;
-        double totalEventWeight_QCDCR_FSRdown  = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr * PSweight_FSRDown;
+        double totalEventWeight_QCDCR_SclUp    = CommonWeight * CommonWeightQCDCR * scaleWeightUpperBound_corr;
+        double totalEventWeight_QCDCR_SclDown  = CommonWeight * CommonWeightQCDCR * scaleWeightLowerBound_corr;
+        double totalEventWeight_QCDCR_PDFup    = CommonWeight * CommonWeightQCDCR * NNPDF_from_median_up_corr;
+        double totalEventWeight_QCDCR_PDFdown  = CommonWeight * CommonWeightQCDCR * NNPDF_from_median_down_corr;
+        double totalEventWeight_QCDCR_ISRup    = CommonWeight * CommonWeightQCDCR * PSweight_ISRUp;
+        double totalEventWeight_QCDCR_ISRdown  = CommonWeight * CommonWeightQCDCR * PSweight_ISRDown;
+        double totalEventWeight_QCDCR_FSRup    = CommonWeight * CommonWeightQCDCR * PSweight_FSRUp;
+        double totalEventWeight_QCDCR_FSRdown  = CommonWeight * CommonWeightQCDCR * PSweight_FSRDown;
 
         tr.registerDerivedVar("TotalWeight_QCDCR"          + myVarSuffix_, totalEventWeight_QCDCR);
         tr.registerDerivedVar("TotalWeight_QCDCR_BtgUp"    + myVarSuffix_, totalEventWeight_QCDCR_BtgUp);
