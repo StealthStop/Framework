@@ -475,7 +475,7 @@ private:
             bool isResolved = top->getType() == TopObject::RESOLVED_TOP;
             bool isMerged   = top->getType() == TopObject::MERGED_TOP;
 
-            double num = 1.0, numUnc = 1.0, den = 1.0, denUnc = 1.0, sf = 1.0;
+            double num = 1.0, numUnc = 0.0, den = 1.0, denUnc = 0.0, sf = 1.0, sfUnc = 0.0;
             int xBinTopNum = -1, yBinTopNum = -1, xBinTopDen = -1, yBinTopDen = -1, binTopSF = -1;
             // Efficiency when dealing with an actual top
             if (genTop)
@@ -497,7 +497,10 @@ private:
 
                     binTopSF = findBin(topTagSFHisto_Res_, top->P().Pt(), "X", "top tag sf x");
                     if (binTopSF != -1)
-                        sf = topTagSFHisto_Res_->GetBinContent(binTopSF);
+                    {
+                        sf    = topTagSFHisto_Res_->GetBinContent(binTopSF);
+                        sfUnc = topTagSFHisto_Res_->GetBinError(binTopSF);
+                    }
                 }
                 else if (isMerged)
                 {
@@ -516,7 +519,10 @@ private:
 
                     binTopSF = findBin(topTagSFHisto_Mrg_, top->P().Pt(), "X", "top tag sf x");
                     if (binTopSF != -1)
-                        sf = topTagSFHisto_Mrg_->GetBinContent(binTopSF);
+                    {
+                        sf    = topTagSFHisto_Mrg_->GetBinContent(binTopSF);
+                        sfUnc = topTagSFHisto_Mrg_->GetBinError(binTopSF);
+                    }
                 }
             }
             // Mistag when dealing with a fake top i.e. no GEN top present
@@ -539,7 +545,10 @@ private:
 
                     binTopSF = findBin(topMistagSFHisto_Res_, top->P().Pt(), "X", "top tag sf x");
                     if (binTopSF != -1)
-                        sf = topMistagSFHisto_Res_->GetBinContent(binTopSF);
+                    {
+                        sf    = topMistagSFHisto_Res_->GetBinContent(binTopSF);
+                        sfUnc = topMistagSFHisto_Res_->GetBinError(binTopSF);
+                    }
                 }
                 else if (isMerged)
                 {
@@ -558,11 +567,14 @@ private:
 
                     binTopSF = findBin(topMistagSFHisto_Mrg_,     top->P().Pt(), "X", "top tag sf x");
                     if (binTopSF != -1)
-                        sf = topMistagSFHisto_Mrg_->GetBinContent(binTopSF);
+                    {
+                        sf    = topMistagSFHisto_Mrg_->GetBinContent(binTopSF);
+                        sfUnc = topMistagSFHisto_Mrg_->GetBinError(binTopSF);
+                    }
                 }
             }
 
-            double eff = 1.0, effUnc = 1.0, effUp = 1.0, effDown = 1.0;
+            double eff = 1.0, effUnc = 0.0, effUp = 1.0, effDown = 1.0, sfUp = 1.0, sfDown = 1.0;
             if (den != 0.0)
             {
                 eff     = num / den;
@@ -570,6 +582,9 @@ private:
 
                 effUp   = eff + effUnc;
                 effDown = eff - effUnc;
+
+                sfUp    = sf + sfUnc;
+                sfDown  = sf - sfUnc;
             }
 
             if ((isResolved and top->getDiscriminator() > resolvedWP) or
@@ -579,10 +594,10 @@ private:
                 dataTag     *= eff * sf;
 
                 mcTagUp     *= effUp;
-                dataTagUp   *= effUp * sf;
+                dataTagUp   *= effUp * sfUp;
 
                 mcTagDown   *= effDown;
-                dataTagDown *= effDown * sf;
+                dataTagDown *= effDown * sfDown;
             }
             else if (isResolved or isMerged)
             {
@@ -590,10 +605,10 @@ private:
                 dataNoTag     *= (1.0 - eff * sf);
 
                 mcNoTagUp     *= (1.0 - effUp);
-                dataNoTagUp   *= (1.0 - effUp * sf);
+                dataNoTagUp   *= (1.0 - effUp * sfUp);
 
                 mcNoTagDown   *= (1.0 - effDown);
-                dataNoTagDown *= (1.0 - effDown * sf);
+                dataNoTagDown *= (1.0 - effDown * sfDown);
             }
         }
 
