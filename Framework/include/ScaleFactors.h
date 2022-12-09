@@ -598,12 +598,12 @@ private:
         }
 
         double topTaggerScaleFactor     = (mcNoTag     * mcTag     == 0) ? 1.0 : (dataNoTag     * dataTag    ) / (mcNoTag     * mcTag    );
-        double topTaggerScaleFactorup   = (mcNoTagUp   * mcTagUp   == 0) ? 1.0 : (dataNoTagUp   * dataTagUp  ) / (mcNoTagUp   * mcTagUp  );
-        double topTaggerScaleFactordown = (mcNoTagDown * mcTagDown == 0) ? 1.0 : (dataNoTagDown * dataTagDown) / (mcNoTagDown * mcTagDown);
+        double topTaggerScaleFactorUp   = (mcNoTagUp   * mcTagUp   == 0) ? 1.0 : (dataNoTagUp   * dataTagUp  ) / (mcNoTagUp   * mcTagUp  );
+        double topTaggerScaleFactorDown = (mcNoTagDown * mcTagDown == 0) ? 1.0 : (dataNoTagDown * dataTagDown) / (mcNoTagDown * mcTagDown);
 
         tr.registerDerivedVar("topTaggerScaleFactor"     + myVarSuffix_, topTaggerScaleFactor    );
-        tr.registerDerivedVar("topTaggerScaleFactorup"   + myVarSuffix_, topTaggerScaleFactorup  );
-        tr.registerDerivedVar("topTaggerScaleFactordown" + myVarSuffix_, topTaggerScaleFactordown);
+        tr.registerDerivedVar("topTaggerScaleFactorUp"   + myVarSuffix_, topTaggerScaleFactorUp  );
+        tr.registerDerivedVar("topTaggerScaleFactorDown" + myVarSuffix_, topTaggerScaleFactorDown);
 
         //---------------------------------------------------------------------------------------------------------
         // Adding a scale factor for pileup, which comes directly from the nTuples
@@ -696,20 +696,23 @@ private:
             bTagWeightDown = tr.getVar<double>("bTagSF_EventWeightSimple_Down" +myVarSuffix_);
         }
 
-        double CommonWeight   = Weight * FinalLumi * topPtScaleFactor;
-        double CommonWeight0l = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr * topTaggerScaleFactor;
-        double CommonWeight1l = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
-        double CommonWeight2l = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeight      = Weight * FinalLumi * topPtScaleFactor;
+        double CommonWeightQCDCR = totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeight0l    = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr * topTaggerScaleFactor;
+        double CommonWeight1l    = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double CommonWeight2l    = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
 
         double totalEventWeight_0l         = CommonWeight * CommonWeight0l;
-        double totalEventWeight_0l_BtgUp   = CommonWeight * jetTrigSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
-        double totalEventWeight_0l_BtgDown = CommonWeight * jetTrigSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
-        double totalEventWeight_0l_JetUp   = CommonWeight * jetTrigSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
-        double totalEventWeight_0l_JetDown = CommonWeight * jetTrigSF_Down * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
-        double totalEventWeight_0l_PUup    = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puSysUpCorr;
-        double totalEventWeight_0l_PUdown  = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
-        double totalEventWeight_0l_PrfUp   = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
-        double totalEventWeight_0l_PrfDown = CommonWeight * jetTrigSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
+        double totalEventWeight_0l_TtgUp   = CommonWeight * topTaggerScaleFactorUp   * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_TtgDown = CommonWeight * topTaggerScaleFactorDown * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_JetUp   = CommonWeight * topTaggerScaleFactor     * jetTrigSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_JetDown = CommonWeight * topTaggerScaleFactor     * jetTrigSF_Down * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_BtgUp   = CommonWeight * topTaggerScaleFactor     * jetTrigSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_BtgDown = CommonWeight * topTaggerScaleFactor     * jetTrigSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_0l_PrfUp   = CommonWeight * topTaggerScaleFactor     * jetTrigSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
+        double totalEventWeight_0l_PrfDown = CommonWeight * topTaggerScaleFactor     * jetTrigSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
+        double totalEventWeight_0l_PUup    = CommonWeight * topTaggerScaleFactor     * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puSysUpCorr;
+        double totalEventWeight_0l_PUdown  = CommonWeight * topTaggerScaleFactor     * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
         double totalEventWeight_0l_SclUp   = CommonWeight * CommonWeight0l * scaleWeightUpperBound_corr;
         double totalEventWeight_0l_SclDown = CommonWeight * CommonWeight0l * scaleWeightLowerBound_corr;
         double totalEventWeight_0l_PDFup   = CommonWeight * CommonWeight0l * NNPDF_from_median_up_corr;
@@ -755,17 +758,47 @@ private:
         double totalEventWeight_2l_FSRup   = CommonWeight * CommonWeight2l * PSweight_FSRUp;
         double totalEventWeight_2l_FSRdown = CommonWeight * CommonWeight2l * PSweight_FSRDown;
 
-        double totalEventWeight_0l_QCDCR   = CommonWeight * totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
-        double totalEventWeight_1l_QCDCR   = CommonWeight * totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
-        double totalEventWeight_2l_QCDCR   = CommonWeight * totNonIsoMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        double totalEventWeight_QCDCR          = CommonWeight * CommonWeightQCDCR;
+        double totalEventWeight_QCDCR_NimUp    = CommonWeight * totNonIsoMuonSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_QCDCR_NimDown  = CommonWeight * totNonIsoMuonSF_Down * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_QCDCR_BtgUp    = CommonWeight * totNonIsoMuonSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_QCDCR_BtgDown  = CommonWeight * totNonIsoMuonSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_QCDCR_PrfUp    = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
+        double totalEventWeight_QCDCR_PrfDown  = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
+        double totalEventWeight_QCDCR_PUup     = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysUpCorr;
+        double totalEventWeight_QCDCR_PUdown   = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
+        double totalEventWeight_QCDCR_SclUp    = CommonWeight * CommonWeightQCDCR * scaleWeightUpperBound_corr;
+        double totalEventWeight_QCDCR_SclDown  = CommonWeight * CommonWeightQCDCR * scaleWeightLowerBound_corr;
+        double totalEventWeight_QCDCR_PDFup    = CommonWeight * CommonWeightQCDCR * NNPDF_from_median_up_corr;
+        double totalEventWeight_QCDCR_PDFdown  = CommonWeight * CommonWeightQCDCR * NNPDF_from_median_down_corr;
+        double totalEventWeight_QCDCR_ISRup    = CommonWeight * CommonWeightQCDCR * PSweight_ISRUp;
+        double totalEventWeight_QCDCR_ISRdown  = CommonWeight * CommonWeightQCDCR * PSweight_ISRDown;
+        double totalEventWeight_QCDCR_FSRup    = CommonWeight * CommonWeightQCDCR * PSweight_FSRUp;
+        double totalEventWeight_QCDCR_FSRdown  = CommonWeight * CommonWeightQCDCR * PSweight_FSRDown;
 
-        tr.registerDerivedVar("TotalWeight_0l_QCDCR"     + myVarSuffix_, totalEventWeight_0l_QCDCR);
-        tr.registerDerivedVar("TotalWeight_1l_QCDCR"     + myVarSuffix_, totalEventWeight_1l_QCDCR);
-        tr.registerDerivedVar("TotalWeight_2l_QCDCR"     + myVarSuffix_, totalEventWeight_2l_QCDCR);
+        tr.registerDerivedVar("TotalWeight_QCDCR"          + myVarSuffix_, totalEventWeight_QCDCR);
+        tr.registerDerivedVar("TotalWeight_QCDCR_BtgUp"    + myVarSuffix_, totalEventWeight_QCDCR_BtgUp);
+        tr.registerDerivedVar("TotalWeight_QCDCR_BtgDown"  + myVarSuffix_, totalEventWeight_QCDCR_BtgDown);
+        tr.registerDerivedVar("TotalWeight_QCDCR_NimUp"    + myVarSuffix_, totalEventWeight_QCDCR_NimUp);
+        tr.registerDerivedVar("TotalWeight_QCDCR_NimDown"  + myVarSuffix_, totalEventWeight_QCDCR_NimDown);
+        tr.registerDerivedVar("TotalWeight_QCDCR_PUup"     + myVarSuffix_, totalEventWeight_QCDCR_PUup);
+        tr.registerDerivedVar("TotalWeight_QCDCR_PUdown"   + myVarSuffix_, totalEventWeight_QCDCR_PUdown);
+        tr.registerDerivedVar("TotalWeight_QCDCR_PrfUp"    + myVarSuffix_, totalEventWeight_QCDCR_PrfUp);
+        tr.registerDerivedVar("TotalWeight_QCDCR_PrfDown"  + myVarSuffix_, totalEventWeight_QCDCR_PrfDown);
+        tr.registerDerivedVar("TotalWeight_QCDCR_SclUp"    + myVarSuffix_, totalEventWeight_QCDCR_SclUp);
+        tr.registerDerivedVar("TotalWeight_QCDCR_SclDown"  + myVarSuffix_, totalEventWeight_QCDCR_SclDown);
+        tr.registerDerivedVar("TotalWeight_QCDCR_PDFup"    + myVarSuffix_, totalEventWeight_QCDCR_PDFup);
+        tr.registerDerivedVar("TotalWeight_QCDCR_PDFdown"  + myVarSuffix_, totalEventWeight_QCDCR_PDFdown);
+        tr.registerDerivedVar("TotalWeight_QCDCR_ISRup"    + myVarSuffix_, totalEventWeight_QCDCR_ISRup);
+        tr.registerDerivedVar("TotalWeight_QCDCR_ISRdown"  + myVarSuffix_, totalEventWeight_QCDCR_ISRdown);
+        tr.registerDerivedVar("TotalWeight_QCDCR_FSRup"    + myVarSuffix_, totalEventWeight_QCDCR_FSRup);
+        tr.registerDerivedVar("TotalWeight_QCDCR_FSRdown"  + myVarSuffix_, totalEventWeight_QCDCR_FSRdown);
 
         tr.registerDerivedVar("TotalWeight_0l"           + myVarSuffix_, totalEventWeight_0l);
         tr.registerDerivedVar("TotalWeight_0l_BtgUp"     + myVarSuffix_, totalEventWeight_0l_BtgUp);
         tr.registerDerivedVar("TotalWeight_0l_BtgDown"   + myVarSuffix_, totalEventWeight_0l_BtgDown);
+        tr.registerDerivedVar("TotalWeight_0l_TtgUp"     + myVarSuffix_, totalEventWeight_0l_TtgUp);
+        tr.registerDerivedVar("TotalWeight_0l_TtgDown"   + myVarSuffix_, totalEventWeight_0l_TtgDown);
         tr.registerDerivedVar("TotalWeight_0l_JetUp"     + myVarSuffix_, totalEventWeight_0l_JetUp);
         tr.registerDerivedVar("TotalWeight_0l_JetDown"   + myVarSuffix_, totalEventWeight_0l_JetDown);
         tr.registerDerivedVar("TotalWeight_0l_PUup"      + myVarSuffix_, totalEventWeight_0l_PUup);
