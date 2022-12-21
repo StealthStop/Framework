@@ -579,7 +579,7 @@ private:
             {
                 eff     = num / den;
 
-                // Calculate uncertainty on efficiency ratio in bionomial fashion
+                // Calculate uncertainty on efficiency ratio in binomial fashion
                 // https://root.cern.ch/doc/master/TH1_8cxx_source.html#l03013
                 // When num goes to zero, eff goes to zero and effUnc as well
                 effUnc  = pow(abs(((1.0 - 2.0*eff)*pow(numUnc, 2.0) + pow(eff, 2.0)*pow(denUnc, 2.0))/pow(den, 2.0)), 0.5);
