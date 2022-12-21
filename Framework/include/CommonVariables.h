@@ -295,8 +295,9 @@ private:
         tr.registerDerivedVar("singleLepton"+myVarSuffix_, singleLepton);            
 
         // 2 lepton onZ selection variables
+        // Default to clear non-physical value in case of same sign or opposite flavor leptons
         bool onZ = false;
-        double mll = 0;
+        double mll = -999.0;
         if( GoodLeptons->size() == 2 )
         {
             if( (NGoodMuons == 2 || NGoodElectrons == 2) && (GoodLeptonsCharge->at(0) != GoodLeptonsCharge->at(1)) )
