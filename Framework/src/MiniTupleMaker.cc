@@ -93,7 +93,12 @@ void MiniTupleMaker::fill(const NTupleReader& tr)
     // This title is unfortunately not passed on automatically when init'ing the branch
     if (!startedFilling_)
     {
-        tree_->GetBranch("TriggerPass")->SetTitle(tr.getBranchTitle("TriggerPass").c_str());
+        // Only need to rename TriggerPass branch, if we actually put it in the mini tuples
+        TBranch* trigBranch = tree_->GetBranch("TriggerPass");
+        if (trigBranch)
+        {
+            trigBranch->SetTitle(tr.getBranchTitle("TriggerPass").c_str());
+        }
         startedFilling_ = true;
     }
 }
