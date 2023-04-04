@@ -108,6 +108,7 @@ private:
         const auto& scaleWeights = tr.getVec<float>("ScaleWeights" );
               auto  filetagTemp  = tr.getVar<std::string>("filetag");
         const auto& runYear      = tr.getVar<std::string>("runYear");
+        const auto& analyzer     = tr.getVar<std::string>("analyzer");
 
         // If we run on a skim data set, there should be a "_skim" suffix
         // at the end of the name, so scrape it off before trying
@@ -461,158 +462,169 @@ private:
         double mcTagUp   = 1.0, mcNoTagUp   = 1.0, dataTagUp   = 1.0, dataNoTagUp   = 1.0;
         double mcTagDown = 1.0, mcNoTagDown = 1.0, dataTagDown = 1.0, dataNoTagDown = 1.0;
 
-        // Distinguish if the best top candidate is resolved or merged
-        const auto& resolvedWP = tr.getVar<double>("resolvedTop_WP");
-        const auto& mergedWP   = tr.getVar<double>("mergedTop_WP");
-
-        //loop over jets
-        const auto* topTagRes = tr.getVar<TopTaggerResults*>("ttr");
-        const auto& tops      = topTagRes->getTops();
-        for(const auto& top : tops)
+        if (analyzer != "CalculateSFMean")
         {
-            const auto* genTop = top->getBestGenTopMatch();
 
-            bool isResolved = top->getType() == TopObject::RESOLVED_TOP;
-            bool isMerged   = top->getType() == TopObject::MERGED_TOP;
+            // Distinguish if the best top candidate is resolved or merged
+            const auto& resolvedWP = tr.getVar<double>("resolvedTop_WP");
+            const auto& mergedWP   = tr.getVar<double>("mergedTop_WP");
 
-            double num = 1.0, numUnc = 0.0, den = 1.0, denUnc = 0.0, sf = 1.0, sfUnc = 0.0;
-            int xBinTopNum = -1, yBinTopNum = -1, xBinTopDen = -1, yBinTopDen = -1, binTopSF = -1;
-            // Efficiency when dealing with an actual top
-            if (genTop)
+            //loop over jets
+            const auto* topTagRes = tr.getVar<TopTaggerResults*>("ttr");
+            const auto& tops      = topTagRes->getTops();
+            for(const auto& top : tops)
             {
-                if (isResolved)
-                {
-                    xBinTopNum = findBin(topTagEffHisto_Res_num_, top->P().Pt(),  "X", "top tag eff num x");
-                    yBinTopNum = findBin(topTagEffHisto_Res_num_, top->P().Eta(), "Y", "top tag eff num y");
-                    xBinTopDen = findBin(topTagEffHisto_Res_den_, top->P().Pt(),  "X", "top tag eff den x");
-                    yBinTopDen = findBin(topTagEffHisto_Res_den_, top->P().Eta(), "Y", "top tag eff den y");
-                
-                    if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
-                    {
-                        num    = topTagEffHisto_Res_num_->GetBinContent(xBinTopNum, yBinTopNum);
-                        numUnc = topTagEffHisto_Res_num_->GetBinError(xBinTopNum,   yBinTopNum);
-                        den    = topTagEffHisto_Res_den_->GetBinContent(xBinTopDen, yBinTopDen);
-                        denUnc = topTagEffHisto_Res_den_->GetBinError(xBinTopDen,   yBinTopDen);
-                    }
+                const auto* genTop = top->getBestGenTopMatch();
 
-                    binTopSF = findBin(topTagSFHisto_Res_, top->P().Pt(), "X", "top tag sf x");
-                    if (binTopSF != -1)
+                bool isResolved = top->getType() == TopObject::RESOLVED_TOP;
+                bool isMerged   = top->getType() == TopObject::MERGED_TOP;
+
+                double num = 1.0, numUnc = 0.0, den = 1.0, denUnc = 0.0, sf = 1.0, sfUnc = 0.0;
+                int xBinTopNum = -1, yBinTopNum = -1, xBinTopDen = -1, yBinTopDen = -1, binTopSF = -1;
+                // Efficiency when dealing with an actual top
+                if (genTop)
+                {
+                    if (isResolved)
                     {
-                        sf    = topTagSFHisto_Res_->GetBinContent(binTopSF);
-                        sfUnc = topTagSFHisto_Res_->GetBinError(binTopSF);
+                        xBinTopNum = findBin(topTagEffHisto_Res_num_, top->P().Pt(),  "X", "top tag eff num x");
+                        yBinTopNum = findBin(topTagEffHisto_Res_num_, top->P().Eta(), "Y", "top tag eff num y");
+                        xBinTopDen = findBin(topTagEffHisto_Res_den_, top->P().Pt(),  "X", "top tag eff den x");
+                        yBinTopDen = findBin(topTagEffHisto_Res_den_, top->P().Eta(), "Y", "top tag eff den y");
+                    
+                        if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
+                        {
+                            num    = topTagEffHisto_Res_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                            numUnc = topTagEffHisto_Res_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                            den    = topTagEffHisto_Res_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                            denUnc = topTagEffHisto_Res_den_->GetBinError(xBinTopDen,   yBinTopDen);
+                        }
+
+                        binTopSF = findBin(topTagSFHisto_Res_, top->P().Pt(), "X", "top tag sf x");
+                        if (binTopSF != -1)
+                        {
+                            sf    = topTagSFHisto_Res_->GetBinContent(binTopSF);
+                            sfUnc = topTagSFHisto_Res_->GetBinError(binTopSF);
+                        }
+                    }
+                    else if (isMerged)
+                    {
+                        xBinTopNum = findBin(topTagEffHisto_Mrg_num_, top->P().Pt(),  "X", "top tag eff num x");
+                        yBinTopNum = findBin(topTagEffHisto_Mrg_num_, top->P().Eta(), "Y", "top tag eff num y");
+                        xBinTopDen = findBin(topTagEffHisto_Mrg_den_, top->P().Pt(),  "X", "top tag eff den x");
+                        yBinTopDen = findBin(topTagEffHisto_Mrg_den_, top->P().Eta(), "Y", "top tag eff den y");
+
+                        if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
+                        {
+                            num    = topTagEffHisto_Mrg_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                            numUnc = topTagEffHisto_Mrg_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                            den    = topTagEffHisto_Mrg_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                            denUnc = topTagEffHisto_Mrg_den_->GetBinError(xBinTopDen,   yBinTopDen);
+                        }
+
+                        binTopSF = findBin(topTagSFHisto_Mrg_, top->P().Pt(), "X", "top tag sf x");
+                        if (binTopSF != -1)
+                        {
+                            sf    = topTagSFHisto_Mrg_->GetBinContent(binTopSF);
+                            sfUnc = topTagSFHisto_Mrg_->GetBinError(binTopSF);
+                        }
                     }
                 }
-                else if (isMerged)
+                // Mistag when dealing with a fake top i.e. no GEN top present
+                else
                 {
-                    xBinTopNum = findBin(topTagEffHisto_Mrg_num_, top->P().Pt(),  "X", "top tag eff num x");
-                    yBinTopNum = findBin(topTagEffHisto_Mrg_num_, top->P().Eta(), "Y", "top tag eff num y");
-                    xBinTopDen = findBin(topTagEffHisto_Mrg_den_, top->P().Pt(),  "X", "top tag eff den x");
-                    yBinTopDen = findBin(topTagEffHisto_Mrg_den_, top->P().Eta(), "Y", "top tag eff den y");
-
-                    if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
+                    if (isResolved)
                     {
-                        num    = topTagEffHisto_Mrg_num_->GetBinContent(xBinTopNum, yBinTopNum);
-                        numUnc = topTagEffHisto_Mrg_num_->GetBinError(xBinTopNum,   yBinTopNum);
-                        den    = topTagEffHisto_Mrg_den_->GetBinContent(xBinTopDen, yBinTopDen);
-                        denUnc = topTagEffHisto_Mrg_den_->GetBinError(xBinTopDen,   yBinTopDen);
+                        xBinTopNum = findBin(topTagMisHisto_Res_num_, top->P().Pt(),  "X", "top tag eff num x");
+                        yBinTopNum = findBin(topTagMisHisto_Res_num_, top->P().Eta(), "Y", "top tag eff num y");
+                        xBinTopDen = findBin(topTagMisHisto_Res_den_, top->P().Pt(),  "X", "top tag eff den x");
+                        yBinTopDen = findBin(topTagMisHisto_Res_den_, top->P().Eta(), "Y", "top tag eff den y");
+
+                        if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
+                        {
+                            num    = topTagMisHisto_Res_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                            numUnc = topTagMisHisto_Res_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                            den    = topTagMisHisto_Res_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                            denUnc = topTagMisHisto_Res_den_->GetBinError(xBinTopDen,   yBinTopDen);
+                        }
+
+                        binTopSF = findBin(topMistagSFHisto_Res_, top->P().Pt(), "X", "top tag sf x");
+                        if (binTopSF != -1)
+                        {
+                            sf    = topMistagSFHisto_Res_->GetBinContent(binTopSF);
+                            sfUnc = topMistagSFHisto_Res_->GetBinError(binTopSF);
+                        }
                     }
-
-                    binTopSF = findBin(topTagSFHisto_Mrg_, top->P().Pt(), "X", "top tag sf x");
-                    if (binTopSF != -1)
+                    else if (isMerged)
                     {
-                        sf    = topTagSFHisto_Mrg_->GetBinContent(binTopSF);
-                        sfUnc = topTagSFHisto_Mrg_->GetBinError(binTopSF);
+                        xBinTopNum = findBin(topTagMisHisto_Mrg_num_, top->P().Pt(),  "X", "top tag eff num x");
+                        yBinTopNum = findBin(topTagMisHisto_Mrg_num_, top->P().Eta(), "Y", "top tag eff num y");
+                        xBinTopDen = findBin(topTagMisHisto_Mrg_den_, top->P().Pt(),  "X", "top tag eff den x");
+                        yBinTopDen = findBin(topTagMisHisto_Mrg_den_, top->P().Eta(), "Y", "top tag eff den y");
+
+                        if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
+                        {
+                            num    = topTagMisHisto_Mrg_num_->GetBinContent(xBinTopNum, yBinTopNum);
+                            numUnc = topTagMisHisto_Mrg_num_->GetBinError(xBinTopNum,   yBinTopNum);
+                            den    = topTagMisHisto_Mrg_den_->GetBinContent(xBinTopDen, yBinTopDen);
+                            denUnc = topTagMisHisto_Mrg_den_->GetBinError(xBinTopDen,   yBinTopDen);
+                        }
+
+                        binTopSF = findBin(topMistagSFHisto_Mrg_,     top->P().Pt(), "X", "top tag sf x");
+                        if (binTopSF != -1)
+                        {
+                            sf    = topMistagSFHisto_Mrg_->GetBinContent(binTopSF);
+                            sfUnc = topMistagSFHisto_Mrg_->GetBinError(binTopSF);
+                        }
                     }
                 }
-            }
-            // Mistag when dealing with a fake top i.e. no GEN top present
-            else
-            {
-                if (isResolved)
+
+                double eff = 1.0, effUnc = 0.0, effUp = 1.0, effDown = 1.0, sfUp = 1.0, sfDown = 1.0;
+                if (den != 0.0)
                 {
-                    xBinTopNum = findBin(topTagMisHisto_Res_num_, top->P().Pt(),  "X", "top tag eff num x");
-                    yBinTopNum = findBin(topTagMisHisto_Res_num_, top->P().Eta(), "Y", "top tag eff num y");
-                    xBinTopDen = findBin(topTagMisHisto_Res_den_, top->P().Pt(),  "X", "top tag eff den x");
-                    yBinTopDen = findBin(topTagMisHisto_Res_den_, top->P().Eta(), "Y", "top tag eff den y");
+                    eff     = num / den;
 
-                    if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
-                    {
-                        num    = topTagMisHisto_Res_num_->GetBinContent(xBinTopNum, yBinTopNum);
-                        numUnc = topTagMisHisto_Res_num_->GetBinError(xBinTopNum,   yBinTopNum);
-                        den    = topTagMisHisto_Res_den_->GetBinContent(xBinTopDen, yBinTopDen);
-                        denUnc = topTagMisHisto_Res_den_->GetBinError(xBinTopDen,   yBinTopDen);
-                    }
+                    // Calculate uncertainty on efficiency ratio in binomial fashion
+                    // https://root.cern.ch/doc/master/TH1_8cxx_source.html#l03013
+                    // When num goes to zero, eff goes to zero and effUnc as well
+                    effUnc  = pow(abs(((1.0 - 2.0*eff)*pow(numUnc, 2.0) + pow(eff, 2.0)*pow(denUnc, 2.0))/pow(den, 2.0)), 0.5);
 
-                    binTopSF = findBin(topMistagSFHisto_Res_, top->P().Pt(), "X", "top tag sf x");
-                    if (binTopSF != -1)
-                    {
-                        sf    = topMistagSFHisto_Res_->GetBinContent(binTopSF);
-                        sfUnc = topMistagSFHisto_Res_->GetBinError(binTopSF);
-                    }
+                    effUp   = eff + effUnc;
+                    effDown = eff - effUnc;
+
+                    sfUp    = sf + sfUnc;
+                    sfDown  = sf - sfUnc;
                 }
-                else if (isMerged)
+
+                if ((isResolved and top->getDiscriminator() > resolvedWP) or
+                    (isMerged   and top->getDiscriminator() > mergedWP))
                 {
-                    xBinTopNum = findBin(topTagMisHisto_Mrg_num_, top->P().Pt(),  "X", "top tag eff num x");
-                    yBinTopNum = findBin(topTagMisHisto_Mrg_num_, top->P().Eta(), "Y", "top tag eff num y");
-                    xBinTopDen = findBin(topTagMisHisto_Mrg_den_, top->P().Pt(),  "X", "top tag eff den x");
-                    yBinTopDen = findBin(topTagMisHisto_Mrg_den_, top->P().Eta(), "Y", "top tag eff den y");
+                    mcTag       *= eff;
+                    dataTag     *= eff * sf;
 
-                    if (xBinTopNum != -1 and yBinTopNum != -1 and xBinTopDen != -1 and yBinTopDen != -1)
-                    {
-                        num    = topTagMisHisto_Mrg_num_->GetBinContent(xBinTopNum, yBinTopNum);
-                        numUnc = topTagMisHisto_Mrg_num_->GetBinError(xBinTopNum,   yBinTopNum);
-                        den    = topTagMisHisto_Mrg_den_->GetBinContent(xBinTopDen, yBinTopDen);
-                        denUnc = topTagMisHisto_Mrg_den_->GetBinError(xBinTopDen,   yBinTopDen);
-                    }
+                    mcTagUp     *= effUp;
+                    dataTagUp   *= effUp * sfUp;
 
-                    binTopSF = findBin(topMistagSFHisto_Mrg_,     top->P().Pt(), "X", "top tag sf x");
-                    if (binTopSF != -1)
-                    {
-                        sf    = topMistagSFHisto_Mrg_->GetBinContent(binTopSF);
-                        sfUnc = topMistagSFHisto_Mrg_->GetBinError(binTopSF);
-                    }
+                    mcTagDown   *= effDown;
+                    dataTagDown *= effDown * sfDown;
+                }
+                else if (isResolved or isMerged)
+                {
+                    mcNoTag       *= (1.0 - eff);
+                    dataNoTag     *= (1.0 - eff * sf);
+
+                    mcNoTagUp     *= (1.0 - effUp);
+                    dataNoTagUp   *= (1.0 - effUp * sfUp);
+
+                    mcNoTagDown   *= (1.0 - effDown);
+                    dataNoTagDown *= (1.0 - effDown * sfDown);
                 }
             }
-
-            double eff = 1.0, effUnc = 0.0, effUp = 1.0, effDown = 1.0, sfUp = 1.0, sfDown = 1.0;
-            if (den != 0.0)
+        }
+        else
+        {
+            if (tr.isFirstEvent())
             {
-                eff     = num / den;
-
-                // Calculate uncertainty on efficiency ratio in binomial fashion
-                // https://root.cern.ch/doc/master/TH1_8cxx_source.html#l03013
-                // When num goes to zero, eff goes to zero and effUnc as well
-                effUnc  = pow(abs(((1.0 - 2.0*eff)*pow(numUnc, 2.0) + pow(eff, 2.0)*pow(denUnc, 2.0))/pow(den, 2.0)), 0.5);
-
-                effUp   = eff + effUnc;
-                effDown = eff - effUnc;
-
-                sfUp    = sf + sfUnc;
-                sfDown  = sf - sfUnc;
-            }
-
-            if ((isResolved and top->getDiscriminator() > resolvedWP) or
-                (isMerged   and top->getDiscriminator() > mergedWP))
-            {
-                mcTag       *= eff;
-                dataTag     *= eff * sf;
-
-                mcTagUp     *= effUp;
-                dataTagUp   *= effUp * sfUp;
-
-                mcTagDown   *= effDown;
-                dataTagDown *= effDown * sfDown;
-            }
-            else if (isResolved or isMerged)
-            {
-                mcNoTag       *= (1.0 - eff);
-                dataNoTag     *= (1.0 - eff * sf);
-
-                mcNoTagUp     *= (1.0 - effUp);
-                dataNoTagUp   *= (1.0 - effUp * sfUp);
-
-                mcNoTagDown   *= (1.0 - effDown);
-                dataNoTagDown *= (1.0 - effDown * sfDown);
+                std::cerr<<utility::color("Info: Top Tagger SF will not be calculated when running CalculateSFMean", "yellow")<<std::endl;
             }
         }
 
@@ -700,8 +712,6 @@ private:
         const auto& Weight            = tr.getVar<float>("Weight");
         const auto& FinalLumi         = tr.getVar<double>("FinalLumi");
 
-        const auto& analyzer = tr.getVar<std::string>("analyzer");
-
         // For the CalculateSFMean analyzer, we do not need to run BTagCorrector
         // and thus, we do not need to try and get the bTagSF here, so just default 1.0
         double bTagWeight = 1.0;
@@ -713,6 +723,13 @@ private:
             bTagWeight = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
             bTagWeightUp = tr.getVar<double>("bTagSF_EventWeightSimple_Up" +myVarSuffix_);
             bTagWeightDown = tr.getVar<double>("bTagSF_EventWeightSimple_Down" +myVarSuffix_);
+        }
+        else
+        {
+            if (tr.isFirstEvent())
+            {
+                std::cerr<<utility::color("Info: b Tagger SF will not be calculated when running CalculateSFMean", "yellow")<<std::endl;
+            }
         }
 
         double CommonWeight      = Weight * FinalLumi * topPtScaleFactor;
