@@ -795,12 +795,12 @@ private:
         double totalEventWeight_2l_FSRdown = CommonWeight * CommonWeight2l * PSweight_FSRDown;
 
         double totalEventWeight_QCDCR          = CommonWeight * CommonWeightQCDCR;
-        double totalEventWeight_QCDCR_NimUp    = CommonWeight * totNonIsoMuonSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
-        double totalEventWeight_QCDCR_NimDown  = CommonWeight * totNonIsoMuonSF_Down * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
-        double totalEventWeight_QCDCR_PrfUp    = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactorUp   * puWeightCorr;
-        double totalEventWeight_QCDCR_PrfDown  = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactorDown * puWeightCorr;
-        double totalEventWeight_QCDCR_PUup     = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysUpCorr;
-        double totalEventWeight_QCDCR_PUdown   = CommonWeight * totNonIsoMuonSF      * bTagWeight     * prefiringScaleFactor     * puSysDownCorr;
+        double totalEventWeight_QCDCR_NimUp    = CommonWeight * totNonIsoMuonSF_Up   * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_QCDCR_NimDown  = CommonWeight * totNonIsoMuonSF_Down * prefiringScaleFactor     * puWeightCorr;
+        double totalEventWeight_QCDCR_PrfUp    = CommonWeight * totNonIsoMuonSF      * prefiringScaleFactorUp   * puWeightCorr;
+        double totalEventWeight_QCDCR_PrfDown  = CommonWeight * totNonIsoMuonSF      * prefiringScaleFactorDown * puWeightCorr;
+        double totalEventWeight_QCDCR_PUup     = CommonWeight * totNonIsoMuonSF      * prefiringScaleFactor     * puSysUpCorr;
+        double totalEventWeight_QCDCR_PUdown   = CommonWeight * totNonIsoMuonSF      * prefiringScaleFactor     * puSysDownCorr;
         double totalEventWeight_QCDCR_SclUp    = CommonWeight * CommonWeightQCDCR * scaleWeightUpperBound_corr;
         double totalEventWeight_QCDCR_SclDown  = CommonWeight * CommonWeightQCDCR * scaleWeightLowerBound_corr;
         double totalEventWeight_QCDCR_PDFup    = CommonWeight * CommonWeightQCDCR * NNPDF_from_median_up_corr;
