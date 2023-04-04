@@ -27,6 +27,7 @@ private:
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& JetsID = tr.getVec<bool>("Jets"+myVarSuffix_+"_ID");
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
+        const auto& NonIsoMuonJets = tr.getVec<bool>("NonIsoMuonJets"+myVarSuffix_);
         const auto& loose = tr.getVar<double>("deepFlavour_WP_loose");
         const auto& medium = tr.getVar<double>("deepFlavour_WP_medium");
         const auto& tight = tr.getVar<double>("deepFlavour_WP_tight");
@@ -39,7 +40,9 @@ private:
         auto& bjets_pt30_ = tr.createDerivedVec<bool>("BJets_pt30"+myVarSuffix_);
         auto& bjets_pt40_ = tr.createDerivedVec<bool>("BJets_pt40"+myVarSuffix_);
         auto& bjets_pt45_ = tr.createDerivedVec<bool>("BJets_pt45"+myVarSuffix_);
+        auto& nimbjets_pt30_ = tr.createDerivedVec<bool>("NonIsoMuonBJets_pt30"+myVarSuffix_);
         int NBJets = 0, NBJets_pt30 = 0, NBJets_pt40 = 0, NBJets_pt45 = 0;
+        int NNonIsoMuonBJets_pt30 = 0;
 
         auto& bjets_tight_ = tr.createDerivedVec<bool>("BJets_tight"+myVarSuffix_);
         auto& bjets_pt30_tight_ = tr.createDerivedVec<bool>("BJets_pt30_tight"+myVarSuffix_);
@@ -82,6 +85,8 @@ private:
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium && lv.Pt() > 40 && GoodJets.at(ijet), goodbjets_pt40_, NGoodBJets_pt40);
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium && lv.Pt() > 45 && GoodJets.at(ijet), goodbjets_pt45_, NGoodBJets_pt45);
 
+            setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > medium && lv.Pt() > 30 && NonIsoMuonJets.at(ijet), nimbjets_pt30_, NNonIsoMuonBJets_pt30);
+
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight                , bjets_tight_,      NBJets_tight     );
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight && lv.Pt() > 30, bjets_pt30_tight_, NBJets_pt30_tight);
             setVar(JetsID.at(ijet) && abs(lv.Eta()) < etaCut && bdisc > tight && lv.Pt() > 45, bjets_pt45_tight_, NBJets_pt45_tight);
@@ -98,6 +103,8 @@ private:
         tr.registerDerivedVar("NBJets_pt30"+myVarSuffix_,  NBJets_pt30);
         tr.registerDerivedVar("NBJets_pt40"+myVarSuffix_,  NBJets_pt40);
         tr.registerDerivedVar("NBJets_pt45"+myVarSuffix_,  NBJets_pt45);
+
+        tr.registerDerivedVar("NNonIsoMuonBJets_pt30"+myVarSuffix_,  NNonIsoMuonBJets_pt30);
 
         tr.registerDerivedVar("NBJets_tight"+myVarSuffix_,       NBJets_tight);
         tr.registerDerivedVar("NBJets_pt30_tight"+myVarSuffix_,  NBJets_pt30_tight);

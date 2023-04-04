@@ -38,9 +38,11 @@ private:
         const auto& runYear = tr.getVar<std::string>("runYear");
         const auto& filetag = tr.getVar<std::string>("filetag");
         const auto& runType = tr.getVar<std::string>("runtype");
+        const auto& analyzer = tr.getVar<std::string>("analyzer");
         const auto& Jets = tr.getVec<utility::LorentzVector>(("Jets"+myVarSuffix_));
         const auto& GoodJets = tr.getVec<bool>("GoodJets"+myVarSuffix_);
         const auto& GoodBJets = tr.getVec<bool>("GoodBJets"+myVarSuffix_);
+        const auto& NonIsoMuonBJets_pt30 = tr.getVec<bool>("NonIsoMuonBJets_pt30"+myVarSuffix_);
         const auto& GoodBJets_pt30 = tr.getVec<bool>("GoodBJets_pt30"+myVarSuffix_);
         const auto& GoodBJets_pt45 = tr.getVec<bool>("GoodBJets_pt45"+myVarSuffix_);
         const auto& NonIsoMuonJets_pt30 = tr.getVec<bool>("NonIsoMuonJets_pt30"+myVarSuffix_);
@@ -51,6 +53,7 @@ private:
         const auto& GoodMuons = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& NonIsoMuons = tr.getVec<bool>("NonIsoMuons"+myVarSuffix_);
         const auto& NGoodMuons = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
+        const auto& NNonIsoMuons = tr.getVar<int>("NNonIsoMuons"+myVarSuffix_);
         const auto& GoodMuons_pt20 = tr.getVec<bool>("GoodMuons_pt20"+myVarSuffix_);
         const auto& Electrons = tr.getVec<utility::LorentzVector>("Electrons");
         const auto& ElectronsCharge = tr.getVec<int>("Electrons_charge");
@@ -63,6 +66,7 @@ private:
         const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
         const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);
         const auto& NNonIsoMuonJets_pt30 = tr.getVar<int>("NNonIsoMuonJets_pt30"+myVarSuffix_);
+        const auto& NNonIsoMuonBJets_pt30 = tr.getVar<int>("NNonIsoMuonBJets_pt30"+myVarSuffix_);
 
         // Define electron HEM15/16 veto
         bool vetoedHEMelectron = objectInHEM(Electrons, -3.00, -1.30, -1.57, -0.87, 20.0);
@@ -338,6 +342,7 @@ private:
 
         // calculate dR_bjets for new baseline selection
         double dR_bjets = -1;
+        double Mbb = -999;
         if(NGoodBJets_pt30 >= 2)
         {
             std::vector<utility::LorentzVector> bjets;
@@ -348,16 +353,51 @@ private:
             }
             int n = bjets.size();
             std::vector<double> deltaRs( n*(n - 1)/2, 0.0 );
+            std::vector<double> Mbbs( n*(n - 1)/2, 0.0 );
             for(int i = 0; i < n; i++) 
             {
                 for(int j = i+1; j < n; j++) 
                 {
                     deltaRs[i+j-1] = utility::DeltaR(bjets[i], bjets[j]);
+                    Mbbs[i+j-1] = (bjets[i]+bjets[j]).M();
                 }
             }
-            dR_bjets = *std::max_element(deltaRs.begin(), deltaRs.end());
+            auto it = std::max_element(deltaRs.begin(), deltaRs.end());
+            unsigned int pos = it - deltaRs.begin();
+            dR_bjets = *it;
+            Mbb = Mbbs[pos];
         }
         tr.registerDerivedVar("dR_bjets"+myVarSuffix_, dR_bjets);
+        tr.registerDerivedVar("Mbb"+myVarSuffix_, Mbb);
+
+        double dR_nimbjets = -1;
+        double nimMbb = -999;
+        if(NNonIsoMuonBJets_pt30 >= 2)
+        {
+            std::vector<utility::LorentzVector> bjets;
+            for(unsigned int ijet = 0; ijet < Jets.size(); ijet++)
+            {
+                if(!NonIsoMuonBJets_pt30[ijet]) continue;
+                bjets.push_back(Jets.at(ijet));
+            }
+            int n = bjets.size();
+            std::vector<double> deltaRs( n*(n - 1)/2, 0.0 );
+            std::vector<double> Mbbs( n*(n - 1)/2, 0.0 );
+            for(int i = 0; i < n; i++) 
+            {
+                for(int j = i+1; j < n; j++) 
+                {
+                    deltaRs[i+j-1] = utility::DeltaR(bjets[i], bjets[j]);
+                    Mbbs[i+j-1] = (bjets[i]+bjets[j]).M();
+                }
+            }
+            auto it = std::max_element(deltaRs.begin(), deltaRs.end());
+            unsigned int pos = it - deltaRs.begin();
+            dR_nimbjets = *it;
+            nimMbb = Mbbs[pos];
+        }
+        tr.registerDerivedVar("dR_nimbjets"+myVarSuffix_, dR_nimbjets);
+        tr.registerDerivedVar("nimMbb"+myVarSuffix_, nimMbb);
 
         // An event must "earn" its keep by passing any of the main 0L, 1L, 2L baselines.
         // If an event does not pass any of these main selections, time-intensive
@@ -365,11 +405,18 @@ private:
         // This boolean only informs modules about an event, it does not make the final decision to skip an event
         bool lostCauseEvent = true;
                 
-        // Now combine all relevant baselines into a single bool
-        // Here we select the main baselines for all three channels
-        // If all four booleans are false, then the event is considered a "lost cause"
-        lostCauseEvent &= !(NGoodJets_pt30       >= 6 and ht_pt30            > 500.0 and NGoodBJets_pt30 >= 1) and
-                          !(NNonIsoMuonJets_pt30 >= 7 and ht_NonIsoMuon_pt30 > 500.0);
+        if (analyzer == "MakeQCDValTree")
+        {
+            lostCauseEvent &= !(NGoodJets_pt30 >= 7 and NGoodMuons == 0 and NGoodElectrons == 0 and NNonIsoMuons == 1);
+        }
+        else
+        {
+            // Now combine all relevant baselines into a single bool
+            // Here we select the main baselines for all three channels
+            // If all four booleans are false, then the event is considered a "lost cause"
+            lostCauseEvent &= !(NGoodJets_pt30       >= 6 and ht_pt30            > 500.0 and NGoodBJets_pt30 >= 1) and
+                              !(NNonIsoMuonJets_pt30 >= 7 and ht_NonIsoMuon_pt30 > 500.0);
+        }
 
         tr.registerDerivedVar<bool>("lostCauseEvent" + myVarSuffix_, lostCauseEvent);
     }
