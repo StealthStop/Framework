@@ -620,6 +620,13 @@ private:
                 }
             }
         }
+        else
+        {
+            if (tr.isFirstEvent())
+            {
+                std::cerr<<utility::color("Info: Top Tagger SF will not be calculated when running CalculateSFMean", "yellow")<<std::endl;
+            }
+        }
 
         double topTaggerScaleFactor     = (mcNoTag     * mcTag     == 0) ? 1.0 : (dataNoTag     * dataTag    ) / (mcNoTag     * mcTag    );
         double topTaggerScaleFactorUp   = (mcNoTagUp   * mcTagUp   == 0) ? 1.0 : (dataNoTagUp   * dataTagUp  ) / (mcNoTagUp   * mcTagUp  );
@@ -716,6 +723,13 @@ private:
             bTagWeight = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
             bTagWeightUp = tr.getVar<double>("bTagSF_EventWeightSimple_Up" +myVarSuffix_);
             bTagWeightDown = tr.getVar<double>("bTagSF_EventWeightSimple_Down" +myVarSuffix_);
+        }
+        else
+        {
+            if (tr.isFirstEvent())
+            {
+                std::cerr<<utility::color("Info: b Tagger SF will not be calculated when running CalculateSFMean", "yellow")<<std::endl;
+            }
         }
 
         double CommonWeight      = Weight * FinalLumi * topPtScaleFactor;
