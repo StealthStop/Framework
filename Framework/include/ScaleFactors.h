@@ -164,10 +164,10 @@ private:
         // Calculate parton shower variation
         // Note: not all samples have these weights stored, give them default value of 1.
         // ------------------------------------------------------------------------------
-        double PSweight_ISRUp   = 1.0, PSweight_ISRDown   = 1.0;
-        double PSweight_FSRUp   = 1.0, PSweight_FSRDown   = 1.0;
-        double PSweight_ISRUp_2 = 1.0, PSweight_ISRDown_2 = 1.0;
-        double PSweight_FSRUp_2 = 1.0, PSweight_FSRDown_2 = 1.0;
+        double PSweight_ISRUp_reduced = 1.0, PSweight_ISRDown_reduced = 1.0;
+        double PSweight_FSRUp_reduced = 1.0, PSweight_FSRDown_reduced = 1.0;
+        double PSweight_ISRUp         = 1.0, PSweight_ISRDown         = 1.0;
+        double PSweight_FSRUp         = 1.0, PSweight_FSRDown         = 1.0;
         if(tr.hasVar("PSweights"))
         {
             const auto& PSweights = tr.getVec<float>("PSweights");
@@ -176,25 +176,27 @@ private:
                 // Get nominal one so we can normalize it
                 double MEweight = PSweights[0];
                 // reduced variations, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/sqrt(2) and sqrt(2)
-                PSweight_ISRUp   = PSweights[2]/MEweight;
-                PSweight_FSRUp   = (PSweights[3]/MEweight < 10.0) ? PSweights[3]/MEweight : 1.0;
-                PSweight_ISRDown = PSweights[4]/MEweight;
-                PSweight_FSRDown = (PSweights[5]/MEweight < 10.0) ? PSweights[5]/MEweight : 1.0;
-                // nominal variations, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/2 and 2
-                PSweight_ISRUp_2 = PSweights[6]/MEweight;
-                PSweight_FSRUp_2 = (PSweights[7]/MEweight < 10.0) ? PSweights[7]/MEweight : 1.0;
-                PSweight_ISRDown_2 = PSweights[8]/MEweight;
-                PSweight_FSRDown_2 = (PSweights[9]/MEweight < 10.0) ? PSweights[9]/MEweight : 1.0;
+                PSweight_ISRUp_reduced   = PSweights[2]/MEweight;
+                PSweight_FSRUp_reduced   = (PSweights[3]/MEweight < 10.0) ? PSweights[3]/MEweight : 1.0;
+                PSweight_ISRDown_reduced = PSweights[4]/MEweight;
+                PSweight_FSRDown_reduced = (PSweights[5]/MEweight < 10.0) ? PSweights[5]/MEweight : 1.0;
+                // default variations, i.e. varying Pythia params isr:muRfac and fsr:muRfac with factor 1/2 and 2
+                // current recommendation with samples that contain PSweights is to use the default variation
+                // https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopSystematics#Parton_shower_ISR_and_FSR_govern
+                PSweight_ISRUp           = PSweights[6]/MEweight;
+                PSweight_FSRUp           = (PSweights[7]/MEweight < 10.0) ? PSweights[7]/MEweight : 1.0;
+                PSweight_ISRDown         = PSweights[8]/MEweight;
+                PSweight_FSRDown         = (PSweights[9]/MEweight < 10.0) ? PSweights[9]/MEweight : 1.0;
             }
         }
-        tr.registerDerivedVar("PSweight_ISRUp"     +myVarSuffix_, PSweight_ISRUp    );
-        tr.registerDerivedVar("PSweight_ISRDown"   +myVarSuffix_, PSweight_ISRDown  );
-        tr.registerDerivedVar("PSweight_FSRUp"     +myVarSuffix_, PSweight_FSRUp    );
-        tr.registerDerivedVar("PSweight_FSRDown"   +myVarSuffix_, PSweight_FSRDown  );
-        tr.registerDerivedVar("PSweight_ISRUp_2"   +myVarSuffix_, PSweight_ISRUp_2  );
-        tr.registerDerivedVar("PSweight_ISRDown_2" +myVarSuffix_, PSweight_ISRDown_2);
-        tr.registerDerivedVar("PSweight_FSRUp_2"   +myVarSuffix_, PSweight_FSRUp_2  );
-        tr.registerDerivedVar("PSweight_FSRDown_2" +myVarSuffix_, PSweight_FSRDown_2);
+        tr.registerDerivedVar("PSweight_ISRUp"           + myVarSuffix_, PSweight_ISRUp          );
+        tr.registerDerivedVar("PSweight_ISRDown"         + myVarSuffix_, PSweight_ISRDown        );
+        tr.registerDerivedVar("PSweight_FSRUp"           + myVarSuffix_, PSweight_FSRUp          );
+        tr.registerDerivedVar("PSweight_FSRDown"         + myVarSuffix_, PSweight_FSRDown        );
+        tr.registerDerivedVar("PSweight_ISRUp_reduced"   + myVarSuffix_, PSweight_ISRUp_reduced  );
+        tr.registerDerivedVar("PSweight_ISRDown_reduced" + myVarSuffix_, PSweight_ISRDown_reduced);
+        tr.registerDerivedVar("PSweight_FSRUp_reduced"   + myVarSuffix_, PSweight_FSRUp_reduced  );
+        tr.registerDerivedVar("PSweight_FSRDown_reduced" + myVarSuffix_, PSweight_FSRDown_reduced);
 
         // ---------------------------------------------------------------------------------------------------
         // Now calculate the PDF scale factor and uncertainty
