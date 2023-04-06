@@ -174,6 +174,7 @@ private:
         const auto& GoodJets           = tr.getVec<bool>(GoodJetsName_+myVarSuffix_                                     );
         const auto& NGoodJets          = tr.getVar<int>(NGoodJetsName_+myVarSuffix_                                     );
         const auto& GoodLeptons        = tr.getVec<std::pair<std::string, utility::LorentzVector>>(GoodLeptonsName_+myVarSuffix_);
+        const auto& GoodLeptonsIso     = tr.getVec<double>(GoodLeptonsName_+"MiniIso"+myVarSuffix_);
         const auto& NGoodLeptons       = tr.getVar<int>(NGoodLeptonsName_+myVarSuffix_                                 );
         const auto& MET                = tr.getVar<float>("MET"                                                        ); 
         const auto& METPhi             = tr.getVar<float>("METPhi"                                                     );
@@ -303,13 +304,13 @@ private:
         tr.registerDerivedVar("combined" + std::to_string(nTopJets_ + 1) + "thToLast"+MVAJetName_+"_m_cm"+channel_+myVarSuffix_,     static_cast<double>(combinedNp1thJetTLV.M())     );
         tr.registerDerivedVar("combined" + std::to_string(nTopJets_ + 1) + "thToLast"+MVAJetName_+"_E_cm"+channel_+myVarSuffix_,     static_cast<double>(combinedNp1thJetTLV.E())     );
 
-        auto GoodLeptons_cm = std::make_unique<std::vector<utility::LorentzVector>>();
+        auto GoodLeptons_cm = std::make_unique<std::vector<std::pair<std::string, utility::LorentzVector>>>();
         for(unsigned int ilep = 0; ilep < GoodLeptons.size(); ilep++)
         {
             // Boost and rotate the good leptons into the same frame as the AK4 jets
-            GoodLeptons_cm->push_back        ( GoodLeptons[ilep].second    );
-            GoodLeptons_cm->at(ilep) = utility::Boost(GoodLeptons_cm->at(ilep), rec_boost_beta_vec    );
-            GoodLeptons_cm->at(ilep) = utility::RotateZ(GoodLeptons_cm->at(ilep), -phiMax                     );
+            GoodLeptons_cm->push_back        ( GoodLeptons[ilep] );
+            GoodLeptons_cm->at(ilep).second = utility::Boost(GoodLeptons_cm->at(ilep).second, rec_boost_beta_vec    );
+            GoodLeptons_cm->at(ilep).second = utility::RotateZ(GoodLeptons_cm->at(ilep).second, -phiMax                     );
 
         }
 
@@ -416,10 +417,12 @@ private:
 
         for(unsigned int i = 0; i < nLeptons_; i++)
         {
-            tr.registerDerivedVar(MVALeptonName_+"_pt_"+std::to_string(i+1)+channel_+myVarSuffix_,      static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Pt()            : 0.0));
-            tr.registerDerivedVar(MVALeptonName_+"_eta_"+std::to_string(i+1)+channel_+myVarSuffix_,     static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Eta()           : 0.0));
-            tr.registerDerivedVar(MVALeptonName_+"_phi_"+std::to_string(i+1)+channel_+myVarSuffix_,     static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).Phi()           : 0.0));
-            tr.registerDerivedVar(MVALeptonName_+"_m_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).M()             : 0.0));
+            tr.registerDerivedVar(MVALeptonName_+"_pt_"+std::to_string(i+1)+channel_+myVarSuffix_,      static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).second.Pt()            : 0.0));
+            tr.registerDerivedVar(MVALeptonName_+"_eta_"+std::to_string(i+1)+channel_+myVarSuffix_,     static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).second.Eta()           : 0.0));
+            tr.registerDerivedVar(MVALeptonName_+"_phi_"+std::to_string(i+1)+channel_+myVarSuffix_,     static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).second.Phi()           : 0.0));
+            tr.registerDerivedVar(MVALeptonName_+"_m_"+std::to_string(i+1)+channel_+myVarSuffix_,       static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).second.M()             : 0.0));
+            tr.registerDerivedVar(MVALeptonName_+"_flav_"+std::to_string(i+1)+channel_+myVarSuffix_,    static_cast<int>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptons_cm->at(i).first == "e" ? 1 : 2 : 0));
+            tr.registerDerivedVar(MVALeptonName_+"_iso_"+std::to_string(i+1)+channel_+myVarSuffix_,     static_cast<double>( (GoodLeptons_cm->size() >= i+1) ? GoodLeptonsIso.at(i)  : 0.0));
         }
 
         tr.registerDerivedVar(ESVarName_+"lvMET_cm_pt"+channel_+myVarSuffix_,  static_cast<double>( lvMET_cm.Pt() ));
