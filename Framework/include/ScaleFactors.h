@@ -341,18 +341,18 @@ private:
                 const double eleTrigSFErr  = (eleSFHistoTrig_) ? eleSFHistoTrig_->GetBinError( xbinElTrig, ybinElTrig ) : 0.0;
                 const double eleTrigPErr   = eleTrigSFErr/eleTrigSF;
 
-                if( runYear.find("2016") != std::string::npos )
-                {
-                    // The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
-                    // If this is the year 2016, we need to add the IP2D histogram scale factors into the Iso scale factor
-                    const double eleIP2DSF    = eleSFHistoIP2D_->GetBinContent( xbinElIso, ybinElIso );
-                    const double eleIP2DSFErr = eleSFHistoIP2D_->GetBinError( xbinElIso, ybinElIso );
-                    const double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
+                //if( runYear.find("2016") != std::string::npos )
+                //{
+                //    // The lepton scale factor is the multiplication of the three different scale factors. To get the proper error, you sum up the percentage errors in quadrature.
+                //    // If this is the year 2016, we need to add the IP2D histogram scale factors into the Iso scale factor
+                //    const double eleIP2DSF    = eleSFHistoIP2D_->GetBinContent( xbinElIso, ybinElIso );
+                //    const double eleIP2DSFErr = eleSFHistoIP2D_->GetBinError( xbinElIso, ybinElIso );
+                //    const double eleIP2DPErr  = eleIP2DSFErr/eleIP2DSF;
 
-                    eleIsoSF    = eleIsoSF*eleIP2DSF;
-                    eleIsoPErr  = utility::addInQuad( eleIsoPErr, eleIP2DPErr );
-                    eleIsoSFErr = eleIsoPErr*eleIsoSF;
-                }
+                //    eleIsoSF    = eleIsoSF*eleIP2DSF;
+                //    eleIsoPErr  = utility::addInQuad( eleIsoPErr, eleIP2DPErr );
+                //    eleIsoSFErr = eleIsoPErr*eleIsoSF;
+                //}
 
                 const double eleNoTrigSF   = eleTightSF*eleIsoSF*eleRecoSF;
                 const double eleTotSF      = eleNoTrigSF*eleTrigSF;
@@ -402,8 +402,8 @@ private:
             const int xbinMuIso        = findBin(muSFHistoIso_,    abs(mueta), "X", "mu iso x"        );
             const int ybinMuTrig       = findBin(muSFHistoTrig_,   mueta,      "Y", "mu trigger y"    );
             const int xbinMuTrig       = findBin(muSFHistoTrig_,   mupt,       "X", "mu trigger x"    );
-            const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,      "Y", "mu iso trigger y");
-            const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,       "X", "mu iso trigger x");
+            const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,      "Y", "mu iso trigger y");
+            const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,       "X", "mu iso trigger x");
             if( xbinMuMedium != -1 && ybinMuMedium != -1 && xbinMuIso != -1 && ybinMuIso != -1 )
             {
                 // The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
@@ -924,17 +924,25 @@ public:
         TString topTagMisHistoName_Res_den         = "d_mis_res_" + filetagClean;
         TString topTagMisHistoName_Mrg_num         = "n_mis_mrg_" + filetagClean;
         TString topTagMisHistoName_Res_num         = "n_mis_res_" + filetagClean;
-        TString eleSFHistoTightName                = "EGamma_SF2D_" + runYear + "_UL_ID";
-        TString eleSFHistoRecoName                 = "EGamma_SF2D_" + runYear + "_UL_RECO";
+        TString eleSFHistoTightName                = "EGamma_SF2D_ID_" + runYear;
+        TString eleSFHistoIsoName                  = "EGamma_SF2D_MiniIso_" + runYear;
+        TString eleSFHistoRecoName                 = "EGamma_SF2D_Reco_" + runYear;
         TString eleSFHistoTrigName                 = runYear + "_el_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
-        TString muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_" + runYear + "_UL_ID";
-        TString muSFHistoIsoName                   = "NUM_TightRelIso_DEN_MediumID_abseta_pt_" + runYear + "_UL_ISO";
+        TString muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_" + runYear + "_ID";
+        TString muSFHistoIsoName                   = "NUM_MiniIsoTight_DEN_IDTight_abseta_pt_" + runYear + "_MiniIso";
         TString muSFHistoTrigName                  = runYear + "_mu_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
-        TString nimuSFHistoTrigName                = ""; //just for calculating non iso muon scale factors
+        TString nim                                = "";
+        if (runYear.find("2016") != std::string::npos){
+            nim = "Mu50_or_TkMu50";
+        } else {
+            nim = "Mu50_or_OldMu100_or_TkMu100";
+        }
+        TString nimuSFHistoTrigName                = "NUM_" + nim + "_DEN_CutBasedIdGlobalHighPt_and_TkIsoLoose_eta_pt_" + runYear + "_Trigger"; //just for calculating non iso muon scale factors
         TString jetSFHistoTrigName_1bCut           = runYear + "_jet_trig_1bjetCut_wJetHt6thJetPtBin_TriggerSF";
         TString jetSFHistoTrigName_ge2bCut         = runYear + "_jet_trig_ge2bjetCut_wJetHt6thJetPtBin_TriggerSF"; 
 
         getHisto(leptonic_SFRootFile, eleSFHistoTight_,            eleSFHistoTightName       );
+        getHisto(leptonic_SFRootFile, eleSFHistoIso_,              eleSFHistoIsoName         );
         getHisto(leptonic_SFRootFile, eleSFHistoReco_,             eleSFHistoRecoName        );
         getHisto(leptonic_SFRootFile, eleSFHistoTrig_,             eleSFHistoTrigName        );
         getHisto(leptonic_SFRootFile, muSFHistoMedium_,            muSFHistoMediumName       );

@@ -529,13 +529,13 @@ private:
     
     bool PassTriggerNonIsoMuon2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
-        std::vector<std::string> mytriggers = {"HLT_Mu50_v"};
+        std::vector<std::string> mytriggers = {"HLT_Mu50_v", "HLT_TkMu100_v", "HLT_OldMu100_v"};
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
     bool PassTriggerNonIsoMuon2018(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
     {
-        std::vector<std::string> mytriggers = {"HLT_Mu50_v"};
+        std::vector<std::string> mytriggers = {"HLT_Mu50_v", "HLT_TkMu100_v", "HLT_OldMu100_v"};
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
