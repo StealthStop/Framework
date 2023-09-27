@@ -409,6 +409,10 @@ private:
         {
             lostCauseEvent &= !(NGoodJets_pt30 >= 7 and NGoodMuons == 0 and NGoodElectrons == 0 and NNonIsoMuons == 1);
         }
+        else if (analyzer == "MakeTopTagSFTree")
+        {
+            lostCauseEvent &= !(NGoodJets_pt30 >= 4 and NGoodElectrons == 0 and ht_pt30 > 200.0);
+        }
         else
         {
             // Now combine all relevant baselines into a single bool
