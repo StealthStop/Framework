@@ -110,6 +110,7 @@ private:
         // Creating the jet pT and mass scaled collection
         JetCollection jc(tr);
         const auto& runYear = tr.getVar<std::string>("runYear");
+        const auto& filetag = tr.getVar<std::string>("filetag");
         derivePtMassScaledJetCollection(tr, jc, "mpTScaled", pTMass_[runYear].first, pTMass_[runYear].second);
 
         // Create DeepCSV b-jet discriminator vector
@@ -145,6 +146,19 @@ private:
         {
             const auto& Weight = tr.getVar<double>("Weight");
             w = (Weight >= 0.0) ? 1 : -1;
+    
+            // "weightAbsVal" calculated by samples.cc provides no sign information
+            // So determine that here using the weight from TreeMaker, where
+            // the value is irrelevant
+            const auto& weightAbsVal = tr.getVar<double>("weightAbsVal");
+
+            // Reregister "Weight" with the newly calculated weight coming
+            // from samples.cc and save the original Weight in a new "WeightTM" field
+            // Note, only needs to be done for StealthSHH and StealthSYY ctau samples
+            if(filetag.find("ctau") != std::string::npos)
+            {
+                tr.registerDerivedVar<float>("Weight", w*weightAbsVal);
+            }
         }
         tr.registerDerivedVar<int>("eventCounter",w);        
     }
