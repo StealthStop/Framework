@@ -212,6 +212,23 @@ private:
         const TopObject* bestTopMassLV = nullptr;
         bool bestTopMassGenMatch       = false;
         bool bestTopMassTopTag         = false;
+
+        double bestRTopMass             = -9999.9;
+        double bestRTopEta              = -9999.9;
+        double bestRTopPhi              = -9999.9;
+        double bestRTopPt               = -9999.9;
+        double bestRTopDisc             = -9999.9;
+        const TopObject* bestRTopMassLV = nullptr;
+        bool bestRTopMassGenMatch       = false;
+
+        double bestMTopMass             = -9999.9;
+        double bestMTopEta              = -9999.9;
+        double bestMTopPhi              = -9999.9;
+        double bestMTopPt               = -9999.9;
+        double bestMTopDisc             = -9999.9;
+        const TopObject* bestMTopMassLV = nullptr;
+        bool bestMTopMassGenMatch       = false;
+
         for(unsigned int iTop = 0; iTop < tops.size(); ++iTop)
         {
             auto* top = tops[iTop];
@@ -226,9 +243,32 @@ private:
                 bestTopNconst = top->getNConstituents();
                 bestTopMassLV = top;
             }     
+
+            if(fabs(top->p().M() - 173.21) < fabs(bestRTopMass - 173.21) and top->getNConstituents() == 3)
+            {
+                bestRTopMass   = top->p().M();
+                bestRTopEta    = top->p().Eta();
+                bestRTopPhi    = top->p().Phi();
+                bestRTopPt     = top->p().Pt();
+                bestRTopDisc   = top->getDiscriminator();
+                bestRTopMassLV = top;
+            }     
+
+            if(fabs(top->p().M() - 173.21) < fabs(bestMTopMass - 173.21) and top->getNConstituents() == 1)
+            {
+                bestMTopMass   = top->p().M();
+                bestMTopEta    = top->p().Eta();
+                bestMTopPhi    = top->p().Phi();
+                bestMTopPt     = top->p().Pt();
+                bestMTopDisc   = top->getDiscriminator();
+                bestMTopMassLV = top;
+            }     
+
         }
         bestTopMassGenMatch = (bestTopMassLV)?(bestTopMassLV->getBestGenTopMatch(0.6) != nullptr):(false);
-        
+        bestRTopMassGenMatch = (bestRTopMassLV)?(bestRTopMassLV->getBestGenTopMatch(0.6) != nullptr):(false);
+        bestMTopMassGenMatch = (bestMTopMassLV)?(bestMTopMassLV->getBestGenTopMatch(0.6) != nullptr):(false);
+     
         for(const auto& topPtr : tops)
         {
             if(topPtr == bestTopMassLV)
@@ -389,6 +429,21 @@ private:
         tr.registerDerivedVar("bestTopMassLV"+myVarSuffix_, bestTopMassLV?(bestTopMassLV->p()):(TLorentzVector()));
         tr.registerDerivedVar("bestTopMassGenMatch"+myVarSuffix_, bestTopMassGenMatch);
         tr.registerDerivedVar("bestTopMassTopTag"+myVarSuffix_, bestTopMassTopTag);
+
+        tr.registerDerivedVar("bestRTopMass"+myVarSuffix_, bestRTopMass);
+        tr.registerDerivedVar("bestRTopEta"+myVarSuffix_, bestRTopEta);
+        tr.registerDerivedVar("bestRTopPt"+myVarSuffix_, bestRTopPt);
+        tr.registerDerivedVar("bestRTopPhi"+myVarSuffix_, bestRTopPhi);
+        tr.registerDerivedVar("bestRTopDisc"+myVarSuffix_, bestRTopDisc);
+        tr.registerDerivedVar("bestRTopMassGenMatch"+myVarSuffix_, bestRTopMassGenMatch);
+
+        tr.registerDerivedVar("bestMTopMass"+myVarSuffix_, bestMTopMass);
+        tr.registerDerivedVar("bestMTopEta"+myVarSuffix_, bestMTopEta);
+        tr.registerDerivedVar("bestMTopPt"+myVarSuffix_, bestMTopPt);
+        tr.registerDerivedVar("bestMTopPhi"+myVarSuffix_, bestMTopPhi);
+        tr.registerDerivedVar("bestMTopDisc"+myVarSuffix_, bestMTopDisc);
+        tr.registerDerivedVar("bestMTopMassGenMatch"+myVarSuffix_, bestMTopMassGenMatch);
+
         tr.registerDerivedVar("highestDisc"+myVarSuffix_, highestDisc);
         tr.registerDerivedVar("bestTopMassCand"+myVarSuffix_, bestTopMassCand);
         tr.registerDerivedVar("bestTopEtaCand"+myVarSuffix_, bestTopEtaCand);
