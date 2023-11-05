@@ -402,8 +402,8 @@ private:
             const int xbinMuIso        = findBin(muSFHistoIso_,    abs(mueta), "X", "mu iso x"        );
             const int ybinMuTrig       = findBin(muSFHistoTrig_,   mueta,      "Y", "mu trigger y"    );
             const int xbinMuTrig       = findBin(muSFHistoTrig_,   mupt,       "X", "mu trigger x"    );
-            const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,      "Y", "mu iso trigger y");
-            const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,       "X", "mu iso trigger x");
+            const int ybinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mueta,      "Y", "mu iso trigger y");
+            const int xbinNonIsoMuTrig = findBin(nimuSFHistoTrig_, mupt,       "X", "mu iso trigger x");
             if( xbinMuMedium != -1 && ybinMuMedium != -1 && xbinMuIso != -1 && ybinMuIso != -1 )
             {
                 // The SUSLepton Twiki claims that the errors in the histogrm are purely statistical and can be ignored and recommends a 3% error for each leg (ID+IP+ISO)
@@ -719,12 +719,18 @@ private:
         double bTagWeight = 1.0;
         double bTagWeightUp = 1.0;
         double bTagWeightDown = 1.0;
+        //double bTagReweight = 1.0;
+        //double bTagReweightUp = 1.0;
+        //double bTagReweightDown = 1.0;
 
         if ( analyzer != "CalculateSFMean" )
         {
             bTagWeight = tr.getVar<double>("bTagSF_EventWeightSimple_Central" +myVarSuffix_);
             bTagWeightUp = tr.getVar<double>("bTagSF_EventWeightSimple_Up" +myVarSuffix_);
             bTagWeightDown = tr.getVar<double>("bTagSF_EventWeightSimple_Down" +myVarSuffix_);
+            //bTagReweight = tr.getVar<double>("bTagSF_EventWeightReshaping_Central"+myVarSuffix_);
+            //bTagReweightUp = tr.getVar<double>("bTagSF_EventWeightReshaping_Up"+myVarSuffix_);
+            //bTagReweightDown = tr.getVar<double>("bTagSF_EventWeightReshaping_Down"+myVarSuffix_);
         }
         else
         {
@@ -739,8 +745,12 @@ private:
         double CommonWeight0l    = jetTrigSF * bTagWeight * prefiringScaleFactor * puWeightCorr * topTaggerScaleFactor;
         double CommonWeight1l    = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
         double CommonWeight2l    = totGoodElectronSF * totGoodMuonSF * bTagWeight * prefiringScaleFactor * puWeightCorr;
+        //double CommonWeightReshape0l    = jetTrigSF * bTagReweight * prefiringScaleFactor * puWeightCorr * topTaggerScaleFactor;
+        //double CommonWeightReshape1l    = totGoodElectronSF * totGoodMuonSF * bTagReweight * prefiringScaleFactor * puWeightCorr;
+        //double CommonWeightReshape2l    = totGoodElectronSF * totGoodMuonSF * bTagReweight * prefiringScaleFactor * puWeightCorr;
 
         double totalEventWeight_0l         = CommonWeight * CommonWeight0l;
+        //double totalEventWeightReshape_0l         = CommonWeight * CommonWeightReshape0l;
         double totalEventWeight_0l_TtgUp   = CommonWeight * topTaggerScaleFactorUp   * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_0l_TtgDown = CommonWeight * topTaggerScaleFactorDown * jetTrigSF      * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_0l_JetUp   = CommonWeight * topTaggerScaleFactor     * jetTrigSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
@@ -761,6 +771,7 @@ private:
         double totalEventWeight_0l_FSRdown = CommonWeight * CommonWeight0l * PSweight_FSRDown;
 
         double totalEventWeight_1l         = CommonWeight * CommonWeight1l;
+        //double totalEventWeightReshape_1l         = CommonWeight * CommonWeightReshape1l;
         double totalEventWeight_1l_BtgUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_1l_BtgDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_1l_LepUp   = CommonWeight * totGoodElectronSF_Up   * totGoodMuonSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
@@ -779,6 +790,7 @@ private:
         double totalEventWeight_1l_FSRdown = CommonWeight * CommonWeight1l * PSweight_FSRDown;
 
         double totalEventWeight_2l         = CommonWeight * CommonWeight2l;
+        //double totalEventWeightReshape_2l         = CommonWeight * CommonWeightReshape2l;
         double totalEventWeight_2l_BtgUp   = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightUp   * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_2l_BtgDown = CommonWeight * totGoodElectronSF      * totGoodMuonSF      * bTagWeightDown * prefiringScaleFactor     * puWeightCorr;
         double totalEventWeight_2l_LepUp   = CommonWeight * totGoodElectronSF_Up   * totGoodMuonSF_Up   * bTagWeight     * prefiringScaleFactor     * puWeightCorr;
@@ -829,6 +841,7 @@ private:
         tr.registerDerivedVar("TotalWeight_QCDCR_FSRdown"  + myVarSuffix_, totalEventWeight_QCDCR_FSRdown);
 
         tr.registerDerivedVar("TotalWeight_0l"           + myVarSuffix_, totalEventWeight_0l);
+        //tr.registerDerivedVar("TotalWeightReshape_0l"           + myVarSuffix_, totalEventWeightReshape_0l);
         tr.registerDerivedVar("TotalWeight_0l_BtgUp"     + myVarSuffix_, totalEventWeight_0l_BtgUp);
         tr.registerDerivedVar("TotalWeight_0l_BtgDown"   + myVarSuffix_, totalEventWeight_0l_BtgDown);
         tr.registerDerivedVar("TotalWeight_0l_TtgUp"     + myVarSuffix_, totalEventWeight_0l_TtgUp);
@@ -849,6 +862,7 @@ private:
         tr.registerDerivedVar("TotalWeight_0l_FSRdown"   + myVarSuffix_, totalEventWeight_0l_FSRdown);
 
         tr.registerDerivedVar("TotalWeight_1l"           + myVarSuffix_, totalEventWeight_1l);
+        //tr.registerDerivedVar("TotalWeightReshape_1l"           + myVarSuffix_, totalEventWeightReshape_1l);
         tr.registerDerivedVar("TotalWeight_1l_BtgUp"     + myVarSuffix_, totalEventWeight_1l_BtgUp);
         tr.registerDerivedVar("TotalWeight_1l_BtgDown"   + myVarSuffix_, totalEventWeight_1l_BtgDown);
         tr.registerDerivedVar("TotalWeight_1l_LepUp"     + myVarSuffix_, totalEventWeight_1l_LepUp);
@@ -867,6 +881,7 @@ private:
         tr.registerDerivedVar("TotalWeight_1l_FSRdown"   + myVarSuffix_, totalEventWeight_1l_FSRdown);
 
         tr.registerDerivedVar("TotalWeight_2l"           + myVarSuffix_, totalEventWeight_2l);
+        //tr.registerDerivedVar("TotalWeightReshape_2l"           + myVarSuffix_, totalEventWeightReshape_2l);
         tr.registerDerivedVar("TotalWeight_2l_BtgUp"     + myVarSuffix_, totalEventWeight_2l_BtgUp);
         tr.registerDerivedVar("TotalWeight_2l_BtgDown"   + myVarSuffix_, totalEventWeight_2l_BtgDown);
         tr.registerDerivedVar("TotalWeight_2l_LepUp"     + myVarSuffix_, totalEventWeight_2l_LepUp);
@@ -929,7 +944,8 @@ public:
         TString eleSFHistoRecoName                 = "EGamma_SF2D_Reco_" + runYear;
         TString eleSFHistoTrigName                 = runYear + "_el_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
         TString muSFHistoMediumName                = "NUM_MediumID_DEN_TrackerMuons_abseta_pt_" + runYear + "_ID";
-        TString muSFHistoIsoName                   = "NUM_MiniIsoTight_DEN_IDTight_abseta_pt_" + runYear + "_MiniIso";
+        //TString muSFHistoIsoName                   = "NUM_MiniIsoTight_DEN_IDTight_abseta_pt_" + runYear + "_MiniIso";
+        TString muSFHistoIsoName                   = "NUM_MiniIsoTight_DEN_IDMedium_abseta_pt_" + runYear + "_MiniIso";
         TString muSFHistoTrigName                  = runYear + "_mu_pt40_trig_ge5jetCut_wLepPtLepEtaBin_TriggerSF";
         TString nim                                = "";
         if (runYear.find("2016") != std::string::npos){

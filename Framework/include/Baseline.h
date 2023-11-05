@@ -48,7 +48,7 @@ private:
         // --------------------
         bool passTriggerAllHad     = false, passTriggerQCD      = false; // 0-Lepton
         bool passTriggerMuon       = false, passTriggerElectron = false; // 1-Lepton, 2l-lepton
-        bool passTriggerNonIsoMuon = false;                              // QCD CR
+        bool passTriggerNonIsoMuon = false, passTriggerDilepton = false; // QCD CR, dilepton for 2l
 
         if (runYear.find("2016") != std::string::npos)
         {
@@ -56,6 +56,7 @@ private:
             passTriggerQCD        = PassTriggerQCD2016(TriggerNames,        TriggerPass);
             passTriggerMuon       = PassTriggerMuon2016(TriggerNames,       TriggerPass);
             passTriggerElectron   = PassTriggerElectron2016(TriggerNames,   TriggerPass);
+            passTriggerDilepton   = PassTriggerDilepton2016(TriggerNames,   TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2016(TriggerNames, TriggerPass);
             
         }
@@ -65,6 +66,7 @@ private:
             passTriggerQCD        = PassTriggerQCD2017(TriggerNames,        TriggerPass);
             passTriggerMuon       = PassTriggerMuon2017(TriggerNames,       TriggerPass);
             passTriggerElectron   = PassTriggerElectron2017(TriggerNames,   TriggerPass);
+            passTriggerDilepton   = PassTriggerDilepton2017(TriggerNames,   TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2017(TriggerNames, TriggerPass);           
         }
         else if (runYear == "2018")
@@ -73,12 +75,14 @@ private:
             passTriggerQCD        = PassTriggerQCD2018(TriggerNames,        TriggerPass); 
             passTriggerMuon       = PassTriggerMuon2018(TriggerNames,       TriggerPass);
             passTriggerElectron   = PassTriggerElectron2018(TriggerNames,   TriggerPass);
+            passTriggerDilepton   = PassTriggerDilepton2018(TriggerNames,   TriggerPass);
             passTriggerNonIsoMuon = PassTriggerNonIsoMuon2018(TriggerNames, TriggerPass);
         }
 
         bool passTrigger         = true; // checking for jet, mu, el triggers
         bool passTriggerHadMC    = true; // checking emulators for jet triggers
         bool passTriggerMC       = true; // checking emulators for muon & electron triggers
+        bool passTrigger2lMC     = true; // checking emulators for dilepton triggers
         bool passNonIsoTrigger   = true; // checking for QCD CR triggers
         bool passNonIsoTriggerMC = true; // checking emulators forfor QCD CR
         bool passBlindHad_Good   = true;
@@ -88,8 +92,8 @@ private:
         {            
             // Pass the right trigger
             if (filetag.find("Data_JetHT")          != std::string::npos && !passTriggerAllHad)     passTrigger       = false;
-            if (filetag.find("Data_SingleMuon")     != std::string::npos && !passTriggerMuon)       passTrigger       = false;
-            if (filetag.find("Data_SingleElectron") != std::string::npos && !passTriggerElectron)   passTrigger       = false;
+            if (filetag.find("Data_SingleMuon")     != std::string::npos && !passTriggerMuon && !passTriggerDilepton)       passTrigger       = false;
+            if (filetag.find("Data_SingleElectron") != std::string::npos && !passTriggerElectron && !passTriggerDilepton)   passTrigger       = false;
             if (filetag.find("Data_SingleMuon")     != std::string::npos && !passTriggerNonIsoMuon) passNonIsoTrigger = false;
         }
         
@@ -374,6 +378,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline2l_Good_noIsoMuonCut"           +myVarSuffix_, passBaseline2l_Good_noIsoMuonCut          );
         tr.registerDerivedVar<bool>("passBaseline2l_Good_blind"     +myVarSuffix_, passBaseline2l_Good_blind    );
         tr.registerDerivedVar<bool>("passBaseline2l_Good_noHEMveto" +myVarSuffix_, passBaseline2l_Good_noHEMveto);
+        tr.registerDerivedVar<bool>("passTriggerDilepton"           +myVarSuffix_, passTriggerDilepton          );
         // QCD CR things        
         tr.registerDerivedVar<bool>("pass_qcdCR_0l"                 +myVarSuffix_, pass_qcdCR_0l                );
         tr.registerDerivedVar<bool>("pass_qcdCR_1l"                 +myVarSuffix_, pass_qcdCR_1l                );
@@ -539,7 +544,26 @@ private:
         return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
     }
 
+    // ----------------------------------
+    // Dilepton Triggers for 2l selection
+    // ----------------------------------
+    bool PassTriggerDilepton2016(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        std::vector<std::string> mytriggers = {"HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf"};
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
 
+    bool PassTriggerDilepton2017(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        std::vector<std::string> mytriggers = {"HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf", "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"};
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
+
+    bool PassTriggerDilepton2018(const std::vector<std::string>& TriggerNames, const std::vector<int>& TriggerPass)
+    {
+        std::vector<std::string> mytriggers = {"HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8", "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL", "HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ"};
+        return PassTriggerGeneral(mytriggers,TriggerNames,TriggerPass);
+    }
 
 public:
     Baseline(std::string myVarSuffix = "")
