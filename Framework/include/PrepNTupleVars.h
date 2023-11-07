@@ -157,7 +157,7 @@ private:
             // Note, only needs to be done for StealthSHH and StealthSYY ctau samples
             if(filetag.find("ctau") != std::string::npos)
             {
-                tr.registerDerivedVar<float>("Weight", w*weightAbsVal);
+                tr.registerDerivedVar<double>("Weight", w*weightAbsVal);
             }
         }
         tr.registerDerivedVar<int>("eventCounter",w);        
