@@ -290,6 +290,19 @@ private:
         // baseline for HEM study
         bool passBaseline2l_Good_noHEMveto = passBaseline2l_base && !onZ;
 
+        bool passBaseline2l_trigEff = JetID                  &&
+                                   passMETFilters         &&
+                                   passMadHT              &&
+                                   (runtype != "Data"  || (NGoodMuons >= 1 && filetag.find("Data_SingleMuon") != std::string::npos ) 
+                                                       || (NGoodElectrons == 2 && filetag.find("Data_SingleElectron") != std::string::npos) ) &&
+                                   NNonIsoMuons == 0      &&
+                                   HT_trigger_pt30 > 500  &&
+                                   NGoodBJets_pt30 >= 1   &&
+                                   NGoodJets_pt30 >= 6    &&
+                                   NGoodLeptons == 2 ? GoodLeptonsCharge[0]!=GoodLeptonsCharge[1] : false &&
+                                   passElectronHEMveto &&
+                                   !onZ;
+
         // -----------------------------------------
         // Define QCD CR Selections
         //  -- common for all 3 channels for now !!!
@@ -378,6 +391,7 @@ private:
         tr.registerDerivedVar<bool>("passBaseline2l_Good_noIsoMuonCut"           +myVarSuffix_, passBaseline2l_Good_noIsoMuonCut          );
         tr.registerDerivedVar<bool>("passBaseline2l_Good_blind"     +myVarSuffix_, passBaseline2l_Good_blind    );
         tr.registerDerivedVar<bool>("passBaseline2l_Good_noHEMveto" +myVarSuffix_, passBaseline2l_Good_noHEMveto);
+        tr.registerDerivedVar<bool>("passBaseline2l_trigEff"           +myVarSuffix_, passBaseline2l_Good          );
         tr.registerDerivedVar<bool>("passTriggerDilepton"           +myVarSuffix_, passTriggerDilepton          );
         // QCD CR things        
         tr.registerDerivedVar<bool>("pass_qcdCR_0l"                 +myVarSuffix_, pass_qcdCR_0l                );
